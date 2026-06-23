@@ -27,13 +27,16 @@ open Web_common
 val authentication_of_auth_config :
   auth_config list option -> authentication option
 
-val api_of_draft : draft_election -> draft Lwt.t
-val draft_of_api : account -> uuid -> draft_election -> draft -> draft_election
+val api_of_draft : ('a, 'b) draft_election -> draft Lwt.t
+
+val draft_of_api :
+  account -> uuid -> ('a, 'b) draft_election -> draft -> ('a, 'b) draft_election
+
 val post_drafts : account -> draft -> uuid option Lwt.t
-val get_draft_voters : draft_election -> voter_list
+val get_draft_voters : ('a, 'b) draft_election -> voter_list
 
 val put_draft_voters :
-  draft_election updatable_with_billing -> voter_list -> unit Lwt.t
+  (json, json) draft_election updatable_with_billing -> voter_list -> unit Lwt.t
 
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
@@ -41,7 +44,7 @@ type generate_credentials_on_server_error =
 val generate_credentials_on_server :
   account ->
   uuid ->
-  draft_election ->
+  (json, json) draft_election ->
   (unit, generate_credentials_on_server_error) Stdlib.result Lwt.t
 
 val exn_of_generate_credentials_on_server_error :
@@ -49,37 +52,44 @@ val exn_of_generate_credentials_on_server_error :
 
 val submit_public_credentials :
   Storage.E.t ->
-  draft_election updatable_with_billing ->
+  (json, json) draft_election updatable_with_billing ->
   ?certificate:(json, json) credentials_certificate ->
   public_credentials ->
   unit Lwt.t
 
-val generate_server_trustee : draft_election -> (json, json) draft_trustee Lwt.t
+val generate_server_trustee :
+  'a Type.Id.t ->
+  'b Type.Id.t ->
+  ('a, 'b) draft_election ->
+  ('a, 'b) draft_trustee Lwt.t
 
 val get_draft_trustees :
   is_admin:bool ->
-  draft_election ->
-  (json, json) Belenios_web_api.draft_trustees
+  ('a, 'b) draft_election ->
+  ('a, 'b) Belenios_web_api.draft_trustees
 
 val post_draft_trustees :
-  draft_election updatable_with_billing -> json trustee -> unit Lwt.t
+  (json, json) draft_election updatable_with_billing ->
+  json trustee ->
+  unit Lwt.t
 
 val delete_draft_trustee :
-  draft_election updatable_with_billing -> string -> bool Lwt.t
+  (json, json) draft_election updatable_with_billing -> string -> bool Lwt.t
 
 val set_threshold :
-  draft_election updatable_with_billing ->
+  (json, json) draft_election updatable_with_billing ->
   int ->
   (unit, [ `NoTrustees | `OutOfBounds ]) Stdlib.result Lwt.t
 
-val get_draft_trustees_mode : draft_election -> [ `Basic | `Threshold of int ]
+val get_draft_trustees_mode :
+  ('a, 'b) draft_election -> [ `Basic | `Threshold of int ]
 
 val put_draft_trustees_mode :
-  draft_election updatable_with_billing ->
+  (json, json) draft_election updatable_with_billing ->
   [ `Basic | `Threshold of int ] ->
   unit Lwt.t
 
-val get_draft_status : uuid -> draft_election -> draft_status Lwt.t
+val get_draft_status : uuid -> ('a, 'b) draft_election -> draft_status Lwt.t
 
 val merge_voters :
   draft_voter list ->
@@ -88,7 +98,7 @@ val merge_voters :
 
 val import_voters :
   uuid ->
-  draft_election updatable_with_billing ->
+  (json, json) draft_election updatable_with_billing ->
   Storage.E.t ->
   ( unit,
     [ `Forbidden
@@ -99,7 +109,7 @@ val import_voters :
   Lwt.t
 
 val import_trustees :
-  draft_election updatable_with_billing ->
+  (json, json) draft_election updatable_with_billing ->
   Storage.E.t ->
   metadata ->
   ( [> `Basic | `Threshold ],
@@ -109,10 +119,16 @@ val import_trustees :
   Lwt.t
 
 val post_trustee_basic :
-  draft_election updatable_with_billing -> token:string -> string -> unit Lwt.t
+  (json, json) draft_election updatable_with_billing ->
+  token:string ->
+  string ->
+  unit Lwt.t
 
 val post_trustee_threshold :
-  draft_election updatable_with_billing -> token:string -> string -> unit Lwt.t
+  (json, json) draft_election updatable_with_billing ->
+  token:string ->
+  string ->
+  unit Lwt.t
 
 open Api_generic
 
@@ -124,5 +140,5 @@ val dispatch_draft :
   body ->
   Storage.E.t ->
   uuid ->
-  draft_election updatable_with_billing ->
+  (json, json) draft_election updatable_with_billing ->
   result Lwt.t

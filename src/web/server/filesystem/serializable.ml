@@ -51,18 +51,17 @@ type extended_record = {
 }
 [@@deriving yojson]
 
-type 'question raw_draft_election = {
+type ('a, 'b, 'question) raw_draft_election = {
   version : int;
   owners : int list;
   mutable group : string;
   mutable voters : draft_voter list;
   mutable questions : 'question template;
-  mutable trustees : (json, json) draft_trustees;
+  mutable trustees : ('a, 'b) draft_trustees;
   mutable metadata : metadata;
   public_creds : string;
   mutable public_creds_received : bool;
-  mutable public_creds_certificate :
-    (json, json) credentials_certificate option;
+  mutable public_creds_certificate : ('a, 'b) credentials_certificate option;
       [@yojson.option]
   creation_date : datetime;
   mutable administrator : string option; [@yojson.option]

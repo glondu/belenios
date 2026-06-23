@@ -93,7 +93,8 @@ module MakeBackend
 
   (** {1 Forward references} *)
 
-  let draft_ops : (_, Belenios_storage_api.draft_election) abstract_file_ops =
+  let draft_ops :
+      (_, (json, json) Belenios_storage_api.draft_election) abstract_file_ops =
     make_uninitialized_ops "draft_ops"
 
   let state_state_ops : (_, Belenios_storage_api.state_state) abstract_file_ops
@@ -570,7 +571,7 @@ module MakeBackend
 
   type draft_concrete =
     | Draft_concrete :
-        'a Election.version * 'a Serializable.raw_draft_election
+        'a Election.version * (json, json, 'a) Serializable.raw_draft_election
         -> draft_concrete
 
   let get_draft uuid () =
@@ -583,10 +584,13 @@ module MakeBackend
     let* concrete =
       let*& x = Filesystem.read_file (uuid /// draft_filename) in
       let x = String.trim x in
-      let abstract = !*(Serializable.raw_draft_election_of_yojson Fun.id) x in
+      let abstract =
+        !*(Serializable.raw_draft_election_of_yojson Fun.id Fun.id Fun.id) x
+      in
       let (Version v) = Election.version_of_int abstract.version in
       let open (val Election.get_serializers v) in
-      Draft_concrete (v, !*(raw_draft_election_of_yojson t_of_yojson) x)
+      Draft_concrete
+        (v, !*(raw_draft_election_of_yojson Fun.id Fun.id t_of_yojson) x)
       |> Lwt.return_some
     in
     match concrete with
@@ -597,7 +601,7 @@ module MakeBackend
             se_private_creds_downloaded
         in
         Draft (v, abstract)
-        |> Lopt.some_value !+yojson_of_draft_election
+        |> Lopt.some_value !+(yojson_of_draft_election Fun.id Fun.id)
         |> Lwt.return
 
   let set_draft uuid () data =
@@ -614,7 +618,8 @@ module MakeBackend
         in
         let data =
           let open (val Election.get_serializers v) in
-          !+(Serializable.yojson_of_raw_draft_election yojson_of_t) concrete
+          !+(Serializable.yojson_of_raw_draft_election Fun.id Fun.id yojson_of_t)
+            concrete
         in
         let* () =
           Filesystem.write_file (uuid /// draft_filename) (data ^ "\n")

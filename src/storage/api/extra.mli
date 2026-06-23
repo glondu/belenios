@@ -19,10 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type draft_election =
+type ('a, 'b) draft_election =
   | Draft :
-      'a Belenios.Election.version * 'a Serializable.raw_draft_election
-      -> draft_election
+      'q Belenios.Election.version
+      * ('a, 'b, 'q) Serializable.raw_draft_election
+      -> ('a, 'b) draft_election
 [@@deriving yojson]
 
 val csv_of_string : string -> string list list

@@ -69,7 +69,7 @@ val get_username_or_address : Storage.E.t -> [ `Username | `Address ] Lwt.t
 val validate_election :
   admin_id:int ->
   Storage.E.t ->
-  draft_election updatable_with_billing ->
+  (json, json) draft_election updatable_with_billing ->
   Belenios_web_api.draft_status ->
   unit Lwt.t
 
@@ -99,7 +99,7 @@ val append_to_shuffles :
 
 val add_partial_decryption : Storage.E.t -> int * string -> unit Lwt.t
 val release_tally : Storage.E.t -> unit Lwt.t
-val create_draft : Storage.E.t -> draft_election -> unit Lwt.t
+val create_draft : Storage.E.t -> (json, json) draft_election -> unit Lwt.t
 val compute_encrypted_tally : Storage.E.t -> bool Lwt.t
 val finish_shuffling : Storage.E.t -> bool Lwt.t
 val open_election : Storage.E.t -> bool Lwt.t
@@ -109,5 +109,8 @@ val close_election : Storage.E.t -> bool Lwt.t
 
 type credentials_status = [ `None | `Pending of int | `Done ]
 
-val generate_credentials_on_server_async : uuid -> draft_election -> unit
-val get_credentials_status : uuid -> draft_election -> credentials_status
+val generate_credentials_on_server_async :
+  uuid -> (json, json) draft_election -> unit
+
+val get_credentials_status :
+  uuid -> ('a, 'b) draft_election -> credentials_status

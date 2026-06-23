@@ -766,7 +766,7 @@ let validate_election ~admin_id storage
         let* id = Billing.create ~admin_id ~uuid ~nb_voters:s.num_voters in
         let metadata = { se.metadata with billing_request = Some id } in
         let se = { se with metadata } in
-        let* () = set ~billing:true (Draft (v, se) : draft_election) in
+        let* () = set ~billing:true (Draft (v, se) : _ draft_election) in
         validation_error (`MissingBilling { url; id; callback })
     | Some (url, callback), Some id ->
         let* b = Billing.check ~url ~id in

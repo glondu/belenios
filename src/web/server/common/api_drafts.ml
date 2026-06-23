@@ -492,22 +492,35 @@ let ensure_none label x =
   if x <> None then
     raise (Error (`GenericError (Printf.sprintf "%s must not be set" label)))
 
-let generate_server_trustee (Draft (_, se)) =
+let generate_server_trustee (type a) (type b) (id_element : a Type.Id.t)
+    (id_scalar : b Type.Id.t) (Draft (_, se) : (a, b) draft_election) :
+    (a, b) draft_trustee Lwt.t =
   let version = se.version in
   let module G = (val Group.of_string ~version se.group) in
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeSimple (G) in
   let private_key = K.generate () in
-  let public_key =
-    K.prove private_key
-    |> yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string
-    |> trustee_public_key_of_yojson Fun.id Fun.id
+  let public_key = K.prove private_key in
+  let (private_key, public_key) : b * (a, b) trustee_public_key option =
+    match
+      ( Type.Id.provably_equal G.id id_element,
+        Type.Id.provably_equal G.Zq.id id_scalar )
+    with
+    | Some Equal, Some Equal -> (private_key, Some public_key)
+    | _ -> (
+        match
+          ( Type.Id.provably_equal Json.id id_element,
+            Type.Id.provably_equal Json.id id_scalar )
+        with
+        | Some Equal, Some Equal ->
+            ( !&G.Zq.to_string private_key,
+              Some
+                (public_key
+                |> yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string
+                |> trustee_public_key_of_yojson Fun.id Fun.id) )
+        | _ -> invalid_arg __FUNCTION__)
   in
-  Lwt.return
-    {
-      kind = Server { private_key = !&G.Zq.to_string private_key };
-      public_key = Some public_key;
-    }
+  Lwt.return { kind = Server { private_key }; public_key }
 
 let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
     (t : _ trustee) =
@@ -535,7 +548,9 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
             ts
         then Lwt.return ts
         else
-          let* server = generate_server_trustee (Draft (v, se)) in
+          let* server =
+            generate_server_trustee Json.id Json.id (Draft (v, se))
+          in
           Lwt.return (ts @ [ server ])
       in
       let () =

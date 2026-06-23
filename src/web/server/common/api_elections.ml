@@ -811,7 +811,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       let@ se, set = Storage.E.update s Draft in
-      let set ?(billing = false) ((Draft (_, se) : draft_election) as x) =
+      let set ?(billing = false) ((Draft (_, se) : _ draft_election) as x) =
         let* () =
           match (billing, se.metadata.billing_request) with
           | true, _ | _, None -> Lwt.return_unit
