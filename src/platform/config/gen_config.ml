@@ -30,9 +30,11 @@ let get_version package =
 let make_version package =
   let* v = get_version package in
   match String.split_on_char '.' v with
-  | a :: _ ->
+  | a :: b :: _ ->
       let a = Option.value ~default:0 (int_of_string_opt a) in
-      Lwt.return [ Printf.sprintf "[%%%%define %s_version %d]" package a ]
+      let b = Option.value ~default:0 (int_of_string_opt b) in
+      Lwt.return
+        [ Printf.sprintf "[%%%%define %s_version (%d, %d)]" package a b ]
   | _ -> Lwt.return_nil
 
 let main () =

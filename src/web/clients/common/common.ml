@@ -297,8 +297,7 @@ open Js
 
 class type window = object
   inherit Dom_html.window
-  method opener : window t opt readonly_prop
-  method postMessage : 'a -> js_string t -> unit meth
+  method opener : window t opt prop
 end
 
 class type messageEvent = object

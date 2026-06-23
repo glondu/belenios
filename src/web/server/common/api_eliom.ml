@@ -28,7 +28,7 @@ open Api_generic
 let ( let& ) = Option.bind
 
 [%%import "../../../platform/config.mlh"]
-[%%if ocsigenserver_version < 7]
+[%%if ocsigenserver_version < (7, 0)]
 
 let return_response x =
   let* response, body = x in
