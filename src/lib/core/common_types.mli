@@ -28,6 +28,7 @@ type number = Z.t [@@deriving yojson]
 module Json : sig
   type t = Yojson.Safe.t [@@deriving yojson]
 
+  val id : t Type.Id.t
   val to_string : t -> string
   val of_string : string -> t
 end

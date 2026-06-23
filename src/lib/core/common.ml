@@ -99,11 +99,23 @@ let random_modulo q =
   in
   loop
 
+module ZMap = Map.Make (Z)
+
+let field_ids = ref ZMap.empty
+
 module MakeField (X : sig
   val q : Z.t
 end) =
 struct
   type t = Z.t
+
+  let id =
+    match ZMap.find_opt X.q !field_ids with
+    | Some id -> id
+    | None ->
+        let id = Type.Id.make () in
+        field_ids := ZMap.add X.q id !field_ids;
+        id
 
   let q = X.q
   let of_int x = Z.(erem (of_int x) q)

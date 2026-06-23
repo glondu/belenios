@@ -79,6 +79,8 @@ module Make (B : LIBSODIUM_STUBS) = struct
 
   type t = { mutable pure : G.t option; mutable nacl : B.point option }
 
+  let id : t Type.Id.t = Type.Id.make ()
+
   let get_as_pure p =
     match p.pure with
     | Some a -> a

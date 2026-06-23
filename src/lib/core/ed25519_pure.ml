@@ -46,6 +46,7 @@ let d = F.(zero - (of_int 121665 * invert (of_int 121666)))
 
 type t = F.t * F.t * F.t * F.t
 
+let id = Type.Id.make ()
 let of_coordinates (x, y) = (x, y, F.one, F.(x * y))
 
 let to_coordinates (x, y, z, _) =

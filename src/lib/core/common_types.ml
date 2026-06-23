@@ -40,6 +40,7 @@ type number = Z.t
 module Json = struct
   type t = Yojson.Safe.t
 
+  let id = Type.Id.make ()
   let yojson_of_t = Fun.id
   let t_of_yojson = Fun.id
   let to_string x = Yojson.Safe.to_string x

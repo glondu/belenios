@@ -28,6 +28,20 @@ open Common
 
 module type GROUP = GROUP with type t = Z.t
 
+module Params = struct
+  type t = ff_params
+
+  let ( ++ ) a b = if a = 0 then b else a
+
+  let compare a b =
+    Z.compare a.p b.p ++ Z.compare a.q b.q ++ Z.compare a.g b.g
+    ++ Stdlib.compare a.embedding b.embedding
+end
+
+module PMap = Map.Make (Params)
+
+let ids = ref PMap.empty
+
 let make description ff_params =
   let { p; q; g; embedding } = ff_params in
   let module G = struct
@@ -38,6 +52,14 @@ let make description ff_params =
     end)
 
     type t = Z.t
+
+    let id =
+      match PMap.find_opt ff_params !ids with
+      | Some id -> id
+      | None ->
+          let id = Type.Id.make () in
+          ids := PMap.add ff_params id !ids;
+          id
 
     let p = p
     let one = Z.one
