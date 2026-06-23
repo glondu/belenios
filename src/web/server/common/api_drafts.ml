@@ -54,7 +54,12 @@ let with_trustee token (Draft (_, se)) f =
   match se.trustees with
   | `Basic b -> (
       match
-        List.find_opt (fun (x : _ draft_trustee) -> x.token = token) b.trustees
+        List.find_opt
+          (fun (x : _ draft_trustee) ->
+            match x.kind with
+            | Server _ -> false
+            | External x -> x.token = token)
+          b.trustees
       with
       | Some x -> f (`Basic x)
       | None -> unauthorized)
@@ -437,25 +442,26 @@ let get_draft_trustees ~is_admin (Draft (_, se)) =
       let trustees =
         List.filter_map
           (fun (t : _ draft_trustee) ->
-            if t.id = None then None
-            else
-              let trustee_state, trustee_key =
-                match t.public_key with
-                | None -> (Some 0, None)
-                | Some tpk -> (Some 1, Some tpk)
-              in
-              let trustee_address, trustee_token, trustee_state =
-                if is_admin then (t.id, Some t.token, trustee_state)
-                else (None, None, None)
-              in
-              Some
-                {
-                  address = trustee_address;
-                  name = t.name;
-                  token = trustee_token;
-                  state = trustee_state;
-                  key = trustee_key;
-                })
+            match t.kind with
+            | Server _ -> None
+            | External u ->
+                let trustee_state, trustee_key =
+                  match t.public_key with
+                  | None -> (Some 0, None)
+                  | Some tpk -> (Some 1, Some tpk)
+                in
+                let trustee_address, trustee_token, trustee_state =
+                  if is_admin then (Some u.id, Some u.token, trustee_state)
+                  else (None, None, None)
+                in
+                Some
+                  {
+                    address = trustee_address;
+                    name = Some u.name;
+                    token = trustee_token;
+                    state = trustee_state;
+                    key = trustee_key;
+                  })
           x.trustees
       in
       `Basic ({ trustees } : _ basic_trustees)
@@ -487,7 +493,6 @@ let ensure_none label x =
     raise (Error (`GenericError (Printf.sprintf "%s must not be set" label)))
 
 let generate_server_trustee (Draft (_, se)) =
-  let st_id = None and st_token = "" in
   let version = se.version in
   let module G = (val Group.of_string ~version se.group) in
   let module Trustees = (val Trustees.get_by_version version) in
@@ -500,11 +505,8 @@ let generate_server_trustee (Draft (_, se)) =
   in
   Lwt.return
     {
-      id = st_id;
-      token = st_token;
+      kind = Server { private_key = !&G.Zq.to_string private_key };
       public_key = Some public_key;
-      private_key = Some (!&G.Zq.to_string private_key);
-      name = None;
     }
 
 let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
@@ -526,25 +528,29 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
   | `Basic x ->
       let* ts =
         let ts = x.trustees in
-        if List.exists (fun (x : _ draft_trustee) -> x.id = None) ts then
-          Lwt.return ts
+        if
+          List.exists
+            (fun (x : _ draft_trustee) ->
+              match x.kind with Server _ -> true | External _ -> false)
+            ts
+        then Lwt.return ts
         else
           let* server = generate_server_trustee (Draft (v, se)) in
           Lwt.return (ts @ [ server ])
       in
       let () =
-        if List.exists (fun (x : _ draft_trustee) -> x.id = Some address) ts
+        if
+          List.exists
+            (fun (x : _ draft_trustee) ->
+              match x.kind with
+              | Server _ -> false
+              | External x -> x.id = address)
+            ts
         then raise (Error (`GenericError "address already used"))
       in
-      let st_token = generate_token 22 in
+      let token = generate_token 22 in
       let t =
-        {
-          id = Some address;
-          name = t.name;
-          public_key = None;
-          private_key = None;
-          token = st_token;
-        }
+        { kind = External { id = address; name; token }; public_key = None }
       in
       x.trustees <- ts @ [ t ];
       set (Draft (v, se))
@@ -585,7 +591,10 @@ let delete_draft_trustee ((Draft (v, se), set) : _ updatable_with_billing)
   | `Basic x ->
       let ts = x.trustees in
       let touched, ts =
-        filter_out_first (fun (x : _ draft_trustee) -> x.id = Some trustee) ts
+        filter_out_first
+          (fun (x : _ draft_trustee) ->
+            match x.kind with Server _ -> false | External x -> x.id = trustee)
+          ts
       in
       if touched then (
         x.trustees <- ts;
@@ -874,39 +883,37 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
             let* ts =
               let module KG = Trustees.MakeSimple (G) in
               List.combine names ts
-              |> Lwt_list.map_p (fun (st_id, public_key) ->
-                  let* st_token, st_private_key, st_public_key =
-                    if st_id = None then
-                      let private_key = KG.generate () in
-                      let public_key =
-                        KG.prove private_key
-                        |> yojson_of_trustee_public_key !&G.to_string
-                             !&G.Zq.to_string
-                        |> trustee_public_key_of_yojson Fun.id Fun.id
-                      in
-                      Lwt.return
-                        ( "",
-                          Some (!&G.Zq.to_string private_key),
-                          Some public_key )
-                    else
-                      let st_token = generate_token 22 in
-                      let public_key =
-                        public_key
-                        |> yojson_of_trustee_public_key !&G.to_string
-                             !&G.Zq.to_string
-                        |> trustee_public_key_of_yojson Fun.id Fun.id
-                      in
-                      Lwt.return (st_token, None, Some public_key)
+              |> Lwt_list.map_p (fun (id, public_key) ->
+                  let* kind, public_key =
+                    match id with
+                    | None ->
+                        let private_key = KG.generate () in
+                        let public_key =
+                          KG.prove private_key
+                          |> yojson_of_trustee_public_key !&G.to_string
+                               !&G.Zq.to_string
+                          |> trustee_public_key_of_yojson Fun.id Fun.id
+                        in
+                        Lwt.return
+                          ( Server { private_key = !&G.Zq.to_string private_key },
+                            Some public_key )
+                    | Some id ->
+                        let token = generate_token 22 in
+                        let public_key =
+                          public_key
+                          |> yojson_of_trustee_public_key !&G.to_string
+                               !&G.Zq.to_string
+                          |> trustee_public_key_of_yojson Fun.id Fun.id
+                        in
+                        let name =
+                          match public_key.message.name with
+                          | None -> failwith __FUNCTION__
+                          | Some x -> x
+                        in
+                        Lwt.return
+                          (External { id; token; name }, Some public_key)
                   in
-                  let st_name = public_key.message.name in
-                  Lwt.return
-                    {
-                      id = st_id;
-                      token = st_token;
-                      public_key = st_public_key;
-                      private_key = st_private_key;
-                      name = st_name;
-                    })
+                  Lwt.return { kind; public_key })
             in
             se.trustees <- `Basic { trustees = ts };
             let* () = set (Draft (v, se)) in
@@ -1017,8 +1024,15 @@ let post_trustee_basic
     | `Basic x -> x.trustees
     | `Threshold _ -> failwith "Wrong trustee mode"
   in
-  let t =
-    match List.find_opt (fun (x : _ draft_trustee) -> token = x.token) ts with
+  let t, name =
+    match
+      List.find_map
+        (fun (x : _ draft_trustee) ->
+          match x.kind with
+          | Server _ -> None
+          | External y -> if token = y.token then Some (x, y.name) else None)
+        ts
+    with
     | Some t -> t
     | None -> failwith "Invalid token"
   in
@@ -1031,7 +1045,7 @@ let post_trustee_basic
         !*(trustee_public_key_of_yojson !$G.of_string !$G.Zq.of_string) data
       in
       let module K = Trustees.MakeCombinator (G) in
-      if pk.message.name = t.name && K.check [ `Single pk ] then (
+      if pk.message.name = Some name && K.check [ `Single pk ] then (
         t.public_key <-
           Some
             (pk
@@ -1282,8 +1296,8 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
         match trustee with
         | `Basic b ->
             let state =
-              match (b.public_key, b.name) with
-              | None, Some name -> `Init name
+              match (b.public_key, b.kind) with
+              | None, External x -> `Init x.name
               | _ -> `Done
             in
             `Basic state
@@ -1333,13 +1347,14 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       | `GET -> handle_get get
       | `POST -> (
           let@ data = body.run Fun.id in
+          let@ token = Option.unwrap unauthorized token in
           let@ () = handle_generic_error in
           match trustee with
-          | `Basic b ->
-              let* () = post_trustee_basic (se, set) ~token:b.token data in
+          | `Basic _ ->
+              let* () = post_trustee_basic (se, set) ~token data in
               ok
-          | `Threshold (_, t, _) ->
-              let* () = post_trustee_threshold (se, set) ~token:t.token data in
+          | `Threshold _ ->
+              let* () = post_trustee_threshold (se, set) ~token data in
               ok)
       | _ -> method_not_allowed)
   | [ "trustees" ] -> (

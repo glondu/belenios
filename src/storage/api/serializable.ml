@@ -86,12 +86,14 @@ type election_state =
 
 type draft_voter = { mutable id : voter } [@@deriving yojson]
 
+type ('a, 'b) draft_trustee_kind =
+  | Server of { private_key : 'b }
+  | External of { id : string; token : string; name : string }
+[@@deriving yojson]
+
 type ('a, 'b) draft_trustee = {
-  id : string option; [@yojson.option]
-  token : string;
+  kind : ('a, 'b) draft_trustee_kind;
   mutable public_key : ('a, 'b) trustee_public_key option; [@yojson.option]
-  private_key : 'b option; [@yojson.option]
-  name : string option; [@yojson.option]
 }
 [@@deriving yojson]
 

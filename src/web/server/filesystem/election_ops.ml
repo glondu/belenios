@@ -231,8 +231,10 @@ let validate_election_exn s uuid =
         | _ :: _ ->
             let private_key =
               List.fold_left
-                (fun accu { private_key; _ } ->
-                  match private_key with Some x -> x :: accu | None -> accu)
+                (fun accu t ->
+                  match t.kind with
+                  | External _ -> accu
+                  | Server u -> u.private_key :: accu)
                 [] ts
             in
             let private_key =
@@ -241,7 +243,12 @@ let validate_election_exn s uuid =
               | _ -> raise @@ Validation_error `NotSinglePrivateKey
             in
             Lwt.return
-              ( List.map (fun ({ id; _ } : _ draft_trustee) -> id) ts,
+              ( List.map
+                  (fun (x : _ draft_trustee) ->
+                    match x.kind with
+                    | Server _ -> None
+                    | External u -> Some u.id)
+                  ts,
                 List.map
                   (fun { public_key; _ } ->
                     match public_key with
