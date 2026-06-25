@@ -68,8 +68,8 @@ let get_election (type t) : t File.u -> t string_serializers = function
       { of_string = !*last_event_of_yojson; to_string = !+yojson_of_last_event }
   | Draft ->
       {
-        of_string = !*(draft_election_of_yojson Fun.id Fun.id);
-        to_string = !+(yojson_of_draft_election Fun.id Fun.id);
+        of_string = !*wrapped_draft_election_of_yojson;
+        to_string = !+yojson_of_wrapped_draft_election;
       }
   | Public_creds ->
       {

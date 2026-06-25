@@ -72,7 +72,7 @@ let get_election_metadata s =
   | None -> (
       let* x = Storage.E.get s Draft in
       match Lopt.get_value x with
-      | Some (Draft (_, x)) -> Lwt.return x.metadata
+      | Some (W (_, Draft (_, x))) -> Lwt.return x.metadata
       | None -> Lwt.return empty_metadata)
 
 let seal_election s seal =
@@ -694,7 +694,7 @@ let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
       Lwt.return_unit)
 
 let validate_election ~admin_id storage
-    ((Draft (v, se), set) : _ updatable_with_billing) s =
+    ((W (w, Draft (v, se)), set) : _ updatable_with_billing) s =
   let uuid = Storage.E.get_uuid storage in
   let open Belenios_web_api in
   let questions =
@@ -766,7 +766,9 @@ let validate_election ~admin_id storage
         let* id = Billing.create ~admin_id ~uuid ~nb_voters:s.num_voters in
         let metadata = { se.metadata with billing_request = Some id } in
         let se = { se with metadata } in
-        let* () = set ~billing:true (Draft (v, se) : _ draft_election) in
+        let* () =
+          set ~billing:true (W (w, Draft (v, se)) : wrapped_draft_election)
+        in
         validation_error (`MissingBilling { url; id; callback })
     | Some (url, callback), Some id ->
         let* b = Billing.check ~url ~id in
@@ -921,12 +923,12 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           let@ s = Storage.E.with_transaction uuid in
           let@ se, set = Storage.E.update s Draft in
           match Lopt.get_value se with
-          | Some (Draft (v, se)) ->
+          | Some (W (w, Draft (v, se))) ->
               let* () = private_creds |> Storage.E.set s Private_creds Value in
               let* () = Storage.E.set s Public_creds Value public_with_ids in
               se.public_creds_received <- true;
               se.pending_credentials <- true;
-              let* () = set Value (Draft (v, se)) in
+              let* () = set Value (W (w, Draft (v, se))) in
               pending_generations := SMap.remove uuid_s !pending_generations;
               Lwt.return_unit
           | None -> Lwt.return_unit)

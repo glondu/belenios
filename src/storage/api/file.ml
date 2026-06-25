@@ -35,7 +35,7 @@ type _ u =
   | Audit_cache : audit_cache u
   | Archive_header : Archive.header u
   | Last_event : last_event u
-  | Draft : (json, json) draft_election u
+  | Draft : wrapped_draft_election u
   | Public_creds : public_credentials u
   | Private_creds : private_credentials u
   | Sealing_log : string u

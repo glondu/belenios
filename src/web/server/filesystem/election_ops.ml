@@ -193,7 +193,7 @@ let validate_election_exn s uuid =
     let* x = S.get (Election (uuid, Draft)) in
     match Lopt.get_value x with None -> raise Not_found | Some x -> cont x
   in
-  let (Draft (v, se)) = draft in
+  let (W (w, Draft (v, se))) = draft in
   let version = se.version in
   let questions =
     let x = se.questions in
@@ -210,11 +210,15 @@ let validate_election_exn s uuid =
   (* trustees *)
   let group = Group.of_string ~version se.group in
   let module G = (val group : GROUP) in
+  let@ Equal =
+   fun cont ->
+    match Group_witness.provably_equal w G.witness with
+    | Some x -> cont x
+    | None -> assert false
+  in
   let trustees =
     let open Belenios_storage_api in
     se.trustees
-    |> !+(yojson_of_draft_trustees Fun.id Fun.id)
-    |> !*(draft_trustees_of_yojson !$G.of_string !$G.Zq.of_string)
   in
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeCombinator (G) in
@@ -262,10 +266,6 @@ let validate_election_exn s uuid =
         match x.parameters with
         | None -> raise @@ Validation_error `KeyEstablishmentNotFinished
         | Some tp ->
-            let tp =
-              !*(threshold_parameters_of_yojson !$G.of_string !$G.Zq.of_string)
-                tp
-            in
             let trustee_names =
               List.map
                 (fun ({ id; _ } : _ draft_threshold_trustee) -> Some id)
@@ -317,7 +317,11 @@ let validate_election_exn s uuid =
       match se.public_creds_certificate with
       | None -> ([], None)
       | Some c ->
-          let raw = c |> !+(yojson_of_credentials_certificate Fun.id Fun.id) in
+          let raw =
+            c
+            |> !+(yojson_of_credentials_certificate !&G.to_string
+                    !&G.Zq.to_string)
+          in
           ([ Data raw ], Some (Hash.hash_string raw))
     in
     let setup_data =

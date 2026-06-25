@@ -98,7 +98,8 @@ module Make (I : INPUT) () = struct
     let* draft = I.get s (Election (uuid, Draft)) in
     match Lopt.get_value draft with
     | None -> get_live_election_summary s uuid
-    | Some (Draft (_, se)) -> Lwt.return @@ get_draft_election_summary uuid se
+    | Some (W (_, Draft (_, se))) ->
+        Lwt.return @@ get_draft_election_summary uuid se
 
   let umap_add user x map =
     let xs = match IMap.find_opt user map with None -> [] | Some xs -> xs in
@@ -140,7 +141,7 @@ module Make (I : INPUT) () = struct
       let&* x = Lopt.get_value x in
       Lwt.return_some x
     in
-    let&* (Draft (_, se)) = se in
+    let&* (W (_, Draft (_, se))) = se in
     let t = se.creation_date in
     let next_t = t +. (86400. *. Defaults.days_to_delete) in
     Lwt.return_some (`Destroy, uuid, next_t)

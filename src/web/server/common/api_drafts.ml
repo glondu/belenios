@@ -235,13 +235,15 @@ let post_drafts account draft =
       language = None;
     }
   in
-  let se_version = Defaults.version in
-  let (Version v) = Belenios.Election.version_of_int se_version in
+  let version = Defaults.version in
+  let group = !Web_config.default_group in
+  let module G = (val Group.of_string ~version group) in
+  let (Version v) = Belenios.Election.version_of_int version in
   let se =
     {
-      version = se_version;
+      version;
       owners;
-      group = !Web_config.default_group;
+      group;
       voters = [];
       questions = se_questions;
       trustees = `Basic { trustees = [] };
@@ -263,7 +265,7 @@ let post_drafts account draft =
   let se = draft_of_api account uuid (Draft (v, se)) draft in
   let* () =
     let@ s = Storage.E.with_transaction uuid in
-    Web_persist.create_draft s se
+    Web_persist.create_draft s (W (G.witness, se))
   in
   Lwt.return_some uuid
 
@@ -352,8 +354,9 @@ let exn_of_generate_credentials_on_server_error = function
   | `Already -> Error (`GenericError "already done")
   | `NoServer -> Error (`GenericError "credential authority is not the server")
 
-let submit_public_credentials s
-    ((Draft (v, se), set) : _ updatable_with_billing) ?certificate credentials =
+let submit_public_credentials s (type a b) (w : (a, b) group_witness)
+    ((Draft (v, se), set) : _ updatable_with_billing)
+    ?(certificate : (a, b) credentials_certificate option) credentials =
   let () = if se.voters = [] then raise (Error (`ValidationError `NoVoters)) in
   let () =
     if not (List.length se.voters = List.length credentials) then
@@ -361,6 +364,12 @@ let submit_public_credentials s
   in
   let version = se.version in
   let module G = (val Group.of_string ~version se.group : GROUP) in
+  let@ Equal =
+   fun cont ->
+    match Group_witness.provably_equal w G.witness with
+    | Some x -> cont x
+    | None -> assert false
+  in
   let () =
     match certificate with
     | None -> ()
@@ -373,16 +382,8 @@ let submit_public_credentials s
           public_creds_hash = certificate.message.public_creds_hash
         in
         let certificate_ok =
-          match
-            certificate
-            |> !+(yojson_of_credentials_certificate Fun.id Fun.id)
-            |> !*(credentials_certificate_of_yojson !$G.of_string
-                    !$G.Zq.of_string)
-          with
-          | x ->
-              let module C = Credentials_certificate (G) in
-              C.check x
-          | exception _ -> false
+          let module C = Credentials_certificate (G) in
+          C.check certificate
         in
         if not (public_creds_ok && certificate_ok) then
           raise (Error (`GenericError "bad certificate"))
@@ -492,37 +493,26 @@ let ensure_none label x =
   if x <> None then
     raise (Error (`GenericError (Printf.sprintf "%s must not be set" label)))
 
-let generate_server_trustee (type a) (type b) (id_element : a Type.Id.t)
-    (id_scalar : b Type.Id.t) (Draft (_, se) : (a, b) draft_election) :
-    (a, b) draft_trustee Lwt.t =
+let generate_server_trustee (type a b) (w : (a, b) group_witness)
+    (Draft (_, se) : (a, b) draft_election) : (a, b) draft_trustee Lwt.t =
   let version = se.version in
   let module G = (val Group.of_string ~version se.group) in
+  let@ Equal =
+   fun cont ->
+    match Group_witness.provably_equal w G.witness with
+    | Some x -> cont x
+    | None -> assert false
+  in
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeSimple (G) in
-  let private_key = K.generate () in
-  let public_key = K.prove private_key in
-  let (private_key, public_key) : b * (a, b) trustee_public_key option =
-    match
-      ( Type.Id.provably_equal G.id id_element,
-        Type.Id.provably_equal G.Zq.id id_scalar )
-    with
-    | Some Equal, Some Equal -> (private_key, Some public_key)
-    | _ -> (
-        match
-          ( Type.Id.provably_equal Json.id id_element,
-            Type.Id.provably_equal Json.id id_scalar )
-        with
-        | Some Equal, Some Equal ->
-            ( !&G.Zq.to_string private_key,
-              Some
-                (public_key
-                |> yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string
-                |> trustee_public_key_of_yojson Fun.id Fun.id) )
-        | _ -> invalid_arg __FUNCTION__)
+  let private_key : b = K.generate () in
+  let public_key : (a, b) trustee_public_key option =
+    Some (K.prove private_key)
   in
   Lwt.return { kind = Server { private_key }; public_key }
 
-let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
+let post_draft_trustees (type a b) (w : (a, b) group_witness)
+    ((Draft (v, se), set) : (a, b) draft_election updatable_with_billing)
     (t : _ trustee) =
   let address =
     match t.address with
@@ -548,9 +538,7 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
             ts
         then Lwt.return ts
         else
-          let* server =
-            generate_server_trustee Json.id Json.id (Draft (v, se))
-          in
+          let* server = generate_server_trustee w (Draft (v, se)) in
           Lwt.return (ts @ [ server ])
       in
       let () =
@@ -774,7 +762,7 @@ let import_voters uuid ((Draft (v, se), set) : _ updatable_with_billing) from =
         let* se = Storage.E.get from Draft in
         match Lopt.get_value se with
         | None -> Lwt.return @@ Stdlib.Error `NotFound
-        | Some se -> cont @@ get_draft_voters se)
+        | Some (W (_, se)) -> cont @@ get_draft_voters se)
     | _ -> cont x
   in
   if Web_persist.get_credentials_status uuid (Draft (v, se)) <> `None then
@@ -792,7 +780,8 @@ let import_voters uuid ((Draft (v, se), set) : _ updatable_with_billing) from =
         let login = Voter.get x in
         Lwt.return @@ Stdlib.Error (`Duplicate login)
 
-let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
+let import_trustees (type a b) (w : (a, b) group_witness)
+    ((Draft (v, se), set) : (a, b) draft_election updatable_with_billing) from
     (metadata : metadata) =
   match metadata.trustees with
   | None -> Lwt.return @@ Stdlib.Error `None
@@ -800,6 +789,12 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
       let* trustees = Public_archive.get_trustees from in
       let version = se.version in
       let module G = (val Group.of_string ~version se.group : GROUP) in
+      let@ Equal =
+       fun cont ->
+        match Group_witness.provably_equal w G.witness with
+        | Some x -> cont x
+        | None -> assert false
+      in
       let module Trustees = (val Trustees.get_by_version version) in
       let module K = Trustees.MakeCombinator (G) in
       let trustees =
@@ -807,7 +802,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
       in
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
-        let import_pedersen (t : _ threshold_parameters) names =
+        let import_pedersen (t : (a, b) threshold_parameters) names =
           let* privs = Storage.E.get from Private_keys in
           let* x =
             match Lopt.get_value privs with
@@ -816,23 +811,17 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                   match (ts, certs, pubs, privs) with
                   | ( Some stt_id :: ts,
                       cert :: certs,
-                      (vo_public_key : _ threshold_verification_key) :: pubs,
-                      vo_private_key :: privs ) ->
-                      let stt_name = vo_public_key.message.message.name in
+                      (public_key : _ threshold_verification_key) :: pubs,
+                      private_key :: privs ) ->
+                      let stt_name = public_key.message.message.name in
                       let stt_token = generate_token 22 in
-                      let vo_private_key =
-                        vo_private_key
-                        |> !+(yojson_of_sent_partial_decryption_key Fun.id
-                                Fun.id)
-                        |> !*(sent_partial_decryption_key_of_yojson
-                                !$G.of_string !$G.Zq.of_string)
+                      let private_key =
+                        private_key
+                        |> yojson_of_sent_partial_decryption_key Fun.id Fun.id
+                        |> sent_partial_decryption_key_of_yojson !$G.of_string
+                             !$G.Zq.of_string
                       in
-                      let stt_voutput =
-                        {
-                          public_key = vo_public_key;
-                          private_key = vo_private_key;
-                        }
-                      in
+                      let stt_voutput = { public_key; private_key } in
                       let stt =
                         {
                           id = stt_id;
@@ -856,23 +845,12 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
           in
           match x with
           | Ok se_threshold_trustees ->
-              let se_threshold_trustees =
-                se_threshold_trustees
-                |> List.map
-                     (!+(yojson_of_draft_threshold_trustee !&G.to_string
-                           !&G.Zq.to_string)
-                     >> !*(draft_threshold_trustee_of_yojson Fun.id Fun.id))
-              in
               let dtp =
                 {
                   algorithm = t.context.algorithm;
                   threshold = Some t.context.threshold;
                   trustees = se_threshold_trustees;
-                  parameters =
-                    Some
-                      (!+(yojson_of_threshold_parameters !&G.to_string
-                            !&G.Zq.to_string)
-                         t);
+                  parameters = Some t;
                   error = None;
                 }
               in
@@ -898,37 +876,25 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
             let* ts =
               let module KG = Trustees.MakeSimple (G) in
               List.combine names ts
-              |> Lwt_list.map_p (fun (id, public_key) ->
-                  let* kind, public_key =
-                    match id with
-                    | None ->
-                        let private_key = KG.generate () in
-                        let public_key =
-                          KG.prove private_key
-                          |> yojson_of_trustee_public_key !&G.to_string
-                               !&G.Zq.to_string
-                          |> trustee_public_key_of_yojson Fun.id Fun.id
-                        in
-                        Lwt.return
-                          ( Server { private_key = !&G.Zq.to_string private_key },
-                            Some public_key )
-                    | Some id ->
-                        let token = generate_token 22 in
-                        let public_key =
-                          public_key
-                          |> yojson_of_trustee_public_key !&G.to_string
-                               !&G.Zq.to_string
-                          |> trustee_public_key_of_yojson Fun.id Fun.id
-                        in
-                        let name =
-                          match public_key.message.name with
-                          | None -> failwith __FUNCTION__
-                          | Some x -> x
-                        in
-                        Lwt.return
-                          (External { id; token; name }, Some public_key)
-                  in
-                  Lwt.return { kind; public_key })
+              |> Lwt_list.map_p
+                   (fun (id, (public_key : _ trustee_public_key)) ->
+                     let* kind, public_key =
+                       match id with
+                       | None ->
+                           let private_key = KG.generate () in
+                           let public_key = KG.prove private_key in
+                           Lwt.return (Server { private_key }, Some public_key)
+                       | Some id ->
+                           let token = generate_token 22 in
+                           let name =
+                             match public_key.message.name with
+                             | None -> failwith __FUNCTION__
+                             | Some x -> x
+                           in
+                           Lwt.return
+                             (External { id; token; name }, Some public_key)
+                     in
+                     Lwt.return { kind; public_key })
             in
             se.trustees <- `Basic { trustees = ts };
             let* () = set (Draft (v, se)) in
@@ -970,26 +936,24 @@ let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
       Lwt.return_unit)
 
 let post_draft_status ~admin_id s uuid
-    ((Draft (v, se), set) : _ updatable_with_billing) = function
+    (((W (w, Draft (v, se)) as wse), set) : _ updatable_with_billing) = function
   | `SetDownloaded ->
       let* () =
         if se.private_creds_downloaded then Lwt.return_unit
         else (
           se.private_creds_downloaded <- true;
-          set (Draft (v, se)))
+          set (W (w, Draft (v, se))))
       in
       ok
   | `ValidateElection ->
       let* status = get_draft_status uuid (Draft (v, se)) in
-      let* () =
-        Web_persist.validate_election ~admin_id s (Draft (v, se), set) status
-      in
+      let* () = Web_persist.validate_election ~admin_id s (wse, set) status in
       ok
   | `SetCredentialAuthorityVisited ->
       let* () =
         if se.credential_authority_visited <> true then (
           se.credential_authority_visited <- true;
-          let* () = set (Draft (v, se)) in
+          let* () = set wse in
           Lwt.return_unit)
         else Lwt.return_unit
       in
@@ -998,7 +962,7 @@ let post_draft_status ~admin_id s uuid
       let* () =
         if se.voter_authentication_visited <> true then (
           se.voter_authentication_visited <- true;
-          let* () = set (Draft (v, se)) in
+          let* () = set wse in
           Lwt.return_unit)
         else Lwt.return_unit
       in
@@ -1007,7 +971,7 @@ let post_draft_status ~admin_id s uuid
       let* () =
         if se.trustees_setup_step <> i then (
           se.trustees_setup_step <- i;
-          let* () = set (Draft (v, se)) in
+          let* () = set wse in
           Lwt.return_unit)
         else Lwt.return_unit
       in
@@ -1032,7 +996,7 @@ let () =
           let set ?billing:_ x = set Value x in
           post_draft_status ~admin_id s uuid (se, set) `ValidateElection
 
-let post_trustee_basic
+let post_trustee_basic (type a b) (w : (a, b) group_witness)
     (((Draft (_, se) as fse), set) : _ updatable_with_billing) ~token data =
   let ts =
     match se.trustees with
@@ -1055,32 +1019,36 @@ let post_trustee_basic
   | None ->
       let version = se.version in
       let module G = (val Group.of_string ~version se.group : GROUP) in
+      let@ Equal =
+       fun cont ->
+        match Group_witness.provably_equal w G.witness with
+        | Some x -> cont x
+        | None -> assert false
+      in
       let module Trustees = (val Trustees.get_by_version version) in
-      let pk =
+      let pk : (a, b) trustee_public_key =
         !*(trustee_public_key_of_yojson !$G.of_string !$G.Zq.of_string) data
       in
       let module K = Trustees.MakeCombinator (G) in
       if pk.message.name = Some name && K.check [ `Single pk ] then (
-        t.public_key <-
-          Some
-            (pk
-            |> yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string
-            |> trustee_public_key_of_yojson Fun.id Fun.id);
+        t.public_key <- Some pk;
         set fse)
       else raise @@ Error `InvalidPublicKey
   | _ -> raise @@ Error `PublicKeyExists
 
-let post_trustee_threshold
-    (((Draft (_, se) as fse), set) : _ updatable_with_billing) ~token data =
+let post_trustee_threshold (type a b) (w : (a, b) group_witness)
+    (((Draft (_, se) as fse), set) :
+      (a, b) draft_election updatable_with_billing) ~token data =
   let version = se.version in
   let module G = (val Group.of_string ~version se.group : GROUP) in
-  let se_trustees =
-    se.trustees
-    |> !+(yojson_of_draft_trustees Fun.id Fun.id)
-    |> !*(draft_trustees_of_yojson !$G.of_string !$G.Zq.of_string)
+  let@ Equal =
+   fun cont ->
+    match Group_witness.provably_equal w G.witness with
+    | Some x -> cont x
+    | None -> assert false
   in
   let dtp =
-    match se_trustees with
+    match se.trustees with
     | `Basic _ -> failwith "Wrong trustee mode"
     | `Threshold x -> x
   in
@@ -1186,21 +1154,16 @@ let post_trustee_threshold
             ts
         in
         let p = K.step6 { context; certs } polynomials voutputs in
-        dtp.parameters <-
-          Some
-            (!+(yojson_of_threshold_parameters !&G.to_string !&G.Zq.to_string)
-               p);
+        dtp.parameters <- Some p;
         Array.iter (fun x -> x.step <- Some 7) ts
       with e -> dtp.error <- Some (Printexc.to_string e)
   in
-  se.trustees <-
-    se_trustees
-    |> !+(yojson_of_draft_trustees !&G.to_string !&G.Zq.to_string)
-    |> !*(draft_trustees_of_yojson Fun.id Fun.id);
   set fse
 
 let dispatch_credentials ~token endpoint method_ body s uuid
-    ((se, set) : _ updatable_with_billing) =
+    ((wse, wset) : _ updatable_with_billing) =
+  let (W (w, se) : wrapped_draft_election) = wse in
+  let set ?billing x = wset ?billing (W (w, x)) in
   match endpoint with
   | [ "token" ] -> (
       let@ _ = with_administrator token se in
@@ -1235,14 +1198,17 @@ let dispatch_credentials ~token endpoint method_ body s uuid
                     Lwt.fail @@ exn_of_generate_credentials_on_server_error e)
             | `CredentialAuthority, credentials ->
                 let@ () = handle_generic_error in
-                let* () = submit_public_credentials s (se, set) credentials in
+                let* () = submit_public_credentials s w (se, set) credentials in
                 ok
             | _ -> forbidden)
       | _ -> method_not_allowed)
   | _ -> not_found
 
 let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
-    ((se, set) : _ updatable_with_billing) =
+    ((wse, wset) : _ updatable_with_billing) =
+  let (W (w, se) : wrapped_draft_election) = wse in
+  let module T = (val Group_witness.get w) in
+  let set ?billing x = wset ?billing (W (w, x)) in
   match endpoint with
   | [] -> (
       let@ who = with_administrator_or_nobody token se in
@@ -1263,7 +1229,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_ifmatch ifmatch get in
           let@ x = body.run !*draft_request_of_yojson in
           let@ () = handle_generic_error in
-          post_draft_status ~admin_id:a.id s uuid (se, set) x
+          post_draft_status ~admin_id:a.id s uuid (wse, wset) x
       | _ -> method_not_allowed)
   | [ "voters" ] -> (
       let@ who = with_administrator_or_credential_authority token se in
@@ -1300,13 +1266,16 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
                   Lwt.fail (Error (`GenericError ("duplicate: " ^ x)))))
       | _ -> method_not_allowed)
   | "credentials" :: endpoint ->
-      dispatch_credentials ~token endpoint method_ body s uuid (se, set)
+      dispatch_credentials ~token endpoint method_ body s uuid (wse, wset)
   | [ "trustee" ] -> (
       let@ trustee = with_trustee token se in
       let get () =
         let@ () =
          fun cont ->
-          Lwt.return @@ yojson_of_trustee_status Fun.id Fun.id @@ cont ()
+          Lwt.return
+          @@ yojson_of_trustee_status !&(T.element.to_string)
+               !&(T.scalar.to_string)
+          @@ cont ()
         in
         match trustee with
         | `Basic b ->
@@ -1366,10 +1335,10 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_generic_error in
           match trustee with
           | `Basic _ ->
-              let* () = post_trustee_basic (se, set) ~token data in
+              let* () = post_trustee_basic w (se, set) ~token data in
               ok
           | `Threshold _ ->
-              let* () = post_trustee_threshold (se, set) ~token data in
+              let* () = post_trustee_threshold w (se, set) ~token data in
               ok)
       | _ -> method_not_allowed)
   | [ "trustees" ] -> (
@@ -1377,7 +1346,9 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let get is_admin () =
         let open Belenios_web_api in
         let x = get_draft_trustees ~is_admin se in
-        Lwt.return @@ yojson_of_draft_trustees Fun.id Fun.id x
+        Lwt.return
+        @@ yojson_of_draft_trustees !&(T.element.to_string)
+             !&(T.scalar.to_string) x
       in
       match (method_, who) with
       | `GET, `Nobody -> handle_get (get false)
@@ -1388,7 +1359,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_generic_error in
           match request with
           | `Add trustee ->
-              let* () = post_draft_trustees (se, set) trustee in
+              let* () = post_draft_trustees w (se, set) trustee in
               ok
           | `SetBasic ->
               let* () = put_draft_trustees_mode (se, set) `Basic in
@@ -1402,7 +1373,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           | `Import from -> (
               let@ from = Storage.E.with_transaction from in
               let@ metadata = check_owner account from in
-              let* x = import_trustees (se, set) from metadata in
+              let* x = import_trustees w (se, set) from metadata in
               match x with
               | Ok _ -> ok
               | Stdlib.Error e ->

@@ -94,7 +94,7 @@ module MakeBackend
   (** {1 Forward references} *)
 
   let draft_ops :
-      (_, (json, json) Belenios_storage_api.draft_election) abstract_file_ops =
+      (_, Belenios_storage_api.wrapped_draft_election) abstract_file_ops =
     make_uninitialized_ops "draft_ops"
 
   let state_state_ops : (_, Belenios_storage_api.state_state) abstract_file_ops
@@ -571,7 +571,9 @@ module MakeBackend
 
   type draft_concrete =
     | Draft_concrete :
-        'a Election.version * (json, json, 'a) Serializable.raw_draft_election
+        ('a, 'b) group_witness
+        * 'v Election.version
+        * ('a, 'b, 'v) Serializable.raw_draft_election
         -> draft_concrete
 
   let get_draft uuid () =
@@ -587,27 +589,35 @@ module MakeBackend
       let abstract =
         !*(Serializable.raw_draft_election_of_yojson Fun.id Fun.id Fun.id) x
       in
-      let (Version v) = Election.version_of_int abstract.version in
+      let version = abstract.version in
+      let module G = (val Group.of_string ~version abstract.group) in
+      let module T = (val Group_witness.get G.witness) in
+      let (Version v) = Election.version_of_int version in
       let open (val Election.get_serializers v) in
       Draft_concrete
-        (v, !*(raw_draft_election_of_yojson Fun.id Fun.id t_of_yojson) x)
+        ( G.witness,
+          v,
+          !*(raw_draft_election_of_yojson !$(T.element.of_string)
+               !$(T.scalar.of_string) t_of_yojson)
+            x )
       |> Lwt.return_some
     in
     match concrete with
     | None -> Lwt.return Lopt.none
-    | Some (Draft_concrete (v, concrete)) ->
+    | Some (Draft_concrete (w, v, concrete)) ->
         let abstract =
           Converters.raw_draft_election_of_concrete concrete
             se_private_creds_downloaded
         in
-        Draft (v, abstract)
-        |> Lopt.some_value !+(yojson_of_draft_election Fun.id Fun.id)
+        W (w, Draft (v, abstract))
+        |> Lopt.some_value !+yojson_of_wrapped_draft_election
         |> Lwt.return
 
   let set_draft uuid () data =
     match Lopt.get_value data with
     | None -> assert false
-    | Some (Draft (v, abstract)) ->
+    | Some (W (w, Draft (v, abstract))) ->
+        let module T = (val Group_witness.get w) in
         let concrete, se_private_creds_downloaded =
           Converters.raw_draft_election_to_concrete abstract
         in
@@ -618,7 +628,8 @@ module MakeBackend
         in
         let data =
           let open (val Election.get_serializers v) in
-          !+(Serializable.yojson_of_raw_draft_election Fun.id Fun.id yojson_of_t)
+          !+(Serializable.yojson_of_raw_draft_election !&(T.element.to_string)
+               !&(T.scalar.to_string) yojson_of_t)
             concrete
         in
         let* () =
@@ -734,7 +745,7 @@ module MakeBackend
             | None -> Lwt.return_none
             | Some x -> cont x
           in
-          let (Draft (_, se)) = draft in
+          let (W (_, Draft (_, se))) = draft in
           Lwt.return_some
             {
               Belenios_storage_api.default_election_dates with

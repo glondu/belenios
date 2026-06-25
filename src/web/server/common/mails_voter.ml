@@ -70,7 +70,7 @@ let get_metadata s ~admin_id =
       | None ->
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/draft"
             (Uuid.to_string uuid)
-      | Some (Draft (_, se)) ->
+      | Some (W (_, Draft (_, se))) ->
           let has_weights = has_explicit_weights se.voters in
           Lwt.return
           @@ extract_metadata ~admin_id ~has_weights uuid se.questions

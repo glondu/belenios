@@ -118,7 +118,7 @@ type ('a, 'b) draft_threshold_params = {
   algorithm : string;
   mutable threshold : int option; [@yojson.option]
   mutable trustees : ('a, 'b) draft_threshold_trustee list;
-  mutable parameters : string option; [@yojson.option]
+  mutable parameters : ('a, 'b) threshold_parameters option; [@yojson.option]
   mutable error : string option; [@yojson.option]
 }
 [@@deriving yojson]

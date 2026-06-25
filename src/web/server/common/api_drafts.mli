@@ -36,7 +36,7 @@ val post_drafts : account -> draft -> uuid option Lwt.t
 val get_draft_voters : ('a, 'b) draft_election -> voter_list
 
 val put_draft_voters :
-  (json, json) draft_election updatable_with_billing -> voter_list -> unit Lwt.t
+  ('a, 'b) draft_election updatable_with_billing -> voter_list -> unit Lwt.t
 
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
@@ -44,7 +44,7 @@ type generate_credentials_on_server_error =
 val generate_credentials_on_server :
   account ->
   uuid ->
-  (json, json) draft_election ->
+  ('a, 'b) draft_election ->
   (unit, generate_credentials_on_server_error) Stdlib.result Lwt.t
 
 val exn_of_generate_credentials_on_server_error :
@@ -52,14 +52,14 @@ val exn_of_generate_credentials_on_server_error :
 
 val submit_public_credentials :
   Storage.E.t ->
-  (json, json) draft_election updatable_with_billing ->
-  ?certificate:(json, json) credentials_certificate ->
+  ('a, 'b) group_witness ->
+  ('a, 'b) draft_election updatable_with_billing ->
+  ?certificate:('a, 'b) credentials_certificate ->
   public_credentials ->
   unit Lwt.t
 
 val generate_server_trustee :
-  'a Type.Id.t ->
-  'b Type.Id.t ->
+  ('a, 'b) group_witness ->
   ('a, 'b) draft_election ->
   ('a, 'b) draft_trustee Lwt.t
 
@@ -69,15 +69,16 @@ val get_draft_trustees :
   ('a, 'b) Belenios_web_api.draft_trustees
 
 val post_draft_trustees :
-  (json, json) draft_election updatable_with_billing ->
+  ('a, 'b) group_witness ->
+  ('a, 'b) draft_election updatable_with_billing ->
   json trustee ->
   unit Lwt.t
 
 val delete_draft_trustee :
-  (json, json) draft_election updatable_with_billing -> string -> bool Lwt.t
+  ('a, 'b) draft_election updatable_with_billing -> string -> bool Lwt.t
 
 val set_threshold :
-  (json, json) draft_election updatable_with_billing ->
+  ('a, 'b) draft_election updatable_with_billing ->
   int ->
   (unit, [ `NoTrustees | `OutOfBounds ]) Stdlib.result Lwt.t
 
@@ -85,7 +86,7 @@ val get_draft_trustees_mode :
   ('a, 'b) draft_election -> [ `Basic | `Threshold of int ]
 
 val put_draft_trustees_mode :
-  (json, json) draft_election updatable_with_billing ->
+  ('a, 'b) draft_election updatable_with_billing ->
   [ `Basic | `Threshold of int ] ->
   unit Lwt.t
 
@@ -98,7 +99,7 @@ val merge_voters :
 
 val import_voters :
   uuid ->
-  (json, json) draft_election updatable_with_billing ->
+  ('a, 'b) draft_election updatable_with_billing ->
   Storage.E.t ->
   ( unit,
     [ `Forbidden
@@ -109,7 +110,8 @@ val import_voters :
   Lwt.t
 
 val import_trustees :
-  (json, json) draft_election updatable_with_billing ->
+  ('a, 'b) group_witness ->
+  ('a, 'b) draft_election updatable_with_billing ->
   Storage.E.t ->
   metadata ->
   ( [> `Basic | `Threshold ],
@@ -119,13 +121,15 @@ val import_trustees :
   Lwt.t
 
 val post_trustee_basic :
-  (json, json) draft_election updatable_with_billing ->
+  ('a, 'b) group_witness ->
+  ('a, 'b) draft_election updatable_with_billing ->
   token:string ->
   string ->
   unit Lwt.t
 
 val post_trustee_threshold :
-  (json, json) draft_election updatable_with_billing ->
+  ('a, 'b) group_witness ->
+  ('a, 'b) draft_election updatable_with_billing ->
   token:string ->
   string ->
   unit Lwt.t
@@ -140,5 +144,5 @@ val dispatch_draft :
   body ->
   Storage.E.t ->
   uuid ->
-  (json, json) draft_election updatable_with_billing ->
+  wrapped_draft_election updatable_with_billing ->
   result Lwt.t

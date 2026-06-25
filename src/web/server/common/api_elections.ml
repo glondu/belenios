@@ -653,9 +653,9 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               | None -> (
                   let@ x, set = Storage.E.update s Draft in
                   match Lopt.get_value x with
-                  | Some (Draft (v, x)) ->
+                  | Some (W (w, Draft (v, x))) ->
                       let metadata = { x.metadata with logo } in
-                      set Value (Draft (v, { x with metadata }))
+                      set Value (W (w, Draft (v, { x with metadata })))
                   | None -> Lwt.return_unit)
             in
             ok
@@ -723,7 +723,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
           | None -> not_found
           | Some se -> (
               let get () =
-                let (Draft (v, se)) = se in
+                let (W (_, Draft (v, se))) = se in
                 let version = se.version in
                 let group = se.group in
                 let module G = (val Group.of_string ~version group : GROUP) in
@@ -748,7 +748,8 @@ let dispatch ~token ~ifmatch endpoint method_ body =
               let* se = Storage.E.get s Draft in
               match Lopt.get_value se with
               | None -> not_found
-              | Some (Draft (_, se)) ->
+              | Some (W (w, Draft (_, se))) ->
+                  let module T = (val Group_witness.get w) in
                   let@ trustees cont =
                     match se.trustees with
                     | `Basic x -> (
@@ -765,15 +766,11 @@ let dispatch ~token ~ifmatch endpoint method_ body =
                     | `Threshold x -> (
                         match x.parameters with
                         | None -> precondition_failed
-                        | Some tp ->
-                            let tp =
-                              !*(threshold_parameters_of_yojson Fun.id Fun.id)
-                                tp
-                            in
-                            cont [ `Pedersen tp ])
+                        | Some tp -> cont [ `Pedersen tp ])
                   in
                   trustees
-                  |> !+(yojson_of_trustees Fun.id Fun.id)
+                  |> !+(yojson_of_trustees !&(T.element.to_string)
+                          !&(T.scalar.to_string))
                   |> return_json 200)
       | _ -> method_not_allowed)
   | [ uuid; "automatic-dates" ] -> (
@@ -789,7 +786,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
           let@ metadata cont =
             let* draft = Storage.E.get s Draft in
             match Lopt.get_value draft with
-            | Some (Draft (_, se)) -> cont se.metadata
+            | Some (W (_, Draft (_, se))) -> cont se.metadata
             | None ->
                 let* raw = Public_archive.get_election s in
                 let@ _ = Option.unwrap not_found raw in
@@ -811,7 +808,9 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       let@ se, set = Storage.E.update s Draft in
-      let set ?(billing = false) ((Draft (_, se) : _ draft_election) as x) =
+      let@ se = Option.unwrap not_found (Lopt.get_value se) in
+      let set ?(billing = false)
+          ((W (_, Draft (_, se)) : wrapped_draft_election) as x) =
         let* () =
           match (billing, se.metadata.billing_request) with
           | true, _ | _, None -> Lwt.return_unit
@@ -821,7 +820,6 @@ let dispatch ~token ~ifmatch endpoint method_ body =
         in
         set Value x
       in
-      let@ se = Option.unwrap not_found (Lopt.get_value se) in
       Api_drafts.dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
         (se, set)
   | [ uuid ] when method_ = `DELETE ->
@@ -830,7 +828,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       let@ metadata cont =
         let* draft = Storage.E.get s Draft in
         match Lopt.get_value draft with
-        | Some (Draft (_, se)) -> cont se.metadata
+        | Some (W (_, Draft (_, se))) -> cont se.metadata
         | None ->
             let* raw = Public_archive.get_election s in
             let@ _ = Option.unwrap not_found raw in

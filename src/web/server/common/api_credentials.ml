@@ -530,13 +530,20 @@ let dispatch endpoint method_ body =
           let@ s = Storage.E.with_transaction uuid in
           let@ () = handle_generic_error in
           let@ se, set = Storage.E.update s Draft in
-          let set ?billing:_ x = set Value x in
           match Lopt.get_value se with
           | None -> not_found
-          | Some (Draft (_, se) as x) ->
+          | Some (W (w, (Draft (_, se) as x))) ->
               if se.public_creds = response.token then
+                let set ?billing:_ x = set Value (W (w, x)) in
+                let module T = (val Group_witness.get w) in
+                let certificate =
+                  certificate
+                  |> yojson_of_credentials_certificate Fun.id Fun.id
+                  |> credentials_certificate_of_yojson !$(T.element.of_string)
+                       !$(T.scalar.of_string)
+                in
                 let* () =
-                  Api_drafts.submit_public_credentials s (x, set) ~certificate
+                  Api_drafts.submit_public_credentials s w (x, set) ~certificate
                     response.public_credentials
                 in
                 ok
