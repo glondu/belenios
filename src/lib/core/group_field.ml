@@ -41,6 +41,7 @@ end
 module PMap = Map.Make (Params)
 
 let ids = ref PMap.empty
+let witnesses = ref PMap.empty
 
 let make description ff_params =
   let { p; q; g; embedding } = ff_params in
@@ -71,6 +72,23 @@ let make description ff_params =
     let check x = check_modulo p x && powm x q p =~ one
     let to_string = Z.to_string
     let of_string = Z.of_string
+
+    let witness =
+      match PMap.find_opt ff_params !witnesses with
+      | Some witness -> witness
+      | None ->
+          let witness =
+            let module X = struct
+              type element = t
+              type scalar = Zq.t
+
+              let element = Group_witness.{ to_string; of_string }
+              let scalar = Zq.(Group_witness.{ to_string; of_string })
+            end in
+            Group_witness.make (module X)
+          in
+          witnesses := PMap.add ff_params witness !witnesses;
+          witness
 
     let max_ints, bits_per_int =
       match embedding with

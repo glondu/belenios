@@ -62,7 +62,7 @@ end
 
 module MakeField (_ : sig
   val q : Z.t
-end) : FIELD
+end) : FIELD with type t = Z.t
 
 val ( !$ ) : (string -> 'a) -> json -> 'a
 val ( !& ) : ('a -> string) -> 'a -> json

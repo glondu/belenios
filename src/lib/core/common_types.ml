@@ -37,6 +37,10 @@ let generic_string_of_yojson of_string x = of_string @@ string_of_yojson x
 
 type number = Z.t
 
+module Group_witness = Group_witness
+
+type ('a, 'b) group_witness = ('a, 'b) Group_witness.t
+
 module Json = struct
   type t = Yojson.Safe.t
 
@@ -45,6 +49,19 @@ module Json = struct
   let t_of_yojson = Fun.id
   let to_string x = Yojson.Safe.to_string x
   let of_string x = Yojson.Safe.from_string x
+
+  let witness =
+    let module X = struct
+      type element = Yojson.Safe.t
+      type scalar = Yojson.Safe.t
+
+      let element =
+        Group_witness.
+          { of_string = yojson_of_string; to_string = string_of_yojson }
+
+      let scalar = element
+    end in
+    Group_witness.make (module X)
 end
 
 type json = Json.t [@@deriving yojson]

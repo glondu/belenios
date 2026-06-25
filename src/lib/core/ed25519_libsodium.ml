@@ -140,6 +140,17 @@ module Make (B : LIBSODIUM_STUBS) = struct
   let invert p = make_from_pure G.(invert (get_as_pure p))
   let to_string p = E.string_of_point (get_as_nacl p)
   let of_string s = make_from_nacl (E.point_of_string s)
+
+  let witness =
+    let module X = struct
+      type element = t
+      type scalar = Zq.t
+
+      let element = Group_witness.{ to_string; of_string }
+      let scalar = Zq.(Group_witness.{ to_string; of_string })
+    end in
+    Group_witness.make (module X)
+
   let max_ints = G.max_ints
   let bits_per_int = G.bits_per_int
   let to_ints n p = G.to_ints n (get_as_pure p)

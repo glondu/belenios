@@ -196,6 +196,16 @@ let of_string s =
   | Some p -> of_coordinates p
   | None -> invalid_arg "Ed25519_pure.of_string"
 
+let witness =
+  let module X = struct
+    type element = t
+    type scalar = Zq.t
+
+    let element = Group_witness.{ to_string; of_string }
+    let scalar = Zq.(Group_witness.{ to_string; of_string })
+  end in
+  Group_witness.make (module X)
+
 let padding = 14
 let bits_per_int = 8
 let max_ints = (255 - padding) / bits_per_int

@@ -64,6 +64,9 @@ module type GROUP = sig
   val id : t Type.Id.t
   (** Type identifier for elements. *)
 
+  val witness : (t, Zq.t) Group_witness.t
+  (** Group witness. *)
+
   val check : t -> bool
   (** Check group membership. *)
 

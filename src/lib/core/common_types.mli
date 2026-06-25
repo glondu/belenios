@@ -25,12 +25,17 @@ val b58_digits : string
 
 type number = Z.t [@@deriving yojson]
 
+module Group_witness = Group_witness
+
+type ('a, 'b) group_witness = ('a, 'b) Group_witness.t
+
 module Json : sig
   type t = Yojson.Safe.t [@@deriving yojson]
 
   val id : t Type.Id.t
   val to_string : t -> string
   val of_string : string -> t
+  val witness : (t, t) group_witness
 end
 
 type json = Json.t [@@deriving yojson]
