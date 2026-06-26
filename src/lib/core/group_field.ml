@@ -40,7 +40,6 @@ end
 
 module PMap = Map.Make (Params)
 
-let ids = ref PMap.empty
 let witnesses = ref PMap.empty
 
 let make description ff_params =
@@ -53,14 +52,6 @@ let make description ff_params =
     end)
 
     type t = Z.t
-
-    let id =
-      match PMap.find_opt ff_params !ids with
-      | Some id -> id
-      | None ->
-          let id = Type.Id.make () in
-          ids := PMap.add ff_params id !ids;
-          id
 
     let p = p
     let one = Z.one

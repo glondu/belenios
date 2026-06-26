@@ -25,7 +25,6 @@ open Belenios_platform
 module type FIELD = sig
   type t
 
-  val id : t Type.Id.t
   val q : Z.t
   val zero : t
   val one : t
@@ -60,9 +59,6 @@ module type GROUP = sig
   type t
   (** The type of elements. Note that it may be larger than the group itself,
       hence the [check] function below. *)
-
-  val id : t Type.Id.t
-  (** Type identifier for elements. *)
 
   val witness : (t, Zq.t) Group_witness.t
   (** Group witness. *)
