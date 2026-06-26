@@ -37,5 +37,10 @@ val make :
 val get :
   ('a, 'b) t -> (module SERIALIZERS with type element = 'a and type scalar = 'b)
 
-val provably_equal :
+val provably_equal_opt :
   ('a1, 'b1) t -> ('a2, 'b2) t -> ('a1 * 'b1, 'a2 * 'b2) Type.eq option
+
+exception Witness_mismatch of string
+
+val provably_equal :
+  string -> ('a1, 'b1) t -> ('a2, 'b2) t -> ('a1 * 'b1, 'a2 * 'b2) Type.eq

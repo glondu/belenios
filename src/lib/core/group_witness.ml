@@ -53,8 +53,15 @@ let make (type a b) serializers : (a, b) t =
 
 let get t = t.serializers
 
-let provably_equal (type a1 b1) (t1 : (a1, b1) t) (type a2 b2) (t2 : (a2, b2) t)
-    : (a1 * b1, a2 * b2) Type.eq option =
+let provably_equal_opt (type a1 b1) (t1 : (a1, b1) t) (type a2 b2)
+    (t2 : (a2, b2) t) : (a1 * b1, a2 * b2) Type.eq option =
   let module T1 = (val t1.m) in
   let module T2 = (val t2.m) in
   match T1.Id with T2.Id -> Some Equal | _ -> None
+
+exception Witness_mismatch of string
+
+let provably_equal msg a b =
+  match provably_equal_opt a b with
+  | Some x -> x
+  | None -> raise (Witness_mismatch msg)

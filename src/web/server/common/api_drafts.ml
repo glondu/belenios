@@ -364,12 +364,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group_witness)
   in
   let version = se.version in
   let module G = (val Group.of_string ~version se.group : GROUP) in
-  let@ Equal =
-   fun cont ->
-    match Group_witness.provably_equal w G.witness with
-    | Some x -> cont x
-    | None -> assert false
-  in
+  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
   let () =
     match certificate with
     | None -> ()
@@ -497,12 +492,7 @@ let generate_server_trustee (type a b) (w : (a, b) group_witness)
     (Draft (_, se) : (a, b) draft_election) : (a, b) draft_trustee Lwt.t =
   let version = se.version in
   let module G = (val Group.of_string ~version se.group) in
-  let@ Equal =
-   fun cont ->
-    match Group_witness.provably_equal w G.witness with
-    | Some x -> cont x
-    | None -> assert false
-  in
+  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeSimple (G) in
   let private_key : b = K.generate () in
@@ -789,12 +779,7 @@ let import_trustees (type a b) (w : (a, b) group_witness)
       let* trustees = Public_archive.get_trustees from in
       let version = se.version in
       let module G = (val Group.of_string ~version se.group : GROUP) in
-      let@ Equal =
-       fun cont ->
-        match Group_witness.provably_equal w G.witness with
-        | Some x -> cont x
-        | None -> assert false
-      in
+      let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
       let module Trustees = (val Trustees.get_by_version version) in
       let module K = Trustees.MakeCombinator (G) in
       let trustees =
@@ -1019,12 +1004,7 @@ let post_trustee_basic (type a b) (w : (a, b) group_witness)
   | None ->
       let version = se.version in
       let module G = (val Group.of_string ~version se.group : GROUP) in
-      let@ Equal =
-       fun cont ->
-        match Group_witness.provably_equal w G.witness with
-        | Some x -> cont x
-        | None -> assert false
-      in
+      let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
       let module Trustees = (val Trustees.get_by_version version) in
       let pk : (a, b) trustee_public_key =
         !*(trustee_public_key_of_yojson !$G.of_string !$G.Zq.of_string) data
@@ -1041,12 +1021,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group_witness)
       (a, b) draft_election updatable_with_billing) ~token data =
   let version = se.version in
   let module G = (val Group.of_string ~version se.group : GROUP) in
-  let@ Equal =
-   fun cont ->
-    match Group_witness.provably_equal w G.witness with
-    | Some x -> cont x
-    | None -> assert false
-  in
+  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
   let dtp =
     match se.trustees with
     | `Basic _ -> failwith "Wrong trustee mode"
