@@ -35,7 +35,6 @@ module Make (B : LIBSODIUM_STUBS) = struct
     let bytes = bytes ()
     let scalarbytes = scalarbytes ()
     let create_point () = Bytes.create bytes
-    let compare_points = Bytes.compare
     let z255 = Z.of_int 255
 
     let of_z_generic n z =
@@ -77,99 +76,43 @@ module Make (B : LIBSODIUM_STUBS) = struct
       if n < hex_size then String.make (hex_size - n) '0' ^ r else r
   end
 
-  type t = { mutable pure : G.t option; mutable nacl : B.point option }
+  type t = G.t
 
-  let id : t Type.Id.t = Type.Id.make ()
-
-  let get_as_pure p =
-    match p.pure with
-    | Some a -> a
-    | None -> (
-        match p.nacl with
-        | Some a ->
-            let s = E.string_of_point a in
-            let b = G.of_string s in
-            p.pure <- Some b;
-            b
-        | None -> failwith "inconsistency in Ed25519_libsodium.get_as_pure")
-
-  let make_from_pure p = { pure = Some p; nacl = None }
-  let make_from_nacl p = { pure = None; nacl = Some p }
-
-  let get_as_nacl p =
-    match p.nacl with
-    | Some a -> a
-    | None -> (
-        match p.pure with
-        | Some a ->
-            let s = G.to_string a in
-            let b = E.point_of_string s in
-            p.nacl <- Some b;
-            b
-        | None -> failwith "inconsistency in Ed25519_libsodium.get_as_nacl")
-
-  let check p =
-    match (p.nacl, p.pure) with
-    | Some a, _ -> B.is_valid_point a = 1 || G.check (get_as_pure p)
-    | _, Some a -> G.check a
-    | None, None -> failwith "inconsistency in Ed25519_libsodium.check"
-
-  let one = make_from_pure G.one
-  let g = make_from_pure G.g
+  let id = G.id
+  let to_nacl p = E.point_of_string @@ G.to_string p
+  let to_pure p = G.of_string @@ E.string_of_point p
+  let check = G.check
+  let one = G.one
+  let g = G.g
 
   let ( *~ ) a b =
+    let a' = to_nacl a and b' = to_nacl b in
     let r = E.create_point () in
-    if B.add r (get_as_nacl a) (get_as_nacl b) = 0 then make_from_nacl r
-    else make_from_pure G.(get_as_pure a *~ get_as_pure b)
+    if B.add r a' b' = 0 then to_pure r else G.(a *~ b)
 
   let ( **~ ) p n =
+    let p' = to_nacl p in
     let r = E.create_point () in
-    if B.scalarmult r (E.scalar_of_number n) (get_as_nacl p) = 0 then
-      make_from_nacl r
-    else make_from_pure G.(get_as_pure p **~ n)
+    if B.scalarmult r (E.scalar_of_number n) p' = 0 then to_pure r
+    else G.(p **~ n)
 
-  let compare a b =
-    match (a.pure, b.pure, a.nacl, b.nacl) with
-    | Some c, Some d, _, _ -> G.compare c d
-    | _, _, Some c, Some d -> E.compare_points c d
-    | _, _, Some c, _ -> E.compare_points c (get_as_nacl b)
-    | _, _, _, Some d -> E.compare_points (get_as_nacl a) d
-    | _, _, None, None -> G.compare (get_as_pure a) (get_as_pure b)
-
+  let compare = G.compare
   let ( =~ ) a b = compare a b = 0
-  let invert p = make_from_pure G.(invert (get_as_pure p))
-  let to_string p = E.string_of_point (get_as_nacl p)
-  let of_string s = make_from_nacl (E.point_of_string s)
-
-  let witness =
-    let module X = struct
-      type element = t
-      type scalar = Zq.t
-
-      let element = Group_witness.{ to_string; of_string }
-      let scalar = Zq.(Group_witness.{ to_string; of_string })
-    end in
-    Group_witness.make (module X)
-
+  let invert = G.invert
+  let to_string = G.to_string
+  let of_string = G.of_string
+  let witness = G.witness
   let max_ints = G.max_ints
   let bits_per_int = G.bits_per_int
-  let to_ints n p = G.to_ints n (get_as_pure p)
-
-  let of_ints xs =
-    match G.of_ints xs with Error _ as e -> e | Ok x -> Ok (make_from_pure x)
-
-  let get_generator i = make_from_pure (G.get_generator i)
+  let to_ints = G.to_ints
+  let of_ints = G.of_ints
+  let get_generator = G.get_generator
 
   let hash ~dst prefix xs =
     let dst = dst ^ "-group_hash-Ed25519" in
     (Zq.hash ~dst 1 @@ prefix ^ map_and_concat_with_commas to_string xs).(0)
 
-  let hash_to_int p = G.hash_to_int (get_as_pure p)
-  let description = "Ed25519"
-
-  let selfcheck () =
-    check one && check g
-    && G.compare (get_as_pure g) G.g = 0
-    && (g **~ Zq.(zero - one)) *~ g =~ one
-    && g *~ invert g =~ one
+  let hash_to_int = G.hash_to_int
+  let description = G.description
+  let selfcheck () = (g **~ Zq.(zero - one)) *~ g =~ one && g *~ invert g =~ one
 end
