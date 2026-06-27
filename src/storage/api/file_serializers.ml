@@ -78,10 +78,13 @@ let get_election (type t) : t File.u -> t string_serializers = function
         of_string = !*wrapped_draft_election_of_yojson;
         to_string = !+yojson_of_wrapped_draft_election;
       }
-  | Public_creds ->
+  | Public_creds w ->
+      let module T = (val Group_witness.get w) in
       {
-        of_string = !*public_credentials_of_yojson;
-        to_string = !+yojson_of_public_credentials;
+        of_string =
+          !*(public_credentials_with_id_of_yojson !$(T.element.of_string));
+        to_string =
+          !+(yojson_of_public_credentials_with_id !&(T.element.to_string));
       }
   | Private_creds ->
       {

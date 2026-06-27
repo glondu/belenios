@@ -1041,16 +1041,16 @@ From $c$, a secret exponent $x=\secret(c)$ is derived as follows:
 \end{itemize}
 From this secret exponent, a public key $\public(c)=g^x$ is
 computed.
-
-\[\texttt{public\_credentials}=\jstring^\ast\]
-Public credentials, published as part of public data, are a list of strings, each one
-being:
-\begin{itemize}
-\item either a public credential by itself (if weights are not being
-  used),
-\item or a public credential, followed by a comma and the weight (if
-  weights are being used).
-\end{itemize}
+\[
+  \texttt{public\_credential}=\left\{
+    \begin{array}{rcl}
+      \textsf{credential}&:&\G\\
+      \textsf{?weight}&:&\I
+    \end{array}
+  \right\}
+\]
+\[\texttt{public\_credentials}=\texttt{public\_credential}^\ast\]
+$\texttt{public\_credentials}$ are published as part of public data.
 
 \subsection{Questions}
 \label{questions}

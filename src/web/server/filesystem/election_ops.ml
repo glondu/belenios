@@ -46,7 +46,9 @@ module type BACKEND = sig
   val delete_live_data : uuid -> unit Lwt.t
   val write_deleted_file : uuid -> deleted_election -> unit Lwt.t
   val delete_draft_election : uuid -> unit Lwt.t
-  val init_credential_mapping : uuid -> public_credentials Lwt.t
+
+  val init_credential_mapping :
+    uuid -> ('a, 'b) group_witness -> 'a public_credentials Lwt.t
 end
 
 let ( let&! ) x f = match x with None -> Lwt.return_unit | Some x -> f x
@@ -298,13 +300,15 @@ let validate_election_exn s uuid =
   let* () = voters |> S.set (Election (uuid, Voters)) Value in
   let* () = metadata |> S.set (Election (uuid, Metadata)) Value in
   (* initialize credentials *)
-  let* public_creds = S.init_credential_mapping uuid in
+  let* public_creds = S.init_credential_mapping uuid G.witness in
   (* initialize events *)
   let* () =
     let raw_trustees =
       !+(yojson_of_trustees !&G.to_string !&G.Zq.to_string) trustees
     in
-    let raw_public_creds = !+yojson_of_public_credentials public_creds in
+    let raw_public_creds =
+      !+(yojson_of_public_credentials !&G.to_string) public_creds
+    in
     let setup_election = Hash.hash_string raw_election in
     let setup_trustees = Hash.hash_string raw_trustees in
     let setup_credentials = Hash.hash_string raw_public_creds in

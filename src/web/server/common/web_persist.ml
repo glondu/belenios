@@ -578,7 +578,8 @@ let compute_audit_cache s =
   let* election = Public_archive.get_election s in
   match election with
   | None -> Lwt.return_none
-  | Some _ ->
+  | Some e ->
+      let module W = (val Election.t_of_yojson e) in
       let* voters = get_all_voters s in
       let voters_hash = Hash.hash_string (Voter.list_to_string voters) in
       let* shuffles =
@@ -596,7 +597,9 @@ let compute_audit_cache s =
       let* checksums =
         let* setup_data = get_setup_data s in
         let election = setup_data.election in
-        let* public_credentials = Public_archive.get_public_creds s in
+        let* public_credentials =
+          Public_archive.get_public_creds s W.G.witness
+        in
         let* final =
           let* roots = Public_archive.get_roots s in
           let&* _ = roots.result in
@@ -606,8 +609,8 @@ let compute_audit_cache s =
                (fun (x : last_event) -> x.hash)
                (Lopt.get_value last_event)
         in
-        Election.compute_checksums ~election ~shuffles ~encrypted_tally
-          ~trustees ~public_credentials ~final
+        Election.compute_checksums W.G.witness ~election ~shuffles
+          ~encrypted_tally ~trustees ~public_credentials ~final
         |> Lwt.return
       in
       let* sealing_log =
@@ -877,12 +880,13 @@ let set_election_automatic_dates s d =
   let@ dates, set = update_election_dates s in
   set { dates with auto_open; auto_close; publish; grace_period }
 
-let get_draft_public_credentials s =
-  let* x = Storage.E.get s Public_creds in
+let get_draft_public_credentials s (type a b) (w : (a, b) group_witness) =
+  let* x = Storage.E.get s (Public_creds w) in
   let&* x = Lopt.get_value x in
+  let module T = (val Group_witness.get w) in
   x
-  |> List.map strip_public_credential
-  |> yojson_of_public_credentials |> Lwt.return_some
+  |> List.map (fun (x : _ public_credential_with_id) -> x.credential)
+  |> Lwt.return_some
 
 let get_records s =
   let* x = Storage.E.get s Records in
@@ -924,7 +928,9 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           match Lopt.get_value se with
           | Some (W (w, Draft (v, se))) ->
               let* () = private_creds |> Storage.E.set s Private_creds Value in
-              let* () = Storage.E.set s Public_creds Value public_with_ids in
+              let* () =
+                Storage.E.set s (Public_creds G.witness) Value public_with_ids
+              in
               se.public_creds_received <- true;
               se.pending_credentials <- true;
               let* () = set Value (W (w, Draft (v, se))) in

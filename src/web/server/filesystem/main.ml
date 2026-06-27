@@ -136,6 +136,34 @@ module MakeBackend
   let credential_users_ops : (_, string) abstract_file_ops =
     make_uninitialized_ops "credential_users_ops"
 
+  type wrapped_witness = W : ('a, 'b) group_witness -> wrapped_witness
+
+  let get_witness uuid : wrapped_witness option Lwt.t =
+    let* x = draft_ops.get uuid () in
+    match Lopt.get_value x with
+    | Some (W (w, _)) -> Lwt.return_some (W w)
+    | None -> (
+        let* x = roots_ops.get uuid () in
+        match Lopt.get_value x with
+        | None -> Lwt.return_none
+        | Some roots -> (
+            let x = roots.setup_data in
+            match x with
+            | None -> Lwt.return_none
+            | Some setup_data -> (
+                let* x = data_ops.get uuid setup_data in
+                match Lopt.get_value x with
+                | None -> Lwt.return_none
+                | Some setup_data -> (
+                    let setup_data = !*setup_data_of_yojson setup_data in
+                    let* x = data_ops.get uuid setup_data.election in
+                    match Lopt.get_value x with
+                    | None -> Lwt.return_none
+                    | Some election ->
+                        let election = !*Election.t_of_yojson election in
+                        let module W = (val election) in
+                        Lwt.return_some (W W.G.witness)))))
+
   module PasswordRecordsCacheTypes = struct
     type key = Admin of string
     type value = password_record SMap.t * password_record SMap.t
@@ -285,6 +313,7 @@ module MakeBackend
         -> 'a election_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
+  let public_creds_filename = "public_creds.json"
   let private_key_filename = "private_key.json"
   let private_keys_filename = "private_keys.jsons"
 
@@ -293,7 +322,7 @@ module MakeBackend
     | Draft -> Abstract (draft_ops, ())
     | State -> Concrete ("state.json", Trim, None)
     | State_state -> Abstract (state_state_ops, ())
-    | Public_creds -> Concrete ("public_creds.json", Trim, None)
+    | Public_creds _ -> Concrete (public_creds_filename, Trim, None)
     | Private_creds -> Concrete ("private_creds.txt", Raw, None)
     | Dates -> Abstract (dates_ops, ())
     | Metadata -> Concrete ("metadata.json", Trim, None)
@@ -616,7 +645,7 @@ module MakeBackend
         |> Lopt.some_value !+yojson_of_wrapped_draft_election
         |> Lwt.return
 
-  let set_draft uuid () data =
+  let set_draft uuid () (data : wrapped_draft_election lopt) =
     match Lopt.get_value data with
     | None -> assert false
     | Some (W (w, Draft (v, abstract))) ->
@@ -954,15 +983,18 @@ module MakeBackend
           let* x = credential_mappings_cache#find uuid in
           dump_credential_mappings uuid x)
 
-  let init_credential_mapping uuid =
-    let* file = get (Election (uuid, Public_creds)) in
+  let init_credential_mapping uuid (type a b) (w : (a, b) group_witness) =
+    let module T = (val Group_witness.get w) in
+    let* file = get (Election (uuid, Public_creds w)) in
     match Lopt.get_value file with
     | Some x ->
-        let public_credentials = x |> List.map strip_public_credential in
+        let public_credentials =
+          x |> List.map (fun (x : _ public_credential_with_id) -> x.credential)
+        in
         let xs =
           List.fold_left
-            (fun accu x ->
-              let x = (parse_public_credential Fun.id x).credential in
+            (fun accu (x : _ public_credential) ->
+              let x = T.element.to_string x.credential in
               if SMap.mem x accu then
                 failwith "trying to add duplicate credential"
               else SMap.add x None accu)
@@ -1077,8 +1109,15 @@ module MakeBackend
   module CredCache = Ocsigen_cache.Make (CredCacheTypes)
 
   let raw_get_credential_cache uuid =
-    let@ public_creds cont =
-      let* x = get (Election (uuid, Public_creds)) in
+    let@ (W w) =
+     fun cont ->
+      let* x = get_witness uuid in
+      match x with Some x -> cont x | None -> assert false
+    in
+    let module T = (val Group_witness.get w) in
+    let@ public_creds =
+     fun cont ->
+      let* x = get (Election (uuid, Public_creds w)) in
       match Lopt.get_value x with
       | None ->
           (* public credentials mapping is no longer available, use
@@ -1095,15 +1134,23 @@ module MakeBackend
           let setup_data = x |> !*setup_data_of_yojson in
           let* x = get (Election (uuid, Data setup_data.credentials)) in
           let& x = Lopt.get_value x in
-          x |> !*public_credentials_of_yojson |> cont
-      | Some x -> cont x
+          let public_creds =
+            x |> !*(public_credentials_of_yojson !$(T.element.of_string))
+          in
+          cont (List.map (fun x -> (x, None)) public_creds)
+      | Some x ->
+          cont
+            (List.map
+               (fun (x : _ public_credential_with_id) ->
+                 (x.credential, Some x.id))
+               x)
     in
     let cred_map =
       List.fold_left
-        (fun cred_map x ->
-          let p = parse_public_credential Fun.id x in
-          SMap.add p.credential
-            (p.username, Option.value ~default:Weight.one p.weight)
+        (fun cred_map ((p : _ public_credential), id) ->
+          SMap.add
+            (T.element.to_string p.credential)
+            (id, Option.value ~default:Weight.one p.weight)
             cred_map)
         SMap.empty public_creds
     in
@@ -1149,14 +1196,13 @@ module MakeBackend
           extended_records_filename;
           credential_mappings_filename;
           decryption_tokens_filename;
+          public_creds_filename;
           private_key_filename;
           private_keys_filename;
         ]
     in
     let* () =
-      Lwt_list.iter_p
-        (fun (F x) -> del (Election (uuid, x)))
-        [ F State; F Public_creds ]
+      Lwt_list.iter_p (fun (F x) -> del (Election (uuid, x))) [ F State ]
     in
     Elections_cache.clear ();
     Lwt.return_unit

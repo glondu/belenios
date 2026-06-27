@@ -28,7 +28,10 @@ module type GETTERS = sig
   val setup_data : setup_data Lwt.t
   val raw_election : string Lwt.t
   val get_trustees : unit -> string option Lwt.t
-  val get_public_creds : unit -> string list option Lwt.t
+
+  val get_public_creds :
+    ('a, 'b) group_witness -> 'a public_credentials option Lwt.t
+
   val get_ballots : unit -> string list option Lwt.t
 
   val get_encrypted_tally :
@@ -76,10 +79,12 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
     | None -> failcmd "could not get election"
     | Some x -> Lwt.return x
 
-  let get_public_creds () =
+  let get_public_creds (type a b) (w : (a, b) group_witness) =
     let* setup_data = setup_data in
     let* x = get_data setup_data.credentials in
-    Lwt.return @@ Option.map !*public_credentials_of_yojson x
+    let module T = (val Group_witness.get w) in
+    Lwt.return
+    @@ Option.map !*(public_credentials_of_yojson !$(T.element.of_string)) x
 
   let get_trustees () =
     let* setup_data = setup_data in
@@ -179,7 +184,7 @@ module type ELECTION_DATA = sig
   val trustees_as_string : string option Lwt.t
   val trustees : (t, s) trustees option Lwt.t
   val pks : t array Lwt.t Lazy.t
-  val raw_public_creds : string list option Lwt.t Lazy.t
+  val raw_public_creds : t public_credentials option Lwt.t Lazy.t
   val public_creds_weights : (bool * weight SMap.t) option Lwt.t Lazy.t
   val raw_ballots : string list option Lwt.t Lazy.t
   val verified_ballots : (hash * string * weight * string) list Lwt.t Lazy.t
@@ -246,7 +251,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
        | Some pks -> Lwt.return pks
        | None -> failwith "missing public keys")
 
-  let raw_public_creds = lazy (get_public_creds ())
+  let raw_public_creds = lazy (get_public_creds G.witness)
 
   module rec Cred :
     (Credential.S
@@ -270,19 +275,15 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
        x
        |> Option.map
             (List.fold_left
-               (fun (has_weights, accu) x ->
-                 let has_weights =
-                   has_weights || String.index_opt x ',' <> None
-                 in
-                 match Cred.parse_public_credential x with
-                 | Some (w, y) ->
-                     let y = G.to_string y in
-                     if SMap.mem y accu then
-                       Printf.ksprintf failwith "duplicate credential: %s" y
-                     else (has_weights, SMap.add y w accu)
-                 | None ->
-                     Printf.ksprintf failwith
-                       "%s is not a valid public credential" x)
+               (fun (has_weights, accu) (x : _ public_credential) ->
+                 let has_weights = has_weights || x.weight <> None in
+                 let y = G.to_string x.credential in
+                 if SMap.mem y accu then
+                   Printf.ksprintf failwith "duplicate credential: %s" y
+                 else
+                   ( has_weights,
+                     SMap.add y (Option.value ~default:Weight.one x.weight) accu
+                   ))
                (false, SMap.empty))
        |> Lwt.return)
 

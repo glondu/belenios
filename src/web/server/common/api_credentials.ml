@@ -73,7 +73,9 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
       creds.private_creds
   in
   let public_creds_hash =
-    creds.public_creds |> yojson_of_public_credentials |> Hash.hash_yojson
+    creds.public_creds
+    |> yojson_of_public_credentials !&G.to_string
+    |> Hash.hash_yojson
   in
   let raw_certificate : (_, _) raw_credentials_certificate =
     {
@@ -511,8 +513,9 @@ let dispatch endpoint method_ body =
   | [ "belenios" ] -> (
       match method_ with
       | `POST -> (
-          let@ response =
-            body.run !*(credentials_response_of_yojson Fun.id Fun.id)
+          let@ response_s = body.run Fun.id in
+          let response =
+            !*(credentials_response_of_yojson Fun.id Fun.id) response_s
           in
           let certificate = response.certificate in
           let uuid = certificate.message.uuid in
@@ -522,15 +525,15 @@ let dispatch endpoint method_ body =
           match Lopt.get_value se with
           | None -> not_found
           | Some (W (w, (Draft (_, se) as x))) ->
+              let module T = (val Group_witness.get w) in
+              let response =
+                !*(credentials_response_of_yojson !$(T.element.of_string)
+                     !$(T.scalar.of_string))
+                  response_s
+              in
               if se.public_creds = response.token then
                 let set ?billing:_ x = set Value (W (w, x)) in
-                let module T = (val Group_witness.get w) in
-                let certificate =
-                  certificate
-                  |> yojson_of_credentials_certificate Fun.id Fun.id
-                  |> credentials_certificate_of_yojson !$(T.element.of_string)
-                       !$(T.scalar.of_string)
-                in
+                let certificate = response.certificate in
                 let* () =
                   Api_drafts.submit_public_credentials s w (x, set) ~certificate
                     response.public_credentials

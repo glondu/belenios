@@ -55,7 +55,7 @@ val submit_public_credentials :
   ('a, 'b) group_witness ->
   ('a, 'b) draft_election updatable_with_billing ->
   ?certificate:('a, 'b) credentials_certificate ->
-  public_credentials ->
+  'a public_credentials_with_id ->
   unit Lwt.t
 
 val generate_server_trustee :

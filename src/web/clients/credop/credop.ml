@@ -167,7 +167,8 @@ module App (U : UI) = struct
         if
           certificate.message.uuid = uuid
           && certificate.message.voter_list_length
-             = List.length (!*public_credentials_of_yojson credentials)
+             = List.length
+                 (!*(public_credentials_of_yojson !$E.G.of_string) credentials)
           && certificate.message.public_creds_hash
              = Hash.hash_string credentials
           && C.check certificate

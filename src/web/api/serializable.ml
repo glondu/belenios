@@ -219,7 +219,6 @@ type summary = { uuid : uuid; name : string; date : float; state : state }
 
 type summary_list = summary list [@@deriving yojson]
 type string_list = string list [@@deriving yojson]
-type public_credentials = string list [@@deriving yojson]
 
 type 'a trustee = {
   address : string option; [@yojson.option]
@@ -301,7 +300,7 @@ type credentials_request =
 type ('a, 'b) credentials_response = {
   certificate : ('a, 'b) credentials_certificate;
   token : string;
-  public_credentials : public_credentials;
+  public_credentials : 'a public_credentials_with_id;
 }
 [@@deriving yojson]
 

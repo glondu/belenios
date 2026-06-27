@@ -212,7 +212,7 @@ module Credgen = struct
     set_textarea "credgen_generated_creds"
       (!+yojson_of_private_credentials c.private_creds);
     set_textarea "credgen_generated_pks"
-      (c.public_with_ids |> String.concat "\n");
+      (!+(yojson_of_public_credentials_with_id !&G.to_string) c.public_with_ids);
     Lwt.return_unit
 
   let generate_n () =

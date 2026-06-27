@@ -43,7 +43,12 @@ val draft_status : uuid -> (admin, draft_status, unit) t
 val draft_voters : uuid -> ([< admin | credauth ], voter_list, voters_request) t
 
 val draft_public_credentials :
-  uuid -> ([< admin | credauth ], public_credentials, public_credentials) t
+  uuid ->
+  ('a, 'b) group_witness ->
+  ( [< admin | credauth ],
+    'a public_credentials,
+    'a public_credentials_with_id )
+  t
 
 val draft_private_credentials : uuid -> (admin, private_credentials, unit) t
 val draft_credentials_token : uuid -> (admin, string, unit) t

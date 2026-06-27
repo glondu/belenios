@@ -38,7 +38,7 @@ type _ u =
   | Archive_header : Archive.header u
   | Last_event : last_event u
   | Draft : wrapped_draft_election u
-  | Public_creds : public_credentials u
+  | Public_creds : ('a, 'b) group_witness -> 'a public_credentials_with_id u
   | Private_creds : private_credentials u
   | Sealing_log : string u
   | Records : election_records u

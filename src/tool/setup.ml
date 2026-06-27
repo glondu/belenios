@@ -353,7 +353,7 @@ module Credgen : CMDLINER_MODULE = struct
           let pause () = ()
           let uuid = uuid
         end) in
-    let save (c : Credential.batch) =
+    let save (c : _ Credential.batch) =
       let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
       let base = dir // timestamp in
       let* () =
@@ -362,9 +362,14 @@ module Credgen : CMDLINER_MODULE = struct
       in
       let* () =
         save params_pub base
-          (as_json !+yojson_of_public_credentials c.public_with_ids)
+          (as_json
+             !+(yojson_of_public_credentials_with_id !&G.to_string)
+             c.public_with_ids)
       in
-      let h = sha256_b64 (!+yojson_of_public_credentials c.public_creds) in
+      let h =
+        sha256_b64
+          (!+(yojson_of_public_credentials !&G.to_string) c.public_creds)
+      in
       Lwt_io.printlf "The fingerprint of public credentials is %s" h
     in
     match action with

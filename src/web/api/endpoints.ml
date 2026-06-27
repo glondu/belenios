@@ -77,14 +77,16 @@ let draft_voters uuid =
     to_yojson_post = yojson_of_voters_request;
   }
 
-let draft_public_credentials uuid =
+let draft_public_credentials uuid (type a b) (w : (a, b) group_witness) =
+  let module T = (val Group_witness.get w) in
   {
     path =
       Printf.sprintf "elections/%s/draft/credentials/public"
         (Uuid.to_string uuid);
-    of_yojson = public_credentials_of_yojson;
-    to_yojson = yojson_of_public_credentials;
-    to_yojson_post = yojson_of_public_credentials;
+    of_yojson = public_credentials_of_yojson !$(T.element.of_string);
+    to_yojson = yojson_of_public_credentials !&(T.element.to_string);
+    to_yojson_post =
+      yojson_of_public_credentials_with_id !&(T.element.to_string);
   }
 
 let draft_private_credentials uuid =

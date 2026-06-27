@@ -142,17 +142,19 @@ let supported_crypto_versions = [ Version V2 ]
 
 (** Computing checksums *)
 
-let compute_checksums ~election ~trustees ~public_credentials ~shuffles
-    ~encrypted_tally ~final =
+let compute_checksums (type a b) (w : (a, b) group_witness) ~election ~trustees
+    ~public_credentials ~shuffles ~encrypted_tally ~final =
+  let module T = (val Group_witness.get w) in
   let ec_public_credentials =
-    Hash.hash_string (!+yojson_of_public_credentials public_credentials)
+    Hash.hash_string
+      (!+(yojson_of_public_credentials !&(T.element.to_string))
+         public_credentials)
   in
   let ec_num_voters = List.length public_credentials in
   let ec_weights =
     let total, min, max =
       List.fold_left
-        (fun (total, min, max) cred ->
-          let p = parse_public_credential Fun.id cred in
+        (fun (total, min, max) (p : _ public_credential) ->
           let w = Option.value ~default:Weight.one p.weight in
           let total = Weight.(total + w) in
           let min =

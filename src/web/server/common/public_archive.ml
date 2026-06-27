@@ -141,11 +141,13 @@ let get_partial_decryptions s =
 
 let get_result s = get_from_data s (fun x -> x.result)
 
-let get_public_creds s =
+let get_public_creds s (type a b) (w : (a, b) group_witness) =
   let* x = get_from_setup_data s (fun x -> x.credentials) in
   match x with
   | None -> assert false
-  | Some x -> Lwt.return @@ !*public_credentials_of_yojson x
+  | Some x ->
+      let module T = (val Group_witness.get w) in
+      Lwt.return @@ !*(public_credentials_of_yojson !$(T.element.of_string)) x
 
 let get_credential_weight s cred =
   let* x = Storage.E.get s (Credential_weight cred) in

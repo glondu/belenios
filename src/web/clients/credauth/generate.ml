@@ -29,11 +29,13 @@ open Belenios_web_api
 open Belenios_js.Common
 open Belenios_js.Session
 
-let do_generate uuid (Draft (_, draft)) ~voters =
+let do_generate (type a b) (w : (a, b) group_witness) uuid (Draft (_, draft))
+    ~voters : a Credential.batch Lwt.t =
   let voters = Voter.list_of_string voters in
   let version = draft.version in
   let group = draft.group in
   let module G = (val Belenios.Group.of_string ~version group) in
+  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
   let module Cred =
     Credential.Make
       (G)
@@ -47,10 +49,14 @@ let do_generate uuid (Draft (_, draft)) ~voters =
       end) in
   Cred.generate voters
 
-let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
+let make_submit_credentials_div (type a b) (w : (a, b) group_witness) ~uuid
+    ~token ~voters (c : a Credential.batch) =
+  let module T = (val Group_witness.get w) in
   let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
-  let public_credentials = !+yojson_of_public_credentials c.public_creds in
+  let public_credentials =
+    !+(yojson_of_public_credentials !&(T.element.to_string)) c.public_creds
+  in
   let private_credentials = !+yojson_of_private_credentials c.private_creds in
   let submit_div = Dom_html.createDiv document in
   let submit_btn =
@@ -61,7 +67,9 @@ let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
     Dom.removeChild container submit_div;
     let* x =
       Api.(
-        post (draft_public_credentials uuid) (`Credauth token) c.public_with_ids)
+        post
+          (draft_public_credentials uuid w)
+          (`Credauth token) c.public_with_ids)
     in
     let msg =
       match x.code with
@@ -198,15 +206,18 @@ let generate configuration uuid ~token =
       ]
   in
   let generate_div = Dom_html.createDiv document in
-  let generate_btn =
+  let generate_btn (type a b) (w : (a, b) group_witness) =
     let@ () = button ~a:[ a_id "generate" ] @@ s_ "Generate" in
     Dom.removeChild container generate_div;
-    let* c = do_generate uuid draft ~voters in
+    let* c = do_generate w uuid draft ~voters in
     Dom.appendChild container @@ Tyxml_js.To_dom.of_div
-    @@ make_submit_credentials_div ~uuid ~token ~voters c;
+    @@ make_submit_credentials_div w ~uuid ~token ~voters c;
     Lwt.return_unit
   in
-  Dom.appendChild generate_div (Tyxml_js.To_dom.of_button generate_btn);
+  let (Draft (_, draft)) = draft in
+  let module G = (val Group.of_string ~version:draft.version draft.group) in
+  Dom.appendChild generate_div
+    (Tyxml_js.To_dom.of_button (generate_btn G.witness));
   Dom.appendChild container generate_div;
   Lwt.return
   @@ [ header; hr (); link_div; hr (); Tyxml_js.Of_dom.of_div container ]

@@ -28,7 +28,10 @@ val get_trustees : Storage.E.t -> string Lwt.t
 val get_election : Storage.E.t -> json option Lwt.t
 val get_partial_decryptions : Storage.E.t -> string owned list Lwt.t
 val get_result : Storage.E.t -> string option Lwt.t
-val get_public_creds : Storage.E.t -> public_credentials Lwt.t
+
+val get_public_creds :
+  Storage.E.t -> ('a, 'b) group_witness -> 'a public_credentials Lwt.t
+
 val get_ballot_by_hash : Storage.E.t -> string -> string option Lwt.t
 val get_nh_ciphertexts : Storage.E.t -> string Lwt.t
 val get_shuffles : Storage.E.t -> (hash * hash owned * string) list option Lwt.t

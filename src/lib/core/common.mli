@@ -87,8 +87,6 @@ end
 val split_on_br : string -> string list
 val split_lines : string -> string list
 val join_lines : string list -> string
-val parse_public_credential : (string -> 'a) -> string -> 'a public_credential
-val strip_public_credential : string -> string
 val re_exec_opt : rex:Re.re -> string -> Re.Group.t option
 val is_username : string -> bool
 val is_email : ?blacklist:SSet.t -> string -> bool

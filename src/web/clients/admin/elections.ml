@@ -1417,6 +1417,7 @@ let change_cred_authority_info cred_authority_info =
 
 (** The page content, when the user can still choose between both options *)
 let credauth_changeable_content uuid draft currsel =
+  let module G = (val Group.of_string ~version:draft.version draft.group) in
   let open (val !Belenios_js.I18n.gettext) in
   let currsel = ref currsel in
   let refresh_hooks = ref [] in
@@ -1444,7 +1445,9 @@ let credauth_changeable_content uuid draft currsel =
           ~a:[ a_id "generate_on_server" ]
           (s_ "Generate and send the credentials")
       in
-      let* res = Api.(post (draft_public_credentials uuid) !user []) in
+      let* res =
+        Api.(post (draft_public_credentials uuid G.witness) !user [])
+      in
       match res.code with
       | 200 -> !update_election_main ()
       | code -> (

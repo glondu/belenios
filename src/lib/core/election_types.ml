@@ -25,7 +25,24 @@ open Common_types
 
 type voter = Common.Voter.t [@@deriving yojson]
 type voter_list = voter list [@@deriving yojson]
-type public_credentials = string list [@@deriving yojson]
+
+type 'a public_credential = {
+  credential : 'a;
+  weight : weight option; [@yojson.option]
+}
+[@@deriving yojson]
+
+type 'a public_credentials = 'a public_credential list [@@deriving yojson]
+
+type 'a public_credential_with_id = {
+  credential : 'a public_credential;
+  id : string;
+}
+[@@deriving yojson]
+
+type 'a public_credentials_with_id = 'a public_credential_with_id list
+[@@deriving yojson]
+
 type private_credentials = (string * string) list
 
 let private_credentials_of_yojson : json -> private_credentials = function

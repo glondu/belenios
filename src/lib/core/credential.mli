@@ -25,10 +25,10 @@ open Election_types
 open Misc_types
 open Common
 
-type batch = {
+type 'a batch = {
   private_creds : private_credentials;
-  public_creds : public_credentials;
-  public_with_ids : string list;
+  public_creds : 'a public_credentials;
+  public_with_ids : 'a public_credential_with_id list;
 }
 
 module type ELECTION = sig
@@ -46,14 +46,12 @@ module type S = sig
   type private_key
   type public_key
 
-  val generate : Voter.t list -> batch m
+  val generate : Voter.t list -> public_key batch m
   val generate_sub : int -> sub_batch m * (unit -> int)
-  val merge_sub : Voter.t list -> sub_batch -> batch
+  val merge_sub : Voter.t list -> sub_batch -> public_key batch
 
   val derive :
     string -> (private_key, [ `Wrong | `Invalid | `MaybePassword ]) result m
-
-  val parse_public_credential : string -> (Weight.t * public_key) option
 end
 
 module Make (G : GROUP) (E : ELECTION with type public_key := G.t) :

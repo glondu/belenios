@@ -319,8 +319,8 @@ let make file =
         | Some x -> Lwt.return x
       in
       let* final = Getters.get_final () in
-      Belenios.Election.compute_checksums ~election ~shuffles ~encrypted_tally
-        ~trustees ~public_credentials ~final
+      Belenios.Election.compute_checksums G.witness ~election ~shuffles
+        ~encrypted_tally ~trustees ~public_credentials ~final
       |> !+yojson_of_election_checksums
       |> Lwt.return
 

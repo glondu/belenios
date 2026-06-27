@@ -30,7 +30,10 @@ module type GETTERS = sig
   val setup_data : setup_data Lwt.t
   val raw_election : string Lwt.t
   val get_trustees : unit -> string option Lwt.t
-  val get_public_creds : unit -> string list option Lwt.t
+
+  val get_public_creds :
+    ('a, 'b) group_witness -> 'a public_credentials option Lwt.t
+
   val get_ballots : unit -> string list option Lwt.t
 
   val get_encrypted_tally :
@@ -58,7 +61,7 @@ module type ELECTION_DATA = sig
   val trustees_as_string : string option Lwt.t
   val trustees : (t, s) trustees option Lwt.t
   val pks : t array Lwt.t Lazy.t
-  val raw_public_creds : string list option Lwt.t Lazy.t
+  val raw_public_creds : t public_credentials option Lwt.t Lazy.t
   val public_creds_weights : (bool * weight SMap.t) option Lwt.t Lazy.t
   val raw_ballots : string list option Lwt.t Lazy.t
   val verified_ballots : (hash * string * weight * string) list Lwt.t Lazy.t

@@ -168,7 +168,7 @@ module Make (P : PARAMS) = struct
     in
     let body =
       x.public_with_ids
-      |> !+yojson_of_public_credentials
+      |> !+(yojson_of_public_credentials_with_id !&G.to_string)
       |> Cohttp_lwt.Body.of_string
     in
     let* response, x =

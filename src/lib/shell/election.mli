@@ -74,9 +74,10 @@ type t = (module ELECTION) [@@deriving yojson]
 val supported_crypto_versions : some_version list
 
 val compute_checksums :
+  ('a, 'b) group_witness ->
   election:hash ->
   trustees:string ->
-  public_credentials:string list ->
+  public_credentials:'a public_credentials ->
   shuffles:hash owned list option ->
   encrypted_tally:hash option ->
   final:hash option ->

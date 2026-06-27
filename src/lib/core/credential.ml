@@ -48,10 +48,10 @@ let parse_raw x =
 
 type 'a t = { private_credential : string; private_key : 'a }
 
-type batch = {
+type 'a batch = {
   private_creds : private_credentials;
-  public_creds : public_credentials;
-  public_with_ids : string list;
+  public_creds : 'a public_credentials;
+  public_with_ids : 'a public_credential_with_id list;
 }
 
 module type ELECTION = sig
@@ -69,14 +69,12 @@ module type S = sig
   type private_key
   type public_key
 
-  val generate : Voter.t list -> batch m
+  val generate : Voter.t list -> public_key batch m
   val generate_sub : int -> sub_batch m * (unit -> int)
-  val merge_sub : Voter.t list -> sub_batch -> batch
+  val merge_sub : Voter.t list -> sub_batch -> public_key batch
 
   val derive :
     string -> (private_key, [ `Wrong | `Invalid | `MaybePassword ]) result m
-
-  val parse_public_credential : string -> (Weight.t * public_key) option
 end
 
 module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
@@ -119,16 +117,12 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
             GMap.add G.(g **~ private_key) (weight, username) pubs ))
         (SMap.empty, GMap.empty) voters
     in
-    let serialize_with_id (e, (w, id)) =
-      G.to_string e
-      ^ (if implicit_weights then ","
-         else Printf.sprintf ",%s" (Weight.to_string w))
-      ^ Printf.sprintf ",%s" id
+    let serialize_public (e, (w, _)) : _ public_credential =
+      { credential = e; weight = (if implicit_weights then None else Some w) }
     in
-    let serialize_public (e, (w, _)) =
-      G.to_string e
-      ^
-      if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w)
+    let serialize_with_id ((_, (_, id)) as x) : _ public_credential_with_id =
+      let credential = serialize_public x in
+      { credential; id }
     in
     let bindings = GMap.bindings pubs in
     {
@@ -170,16 +164,12 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
       in
       loop (SMap.empty, GMap.empty) voters subs
     in
-    let serialize_with_id (e, (w, id)) =
-      G.to_string e
-      ^ (if implicit_weights then ","
-         else Printf.sprintf ",%s" (Weight.to_string w))
-      ^ Printf.sprintf ",%s" id
+    let serialize_public (e, (w, _)) : _ public_credential =
+      { credential = e; weight = (if implicit_weights then None else Some w) }
     in
-    let serialize_public (e, (w, _)) =
-      G.to_string e
-      ^
-      if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w)
+    let serialize_with_id ((_, (_, id)) as x) : _ public_credential_with_id =
+      let credential = serialize_public x in
+      { credential; id }
     in
     let bindings = GMap.bindings pubs in
     {
@@ -187,13 +177,4 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
       public_creds = List.map serialize_public bindings;
       public_with_ids = List.map serialize_with_id bindings;
     }
-
-  let parse_public_credential s =
-    match parse_public_credential G.of_string s with
-    | exception Invalid_argument _ -> None
-    | p ->
-        if G.check p.credential then
-          let weight = Option.value ~default:Weight.one p.weight in
-          Some (weight, p.credential)
-        else None
 end

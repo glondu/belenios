@@ -356,7 +356,8 @@ let exn_of_generate_credentials_on_server_error = function
 
 let submit_public_credentials s (type a b) (w : (a, b) group_witness)
     ((Draft (v, se), set) : _ updatable_with_billing)
-    ?(certificate : (a, b) credentials_certificate option) credentials =
+    ?(certificate : (a, b) credentials_certificate option)
+    (credentials : a public_credentials_with_id) =
   let () = if se.voters = [] then raise (Error (`ValidationError `NoVoters)) in
   let () =
     if not (List.length se.voters = List.length credentials) then
@@ -371,8 +372,11 @@ let submit_public_credentials s (type a b) (w : (a, b) group_witness)
     | Some certificate ->
         let public_creds_ok =
           let public_creds_hash =
-            List.map strip_public_credential credentials
-            |> yojson_of_public_credentials |> Hash.hash_yojson
+            List.map
+              (fun (x : _ public_credential_with_id) -> x.credential)
+              credentials
+            |> yojson_of_public_credentials !&G.to_string
+            |> Hash.hash_yojson
           in
           public_creds_hash = certificate.message.public_creds_hash
         in
@@ -397,7 +401,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group_witness)
   in
   let _, _ =
     List.fold_left
-      (fun (i, creds) x ->
+      (fun (i, creds) (p : _ public_credential_with_id) ->
         let invalid fmt =
           Printf.ksprintf
             (fun x ->
@@ -406,12 +410,9 @@ let submit_public_credentials s (type a b) (w : (a, b) group_witness)
                    (`GenericError (Printf.sprintf "invalid %s at index %d" x i))))
             fmt
         in
-        let p = parse_public_credential G.of_string x in
-        let weight = Option.value ~default:Weight.one p.weight in
-        let username =
-          match p.username with Some u -> u | None -> invalid "record"
-        in
-        let cred_s = G.to_string p.credential in
+        let weight = Option.value ~default:Weight.one p.credential.weight in
+        let username = p.id in
+        let cred_s = G.to_string p.credential.credential in
         let () =
           match SMap.find_opt username usernames with
           | None -> invalid "username %s" username
@@ -420,14 +421,14 @@ let submit_public_credentials s (type a b) (w : (a, b) group_witness)
               else if Weight.compare w weight <> 0 then
                 invalid "differing weight"
               else if SSet.mem cred_s creds then invalid "duplicate credential"
-              else if not (G.check p.credential) then
+              else if not (G.check p.credential.credential) then
                 invalid "public credential"
               else used := true
         in
         (i + 1, SSet.add cred_s creds))
       (0, SSet.empty) credentials
   in
-  let* () = Storage.E.set s Public_creds Value credentials in
+  let* () = Storage.E.set s (Public_creds G.witness) Value credentials in
   se.public_creds_received <- true;
   se.public_creds_certificate <- certificate;
   set (Draft (v, se))
@@ -1132,6 +1133,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group_witness)
 let dispatch_credentials ~token endpoint method_ body s uuid
     ((wse, wset) : _ updatable_with_billing) =
   let (W (w, se) : wrapped_draft_election) = wse in
+  let module T = (val Group_witness.get w) in
   let set ?billing x = wset ?billing (W (w, x)) in
   match endpoint with
   | [ "token" ] -> (
@@ -1151,12 +1153,20 @@ let dispatch_credentials ~token endpoint method_ body s uuid
       match method_ with
       | `GET ->
           handle_get_option (fun () ->
-              Web_persist.get_draft_public_credentials s)
+              let* x = Web_persist.get_draft_public_credentials s w in
+              match x with
+              | None -> Lwt.return_none
+              | Some x ->
+                  Lwt.return_some
+                  @@ yojson_of_public_credentials !&(T.element.to_string) x)
       | `POST -> (
           let@ who = with_administrator_or_credential_authority token se in
           if Web_persist.get_credentials_status uuid se <> `None then forbidden
           else
-            let@ x = body.run !*public_credentials_of_yojson in
+            let@ x =
+              body.run
+                !*(public_credentials_with_id_of_yojson !$(T.element.of_string))
+            in
             match (who, x) with
             | `Administrator account, [] -> (
                 let@ () = handle_generic_error in

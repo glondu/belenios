@@ -150,9 +150,9 @@ module Events : CMDLINER_MODULE = struct
     let* public_creds = string_of_file public_creds in
     let public_creds =
       public_creds
-      |> !*public_credentials_of_yojson
-      |> List.map strip_public_credential
-      |> !+yojson_of_public_credentials
+      |> !*(public_credentials_with_id_of_yojson Fun.id)
+      |> List.map (fun (x : _ public_credential_with_id) -> x.credential)
+      |> !+(yojson_of_public_credentials Fun.id)
     in
     let file =
       let uuid = Election.get_uuid election in

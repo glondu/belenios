@@ -295,34 +295,6 @@ let join_lines xs =
     xs;
   Buffer.contents b
 
-let parse_public_credential of_string x =
-  match String.split_on_char ',' x with
-  | [ c ] -> { credential = of_string c; weight = None; username = None }
-  | [ c; w ] ->
-      {
-        credential = of_string c;
-        weight = Some (Weight.of_string w);
-        username = None;
-      }
-  | [ c; ""; u ] ->
-      { credential = of_string c; weight = None; username = Some u }
-  | [ c; w; u ] ->
-      {
-        credential = of_string c;
-        weight = Some (Weight.of_string w);
-        username = Some u;
-      }
-  | _ -> Printf.ksprintf invalid_arg "invalid line in public credentials: %s" x
-
-let format_public_credential to_string x =
-  match x.weight with
-  | None -> to_string x.credential
-  | Some w ->
-      Printf.sprintf "%s,%s" (to_string x.credential) (Weight.to_string w)
-
-let strip_public_credential =
-  parse_public_credential Fun.id >> format_public_credential Fun.id
-
 let re_exec_opt ~rex x = try Some (Re.Pcre.exec ~rex x) with Not_found -> None
 let username_rex = "^[A-Z0-9._%+-]+$"
 

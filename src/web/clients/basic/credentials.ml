@@ -76,7 +76,7 @@ let show main uuid =
                     let pause = Lwt.pause
                     let uuid = uuid
                   end) in
-              let* Credential.{ public_creds; private_creds; _ } =
+              let* Credential.{ private_creds; public_with_ids; _ } =
                 Cred.generate xs
               in
               let t, _ =
@@ -86,7 +86,10 @@ let show main uuid =
               let b =
                 let@ () = button "Send public credentials to server" in
                 let* x =
-                  Api.(post (draft_public_credentials uuid) !user public_creds)
+                  Api.(
+                    post
+                      (draft_public_credentials uuid G.witness)
+                      !user public_with_ids)
                 in
                 let@ () = show_in button_container in
                 let msg =

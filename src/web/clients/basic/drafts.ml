@@ -83,9 +83,11 @@ let rec show_draft_voters uuid draft container =
   in
   Lwt.return [ div [ t ]; div [ b ]; import ]
 
-let rec show_draft_credentials uuid container =
+let rec show_draft_credentials : 'a 'b. uuid -> ('a, 'b) group_witness -> _ -> _
+    =
+ fun uuid (type a b) (w : (a, b) group_witness) container ->
   let@ () = show_in container in
-  let* x = Api.(get (draft_public_credentials uuid) !user) in
+  let* x = Api.(get (draft_public_credentials uuid w) !user) in
   let@ x = with_ok_not_found "credentials" x in
   match x with
   | None -> (
@@ -95,9 +97,10 @@ let rec show_draft_credentials uuid container =
       | None ->
           let b =
             let@ () = button "Generate on server" in
-            let* x = Api.(post (draft_public_credentials uuid) !user []) in
+            let* x = Api.(post (draft_public_credentials uuid w) !user []) in
             let@ () = show_in container in
-            generic_proceed x (fun () -> show_draft_credentials uuid container)
+            generic_proceed x (fun () ->
+                show_draft_credentials uuid w container)
           in
           Lwt.return [ b ]
       | Some (token, _) ->
@@ -118,7 +121,10 @@ let rec show_draft_credentials uuid container =
               txt link;
             ])
   | Some (x, _) ->
-      let t, _ = textarea (!+yojson_of_public_credentials x) in
+      let module T = (val Group_witness.get w) in
+      let t, _ =
+        textarea (!+(yojson_of_public_credentials !&(T.element.to_string)) x)
+      in
       Lwt.return [ t ]
 
 type trustee_with_writer =
@@ -254,7 +260,10 @@ let show_draft show_all uuid draft title container tab =
   match tab with
   | `Draft -> show_draft_main show_all uuid draft container
   | `Voters -> show_draft_voters uuid draft container
-  | `Credentials -> show_draft_credentials uuid container
+  | `Credentials ->
+      let (Draft (_, draft)) = draft in
+      let module G = (val Group.of_string ~version:draft.version draft.group) in
+      show_draft_credentials uuid G.witness container
   | `Trustees -> show_draft_trustees uuid container
   | `Status -> show_draft_status uuid container
 
