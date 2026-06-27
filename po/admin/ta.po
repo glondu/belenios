@@ -2089,7 +2089,7 @@ msgstr "அநாமதேய அறங்காவலர்"
 
 #: src/web/server/common/pages_admin.ml:514
 msgid "as a voter for election %s."
-msgstr "தேர்தலுக்கான வாக்காளராக."
+msgstr "தேர்தலுக்கான வாக்காளராக %s."
 
 #: src/web/server/common/pages_admin.ml:510
 msgid "as an administrator."
