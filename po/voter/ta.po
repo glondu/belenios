@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-10-05 08:44+0000\n"
-"PO-Revision-Date: 2026-06-22 08:03+0000\n"
+"PO-Revision-Date: 2026-06-24 15:01+0000\n"
 "Last-Translator: தமிழ்நேரம் <tamilneram247@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/belenios/voter/ta/>"
 "\n"
@@ -60,7 +60,7 @@ msgstr " பின்வரும் பெட்டியில்: "
 
 #: src/web/common/pages_common.ml:245
 msgid " is rejected, because "
-msgstr " நிராகரிக்கப்பட்டது, ஏனெனில் "
+msgstr " நிராகரிக்கப்படுகிறது, ஏனெனில் "
 
 #: src/web/clients/election/home.ml:361 src/web/clients/election/home.ml:330
 msgid "%d blank ballot(s)"
@@ -113,7 +113,7 @@ msgstr ""
 
 #: src/web/server/common/pages_common.ml:500
 msgid "A verification code has been sent to %s."
-msgstr "சரிபார்ப்பு குறியீடு %s க்கு அனுப்பப்பட்டுள்ளது."
+msgstr "சரிபார்ப்புக் குறியீடு %sக்கு அனுப்பப்பட்டது."
 
 #: src/web/clients/election/home.ml:278
 msgid "About this election"
@@ -210,7 +210,7 @@ msgstr "மோசமான பாதுகாப்பு குறியீட�
 
 #: src/web/server/common/mails_voter.ml:289
 msgid "Best regards,"
-msgstr "அன்புடன்,"
+msgstr "வாழ்த்துக்கள்,"
 
 #: src/web/clients/election/home.ml:493
 msgid "Blank vote"
@@ -223,7 +223,7 @@ msgstr "இந்த சேவையகத்தில் சாவடிகள�
 #: src/web/clients/common/secondary_ui.ml:70
 msgid "By using this site, you accept our "
 msgstr ""
-"இந்த தளத்தைப் பயன்படுத்துவதன் மூலம், நீங்கள் எங்களை ஏற்றுக்கொள்கிறீர்கள் "
+"இந்த தளத்தைப் பயன்படுத்துவதன் மூலம், நீங்கள் எங்கள் ஏற்றுக்கொள்கிறீர்கள் "
 
 #: src/web/server/common/pages_common.ml:586
 msgid "Click here"
@@ -239,7 +239,7 @@ msgstr "ஒப்பிடுக"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:74
 msgid "Compute fingerprint"
-msgstr "கைரேகையை கணக்கிடுங்கள்"
+msgstr "கைரேகை கணக்கிடுங்கள்"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:35
 msgid "Computed fingerprint:"
@@ -290,7 +290,7 @@ msgstr "தேர்தல் பொது முகவரி"
 
 #: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
 msgid "Election server"
-msgstr "தேர்தல் சர்வர்"
+msgstr "தேர்தல் சேவையகம்"
 
 #: src/web/clients/election/advanced.ml:57
 msgid "Encrypted ballot in JSON format"
@@ -335,7 +335,7 @@ msgstr "மூலக் குறியீட்டைப் பெறுங்�
 #. src/web/common/pages_common.ml:265
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
-msgstr "தேர்தலுக்குத் திரும்பு"
+msgstr "தேர்தலுக்குச் செல்லுங்கள்"
 
 #: src/web/server/common/mails_voter.ml:128
 msgid "If the above link does not work:"
@@ -374,7 +374,7 @@ msgstr "மொழி:"
 
 #: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
-msgstr "ஏற்றுகிறது..."
+msgstr "ஏற்றுகிறது ..."
 
 #. src/web/server/common/pages_common.ml:412
 #. src/web/server/common/pages_common.ml:320
@@ -478,11 +478,11 @@ msgstr "திசை திருப்புதல்"
 
 #: src/web/clients/election/home.ml:676
 msgid "Refresh status"
-msgstr "நிலையைப் புதுப்பிக்கவும்"
+msgstr "நிலையை புதுப்பிக்கவும்"
 
 #: src/web/common/pages_common.ml:50
 msgid "Restricted mode"
-msgstr "கட்டுப்படுத்தப்பட்ட முறை"
+msgstr "தடைசெய்யப்பட்ட பயன்முறை"
 
 #: src/web/server/common/mails_voter.ml:236
 msgid "Results will be published on the election page"
@@ -608,7 +608,7 @@ msgstr "இந்த தேர்தல் தற்போது மூடப்
 
 #: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:202
 msgid "This vote replaces any previous vote."
-msgstr "இந்த வாக்கு முந்தைய வாக்குகளை மாற்றுகிறது."
+msgstr "இந்த வாக்கு முந்தைய எந்த வாக்கையும் மாற்றும்."
 
 #: src/web/clients/election/home.ml:379 src/web/clients/election/home.ml:317
 msgid "Tie:"
@@ -660,8 +660,8 @@ msgstr "எச்சரிக்கை:"
 #: src/web/server/common/mails_voter.ml:284
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
-"எச்சரிக்கை: இந்தக் குறியீடு 15 நிமிடங்களுக்குச் செல்லுபடியாகும், மேலும் இந்த முகவரிக்கு "
-"அனுப்பப்பட்ட முந்தைய குறியீடுகள் இனி செல்லுபடியாகாது."
+"எச்சரிக்கை: இந்த குறியீடு 15 நிமிடங்களுக்கு செல்லுபடியாகும், மேலும் இந்த முகவரிக்கு "
+"அனுப்பப்படும் முந்தைய குறியீடுகள் இனி செல்லுபடியாகாது."
 
 #: src/web/server/common/mails_voter.ml:102
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
@@ -737,7 +737,7 @@ msgstr "நீங்கள் இப்போது உள்நுழைய ம
 
 #: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
-msgstr "உங்கள் வாக்கு "
+msgstr "உங்கள் வாக்குச்சீட்டு "
 
 #: src/web/server/common/mails_voter.ml:173
 msgid "Your credential for election %s"
@@ -758,7 +758,7 @@ msgstr "உங்கள் அறிவுள்ள வாக்கு டிர
 
 #: src/web/common/pages_common.ml:231
 msgid "Your smart ballot tracker is "
-msgstr "உங்கள் அறிவுள்ள பேலட் டிராக்கர் "
+msgstr "உங்கள் அறிவுள்ள வாக்கு டிராக்கர் "
 
 #: src/web/server/common/mails_voter.ml:205
 msgid "Your vote for election"
@@ -778,7 +778,7 @@ msgstr "உங்கள் எடை %s."
 
 #: src/web/common/pages_common.ml:222
 msgid "ballot box"
-msgstr "வாக்கு பெட்டி"
+msgstr "வாக்குப் பெட்டி"
 
 #: src/web/server/common/pages_common.ml:347
 msgid "change your password"
