@@ -1070,10 +1070,8 @@ let questions_content () =
       Lwt.return (Questions (v, draft.questions.questions))
     else
       let* x = Cache.get_until_success Cache.e_elec in
-      let (Template (v, elec)) =
-        Belenios.Election.versioned_template_of_yojson x
-      in
-      Lwt.return (Questions (v, elec.questions))
+      let module W = (val x) in
+      Lwt.return (Questions (W.witness, W.template.questions))
   in
   let open (val Election.get_serializers v) in
   all_gen_quest := Array.map (to_concrete >> q_to_gen) qs;

@@ -23,7 +23,7 @@
 (** {1 Predefined types} *)
 
 open Ppx_yojson_conv_lib.Yojson_conv
-open Belenios_core
+open Belenios
 open Belenios_web_api.Serializable
 
 (** {1 Web-specific types} *)
@@ -239,13 +239,30 @@ type some_state_state =
 type state_state = some_state_state option [@@deriving yojson]
 type credentials_seed = { seed : string; token : string } [@@deriving yojson]
 
-type credentials_params = {
+type ('a, 'b) credentials_params = {
   belenios_url : string;
   version : int;
   group : string;
-  certificate : (json, json) credentials_certificate;
+  certificate : ('a, 'b) credentials_certificate;
 }
 [@@deriving yojson]
+
+type wrapped_credentials_params =
+  | W :
+      ('a, 'b) group_witness * ('a, 'b) credentials_params
+      -> wrapped_credentials_params
+
+let wrapped_credentials_params_of_yojson : json -> wrapped_credentials_params =
+ fun x ->
+  let x' = credentials_params_of_yojson Fun.id Fun.id x in
+  let module G = (val Group.of_string ~version:x'.version x'.group) in
+  let x = credentials_params_of_yojson !$G.of_string !$G.Zq.of_string x in
+  W (G.witness, x)
+
+let yojson_of_wrapped_credentials_params : wrapped_credentials_params -> json =
+ fun (W (w, x)) ->
+  let module T = (val Group_witness.get w) in
+  yojson_of_credentials_params !&(T.element.to_string) !&(T.scalar.to_string) x
 
 type 'a credentials_record = {
   credential : 'a;
@@ -254,23 +271,25 @@ type 'a credentials_record = {
 }
 [@@deriving yojson]
 
-type credentials_records_item =
-  (json, json, string) encrypted_msg credentials_record
+type ('a, 'b) credentials_records_item =
+  ('a, 'b, string) encrypted_msg credentials_record
 [@@deriving yojson]
 
-type credentials_records_object = (string * credentials_records_item) list
+type ('a, 'b) credentials_records_object =
+  (string * ('a, 'b) credentials_records_item) list
 
-let yojson_of_credentials_records_object x : json =
-  `Assoc (List.map (fun (k, v) -> (k, yojson_of_credentials_records_item v)) x)
+let yojson_of_credentials_records_object a b x : json =
+  `Assoc
+    (List.map (fun (k, v) -> (k, yojson_of_credentials_records_item a b v)) x)
 
-let credentials_records_object_of_yojson : json -> credentials_records_object =
-  function
+let credentials_records_object_of_yojson a b :
+    json -> _ credentials_records_object = function
   | `Assoc o ->
-      List.map (fun (k, v) -> (k, credentials_records_item_of_yojson v)) o
+      List.map (fun (k, v) -> (k, credentials_records_item_of_yojson a b v)) o
   | x -> of_yojson_error "object expected" x
 
-type credentials_records = {
+type ('a, 'b) credentials_records = {
   algorithm : string;
-  records : credentials_records_object;
+  records : ('a, 'b) credentials_records_object;
 }
 [@@deriving yojson]

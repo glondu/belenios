@@ -111,9 +111,12 @@ module type ELECTION = sig
   include ELECTION
 
   val witness : question version
+  val json : json
 end
 
-let of_yojson x =
+type t = (module ELECTION)
+
+let t_of_yojson x =
   match get_version x with
   | 2 ->
       let module R = struct
@@ -125,10 +128,15 @@ let of_yojson x =
         include Belenios_v2.Election.Make (R) ()
 
         let witness = V2
+        let json = x
       end in
       (module X : ELECTION)
   | n ->
       Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
+
+let yojson_of_t x =
+  let module X = (val x : ELECTION) in
+  X.json
 
 let supported_crypto_versions = [ Version V2 ]
 

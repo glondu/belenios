@@ -33,7 +33,7 @@ module Make (P : PARAMS) () = struct
 
   let () = Stdlib.Random.self_init ()
 
-  module W = (val !*Election.of_yojson P.raw_election)
+  module W = (val !*Election.t_of_yojson P.raw_election)
 
   module Cred =
     Credential.Make

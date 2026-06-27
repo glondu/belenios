@@ -298,8 +298,8 @@ type credentials_request =
   | `Resend of credentials_resend ]
 [@@deriving yojson]
 
-type credentials_response = {
-  certificate : (json, json) credentials_certificate;
+type ('a, 'b) credentials_response = {
+  certificate : ('a, 'b) credentials_certificate;
   token : string;
   public_credentials : public_credentials;
 }
@@ -375,13 +375,14 @@ type partial_decryptions = {
 }
 [@@deriving yojson]
 
-type tally_trustee_content = {
+type ('a, 'b) tally_trustee_content = {
   algorithm : string;
-  private_key : (json, json) sent_partial_decryption_key;
+  private_key : ('a, 'b) sent_partial_decryption_key;
 }
 [@@deriving yojson]
 
-type tally_trustee = tally_trustee_content option [@@deriving yojson]
+type ('a, 'b) tally_trustee = ('a, 'b) tally_trustee_content option
+[@@deriving yojson]
 
 type shuffler = {
   address : string option; [@yojson.option]

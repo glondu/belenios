@@ -63,11 +63,6 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
         let* credential =
           P.encrypt ~algorithm xch_encrypted_credential encryption_key x
         in
-        let credential =
-          credential
-          |> !+(yojson_of_encrypted_msg !&G.to_string !&G.Zq.to_string !&Fun.id)
-          |> !*(encrypted_msg_of_yojson Fun.id Fun.id !$Fun.id)
-        in
         let weight, address =
           match SMap.find_opt voter map with
           | None -> (None, None)
@@ -92,24 +87,24 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let open Credentials_certificate (G) in
   let certificate =
     P.sign xch_credentials_certificate signature_key raw_certificate
-    |> !+(yojson_of_credentials_certificate !&G.to_string !&G.Zq.to_string)
-    |> !*(credentials_certificate_of_yojson Fun.id Fun.id)
   in
   let* () =
     let@ s = Storage.E.with_transaction r.uuid in
     let* () =
-      {
-        belenios_url = r.belenios_url;
-        version = draft.version;
-        group = draft.group;
-        certificate;
-      }
+      W
+        ( G.witness,
+          {
+            belenios_url = r.belenios_url;
+            version = draft.version;
+            group = draft.group;
+            certificate;
+          } )
       |> Storage.E.set s Credentials_params Value
     in
     let* () =
       { seed; token = r.token } |> Storage.E.set s Credentials_seed Value
     in
-    Storage.E.set s Credentials_records Value { algorithm; records }
+    Storage.E.set s (Credentials_records G.witness) Value { algorithm; records }
   in
   let* () =
     let* x =
@@ -137,7 +132,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let url = Printf.sprintf "%sapi/credentials/belenios" r.belenios_url in
   let body =
     { certificate; token = r.token; public_credentials = creds.public_with_ids }
-    |> !+yojson_of_credentials_response
+    |> !+(yojson_of_credentials_response !&G.to_string !&G.Zq.to_string)
     |> Cohttp_lwt.Body.of_string
   in
   let* x, body = Cohttp_lwt_unix.Client.post ~body (Uri.of_string url) in
@@ -154,7 +149,9 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
       Ocsigen_messages.errlog msg;
       Lwt.return_unit
 
-let get_missing_voters ~belenios_url ~seed uuid credentials_records =
+let get_missing_voters ~belenios_url ~seed uuid (type a b)
+    (w : (a, b) group_witness)
+    (credentials_records : (a, b) credentials_records) =
   let@ roots cont =
     let e = Belenios_web_api.Endpoints.election_roots uuid in
     let url = Printf.sprintf "%sapi/%s" belenios_url e.path in
@@ -189,10 +186,11 @@ let get_missing_voters ~belenios_url ~seed uuid credentials_records =
     let* x = get_object setup.election in
     match x with
     | None -> Lwt.return_nil
-    | Some x -> cont @@ !*Election.of_yojson x
+    | Some x -> cont @@ !*Election.t_of_yojson x
   in
   let module E = (val election) in
   let module G = E.G in
+  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
   let module GMap = Map.Make (G) in
   let* credentials_records =
     let module X = struct
@@ -210,12 +208,7 @@ let get_missing_voters ~belenios_url ~seed uuid credentials_records =
     records
     |> Lwt_list.fold_left_s
          (fun accu (v, c) ->
-           let encrypted_msg =
-             c.credential
-             |> !+(yojson_of_encrypted_msg Fun.id Fun.id !&Fun.id)
-             |> !*(encrypted_msg_of_yojson !$G.of_string !$G.Zq.of_string
-                     !$Fun.id)
-           in
+           let encrypted_msg = c.credential in
            let* x =
              P.decrypt ~algorithm xch_encrypted_credential decryption_key
                encrypted_msg
@@ -263,8 +256,9 @@ let get_missing_voters ~belenios_url ~seed uuid credentials_records =
   let* credentials_records = loop credentials_records roots.last_ballot_event in
   GMap.fold (fun _ x accu -> x :: accu) credentials_records [] |> Lwt.return
 
-let process_resend_request (r : credentials_resend)
-    (params : credentials_params) metadata credentials_records () =
+let process_resend_request (r : credentials_resend) (type a b)
+    (w : (a, b) group_witness) (params : (a, b) credentials_params) metadata
+    (credentials_records : (a, b) credentials_records) () =
   let { algorithm; records } = credentials_records in
   let voters =
     match r.spec with
@@ -282,22 +276,18 @@ let process_resend_request (r : credentials_resend)
     match voters with
     | `Missing_voters ->
         get_missing_voters ~belenios_url:params.belenios_url ~seed:r.seed r.uuid
-          credentials_records
+          w credentials_records
     | `Some_voters voters ->
         let module G =
           (val Belenios.Group.of_string ~version:params.version params.group)
         in
+        let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk r.seed in
         records
         |> Lwt_list.filter_map_s (fun (v, c) ->
             if SSet.mem v voters then
-              let encrypted_msg =
-                c.credential
-                |> !+(yojson_of_encrypted_msg Fun.id Fun.id !&Fun.id)
-                |> !*(encrypted_msg_of_yojson !$G.of_string !$G.Zq.of_string
-                        !$Fun.id)
-              in
+              let encrypted_msg = c.credential in
               let* x =
                 P.decrypt ~algorithm xch_encrypted_credential decryption_key
                   encrypted_msg
@@ -340,15 +330,13 @@ let process_resend_request (r : credentials_resend)
   in
   if success then Mails_voter_bulk.submit_bulk_emails jobs else Lwt.return_unit
 
-let check_seed ~(params : credentials_params) ~seed =
+let check_seed ~(params : wrapped_credentials_params) ~seed =
+  let (W (w, params)) = params in
   let module G =
     (val Belenios.Group.of_string ~version:params.version params.group)
   in
-  let certificate =
-    params.certificate
-    |> !+(yojson_of_credentials_certificate Fun.id Fun.id)
-    |> !*(credentials_certificate_of_yojson !$G.of_string !$G.Zq.of_string)
-  in
+  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
+  let certificate = params.certificate in
   let module P = Pki.Make (G) in
   let decryption_key = P.derive_dk seed in
   G.(certificate.message.encryption_key =~ g **~ decryption_key)
@@ -415,8 +403,9 @@ let process_request : credentials_request -> _ = function
         let* p = Storage.E.get s Credentials_params in
         match Lopt.get_value p with Some p -> cont p | None -> not_found
       in
+      let (W (w, params)) = params in
       let@ credentials_records cont =
-        let* x = Storage.E.get s Credentials_records in
+        let* x = Storage.E.get s (Credentials_records w) in
         match Lopt.get_value x with Some x -> cont x | None -> not_found
       in
       let { algorithm; records } = credentials_records in
@@ -425,16 +414,12 @@ let process_request : credentials_request -> _ = function
         let module G =
           (val Belenios.Group.of_string ~version:params.version params.group)
         in
+        let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk seed in
         Lwt_list.filter_map_s
           (fun (v, (c : _ credentials_record)) ->
-            let encrypted_msg =
-              c.credential
-              |> !+(yojson_of_encrypted_msg Fun.id Fun.id !&Fun.id)
-              |> !*(encrypted_msg_of_yojson !$G.of_string !$G.Zq.of_string
-                      !$Fun.id)
-            in
+            let encrypted_msg = c.credential in
             let* x =
               P.decrypt ~algorithm xch_encrypted_credential decryption_key
                 encrypted_msg
@@ -472,15 +457,17 @@ let process_request : credentials_request -> _ = function
         match Lopt.get_value p with Some p -> cont p | None -> not_found
       in
       if check_seed ~params ~seed:r.seed then (
+        let (W (w, params)) = params in
         let@ credentials_records cont =
-          let* x = Storage.E.get s Credentials_records in
+          let* x = Storage.E.get s (Credentials_records w) in
           match Lopt.get_value x with Some x -> cont x | None -> not_found
         in
         let@ metadata cont =
           let* x = Storage.E.get s Credentials_metadata in
           match Lopt.get_value x with Some x -> cont x | None -> not_found
         in
-        Lwt.async (process_resend_request r params metadata credentials_records);
+        Lwt.async
+          (process_resend_request r w params metadata credentials_records);
         ok)
       else unauthorized
 
@@ -524,7 +511,9 @@ let dispatch endpoint method_ body =
   | [ "belenios" ] -> (
       match method_ with
       | `POST -> (
-          let@ response = body.run !*credentials_response_of_yojson in
+          let@ response =
+            body.run !*(credentials_response_of_yojson Fun.id Fun.id)
+          in
           let certificate = response.certificate in
           let uuid = certificate.message.uuid in
           let@ s = Storage.E.with_transaction uuid in

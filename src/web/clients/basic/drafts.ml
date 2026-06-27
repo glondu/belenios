@@ -126,7 +126,10 @@ type trustee_with_writer =
 
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
-  let* x = Api.(get (draft_trustees uuid) !user) in
+  let* draft = Api.(get (draft uuid) !user) in
+  let@ Draft (_, draft), _ = with_ok "draft" draft in
+  let module G = (val Group.of_string ~version:draft.version draft.group) in
+  let* x = Api.(get (draft_trustees uuid G.witness) !user) in
   let@ trustees, ifmatch = with_ok "trustees" x in
   let mode =
     match trustees with
@@ -152,7 +155,9 @@ let rec show_draft_trustees uuid container =
             alert "Unrecognized mode";
             Lwt.return_unit
       in
-      let* x = Api.(post ~ifmatch (draft_trustees uuid) !user request) in
+      let* x =
+        Api.(post ~ifmatch (draft_trustees uuid G.witness) !user request)
+      in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in
@@ -160,8 +165,12 @@ let rec show_draft_trustees uuid container =
   in
   let (TWW (trustees, write)) =
     match trustees with
-    | `Basic x -> TWW (x.trustees, yojson_of_trustee_public_key Fun.id Fun.id)
-    | `Threshold x -> TWW (x.trustees, yojson_of_cert Fun.id Fun.id)
+    | `Basic x ->
+        TWW
+          ( x.trustees,
+            yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string )
+    | `Threshold x ->
+        TWW (x.trustees, yojson_of_cert !&G.to_string !&G.Zq.to_string)
   in
   let all_trustees =
     List.map
@@ -184,7 +193,7 @@ let rec show_draft_trustees uuid container =
   let b =
     let@ () = button "Add trustee" in
     let r = `Add (!*(trustee_of_yojson Fun.id) (t2get ())) in
-    let* x = Api.(post ~ifmatch (draft_trustees uuid) !user r) in
+    let* x = Api.(post ~ifmatch (draft_trustees uuid G.witness) !user r) in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_trustees uuid container)
   in
@@ -193,7 +202,7 @@ let rec show_draft_trustees uuid container =
     let b =
       let@ () = button "Import trustees" in
       let r = `Import (Uuid.of_string (iget ())) in
-      let* x = Api.(post ~ifmatch (draft_trustees uuid) !user r) in
+      let* x = Api.(post ~ifmatch (draft_trustees uuid G.witness) !user r) in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in

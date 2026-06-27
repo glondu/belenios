@@ -45,7 +45,7 @@ let make file =
     let file = file
   end) in
   let* raw_election = Getters.raw_election in
-  let module Election = (val !*Election.of_yojson raw_election) in
+  let module Election = (val !*Election.t_of_yojson raw_election) in
   let open Election in
   let open Tool_election_data.Make (Getters) (Election) in
   let module Trustees = (val Belenios.Trustees.get_by_version version) in

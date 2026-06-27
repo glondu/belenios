@@ -107,11 +107,14 @@ let draft_credentials_token uuid =
     to_yojson_post = yojson_of_unit;
   }
 
-let draft_trustees uuid =
+let draft_trustees uuid (type a b) (w : (a, b) group_witness) =
+  let module T = (val Group_witness.get w) in
   {
     path = Printf.sprintf "elections/%s/draft/trustees" (Uuid.to_string uuid);
-    of_yojson = draft_trustees_of_yojson Fun.id Fun.id;
-    to_yojson = yojson_of_draft_trustees Fun.id Fun.id;
+    of_yojson =
+      draft_trustees_of_yojson !$(T.element.of_string) !$(T.scalar.of_string);
+    to_yojson =
+      yojson_of_draft_trustees !&(T.element.to_string) !&(T.scalar.to_string);
     to_yojson_post = yojson_of_trustees_request;
   }
 
@@ -125,19 +128,25 @@ let draft_trustee uuid x =
     to_yojson_post = yojson_of_unit;
   }
 
-let trustee_draft uuid =
+let trustee_draft uuid (type a b) (w : (a, b) group_witness) =
+  let module T = (val Group_witness.get w) in
   {
     path = Printf.sprintf "elections/%s/draft/trustee" (Uuid.to_string uuid);
-    of_yojson = trustee_status_of_yojson Fun.id Fun.id;
-    to_yojson = yojson_of_trustee_status Fun.id Fun.id;
+    of_yojson =
+      trustee_status_of_yojson !$(T.element.of_string) !$(T.scalar.of_string);
+    to_yojson =
+      yojson_of_trustee_status !&(T.element.to_string) !&(T.scalar.to_string);
     to_yojson_post = Fun.id;
   }
 
-let trustee_election uuid =
+let trustee_election uuid (type a b) (w : (a, b) group_witness) =
+  let module T = (val Group_witness.get w) in
   {
     path = Printf.sprintf "elections/%s/trustee" (Uuid.to_string uuid);
-    of_yojson = tally_trustee_of_yojson;
-    to_yojson = yojson_of_tally_trustee;
+    of_yojson =
+      tally_trustee_of_yojson !$(T.element.of_string) !$(T.scalar.of_string);
+    to_yojson =
+      yojson_of_tally_trustee !&(T.element.to_string) !&(T.scalar.to_string);
     to_yojson_post = Fun.id;
   }
 
@@ -152,8 +161,8 @@ let elections =
 let election uuid =
   {
     path = Printf.sprintf "elections/%s/election" (Uuid.to_string uuid);
-    of_yojson = Fun.id;
-    to_yojson = Fun.id;
+    of_yojson = Election.t_of_yojson;
+    to_yojson = Election.yojson_of_t;
     to_yojson_post = yojson_of_unit;
   }
 

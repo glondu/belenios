@@ -677,11 +677,9 @@ let title_content () =
   else
     (* not is_draft, i.e. running *)
     let* x = Cache.get_until_success Cache.e_elec in
-    let (Template (_, elec)) =
-      Belenios.Election.versioned_template_of_yojson x
-    in
-    let tit = elec.name in
-    let desc = elec.description in
+    let module W = (val x) in
+    let tit = W.template.name in
+    let desc = W.template.description in
     Lwt.return
       [
         h2 [ txt @@ s_ "Title:" ];

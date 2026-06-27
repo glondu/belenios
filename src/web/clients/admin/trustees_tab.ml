@@ -47,19 +47,20 @@ let step = ref 0
 (* Forward decl of update functions *)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
-let cast_bt_trustee =
-  !+(yojson_of_trustee (yojson_of_trustee_public_key Fun.id Fun.id))
+let cast_bt_trustee a b =
+  !+(yojson_of_trustee (yojson_of_trustee_public_key a b))
   >> !*(trustee_of_yojson Fun.id)
 
-let cast_tt_trustee =
-  !+(yojson_of_trustee (yojson_of_cert Fun.id Fun.id))
-  >> !*(trustee_of_yojson Fun.id)
+let cast_tt_trustee a b =
+  !+(yojson_of_trustee (yojson_of_cert a b)) >> !*(trustee_of_yojson Fun.id)
 
 let get_trustees () =
   let uuid = get_current_uuid () in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+  let module G = (val Group.of_string ~version:draft.version draft.group) in
   let* status = Cache.get_until_success Cache.status in
   step := status.trustees_setup_step;
-  let* x = Api.(get (draft_trustees uuid) !user) in
+  let* x = Api.(get (draft_trustees uuid G.witness) !user) in
   ifmatch_tt := get_ifmatch x;
   match x with
   | Error e ->
@@ -68,11 +69,13 @@ let get_trustees () =
   | Ok (tt, _) -> (
       match tt with
       | `Basic x ->
-          all_trustee := List.map cast_bt_trustee x.trustees;
+          all_trustee :=
+            List.map (cast_bt_trustee !&G.to_string !&G.Zq.to_string) x.trustees;
           mode := `Basic;
           Lwt.return_unit
       | `Threshold x ->
-          all_trustee := List.map cast_tt_trustee x.trustees;
+          all_trustee :=
+            List.map (cast_tt_trustee !&G.to_string !&G.Zq.to_string) x.trustees;
           mode := `Threshold (Option.value ~default:0 x.threshold);
           Lwt.return_unit)
 
@@ -152,7 +155,13 @@ let recompute_main_zone_1 () =
           in
           let r = `Add t in
           let ifmatch = !ifmatch_tt in
-          let* x = Api.(post ?ifmatch (draft_trustees uuid) !user r) in
+          let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+          let module G =
+            (val Group.of_string ~version:draft.version draft.group)
+          in
+          let* x =
+            Api.(post ?ifmatch (draft_trustees uuid G.witness) !user r)
+          in
           let&&* d = document##getElementById (Js.string "popup") in
           d##.style##.display := Js.string "none";
           match x.code with
@@ -212,7 +221,13 @@ let recompute_main_zone_1 () =
           let with_thr = not with_thr in
           let mm = if with_thr then `SetThreshold 0 else `SetBasic in
           let ifmatch = !ifmatch_tt in
-          let* x = Api.(post ?ifmatch (draft_trustees uuid) !user mm) in
+          let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+          let module G =
+            (val Group.of_string ~version:draft.version draft.group)
+          in
+          let* x =
+            Api.(post ?ifmatch (draft_trustees uuid G.witness) !user mm)
+          in
           match x.code with
           | 200 -> !update_main_zone ()
           | _ ->
@@ -241,7 +256,13 @@ let recompute_main_zone_1 () =
           let mm = `SetThreshold vv in
           let ifmatch = !ifmatch_tt in
           let@ () = Lwt.async in
-          let* x = Api.(post ?ifmatch (draft_trustees uuid) !user mm) in
+          let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+          let module G =
+            (val Group.of_string ~version:draft.version draft.group)
+          in
+          let* x =
+            Api.(post ?ifmatch (draft_trustees uuid G.witness) !user mm)
+          in
           match x.code with
           | 200 -> !update_main_zone ()
           | _ ->
@@ -282,7 +303,9 @@ let recompute_main_zone_1 () =
     let@ () = button @@ s_ "Import trustees from another election" in
     let@ from_uuid = popup_choose_elec uuid in
     let r = `Import from_uuid in
-    let* x = Api.(post (draft_trustees uuid) !user r) in
+    let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+    let module G = (val Group.of_string ~version:draft.version draft.group) in
+    let* x = Api.(post (draft_trustees uuid G.witness) !user r) in
     match x.code with
     | 200 ->
         let* () = send_draft_request @@ `SetTrusteesSetupStep 3 in
@@ -310,7 +333,9 @@ let reset_but () =
   let confir = confirm @@ s_ "Are you sure you want to restart from scratch?" in
   if confir then (
     let uuid = get_current_uuid () in
-    let* x = Api.(post (draft_trustees uuid) !user `Reset) in
+    let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+    let module G = (val Group.of_string ~version:draft.version draft.group) in
+    let* x = Api.(post (draft_trustees uuid G.witness) !user `Reset) in
     match x.code with
     | 200 -> !update_main_zone ()
     | code ->

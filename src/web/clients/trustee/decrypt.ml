@@ -58,9 +58,12 @@ let basic_check_private_key s =
   in
   leading 0
 
-let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
+let compute_partial_decryption (type a b) (w : (a, b) group_witness)
+    (trustee : (a, b) tally_trustee_content option) ~election ~encrypted_tally
+    ~private_key =
   let open (val !Belenios_js.I18n.gettext) in
-  let module W = (val Election.of_yojson election) in
+  let module W = (val (election : Election.t)) in
+  let Equal = Group_witness.provably_equal __FUNCTION__ w W.G.witness in
   let encrypted_tally =
     encrypted_tally_of_yojson !$W.G.of_string encrypted_tally
   in
@@ -68,12 +71,7 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
     match trustee with
     | Some epk ->
         let algorithm = epk.algorithm in
-        let epk =
-          epk.private_key
-          |> !+(yojson_of_sent_partial_decryption_key Fun.id Fun.id)
-          |> !*(sent_partial_decryption_key_of_yojson !$W.G.of_string
-                  !$W.G.Zq.of_string)
-        in
+        let epk = epk.private_key in
         let module Trustees = (val Trustees.get_by_version W.version) in
         let module PKI = Pki.Make (W.G) in
         let module C = Pki.MakeChannels (PKI) in
@@ -101,12 +99,13 @@ let decrypt uuid ~token =
   let fail () =
     Lwt.return [ div [ txt @@ s_ "Error while loading election parameters!" ] ]
   in
-  let@ trustee cont =
-    let* x = Api.(get (trustee_election uuid) (`Trustee token)) in
-    match x with Ok (x, _) -> cont x | Error _ -> fail ()
-  in
   let@ election cont =
     let* x = Api.(get (election uuid) `Nobody) in
+    match x with Ok (x, _) -> cont x | Error _ -> fail ()
+  in
+  let module W = (val election) in
+  let@ trustee cont =
+    let* x = Api.(get (trustee_election uuid W.G.witness) (`Trustee token)) in
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let@ encrypted_tally cont =
@@ -119,7 +118,10 @@ let decrypt uuid ~token =
   let submit =
     let@ () = button ~a:[ a_id "submit_data"; a_disabled () ] @@ s_ "Submit" in
     let* x =
-      Api.(post (trustee_election uuid) (`Trustee token) !partial_decryption)
+      Api.(
+        post
+          (trustee_election uuid W.G.witness)
+          (`Trustee token) !partial_decryption)
     in
     let msg =
       match x.code with
@@ -135,7 +137,8 @@ let decrypt uuid ~token =
   in
   let handle_private_key private_key =
     let* pd =
-      compute_partial_decryption trustee ~election ~encrypted_tally ~private_key
+      compute_partial_decryption W.G.witness trustee ~election ~encrypted_tally
+        ~private_key
     in
     partial_decryption := pd;
     let r = Tyxml_js.To_dom.of_button submit in

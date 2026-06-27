@@ -91,16 +91,12 @@ let do_draft uuid (draft : _ raw_draft) private_key =
   let version = draft.version in
   let module G = (val Group.of_string ~version draft.group) in
   let@ trustees cont =
-    let* x = Api.(get (draft_trustees uuid) `Nobody) in
+    let* x = Api.(get (draft_trustees uuid G.witness) `Nobody) in
     match x with
     | Error _ ->
         alert @@ s_ "Could not get trustee parameters for this election!";
         Lwt.return_unit
-    | Ok (x, _) ->
-        x
-        |> yojson_of_draft_trustees Fun.id Fun.id
-        |> draft_trustees_of_yojson !$G.of_string !$G.Zq.of_string
-        |> cont
+    | Ok (x, _) -> cont x
   in
   match trustees with
   | `Basic x ->
@@ -166,9 +162,7 @@ let check ?uuid () =
             let handle_private_key private_key =
               let* election = Api.(get (election uuid) `Nobody) in
               match election with
-              | Ok (election, _) ->
-                  let election = Election.of_yojson election in
-                  do_election uuid election private_key
+              | Ok (election, _) -> do_election uuid election private_key
               | Error _ -> (
                   let* draft = Api.(get (draft uuid) `Nobody) in
                   match draft with

@@ -788,7 +788,7 @@ let import_trustees (type a b) (w : (a, b) group_witness)
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen (t : (a, b) threshold_parameters) names =
-          let* privs = Storage.E.get from Private_keys in
+          let* privs = Storage.E.get from (Private_keys G.witness) in
           let* x =
             match Lopt.get_value privs with
             | Some privs ->
@@ -800,12 +800,6 @@ let import_trustees (type a b) (w : (a, b) group_witness)
                       private_key :: privs ) ->
                       let stt_name = public_key.message.message.name in
                       let stt_token = generate_token 22 in
-                      let private_key =
-                        private_key
-                        |> yojson_of_sent_partial_decryption_key Fun.id Fun.id
-                        |> sent_partial_decryption_key_of_yojson !$G.of_string
-                             !$G.Zq.of_string
-                      in
                       let stt_voutput = { public_key; private_key } in
                       let stt =
                         {

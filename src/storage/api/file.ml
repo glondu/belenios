@@ -31,7 +31,9 @@ type _ u =
   | Dates : election_dates u
   | Metadata : metadata u
   | Private_key : json u
-  | Private_keys : (json, json) sent_partial_decryption_key list u
+  | Private_keys :
+      ('a, 'b) group_witness
+      -> ('a, 'b) sent_partial_decryption_key list u
   | Audit_cache : audit_cache u
   | Archive_header : Archive.header u
   | Last_event : last_event u
@@ -50,10 +52,12 @@ type _ u =
   | Voter : string -> Voter.t u
   | Credential_weight : string -> Weight.t u
   | Credential_user : string -> string u
-  | Credentials_params : credentials_params u
+  | Credentials_params : wrapped_credentials_params u
   | Credentials_metadata : Belenios_web_api.message_metadata u
   | Credentials_seed : credentials_seed u
-  | Credentials_records : credentials_records u
+  | Credentials_records :
+      ('a, 'b) group_witness
+      -> ('a, 'b) credentials_records u
   | Credentials_credits : Belenios_web_api.credentials_credits u
 
 type kind = Username of string | Address of string

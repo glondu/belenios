@@ -135,7 +135,7 @@ module App (U : UI) = struct
         let h = setup.election in
         let* x = Api.(get (election_object uuid h) `Nobody) in
         match x with
-        | Ok (x, _) -> cont @@ !*Election.of_yojson x
+        | Ok (x, _) -> cont @@ !*Election.t_of_yojson x
         | Error _ -> fail ()
       in
       let@ credentials cont =

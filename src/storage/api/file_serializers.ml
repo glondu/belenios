@@ -42,16 +42,21 @@ let get_election (type t) : t File.u -> t string_serializers = function
   | Metadata ->
       { of_string = !*metadata_of_yojson; to_string = !+yojson_of_metadata }
   | Private_key -> { of_string = Json.of_string; to_string = Json.to_string }
-  | Private_keys ->
+  | Private_keys w ->
+      let module T = (val Group_witness.get w) in
       {
         of_string =
           (fun xs ->
             xs |> split_lines
-            |> List.map !*(sent_partial_decryption_key_of_yojson Fun.id Fun.id));
+            |> List.map
+                 !*(sent_partial_decryption_key_of_yojson
+                      !$(T.element.of_string) !$(T.scalar.of_string)));
         to_string =
           (fun xs ->
             xs
-            |> List.map !+(yojson_of_sent_partial_decryption_key Fun.id Fun.id)
+            |> List.map
+                 !+(yojson_of_sent_partial_decryption_key
+                      !&(T.element.to_string) !&(T.scalar.to_string))
             |> join_lines);
       }
   | Audit_cache ->
@@ -117,8 +122,8 @@ let get_election (type t) : t File.u -> t string_serializers = function
   | Credential_user _ -> { of_string = Fun.id; to_string = Fun.id }
   | Credentials_params ->
       {
-        of_string = !*credentials_params_of_yojson;
-        to_string = !+yojson_of_credentials_params;
+        of_string = !*wrapped_credentials_params_of_yojson;
+        to_string = !+yojson_of_wrapped_credentials_params;
       }
   | Credentials_metadata ->
       {
@@ -130,10 +135,15 @@ let get_election (type t) : t File.u -> t string_serializers = function
         of_string = !*credentials_seed_of_yojson;
         to_string = !+yojson_of_credentials_seed;
       }
-  | Credentials_records ->
+  | Credentials_records w ->
+      let module T = (val Group_witness.get w) in
       {
-        of_string = !*credentials_records_of_yojson;
-        to_string = !+yojson_of_credentials_records;
+        of_string =
+          !*(credentials_records_of_yojson !$(T.element.of_string)
+               !$(T.scalar.of_string));
+        to_string =
+          !+(yojson_of_credentials_records !&(T.element.to_string)
+               !&(T.scalar.to_string));
       }
   | Credentials_credits ->
       {

@@ -60,7 +60,7 @@ let get_metadata s ~admin_id =
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/running"
             (Uuid.to_string uuid)
       | Some metadata ->
-          let election = Election.of_yojson raw in
+          let election = Election.t_of_yojson raw in
           let module W = (val election) in
           Lwt.return
           @@ extract_metadata ~admin_id ~has_weights W.uuid W.template metadata)

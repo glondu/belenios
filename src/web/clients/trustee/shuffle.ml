@@ -84,6 +84,7 @@ let shuffle uuid ~token =
     let* x = Api.(get (election uuid) `Nobody) in
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
+  let module W = (val election) in
   let@ nh_ciphertexts cont =
     let* x = Api.(get (election_nh_ciphertexts uuid) `Nobody) in
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
@@ -118,7 +119,7 @@ let shuffle uuid ~token =
     Dom.appendChild container wait;
     let* shuffle_data =
       compute_shuffle ~estimation
-        (Js.string @@ Json.to_string election)
+        (Js.string @@ Json.to_string @@ Election.yojson_of_t election)
         (Js.string @@ Json.to_string nh_ciphertexts)
     in
     let shuffle_data = Js.to_string shuffle_data in
@@ -150,7 +151,7 @@ let shuffle uuid ~token =
       Dom.removeChild container submit_div;
       let* x =
         Api.(
-          post (trustee_election uuid) (`Trustee token)
+          post (trustee_election uuid W.G.witness) (`Trustee token)
           @@ Json.of_string shuffle_data)
       in
       let msg =

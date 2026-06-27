@@ -64,22 +64,9 @@ let header config =
         let* x = Api.(get (election uuid) `Nobody) in
         match x with
         | Ok (election, _) ->
-            let name =
-              match election with
-              | `Assoc o -> (
-                  match List.assoc_opt "name" o with
-                  | Some (`String x) -> x
-                  | _ -> "Invalid name")
-              | _ -> "Failure when parsing election.json"
-            in
-            let description =
-              match election with
-              | `Assoc o -> (
-                  match List.assoc_opt "description" o with
-                  | Some (`String x) -> x
-                  | _ -> "Invalid name")
-              | _ -> "Failure when parsing election.json"
-            in
+            let module W = (val election) in
+            let name = W.template.name in
+            let description = W.template.description in
             Lwt.return (name, description)
         | Error _ ->
             Lwt.return (config.vendor ^^^ s_ "Administration" ^^^ "Error", ""))

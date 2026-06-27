@@ -65,7 +65,7 @@ let delete_live_election s uuid roots =
   in
   let@ election cont =
     let&? x = Data setup_data.election in
-    cont (!*Election.of_yojson x)
+    cont (!*Election.t_of_yojson x)
   in
   let@ trustees cont =
     let&? x = Data setup_data.trustees in
@@ -351,12 +351,7 @@ let validate_election_exn s uuid =
         let* () =
           !+(!&G.Zq.to_string) x |> S.set (Election (uuid, Private_key)) String
         in
-        y
-        |> List.map
-             !+(yojson_of_sent_partial_decryption_key !&G.to_string
-                  !&G.Zq.to_string)
-        |> List.map !*(sent_partial_decryption_key_of_yojson Fun.id Fun.id)
-        |> S.set (Election (uuid, Private_keys)) Value
+        y |> S.set (Election (uuid, Private_keys G.witness)) Value
   in
   (* clean up draft *)
   let@ dates, set_dates =

@@ -26,7 +26,7 @@ open Belenios_worker_messages
 let handle_shuffle { election; ciphertexts } =
   let election = Js.to_string election in
   let ciphertexts = Js.to_string ciphertexts in
-  let module W = (val !*Election.of_yojson election) in
+  let module W = (val !*Election.t_of_yojson election) in
   let ciphertexts = !*(nh_ciphertexts_of_yojson !$W.G.of_string) ciphertexts in
   let nballots =
     if Array.length ciphertexts > 0 then Array.length ciphertexts.(0) else 0

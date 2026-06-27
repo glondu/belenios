@@ -66,9 +66,11 @@ module type ELECTION = sig
   include ELECTION
 
   val witness : question version
+  val json : json
 end
 
-val of_yojson : json -> (module ELECTION)
+type t = (module ELECTION) [@@deriving yojson]
+
 val supported_crypto_versions : some_version list
 
 val compute_checksums :

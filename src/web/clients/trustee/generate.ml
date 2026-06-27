@@ -78,15 +78,12 @@ let generate_threshold (Draft (_, draft)) context () =
   in
   Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
 
-let threshold_step (Draft (_, draft)) pedersen ~private_key =
+let threshold_step (Draft (_, draft)) (type a b) (w : (a, b) group_witness)
+    (pedersen : (a, b) pedersen) ~private_key =
   let version = draft.version in
   let group = draft.group in
   let module G = (val Group.of_string ~version group : GROUP) in
-  let pedersen =
-    pedersen
-    |> !+(yojson_of_pedersen Fun.id Fun.id)
-    |> !*(pedersen_of_yojson !$G.of_string !$G.Zq.of_string)
-  in
+  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
   let context = pedersen.context.context in
   let certs = { context; certs = pedersen.certs } in
   let module Trustees = (val Trustees.get_by_version version) in
@@ -237,7 +234,8 @@ let error () =
   let open (val !Belenios_js.I18n.gettext) in
   Lwt.return [ txt @@ s_ "Error" ]
 
-let compute_threshold_step ~token ~url draft private_key_ref pedersen =
+let compute_threshold_step ~token ~url draft private_key_ref (type a b)
+    (w : (a, b) group_witness) (pedersen : (a, b) pedersen) =
   let open (val !Belenios_js.I18n.gettext) in
   match pedersen.step with
   | 3 | 5 ->
@@ -247,7 +245,7 @@ let compute_threshold_step ~token ~url draft private_key_ref pedersen =
       let handle_private_key private_key =
         Dom.removeChild container input_private_key_div;
         private_key_ref := Some private_key;
-        let* data = threshold_step draft pedersen ~private_key in
+        let* data = threshold_step draft w pedersen ~private_key in
         let* x = Api.(post url (`Trustee token) data) in
         let msg, continue =
           match x.code with
@@ -321,7 +319,8 @@ let get_status ~url ~token =
   | Error _ -> Lwt.return_none
   | Ok (x, _) -> Lwt.return_some x
 
-let actionable_threshold ~uuid ~token ~url draft set_step s =
+let actionable_threshold ~uuid ~token (type a b) (w : (a, b) group_witness) ~url
+    draft set_step s =
   let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   let private_key = ref None in
@@ -357,9 +356,9 @@ let actionable_threshold ~uuid ~token ~url draft set_step s =
     | `WaitingForOtherCertificates ->
         let contents, t = wait_for_other_trustees () in
         Lwt.return (1, contents, t)
-    | `Pedersen p ->
+    | `Pedersen (p : (a, b) pedersen) ->
         let* contents, t =
-          compute_threshold_step ~token ~url draft private_key p
+          compute_threshold_step ~token ~url draft private_key w p
         in
         Lwt.return (p.step, contents, t)
   in
@@ -391,7 +390,9 @@ let generate configuration uuid ~token =
     let* x = Api.(get (draft uuid) `Nobody) in
     match x with Error _ -> error () | Ok (x, _) -> cont x
   in
-  let url = Api.trustee_draft uuid in
+  let (Draft (_, draft')) = draft in
+  let module G = (val Group.of_string ~version:draft'.version draft'.group) in
+  let url = Api.trustee_draft uuid G.witness in
   let* status = get_status ~url ~token in
   let* x =
     match status with
@@ -411,7 +412,9 @@ let generate configuration uuid ~token =
                 @@ s_ "Collaborative key generation"
                 ^^^ step )
         in
-        let* a = actionable_threshold ~uuid ~token ~url draft set_step s in
+        let* a =
+          actionable_threshold ~uuid ~token G.witness ~url draft set_step s
+        in
         Lwt.return_some (a, h)
     | None -> Lwt.return_none
   in

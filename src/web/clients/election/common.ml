@@ -82,9 +82,7 @@ let clear_cache () = cache := None
 let update_cache uuid =
   let* election =
     let* x = Api.(get (election uuid) `Nobody) in
-    match x with
-    | Error _ -> Lwt.return_none
-    | Ok (x, _) -> Lwt.return_some (Election.of_yojson x)
+    match x with Error _ -> Lwt.return_none | Ok (x, _) -> Lwt.return_some x
   in
   let ( ! ) x =
     let* x = Api.(get (x uuid) `Nobody) in

@@ -44,8 +44,10 @@ let find_trustee_id s token =
       Lwt.return (find 1 tokens)
   | _ -> Lwt.return (int_of_string_opt token)
 
-let find_trustee_private_key s trustee_id =
-  let* keys = Storage.E.get s Private_keys in
+let find_trustee_private_key s (type a b) (w : (a, b) group_witness) trustee_id
+    =
+  let module T = (val Group_witness.get w) in
+  let* keys = Storage.E.get s (Private_keys w) in
   let&* keys = Lopt.get_value keys in
   (* there is one Pedersen trustee *)
   let* trustees = Public_archive.get_trustees s in
@@ -57,7 +59,8 @@ let find_trustee_private_key s trustee_id =
     | `Pedersen (p : _ threshold_parameters) :: _ ->
         let algorithm = p.context.algorithm in
         let private_key = List.nth keys i in
-        Lwt.return_some ({ algorithm; private_key } : tally_trustee_content)
+        Lwt.return_some
+          ({ algorithm; private_key } : (a, b) tally_trustee_content)
   in
   loop (trustee_id - 1) trustees
 
@@ -482,15 +485,22 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
           | `GET ->
               let@ trustee_id = with_tally_trustee token s in
               let@ () = handle_generic_error in
-              let* private_key = find_trustee_private_key s trustee_id in
-              return_json 200 (!+yojson_of_tally_trustee private_key)
+              let* raw = Public_archive.get_election s in
+              let@ raw = Option.unwrap not_found raw in
+              let module W = (val Election.t_of_yojson raw) in
+              let* private_key =
+                find_trustee_private_key s W.G.witness trustee_id
+              in
+              return_json 200
+                (!+(yojson_of_tally_trustee !&W.G.to_string !&W.G.Zq.to_string)
+                   private_key)
           | `POST -> (
               let@ trustee_id = with_tally_trustee token s in
               let@ () = handle_generic_error in
               let@ partial_decryption = body.run Fun.id in
               let* raw = Public_archive.get_election s in
               let@ raw = Option.unwrap not_found raw in
-              let module W = (val Election.of_yojson raw) in
+              let module W = (val Election.t_of_yojson raw) in
               let* x =
                 post_partial_decryption s
                   (module W)
@@ -509,7 +519,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let@ shuffle = body.run Fun.id in
               let* raw = Public_archive.get_election s in
               let@ raw = Option.unwrap not_found raw in
-              let election = Election.of_yojson raw in
+              let election = Election.t_of_yojson raw in
               let* x = post_shuffle s election ~token ~shuffle in
               match x with
               | Ok () -> ok
