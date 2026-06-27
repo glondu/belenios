@@ -516,10 +516,10 @@ module MakeBackend
         Lwt.return_unit
 
   let get_archive uuid =
-    let* state = get (Election (uuid, State)) in
+    let* roots = get (Election (uuid, Roots)) in
     let final =
-      match Lopt.get_value state with
-      | None | Some (`Tallied | `Archived) -> true
+      match Lopt.get_value roots with
+      | Some roots -> roots.roots_result <> None
       | _ -> false
     in
     if final then
