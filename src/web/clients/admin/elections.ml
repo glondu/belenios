@@ -2106,20 +2106,17 @@ let status_content () =
     | `Shuffling ->
         Lwt.return
           [ header; div [ txt @@ s_ "This election is in shuffling phase." ] ]
-    | `Tallied ->
-        let but =
-          button (s_ "Election main page") (fun () -> Preview.goto_mainpage ())
+    | (`Tallied | `Archived) as state ->
+        let msg =
+          match state with
+          | `Tallied -> s_ "This election has been tallied"
+          | `Archived -> s_ "This election is archived"
         in
-        Lwt.return
-          [
-            h2 [ txt @@ s_ "This election has been tallied" ];
-            div [ txt @@ s_ "Go see the result on the election main page!" ];
-            div [ but ];
-          ]
-    | `Archived ->
         let link =
+          let uuid = Uuid.unwrap uuid in
           a
-            ~href:("elections/" ^ Uuid.unwrap uuid ^ "/archive.zip")
+            ~a:[ a_download (Some (Printf.sprintf "archive-%s.zip" uuid)) ]
+            ~href:("elections/" ^ uuid ^ "/archive.zip")
             "archive.zip"
         in
         let but =
@@ -2127,7 +2124,7 @@ let status_content () =
         in
         Lwt.return
           [
-            h2 [ txt (s_ "This election is archived") ];
+            h2 [ txt msg ];
             div
               ~a:[ a_class [ "txt_with_a" ] ]
               [ txt @@ s_ "The archive can be downloaded at: "; link ];
