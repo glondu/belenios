@@ -209,6 +209,10 @@ the configuration file. A token is valid for 24 hours, or until
 
 ### `POST`: ballot -> json (anybody)
 
+## `elections/$UUID/archive.zip`
+
+### `GET`: unit -> archive.zip (administrator)
+
 ## `cast-result/$STATE`
 
 ### `GET`: unit -> cast_result

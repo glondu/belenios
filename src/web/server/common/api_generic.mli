@@ -28,7 +28,8 @@ val invalidate_token : string -> unit
 
 exception Error of error
 
-type generic = { mime : string; content : string }
+type generic_content = String of string | Path of string
+type generic = { mime : string; content : generic_content }
 
 type result =
   [ `Json of int * string

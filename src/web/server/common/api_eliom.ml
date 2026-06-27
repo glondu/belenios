@@ -71,11 +71,15 @@ module Api_result = Eliom_mkreg.Make (struct
         let headers = Cohttp.Header.add headers "content-type" "text/plain" in
         Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
         |> return_response
-    | `Generic x ->
+    | `Generic x -> (
         let headers = Cohttp.Header.add headers "content-type" x.mime in
-        Cohttp_lwt_unix.Server.respond_string ~headers ~body:x.content
-          ~status:`OK ()
-        |> return_response
+        match x.content with
+        | String body ->
+            Cohttp_lwt_unix.Server.respond_string ~headers ~body ~status:`OK ()
+            |> return_response
+        | Path fname ->
+            Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
+            |> return_response)
 end)
 
 module Make () = struct

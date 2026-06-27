@@ -629,6 +629,16 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
           let* x = Public_archive.get_roots s in
           return_json 200 (string_of_roots x)
       | _ -> method_not_allowed)
+  | [ "archive.zip" ] -> (
+      match method_ with
+      | `GET ->
+          let@ _ = with_administrator token metadata in
+          Lwt.try_bind
+            (fun () -> Storage.E.get_unixfilename s Confidential_archive)
+            (fun x ->
+              return_generic { mime = "application/zip"; content = Path x })
+            (function Not_found -> not_found | e -> Lwt.reraise e)
+      | _ -> method_not_allowed)
   | [ "logo" ] -> (
       let set_logo e_logo =
         match metadata.e_sealed with
@@ -656,7 +666,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
           in
           let@ content cont =
             match Base64.decode logo with
-            | Ok x -> cont x
+            | Ok x -> cont (String x)
             | Error _ -> not_found
           in
           return_generic { mime = "image/png"; content }
