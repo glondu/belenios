@@ -30,7 +30,7 @@ type _ u =
   | State_state : state_state u
   | Dates : election_dates u
   | Metadata : metadata u
-  | Private_key : json u
+  | Private_key : ('a, 'b) group_witness -> 'b u
   | Private_keys :
       ('a, 'b) group_witness
       -> ('a, 'b) sent_partial_decryption_key list u

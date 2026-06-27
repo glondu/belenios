@@ -345,12 +345,9 @@ let validate_election_exn s uuid =
   (* create file with private keys, if any *)
   let* () =
     match private_keys with
-    | `KEY x ->
-        !+(!&G.Zq.to_string) x |> S.set (Election (uuid, Private_key)) String
+    | `KEY x -> x |> S.set (Election (uuid, Private_key G.witness)) Value
     | `KEYS (x, y) ->
-        let* () =
-          !+(!&G.Zq.to_string) x |> S.set (Election (uuid, Private_key)) String
-        in
+        let* () = x |> S.set (Election (uuid, Private_key G.witness)) Value in
         y |> S.set (Election (uuid, Private_keys G.witness)) Value
   in
   (* clean up draft *)

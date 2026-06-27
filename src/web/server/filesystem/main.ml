@@ -285,6 +285,7 @@ module MakeBackend
         -> 'a election_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
+  let private_key_filename = "private_key.json"
   let private_keys_filename = "private_keys.jsons"
 
   let get_election_file_props _uuid (type t) :
@@ -296,7 +297,7 @@ module MakeBackend
     | Private_creds -> Concrete ("private_creds.txt", Raw, None)
     | Dates -> Abstract (dates_ops, ())
     | Metadata -> Concrete ("metadata.json", Trim, None)
-    | Private_key -> Concrete ("private_key.json", Trim, None)
+    | Private_key _ -> Concrete (private_key_filename, Trim, None)
     | Private_keys _ -> Concrete (private_keys_filename, Raw, None)
     | Audit_cache -> Concrete ("audit_cache.json", Trim, None)
     | Archive_header -> Abstract (archive_header_ops, ())
@@ -1148,13 +1149,14 @@ module MakeBackend
           extended_records_filename;
           credential_mappings_filename;
           decryption_tokens_filename;
+          private_key_filename;
           private_keys_filename;
         ]
     in
     let* () =
       Lwt_list.iter_p
         (fun (F x) -> del (Election (uuid, x)))
-        [ F State; F Private_key; F Public_creds ]
+        [ F State; F Public_creds ]
     in
     Elections_cache.clear ();
     Lwt.return_unit

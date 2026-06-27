@@ -194,10 +194,9 @@ let internal_release_tally ~force s set_state =
         pds
     in
     let decrypt owner =
-      let* x = Storage.E.get s Private_key in
+      let* x = Storage.E.get s (Private_key W.G.witness) in
       match Lopt.get_value x with
-      | Some (`String sk) ->
-          let sk = W.G.Zq.of_string sk in
+      | Some sk ->
           let pd = W.E.compute_factor tally sk in
           let owned = { owner; payload = pd } in
           let pd =

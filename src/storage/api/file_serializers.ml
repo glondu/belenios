@@ -41,7 +41,9 @@ let get_election (type t) : t File.u -> t string_serializers = function
       }
   | Metadata ->
       { of_string = !*metadata_of_yojson; to_string = !+yojson_of_metadata }
-  | Private_key -> { of_string = Json.of_string; to_string = Json.to_string }
+  | Private_key w ->
+      let module T = (val Group_witness.get w) in
+      { of_string = T.scalar.of_string; to_string = T.scalar.to_string }
   | Private_keys w ->
       let module T = (val Group_witness.get w) in
       {
