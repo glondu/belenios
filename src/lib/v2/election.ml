@@ -20,8 +20,8 @@
 (**************************************************************************)
 
 open Belenios_core
-open Serializable
 open Belenios_question
+open Types
 
 let get_complexity qs =
   Array.fold_left

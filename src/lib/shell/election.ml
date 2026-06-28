@@ -74,7 +74,7 @@ let versioned_template_of_yojson x =
       Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
 
 let yojson_of_versioned_template (Template (V2, x)) =
-  let open Belenios_v2.Serializable in
+  let open Belenios_v2 in
   yojson_of_template yojson_of_question x
 
 let election_uuid_of_string_ballot x =

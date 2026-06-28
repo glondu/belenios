@@ -1,1 +1,1 @@
-include Types.QUESTION_KIND
+include Common_types.QUESTION_KIND
