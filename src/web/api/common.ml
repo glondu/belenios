@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable
+open Types
 
 type draft = Draft : 'a Belenios.Election.version * 'a raw_draft -> draft
 

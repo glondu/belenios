@@ -24,7 +24,7 @@
 
 open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios
-open Belenios_web_api.Serializable
+open Belenios_web_api
 
 (** {1 Web-specific types} *)
 

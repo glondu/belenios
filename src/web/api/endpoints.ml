@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Serializable
+open Types
 open Common
 open Ppx_yojson_conv_lib.Yojson_conv
 

@@ -22,7 +22,7 @@
 
 open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios_core
-open Belenios_web_api.Serializable
+open Belenios_web_api
 
 type material_message = {
   recipient : recipient;

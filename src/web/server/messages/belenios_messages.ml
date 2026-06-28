@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios_core
-open Belenios_web_api.Serializable
+open Belenios_web_api
 include Serializable
 
 type metadata = message_metadata

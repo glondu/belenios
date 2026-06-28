@@ -19,8 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type draft =
-  | Draft : 'a Belenios.Election.version * 'a Serializable.raw_draft -> draft
+open Types
+
+type draft = Draft : 'a Belenios.Election.version * 'a raw_draft -> draft
 [@@deriving yojson]
 
-val remaining_credits : Serializable.credentials_credits -> int
+val remaining_credits : credentials_credits -> int
