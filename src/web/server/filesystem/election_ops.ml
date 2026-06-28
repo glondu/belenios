@@ -219,33 +219,33 @@ let validate_election_exn s uuid =
   in
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeCombinator (G) in
-  let module KG = Trustees.MakeSimple (G) in
+  let module KG = Trustees.MakeBasic (G) in
   let* trustee_names, trustees, private_keys =
     match trustees with
     | `Basic x -> (
         let ts = x.trustees in
         match ts with
         | [] ->
-            let private_key = KG.generate () in
-            let public_key = KG.prove private_key in
-            Lwt.return ([ None ], [ `Single public_key ], `KEY private_key)
+            let seed = generate_token 22 in
+            let p = KG.make seed in
+            Lwt.return ([ None ], [ `Single p ], `KEY seed)
         | _ :: _ ->
-            let private_key =
+            let seed =
               List.fold_left
                 (fun accu t ->
                   match t.kind with
                   | External _ -> accu
-                  | Server u -> u.private_key :: accu)
+                  | Server u -> u.seed :: accu)
                 [] ts
             in
-            let private_key =
-              match private_key with
+            let seed =
+              match seed with
               | [ x ] -> `KEY x
               | _ -> raise @@ Validation_error `NotSinglePrivateKey
             in
             Lwt.return
               ( List.map
-                  (fun (x : _ draft_trustee) ->
+                  (fun (x : _ draft_basic_trustee) ->
                     match x.kind with
                     | Server _ -> None
                     | External u ->
@@ -254,13 +254,13 @@ let validate_election_exn s uuid =
                             : Belenios_web_api.external_trustee))
                   ts,
                 List.map
-                  (fun { public_key; _ } ->
-                    match public_key with
+                  (fun (x : _ draft_basic_trustee) ->
+                    match x.parameters with
                     | None ->
                         raise @@ Validation_error `KeyEstablishmentNotFinished
                     | Some x -> `Single x)
                   ts,
-                private_key ))
+                seed ))
     | `Threshold x -> (
         let ts = x.trustees in
         match x.parameters with
@@ -282,12 +282,12 @@ let validate_election_exn s uuid =
                   | None -> failwith "inconsistent state")
                 ts
             in
-            let server_private_key = KG.generate () in
-            let server_public_key = KG.prove server_private_key in
+            let seed = generate_token 22 in
+            let server_public_key = KG.make seed in
             Lwt.return
               ( None :: trustees,
                 [ `Single server_public_key; `Pedersen tp ],
-                `KEYS (server_private_key, private_keys) ))
+                `KEYS (seed, private_keys) ))
   in
   let y = K.combine_keys trustees in
   (* election parameters *)
@@ -353,9 +353,9 @@ let validate_election_exn s uuid =
   (* create file with private keys, if any *)
   let* () =
     match private_keys with
-    | `KEY x -> x |> S.set (Election (uuid, Private_key G.witness)) Value
+    | `KEY x -> x |> S.set (Election (uuid, Server_seed)) Value
     | `KEYS (x, y) ->
-        let* () = x |> S.set (Election (uuid, Private_key G.witness)) Value in
+        let* () = x |> S.set (Election (uuid, Server_seed)) Value in
         y |> S.set (Election (uuid, Private_keys G.witness)) Value
   in
   (* clean up draft *)

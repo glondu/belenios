@@ -172,7 +172,7 @@ let rec show_draft_trustees uuid container =
   let (TWW (trustees, write)) =
     match trustees with
     | `Basic x ->
-        TWW (x.trustees, [%yojson_of_witness (G.witness : _ trustee_public_key)])
+        TWW (x.trustees, [%yojson_of_witness (G.witness : _ basic_parameters)])
     | `Threshold x ->
         TWW (x.trustees, [%yojson_of_witness (G.witness : _ pedersen_cert)])
   in

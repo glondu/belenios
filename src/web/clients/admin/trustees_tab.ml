@@ -48,7 +48,7 @@ let step = ref 0
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
 let cast_bt_trustee a b =
-  !+(yojson_of_trustee (yojson_of_trustee_public_key a b))
+  !+(yojson_of_trustee (yojson_of_basic_parameters a b))
   >> !*(trustee_of_yojson Fun.id)
 
 let cast_tt_trustee a b =

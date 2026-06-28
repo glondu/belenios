@@ -367,18 +367,15 @@ end
 
 module type TRUSTEES_SIG = sig
   (** Simple distributed generation of an election public key. *)
-  module MakeSimple (G : GROUP) : sig
+  module MakeBasic (G : GROUP) : sig
     (** This module implements a simple distributed key generation. Each share
         is a number modulo q, and the secret key is their sum. All shares are
         needed to decrypt, but the decryptions can be done in a distributed
         fashion. *)
 
-    val generate : unit -> G.Zq.t
-    (** [generate ()] generates a new private key. *)
-
+    val derive : string -> G.Zq.t
     val prove : ?name:string -> G.Zq.t -> (G.t, G.Zq.t) trustee_public_key
-    (** [prove x] returns the public key associated to [x] and a zero- knowledge
-        proof of its knowledge. *)
+    val make : ?name:string -> string -> (G.t, G.Zq.t) basic_parameters
   end
 
   exception PedersenFailure of string

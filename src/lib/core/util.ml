@@ -50,14 +50,16 @@ let arrange_partial_decryptions trustees partial_decryptions =
 
 exception CombinationError of combination_error
 
-let compute_synthetic_factors_exc trustees check partial_decryptions fold =
+let compute_synthetic_factors_exc (type a b) trustees check partial_decryptions
+    fold =
   List.map2
-    (fun x y ->
+    (fun (x : (a, b) trustee_kind) y ->
       match (x, y) with
-      | `Single (x : _ trustee_public_key), `Single y -> (
+      | `Single x, `Single y -> (
           match y with
           | None -> raise (CombinationError MissingPartialDecryption)
-          | Some y when check x.message.public_key y -> y.decryption_factors
+          | Some y when check x.verification_key.message.message.public_key y ->
+              y.decryption_factors
           | _ -> raise (CombinationError InvalidPartialDecryption))
       | `Pedersen x, `Pedersen y ->
           let length = Array.length x.verification_keys in

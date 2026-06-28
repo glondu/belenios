@@ -77,15 +77,8 @@ type trustee_checksum = {
 }
 [@@deriving yojson]
 
-type trustee_threshold_checksum = {
-  pki_key : hash;
-  verification_key : hash;
-  name : string;
-}
-[@@deriving yojson]
-
 type trustee_threshold_set = {
-  trustees : trustee_threshold_checksum list;
+  trustees : trustee_checksum list;
   threshold : int;
 }
 [@@deriving yojson]
@@ -95,7 +88,7 @@ type weight_checksums = { total : weight; min : weight; max : weight }
 
 type election_checksums = {
   election : hash;
-  trustees : trustee_checksum list;
+  trustees_basic : trustee_checksum list;
   trustees_threshold : trustee_threshold_set list;
   num_voters : int;
   weights : weight_checksums option; [@yojson.option]

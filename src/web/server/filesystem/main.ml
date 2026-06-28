@@ -312,7 +312,7 @@ module MakeBackend
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
   let public_creds_filename = "public_creds.json"
-  let private_key_filename = "private_key.json"
+  let server_seed_filename = "server_seed.txt"
   let private_keys_filename = "private_keys.jsons"
 
   let get_election_file_props _uuid (type t) :
@@ -324,7 +324,7 @@ module MakeBackend
     | Private_creds -> Concrete ("private_creds.txt", Raw, None)
     | Dates -> Abstract (dates_ops, ())
     | Metadata -> Concrete ("metadata.json", Trim, None)
-    | Private_key _ -> Concrete (private_key_filename, Trim, None)
+    | Server_seed -> Concrete (server_seed_filename, Trim, None)
     | Private_keys _ -> Concrete (private_keys_filename, Raw, None)
     | Audit_cache -> Concrete ("audit_cache.json", Trim, None)
     | Archive_header -> Abstract (archive_header_ops, ())
@@ -1175,7 +1175,7 @@ module MakeBackend
           extended_records_filename;
           credential_mappings_filename;
           public_creds_filename;
-          private_key_filename;
+          server_seed_filename;
           private_keys_filename;
         ]
     in

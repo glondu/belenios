@@ -162,7 +162,7 @@ let make_audit_div election cache =
          xs)
   in
   let audit_trustees_mandatory =
-    match checksums.trustees with
+    match checksums.trustees_basic with
     | [] -> []
     | l ->
         [
@@ -184,11 +184,11 @@ let make_audit_div election cache =
       ul
         ~a:[ a_class [ className ] ]
         (List.map
-           (fun (x : trustee_threshold_checksum) ->
+           (fun (x : trustee_checksum) ->
              li
                [
-                 Printf.ksprintf txt "%s " x.name;
-                 code [ Printf.ksprintf txt "[%s]" (Hash.to_b64 x.pki_key) ];
+                 Printf.ksprintf txt "%s " @@ Option.value ~default:"N/A" x.name;
+                 code [ Printf.ksprintf txt "(%s)" (Hash.to_b64 x.checksum) ];
                ])
            xs)
     in

@@ -133,6 +133,17 @@ type ('a, 'b) shuffle = {
 }
 [@@deriving yojson]
 
+(** {2 Basic decryption support} *)
+
+type ('a, 'b) basic_cert = ('a, 'b, ('a, unit) cert_keys) signed_msg
+[@@deriving yojson]
+
+type ('a, 'b) basic_parameters = {
+  cert : ('a, 'b) basic_cert;
+  verification_key : ('a, 'b, ('a, 'b) trustee_public_key) signed_msg;
+}
+[@@deriving yojson]
+
 (** {2 Threshold decryption support} *)
 
 type common_context = {
@@ -206,7 +217,7 @@ type ('a, 'b) threshold_parameters = {
 (** {2 Trustees} *)
 
 type ('a, 'b) trustee_kind =
-  [ `Single of ('a, 'b) trustee_public_key
+  [ `Single of ('a, 'b) basic_parameters
   | `Pedersen of ('a, 'b) threshold_parameters ]
 [@@deriving yojson]
 

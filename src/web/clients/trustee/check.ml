@@ -53,17 +53,15 @@ let do_election uuid election private_key =
     | Ok (x, _) -> cont @@ !*[%witness_of_yojson (W.G.witness : _ trustees)] x
   in
   let find_single =
-    try
-      match Json.of_string private_key with
-      | `String x ->
-          let private_key = W.G.Zq.of_string x in
-          let public_key = W.G.(g **~ private_key) in
-          fun (x : _ trustee_public_key) ->
-            if W.G.compare public_key x.message.public_key = 0 then
-              Some x.message.name
-            else None
-      | _ -> raise Exit
-    with _ -> fun _ -> None
+    let module T = (val Trustees.get_by_version W.version) in
+    let module KG = T.MakeBasic (W.G) in
+    let private_key = KG.derive private_key in
+    let public_key = W.G.(g **~ private_key) in
+    fun (x : _ basic_parameters) ->
+      if
+        W.G.compare public_key x.verification_key.message.message.public_key = 0
+      then Some x.verification_key.message.message.name
+      else None
   in
   let find_pedersen =
     try
@@ -109,9 +107,11 @@ let do_draft uuid (draft : _ raw_draft) private_key =
           with _ -> None
         in
         List.find_map
-          (fun (x : _ trustee_public_key trustee) ->
+          (fun (x : _ basic_parameters trustee) ->
             let& y = x.key in
-            let { public_key = y; _ } : _ raw_trustee_public_key = y.message in
+            let { public_key = y; _ } : _ raw_trustee_public_key =
+              y.verification_key.message.message
+            in
             if G.(compare (g **~ private_key) y) = 0 then Some x.name else None)
           trustees
       in

@@ -230,7 +230,7 @@ type 'a trustee = {
 [@@deriving yojson]
 
 type ('a, 'b) basic_trustees = {
-  trustees : ('a, 'b) trustee_public_key trustee list;
+  trustees : ('a, 'b) basic_parameters trustee list;
 }
 [@@deriving yojson]
 

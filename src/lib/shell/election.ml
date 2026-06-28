@@ -172,41 +172,40 @@ let compute_checksums (type a b) (w : (a, b) group_witness) ~election ~trustees
       | Some min, Some max -> Some { total; min; max }
       | _ -> failwith "inconsistent weights in credentials"
   in
-  let tc_of_tpk (k : _ trustee_public_key) =
-    let checksum = Hash.hash_yojson k.message.public_key in
-    let name = k.message.name in
+  let open Ppx_yojson_conv_lib.Yojson_conv in
+  let tc_of_basic (k : _ basic_parameters) =
+    let checksum =
+      Hash.hash_string @@ string_of_yojson k.cert.message.verification
+    in
+    let name = k.verification_key.message.message.name in
     { checksum; name }
   in
+  let tc_of_pedersen (p : _ threshold_parameters) : trustee_threshold_set =
+    let trustees =
+      List.combine (Array.to_list p.verification_keys) (Array.to_list p.certs)
+      |> List.map
+           (fun
+             ((key : _ threshold_verification_key), (cert : _ pedersen_cert)) ->
+             ({
+                checksum =
+                  Hash.hash_string @@ string_of_yojson cert.message.verification;
+                name = key.message.message.name;
+              }
+               : trustee_checksum))
+    in
+    { trustees; threshold = p.context.threshold }
+  in
   let trustees = !*(trustees_of_yojson Fun.id Fun.id) trustees in
-  let ec_trustees =
+  let trustees_basic =
     trustees
-    |> List.map (function `Single k -> [ tc_of_tpk k ] | `Pedersen _ -> [])
+    |> List.map (function `Single k -> [ tc_of_basic k ] | `Pedersen _ -> [])
     |> List.flatten
   in
-  let ec_trustees_threshold =
+  let trustees_threshold =
     trustees
     |> List.map (function
       | `Single _ -> []
-      | `Pedersen p ->
-          let trustees =
-            List.combine
-              (Array.to_list p.verification_keys)
-              (Array.to_list p.certs)
-            |> List.map (fun ((key : _ threshold_verification_key), cert) ->
-                ({
-                   name = Option.value ~default:"N/A" key.message.message.name;
-                   pki_key =
-                     Hash.hash_yojson
-                     @@ yojson_of_pedersen_cert Fun.id Fun.id cert;
-                   verification_key =
-                     Hash.hash_yojson key.message.message.public_key;
-                 }
-                  : trustee_threshold_checksum))
-          in
-          [
-            ({ trustees; threshold = p.context.threshold }
-              : trustee_threshold_set);
-          ])
+      | `Pedersen p -> [ tc_of_pedersen p ])
     |> List.flatten
   in
   let find_trustee_name_by_id =
@@ -214,7 +213,7 @@ let compute_checksums (type a b) (w : (a, b) group_witness) ~election ~trustees
       trustees
       |> List.map (fun (x : _ trustee_kind) ->
           match x with
-          | `Single k -> [ k.message.name ]
+          | `Single k -> [ k.verification_key.message.message.name ]
           | `Pedersen t ->
               Array.to_list t.verification_keys
               |> List.map (fun (x : _ threshold_verification_key) ->
@@ -238,8 +237,8 @@ let compute_checksums (type a b) (w : (a, b) group_witness) ~election ~trustees
   in
   {
     election;
-    trustees = ec_trustees;
-    trustees_threshold = ec_trustees_threshold;
+    trustees_basic;
+    trustees_threshold;
     public_credentials = ec_public_credentials;
     shuffles = ec_shuffles;
     encrypted_tally;

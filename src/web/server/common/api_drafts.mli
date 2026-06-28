@@ -61,7 +61,7 @@ val submit_public_credentials :
 val generate_server_trustee :
   ('a, 'b) group_witness ->
   ('a, 'b) draft_election ->
-  ('a, 'b) draft_trustee Lwt.t
+  ('a, 'b) draft_basic_trustee Lwt.t
 
 val get_draft_trustees :
   is_admin:bool ->

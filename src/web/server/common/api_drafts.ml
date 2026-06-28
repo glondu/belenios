@@ -55,7 +55,7 @@ let with_trustee token (Draft (_, se)) f =
   | `Basic b -> (
       match
         List.find_opt
-          (fun (x : _ draft_trustee) ->
+          (fun (x : _ draft_basic_trustee) ->
             match x.kind with
             | Server _ -> false
             | External x -> x.token = token)
@@ -438,12 +438,12 @@ let get_draft_trustees ~is_admin (Draft (_, se)) =
   | `Basic x ->
       let trustees =
         List.filter_map
-          (fun (t : _ draft_trustee) ->
+          (fun (t : _ draft_basic_trustee) ->
             match t.kind with
             | Server _ -> None
             | External u ->
                 let trustee_state, trustee_key =
-                  match t.public_key with
+                  match t.parameters with
                   | None -> (Some 0, None)
                   | Some tpk -> (Some 1, Some tpk)
                 in
@@ -490,17 +490,15 @@ let ensure_none label x =
     raise (Error (`GenericError (Printf.sprintf "%s must not be set" label)))
 
 let generate_server_trustee (type a b) (w : (a, b) group_witness)
-    (Draft (_, se) : (a, b) draft_election) : (a, b) draft_trustee Lwt.t =
+    (Draft (_, se) : (a, b) draft_election) : (a, b) draft_basic_trustee Lwt.t =
   let version = se.version in
   let module G = (val Group.of_string ~version se.group) in
   let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module K = Trustees.MakeSimple (G) in
-  let private_key : b = K.generate () in
-  let public_key : (a, b) trustee_public_key option =
-    Some (K.prove private_key)
-  in
-  Lwt.return { kind = Server { private_key }; public_key }
+  let module KG = Trustees.MakeBasic (G) in
+  let seed = generate_token 22 in
+  let parameters = Some (KG.make seed) in
+  Lwt.return { kind = Server { seed }; parameters }
 
 let post_draft_trustees (type a b) (w : (a, b) group_witness)
     ((Draft (v, se), set) : (a, b) draft_election updatable_with_billing)
@@ -524,7 +522,7 @@ let post_draft_trustees (type a b) (w : (a, b) group_witness)
         let ts = x.trustees in
         if
           List.exists
-            (fun (x : _ draft_trustee) ->
+            (fun (x : _ draft_basic_trustee) ->
               match x.kind with Server _ -> true | External _ -> false)
             ts
         then Lwt.return ts
@@ -535,7 +533,7 @@ let post_draft_trustees (type a b) (w : (a, b) group_witness)
       let () =
         if
           List.exists
-            (fun (x : _ draft_trustee) ->
+            (fun (x : _ draft_basic_trustee) ->
               match x.kind with
               | Server _ -> false
               | External x -> x.id = address)
@@ -544,7 +542,7 @@ let post_draft_trustees (type a b) (w : (a, b) group_witness)
       in
       let token = generate_token 22 in
       let t =
-        { kind = External { id = address; name; token }; public_key = None }
+        { kind = External { id = address; name; token }; parameters = None }
       in
       x.trustees <- ts @ [ t ];
       set (Draft (v, se))
@@ -586,7 +584,7 @@ let delete_draft_trustee ((Draft (v, se), set) : _ updatable_with_billing)
       let ts = x.trustees in
       let touched, ts =
         filter_out_first
-          (fun (x : _ draft_trustee) ->
+          (fun (x : _ draft_basic_trustee) ->
             match x.kind with Server _ -> false | External x -> x.id = trustee)
           ts
       in
@@ -704,7 +702,7 @@ let get_draft_status uuid (Draft (v, se)) =
         (match se.trustees with
         | `Basic x ->
             List.for_all
-              (fun (t : _ draft_trustee) -> t.public_key <> None)
+              (fun (t : _ draft_basic_trustee) -> t.parameters <> None)
               x.trustees
         | `Threshold x ->
             List.for_all
@@ -842,7 +840,8 @@ let import_trustees (type a b) (w : (a, b) group_witness)
         in
         match trustees with
         | [ `Pedersen t ] -> import_pedersen t ids
-        | [ `Single x; `Pedersen t ] when x.message.name = None ->
+        | [ `Single x; `Pedersen t ]
+          when x.verification_key.message.message.name = None ->
             import_pedersen t (List.tl ids)
         | ts ->
             let@ ts cont =
@@ -855,27 +854,28 @@ let import_trustees (type a b) (w : (a, b) group_witness)
               with Exit -> Lwt.return @@ Stdlib.Error `Unsupported
             in
             let* ts =
-              let module KG = Trustees.MakeSimple (G) in
+              let module KG = Trustees.MakeBasic (G) in
               List.combine ids ts
-              |> Lwt_list.map_p
-                   (fun (id, (public_key : _ trustee_public_key)) ->
-                     let* kind, public_key =
-                       match id with
-                       | None ->
-                           let private_key = KG.generate () in
-                           let public_key = KG.prove private_key in
-                           Lwt.return (Server { private_key }, Some public_key)
-                       | Some id ->
-                           let token = generate_token 22 in
-                           let name =
-                             match public_key.message.name with
-                             | None -> failwith __FUNCTION__
-                             | Some x -> x
-                           in
-                           Lwt.return
-                             (External { id; token; name }, Some public_key)
-                     in
-                     Lwt.return { kind; public_key })
+              |> Lwt_list.map_p (fun (id, (parameters : _ basic_parameters)) ->
+                  let* kind, parameters =
+                    match id with
+                    | None ->
+                        let seed = generate_token 22 in
+                        let parameters = KG.make seed in
+                        Lwt.return (Server { seed }, Some parameters)
+                    | Some id ->
+                        let token = generate_token 22 in
+                        let name =
+                          match
+                            parameters.verification_key.message.message.name
+                          with
+                          | None -> failwith __FUNCTION__
+                          | Some x -> x
+                        in
+                        Lwt.return
+                          (External { id; token; name }, Some parameters)
+                  in
+                  Lwt.return { kind; parameters })
             in
             se.trustees <- `Basic { trustees = ts };
             let* () = set (Draft (v, se)) in
@@ -988,7 +988,7 @@ let post_trustee_basic (type a b) (w : (a, b) group_witness)
   let t, name =
     match
       List.find_map
-        (fun (x : _ draft_trustee) ->
+        (fun (x : _ draft_basic_trustee) ->
           match x.kind with
           | Server _ -> None
           | External y -> if token = y.token then Some (x, y.name) else None)
@@ -997,18 +997,19 @@ let post_trustee_basic (type a b) (w : (a, b) group_witness)
     | Some t -> t
     | None -> failwith "Invalid token"
   in
-  match t.public_key with
+  match t.parameters with
   | None ->
       let version = se.version in
       let module G = (val Group.of_string ~version se.group : GROUP) in
       let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
       let module Trustees = (val Trustees.get_by_version version) in
-      let pk : (a, b) trustee_public_key =
-        !*[%witness_of_yojson (G.witness : _ trustee_public_key)] data
-      in
+      let parameters = !*[%witness_of_yojson (w : _ basic_parameters)] data in
       let module K = Trustees.MakeCombinator (G) in
-      if pk.message.name = Some name && K.check [ `Single pk ] then (
-        t.public_key <- Some pk;
+      if
+        parameters.verification_key.message.message.name = Some name
+        && K.check [ `Single parameters ]
+      then (
+        t.parameters <- Some parameters;
         set fse)
       else raise @@ Error `InvalidPublicKey
   | _ -> raise @@ Error `PublicKeyExists
@@ -1256,7 +1257,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
         match trustee with
         | `Basic b ->
             let state =
-              match (b.public_key, b.kind) with
+              match (b.parameters, b.kind) with
               | None, External x -> `Init x.name
               | _ -> `Done
             in

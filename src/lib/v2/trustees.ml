@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt.Syntax
 open Belenios_core
 
@@ -127,6 +128,19 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
     let { public_key = y; _ } : _ raw_trustee_public_key = trustee.message in
     G.check y && P.verify xch_single_verification_key y trustee
 
+  let xch_basic_cert =
+    {
+      dst = dst_prefix ^ "-basic-cert";
+      of_yojson = cert_keys_of_yojson !$G.of_string unit_of_yojson;
+      to_yojson = yojson_of_cert_keys !&G.to_string yojson_of_unit;
+    }
+
+  let check_basic (trustee : _ basic_parameters) =
+    let keys = trustee.cert.message in
+    G.check keys.verification && G.check keys.encryption
+    && P.verify xch_basic_cert keys.verification trustee.cert
+    && check_single trustee.verification_key.message
+
   let xch_certs =
     {
       dst = dst_prefix ^ "-pedersen-certs";
@@ -136,7 +150,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
 
   let xch_verification_key =
     {
-      dst = dst_prefix ^ "-pedersen-verification_key";
+      dst = dst_prefix ^ "-outer-verification_key";
       of_yojson = [%witness_of_yojson (G.witness : _ trustee_public_key)];
       to_yojson = [%yojson_of_witness (G.witness : _ trustee_public_key)];
     }
@@ -192,17 +206,17 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
              && P.verify xch_verification_key cert.verification vk)
          certs t.verification_keys computed_vks
 
-  let check trustees =
+  let check (trustees : _ trustees) =
     trustees
     |> List.for_all (function
-      | `Single t -> check_single t
+      | `Single t -> check_basic t
       | `Pedersen t -> check_pedersen t)
 
   let combine_keys trustees =
     trustees
     |> List.map (fun (x : _ trustee_kind) ->
         match x with
-        | `Single t -> t.message.public_key
+        | `Single t -> t.verification_key.message.message.public_key
         | `Pedersen p ->
             p.coefexps
             |> Array.map (fun (x : _ coefexps) -> x.coefexps)
@@ -242,18 +256,26 @@ end
 
 (** Distributed key generation *)
 
-module MakeSimple (G : GROUP) = struct
-  open G
+module MakeBasic (G : GROUP) = struct
   module P = Pki.Make (G)
   module C = MakeCert (P)
   module Comb = MakeComb (P) (C)
 
-  let random () = G.Zq.random (Crypto_primitives.get_rng ())
-  let generate = random
+  let derive seed = G.hash ~dst:(dst_prefix ^ "-basic_key") seed [||]
 
   let prove ?name x =
-    let public_key = g **~ x in
+    let public_key = G.(g **~ x) in
     P.sign Comb.xch_single_verification_key x { public_key; name }
+
+  let make ?name seed =
+    let x = derive seed in
+    let pok = prove ?name x in
+    let sk = P.derive_sk seed and dk = P.derive_dk seed in
+    let verification = G.(g **~ sk) and encryption = G.(g **~ dk) in
+    let cert : _ cert_keys = { context = (); verification; encryption } in
+    let verification_key = P.sign Comb.xch_verification_key sk pok in
+    let cert = P.sign Comb.xch_basic_cert sk cert in
+    { cert; verification_key }
 end
 
 module MakePedersen (C : CHANNELS) = struct
@@ -270,7 +292,7 @@ module MakePedersen (C : CHANNELS) = struct
   module Cert = MakeCert (P)
   module Comb = MakeComb (P) (Cert)
   open G
-  module K = MakeSimple (G)
+  module KG = MakeBasic (G)
   module V = MakeVerificator (G)
 
   let xch_decryption_key = Comb.xch_decryption_key
@@ -447,7 +469,7 @@ module MakePedersen (C : CHANNELS) = struct
     let pdk : _ partial_decryption_key = { decryption_key } in
     let name = context.names.(index - 1) in
     let public_key =
-      K.prove ~name decryption_key |> sign_trustee_public_key ~sk
+      KG.prove ~name decryption_key |> sign_trustee_public_key ~sk
     in
     let* private_key = C.send ~algorithm xch_decryption_key sk ek pdk in
     Lwt.return { public_key; private_key }
@@ -470,7 +492,7 @@ module MakePedersen (C : CHANNELS) = struct
     in
     let y = (V.compute_verification_keys coefexps).(i) in
     let ({ public_key; _ } : _ voutput) = voutput in
-    Comb.check [ `Single public_key.message ]
+    Comb.check_single public_key.message
     && public_key.message.message.public_key =~ y
     && P.verify Comb.xch_verification_key certs.(i).verification public_key
 
@@ -502,7 +524,7 @@ module MakePedersen (C : CHANNELS) = struct
     let computed_vks = V.compute_verification_keys coefexps in
     for j = 0 to n - 1 do
       let voutput = voutputs.(j) in
-      if not (Comb.check [ `Single voutput.public_key.message ]) then
+      if not (Comb.check_single voutput.public_key.message) then
         raise
           (PedersenFailure (Printf.sprintf "pok %d does not validate" (j + 1)));
       if not (voutput.public_key.message.message.public_key =~ computed_vks.(j))

@@ -29,35 +29,6 @@ open Belenios_js.Session
 open Belenios_web_api
 open Common
 
-let basic_check_private_key s =
-  let open (val !Belenios_js.I18n.gettext) in
-  let n = String.length s in
-  let rec leading i =
-    if i < n then
-      match s.[i] with
-      | '"' -> middle (i + 1)
-      | _ ->
-          failwith
-            (s_
-               "Must start with a double quote (character given was another \
-                character)")
-    else failwith (s_ "Must start with a double quote (empty string given)")
-  and middle i =
-    if i < n then
-      match s.[i] with
-      | '0' .. '9' -> ending (i + 1)
-      | _ -> failwith (s_ "Must have at least one digit")
-    else failwith (s_ "Too short")
-  and ending i =
-    if i < n then
-      match s.[i] with
-      | '0' .. '9' -> ending (i + 1)
-      | '"' -> if i + 1 < n then failwith (s_ "Must end with a double quote")
-      | c -> Printf.ksprintf failwith (f_ "Illegal character: %c") c
-    else failwith (s_ "Must end with a double quote")
-  in
-  leading 0
-
 let compute_partial_decryption (type a b) (w : (a, b) group_witness)
     (trustee : (a, b) tally_trustee_content option) ~election ~encrypted_tally
     ~private_key =
@@ -80,15 +51,10 @@ let compute_partial_decryption (type a b) (w : (a, b) group_witness)
         let vk = W.G.(g **~ sk) in
         let* epk = C.recv ~algorithm Pedersen.xch_decryption_key dk vk epk in
         Lwt.return @@ epk.decryption_key
-    | None -> (
-        basic_check_private_key private_key;
-        Lwt.return
-        @@
-          try !*(!$W.G.Zq.of_string) private_key
-          with e ->
-            Printf.ksprintf failwith
-              (f_ "Error in format of private key: %s")
-              (Printexc.to_string e))
+    | None ->
+        let module T = (val Trustees.get_by_version W.version) in
+        let module KG = T.MakeBasic (W.G) in
+        Lwt.return @@ KG.derive private_key
   in
   W.E.compute_factor encrypted_tally private_key
   |> [%yojson_of_witness (W.G.witness : _ partial_decryption)]

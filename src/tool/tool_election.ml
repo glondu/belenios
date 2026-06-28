@@ -78,8 +78,9 @@ let make file =
       assert (E.check_ballot b);
       Lwt.return (!+yojson_of_ballot b)
 
-    let decrypt owner privkey =
-      let sk = !*(!$G.Zq.of_string) privkey in
+    let decrypt owner seed =
+      let module KG = Trustees.MakeBasic (G) in
+      let sk = KG.derive seed in
       let pk = G.(g **~ sk) in
       let* pks = Lazy.force pks in
       if Array.for_all (fun x -> not G.(x =~ pk)) pks then

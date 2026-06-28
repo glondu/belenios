@@ -236,7 +236,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
          trustees
          |> Option.map
               (List.map (function
-                 | `Single x -> [ x ]
+                 | `Single x -> [ x.verification_key.message ]
                  | `Pedersen t ->
                      Array.to_list t.verification_keys
                      |> List.map (fun x -> x.message))

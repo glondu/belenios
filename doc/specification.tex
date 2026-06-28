@@ -734,7 +734,30 @@ with a $\textsf{name}$. Given such a
 $\texttt{raw\_trustee\_public\_key}$ $S$, a $\tpk$ is computed with:
 \[\textsf{sign}(\texttt{\dstprefix-verification\_key},X,S)\]
 
-\subsection{Messages specific to threshold decryption support}
+\subsection{Basic trustees}
+\label{basic-trustees}
+
+The most basic kind of trustee derives all their secrets from a secret
+seed $s$. The (private) partial decryption key is derived from the
+secret seed $s$ using (see~\ref{hash-group}):
+\[\textsf{HashGroup}(\texttt{\dstprefix-basic\_key},s,())\]
+
+They create a certificate as described in section~\ref{certificates},
+signed with domain separation tag $\texttt{\dstprefix-basic-cert}$,
+and use its signing key to sign the partial decryption verification
+key with domain separation tag
+$\texttt{\dstprefix-outer-verification\_key}$.
+
+\begin{gather*}
+  \texttt{basic\_parameters}=\left\{
+    \begin{array}{rcl}
+      \textsf{cert}&:&\texttt{null}\ \texttt{cert\_keys}\ \texttt{signed\_msg}\\
+      \textsf{verification\_key}&:&\texttt{trustee\_public\_key}\ \texttt{signed\ msg}
+    \end{array}
+  \right\}\\
+\end{gather*}
+
+\subsection{Threshold trustees}
 \label{threshold}
 
 \subsubsection{Derived polynomials}
@@ -961,7 +984,7 @@ Trustee $\mathcal{T}_j$ fills $\textsf{vo}_j$ as follows:
   \hyperref[trustee-keys]{\texttt{trustee\_public\_key}} structure
   built using $S_j$ as private key, signed with the certificate key of
   $\mathcal{T}_j$ and the following domain separation tag:
-  \[\texttt{\dstprefix-pedersen-verification\_key}\]
+  \[\texttt{\dstprefix-outer-verification\_key}\]
   Note that the result has two layers of signatures: an inner one,
   which acts as a proof of knowledge of the partial decryption key,
   and an outer one, which acts as a certification of the verification
@@ -1010,13 +1033,13 @@ The administrator fills it as follows:
 \begin{gather*}
   \texttt{trustees}=\texttt{trustee\_kind}^\ast\\
   \texttt{trustee\_kind}=
-  [\texttt{"Single"},\texttt{trustee\_public\_key}]\mid
+  [\texttt{"Single"},\texttt{basic\_parameters}]\mid
   [\texttt{"Pedersen"},\texttt{threshold\_parameters}]
 \end{gather*}
 
 A $\texttt{trustees}$ structure is associated to each election. Such a
-structure is a list of either a single verification key as described in
-section~\ref{trustee-keys}, or threshold parameters as described in
+structure is a list of either basic parameters as described in
+section~\ref{basic-trustees}, or threshold parameters as described in
 section~\ref{threshold}.  Each item describes how a partial decryption
 is computed: either a specific (mandatory) verification key is used to
 compute a share, or a subset of a set of (optional) verification keys

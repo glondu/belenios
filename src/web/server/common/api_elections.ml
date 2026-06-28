@@ -232,7 +232,8 @@ let extract_names trustees =
         x.verification_keys |> Array.to_list
         |> List.map (fun (x : _ threshold_verification_key) ->
             x.message.message.name)
-    | `Single (x : _ trustee_public_key) -> [ x.message.name ])
+    | `Single (x : _ basic_parameters) ->
+        [ x.verification_key.message.message.name ])
   |> List.flatten
   |> List.mapi (fun i x -> (i + 1, x))
 
@@ -304,7 +305,7 @@ let post_partial_decryption s election ~trustee_id ~partial_decryption =
     trustees
     |> !*[%witness_of_yojson (W.G.witness : _ trustees)]
     |> List.map (function
-      | `Single x -> [ x ]
+      | `Single x -> [ x.verification_key.message ]
       | `Pedersen t ->
           Array.to_list t.verification_keys |> List.map (fun x -> x.message))
     |> List.flatten |> Array.of_list |> Lwt.return
@@ -779,8 +780,8 @@ let dispatch ~token ~ifmatch endpoint method_ body =
                         try
                           cont
                           @@ List.map
-                               (fun ({ public_key; _ } : _ draft_trustee) ->
-                                 match public_key with
+                               (fun (x : _ draft_basic_trustee) ->
+                                 match x.parameters with
                                  | None -> raise Exit
                                  | Some x -> `Single x)
                                ts

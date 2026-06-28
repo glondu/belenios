@@ -56,20 +56,21 @@ module Tkeygen : CMDLINER_MODULE = struct
     let group = get_mandatory_opt "--group" group in
     let module G = (val Group.of_string ~version group) in
     let module Trustees = (val Trustees.get_by_version version) in
-    let module KG = Trustees.MakeSimple (G) in
-    let private_key = KG.generate () in
-    let public_key = KG.prove ?name private_key in
+    let module KG = Trustees.MakeBasic (G) in
+    let seed = generate_token 22 in
+    let parameters = KG.make ?name seed in
     let id =
-      String.sub (sha256_hex (G.to_string public_key.message.public_key)) 0 8
+      String.sub
+        (sha256_hex (G.to_string parameters.cert.message.verification))
+        0 8
       |> String.uppercase_ascii
     in
-    let priv = !+yojson_of_number @@ G.Zq.to_Z private_key in
     let pub =
-      !+[%yojson_of_witness (G.witness : _ trustee_public_key)] public_key
+      !+[%yojson_of_witness (G.witness : _ basic_parameters)] parameters
     in
     Printf.printf "I: keypair %s has been generated\n%!" id;
     let pubkey = ("public key", id ^ ".pubkey", 0o444, pub) in
-    let privkey = ("private key", id ^ ".privkey", 0o400, priv) in
+    let privkey = ("private key", id ^ ".privkey", 0o400, seed) in
     let* () = save pubkey in
     let* () = save privkey in
     Lwt.return_unit
@@ -525,7 +526,7 @@ module Mktrustees : CMDLINER_MODULE = struct
         | None -> Lwt.return_nil
         | Some t ->
             t
-            |> List.map !*(trustee_public_key_of_yojson Fun.id Fun.id)
+            |> List.map !*(basic_parameters_of_yojson Fun.id Fun.id)
             |> List.map (fun x -> `Single x)
             |> Lwt.return
       in

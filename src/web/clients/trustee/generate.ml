@@ -42,21 +42,23 @@ let generate_basic (Draft (_, draft)) ~name () =
   let group = draft.group in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module KG = Trustees.MakeSimple (G) in
-  let private_key = KG.generate () in
-  let public_key' = KG.prove ~name private_key in
-  let private_key = private_key |> G.Zq.to_Z |> !+yojson_of_number in
+  let module KG = Trustees.MakeBasic (G) in
+  let seed = generate_token 22 in
+  let public_key' = KG.make ~name seed in
   let public_key =
-    public_key' |> [%yojson_of_witness (G.witness : _ trustee_public_key)]
+    public_key' |> [%yojson_of_witness (G.witness : _ basic_parameters)]
   in
   let fingerprint =
-    public_key' |> (fun x -> x.message.public_key) |> G.to_string |> sha256_b64
+    public_key'
+    |> (fun x -> x.cert.message.verification)
+    |> G.to_string |> sha256_b64
   in
-  let mime_type = "application/json"
+  let mime_type = "text/plain"
   and filename uuid =
-    Printf.sprintf "private_key-%s.json" (Uuid.to_string uuid)
+    Printf.sprintf "private_key-%s.txt" (Uuid.to_string uuid)
   in
-  Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
+  Lwt.return
+    { private_key = seed; public_key; fingerprint; mime_type; filename }
 
 let generate_threshold (Draft (_, draft)) context () =
   let version = draft.version in
