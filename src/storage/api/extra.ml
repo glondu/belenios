@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Serializable
+open Types
 
 type ('a, 'b) draft_election =
   | Draft :

@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Serializable
+open Types
 open Extra
 
 type abstract

@@ -1,7 +1,8 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,104 +20,276 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+(** {1 Predefined types} *)
+
+open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios
-open Serializable
+open Belenios_web_api
 
-(** {1 Type definitions} *)
+(** {1 Web-specific types} *)
 
-type 'a election_file = 'a File.u
-type 'a account_file = 'a File.v
-type admin_password_file = File.kind
-type 'a lopt = 'a Lopt.t
-type append_operation = Data of string | Event of event_type * hash option
+type user = { domain : string; name : string } [@@deriving yojson]
 
-type (_, _) string_or_value_spec =
-  | String : ('a, string) string_or_value_spec
-  | Value : ('a, 'a) string_or_value_spec
+type auth_config = {
+  auth_system : string;
+  auth_instance : string;
+  auth_config : (string * string) list;
+  auth_portal : string option; [@yojson.option]
+}
+[@@deriving yojson]
 
-module type BACKEND_GENERIC = sig
-  type t
-  type 'a file
+type sealed = {
+  date_open : float option; [@yojson.option]
+  date_close : float option; [@yojson.option]
+  date_publish : float option; [@yojson.option]
+}
+[@@deriving yojson]
 
-  val get : t -> 'a file -> 'a lopt Lwt.t
-  val set : t -> 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
-  val del : t -> 'a file -> unit Lwt.t
+type sealing_op = [ `Seal of sealed | `Unseal ] [@@deriving yojson]
+type sealing_event = { date : float; op : sealing_op } [@@deriving yojson]
 
-  val update :
-    t ->
-    'a file ->
-    ('a lopt * (('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t) -> 'r Lwt.t) ->
-    'r Lwt.t
-end
+type metadata = {
+  owners : int list;
+  auth_config : auth_config list option; [@yojson.option]
+  cred_authority : string option; [@yojson.option]
+  cred_authority_info : cred_authority_info option; [@yojson.option]
+  trustees : string option list option; [@yojson.option]
+  languages : string list option; [@yojson.option]
+  contact : string option; [@yojson.option]
+  booth_version : int option; [@yojson.option]
+  billing_request : string option; [@yojson.option]
+  sealed : bool option; [@yojson.option]
+  logo : string option; [@yojson.option]
+}
+[@@deriving yojson]
 
-module type BACKEND_ARCHIVE = sig
-  type t
+type extended_record = { username : string; date : float; credential : string }
+[@@deriving yojson]
 
-  val append : t -> ?last:last_event -> append_operation list -> bool Lwt.t
-  val append_sealing : t -> sealing_event -> bool Lwt.t
-end
+type credential_mapping = {
+  credential : string;
+  ballot : string option; [@yojson.option]
+}
+[@@deriving yojson]
 
-module type BACKEND_ELECTIONS = sig
-  type t
+type election_state =
+  [ `Draft
+  | `Open
+  | `Closed
+  | `Shuffling
+  | `EncryptedTally
+  | `Tallied
+  | `Archived ]
+[@@deriving yojson]
 
-  val archive_election : t -> unit Lwt.t
-  val delete_election : t -> unit Lwt.t
+(** {1 Types related to elections being prepared} *)
 
-  val validate_election :
-    t -> (unit, Belenios_web_api.validation_error) result Lwt.t
-end
+type draft_voter = { mutable id : voter } [@@deriving yojson]
 
-module type BACKEND_ACCOUNTS = sig
-  type t
+type ('a, 'b) draft_trustee_kind =
+  | Server of { private_key : 'b }
+  | External of { id : string; token : string; name : string }
+[@@deriving yojson]
 
-  val new_account_id : t -> (int * unit Lwt.u) option Lwt.t
-end
+type ('a, 'b) draft_trustee = {
+  kind : ('a, 'b) draft_trustee_kind;
+  mutable public_key : ('a, 'b) trustee_public_key option; [@yojson.option]
+}
+[@@deriving yojson]
 
-(** Scoped transaction tokens. Each kind of token is only produced by the
-    corresponding [with_*_transaction] wrapper, so the compiler rejects calls
-    that mix incompatible scopes. *)
+type ('a, 'b) draft_threshold_trustee = {
+  id : string;
+  token : string;
+  mutable step : int option; [@yojson.option]
+  mutable cert : ('a, 'b) cert option; [@yojson.option]
+  mutable polynomial : ('a, 'b) polynomial option; [@yojson.option]
+  mutable vinput : ('a, 'b) vinput option; [@yojson.option]
+  mutable voutput : ('a, 'b) voutput option; [@yojson.option]
+  name : string;
+}
+[@@deriving yojson]
 
-(** Token for operations on a specific election ([Election (uuid, _)] files,
-    [append], [append_sealing], [archive_election], [delete_election],
-    [validate_election]). *)
-module type ELECTION_TRANSACTION = sig
-  type t
+type ('a, 'b) draft_basic_params = {
+  mutable trustees : ('a, 'b) draft_trustee list;
+}
+[@@deriving yojson]
 
-  val with_transaction : uuid -> (t -> 'a Lwt.t) -> 'a Lwt.t
+type ('a, 'b) draft_threshold_params = {
+  algorithm : string;
+  mutable threshold : int option; [@yojson.option]
+  mutable trustees : ('a, 'b) draft_threshold_trustee list;
+  mutable parameters : ('a, 'b) threshold_parameters option; [@yojson.option]
+  mutable error : string option; [@yojson.option]
+}
+[@@deriving yojson]
 
-  include BACKEND_GENERIC with type t := t and type 'a file := 'a election_file
-  include BACKEND_ARCHIVE with type t := t
+type ('a, 'b) draft_trustees =
+  [ `Basic of ('a, 'b) draft_basic_params
+  | `Threshold of ('a, 'b) draft_threshold_params ]
+[@@deriving yojson]
 
-  val get_uuid : t -> uuid
-  val get_unixfilename : t -> 'a election_file -> string Lwt.t
-  val archive_election : t -> unit Lwt.t
-  val delete_election : t -> unit Lwt.t
+type ('a, 'b, 'question) raw_draft_election = {
+  version : int;
+  owners : int list;
+  mutable group : string;
+  mutable voters : draft_voter list;
+  mutable questions : 'question template;
+  mutable trustees : ('a, 'b) draft_trustees;
+  mutable metadata : metadata;
+  public_creds : string;
+  mutable public_creds_received : bool;
+  mutable public_creds_certificate : ('a, 'b) credentials_certificate option;
+      [@yojson.option]
+  creation_date : float;
+  mutable administrator : string option; [@yojson.option]
+  mutable credential_authority_visited : bool;
+      [@default false] [@yojson_drop_default ( = )]
+  mutable voter_authentication_visited : bool;
+      [@default false] [@yojson_drop_default ( = )]
+  mutable trustees_setup_step : int; [@default 1] [@yojson_drop_default ( = )]
+  mutable pending_credentials : bool;
+      [@default false] [@yojson_drop_default ( = )]
+  mutable private_creds_downloaded : bool;
+      [@default false] [@yojson_drop_default ( = )]
+}
+[@@deriving yojson]
 
-  val validate_election :
-    t -> (unit, Belenios_web_api.validation_error) result Lwt.t
-end
+(** {1 Administrator accounts} *)
 
-(** Token for account and auth-db operations ([Account _], [Auth_db _],
-    [Admin_password _] files, [new_account_id]). *)
-module type ACCOUNT_TRANSACTION = sig
-  type t
+type account = {
+  id : int;
+  name : string;
+  email : string option; [@yojson.option]
+  last_connected : float;
+  authentications : user list;
+  consent : float option; [@yojson.option]
+  capabilities : int option; [@yojson.option]
+  language : string option; [@yojson.option]
+  default_voter_languages : string list;
+      [@default []] [@yojson_drop_default ( = )]
+  default_contact : string; [@default ""] [@yojson_drop_default ( = )]
+  voters_limit : int option; [@yojson.option]
+}
+[@@deriving yojson]
 
-  val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
+(** {1 Views} *)
 
-  include BACKEND_GENERIC with type t := t and type 'a file := 'a account_file
+type username_or_address = [ `Username | `Address ] [@@deriving yojson]
 
-  val new_account_id : t -> (int * unit Lwt.u) option Lwt.t
-end
+type voters_config = {
+  has_explicit_weights : bool;
+  username_or_address : username_or_address;
+  nb_voters : int;
+}
+[@@deriving yojson]
 
-exception Readonly_storage
+type password_record = {
+  username : string;
+  salt : string;
+  hashed : string;
+  address : string option; [@yoson.option]
+}
+[@@deriving yojson]
 
-module type STORAGE = sig
-  val readonly : bool smart_ref
+(** {1 Running elections} *)
 
-  module E : ELECTION_TRANSACTION
-  module A : ACCOUNT_TRANSACTION
+type election_dates = {
+  creation : float;
+  finalization : float option; [@yoson.option]
+  tally : float option; [@yoson.option]
+  archive : float option; [@yoson.option]
+  last_mail : float option; [@yoson.option]
+  auto_open : float option; [@yoson.option]
+  auto_close : float option; [@yoson.option]
+  publish : float option; [@yoson.option]
+  grace_period : float option; [@yoson.option]
+}
+[@@deriving yojson]
 
-  val get_user_id : user -> int option Lwt.t
-  val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
-  val new_election : unit -> uuid option Lwt.t
-end
+type election_records = (string * float) list
+
+let yojson_of_election_records x : json =
+  `Assoc (List.map (fun (k, v) -> (k, yojson_of_float v)) x)
+
+let election_records_of_yojson : json -> election_records = function
+  | `Assoc o -> List.map (fun (k, v) -> (k, float_of_yojson v)) o
+  | x -> of_yojson_error "object expected" x
+
+type decryption_tokens = string list [@@deriving yojson]
+type skipped_shufflers = string list [@@deriving yojson]
+
+type shuffle_token = {
+  trustee : string;
+  token : string;
+  trustee_id : int;
+  name : string;
+}
+[@@deriving yojson]
+
+type shuffle_state = {
+  skipped : skipped_shufflers;
+  token : shuffle_token option; [@yoson.option]
+}
+[@@deriving yojson]
+
+type some_state_state =
+  [ `Decryption of decryption_tokens | `Shuffle of shuffle_state ]
+[@@deriving yojson]
+
+type state_state = some_state_state option [@@deriving yojson]
+type credentials_seed = { seed : string; token : string } [@@deriving yojson]
+
+type ('a, 'b) credentials_params = {
+  belenios_url : string;
+  version : int;
+  group : string;
+  certificate : ('a, 'b) credentials_certificate;
+}
+[@@deriving yojson]
+
+type wrapped_credentials_params =
+  | W :
+      ('a, 'b) group_witness * ('a, 'b) credentials_params
+      -> wrapped_credentials_params
+
+let wrapped_credentials_params_of_yojson : json -> wrapped_credentials_params =
+ fun x ->
+  let x' = credentials_params_of_yojson Fun.id Fun.id x in
+  let module G = (val Group.of_string ~version:x'.version x'.group) in
+  let x = [%witness_of_yojson (G.witness : _ credentials_params)] x in
+  W (G.witness, x)
+
+let yojson_of_wrapped_credentials_params : wrapped_credentials_params -> json =
+ fun (W (w, x)) ->
+  let module T = (val Group_witness.get w) in
+  [%yojson_of_witness (w : _ credentials_params)] x
+
+type 'a credentials_record = {
+  credential : 'a;
+  address : string option; [@yojson.option]
+  weight : weight option; [@yojson.option]
+}
+[@@deriving yojson]
+
+type ('a, 'b) credentials_records_item =
+  ('a, 'b, string) encrypted_msg credentials_record
+[@@deriving yojson]
+
+type ('a, 'b) credentials_records_object =
+  (string * ('a, 'b) credentials_records_item) list
+
+let yojson_of_credentials_records_object a b x : json =
+  `Assoc
+    (List.map (fun (k, v) -> (k, yojson_of_credentials_records_item a b v)) x)
+
+let credentials_records_object_of_yojson a b :
+    json -> _ credentials_records_object = function
+  | `Assoc o ->
+      List.map (fun (k, v) -> (k, credentials_records_item_of_yojson a b v)) o
+  | x -> of_yojson_error "object expected" x
+
+type ('a, 'b) credentials_records = {
+  algorithm : string;
+  records : ('a, 'b) credentials_records_object;
+}
+[@@deriving yojson]

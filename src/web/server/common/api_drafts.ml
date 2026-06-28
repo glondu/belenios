@@ -914,7 +914,8 @@ let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
       Lwt.return_unit)
 
 let post_draft_status ~admin_id s uuid
-    (((W (w, Draft (v, se)) as wse), set) : _ updatable_with_billing) = function
+    (((W (w, Draft (v, se)) as wse), set) :
+      wrapped_draft_election updatable_with_billing) = function
   | `SetDownloaded ->
       let* () =
         if se.private_creds_downloaded then Lwt.return_unit

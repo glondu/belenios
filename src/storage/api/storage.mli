@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Types
+open Signatures
 include STORAGE
 
 val register_backend :

@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Types
+open Signatures
 
 let backends = ref []
 let backend = ref None

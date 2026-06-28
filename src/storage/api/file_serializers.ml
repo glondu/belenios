@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Serializable
+open Types
 open Extra
 
 let get_election (type t) : t File.u -> t serializers = function

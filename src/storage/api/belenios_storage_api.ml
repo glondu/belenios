@@ -21,7 +21,7 @@
 
 module Lopt = Lopt
 module Storage = Storage
-include Serializable
+include Signatures
 include Extra
 include Types
 

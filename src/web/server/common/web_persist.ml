@@ -693,7 +693,8 @@ let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
       Lwt.return_unit)
 
 let validate_election ~admin_id storage
-    ((W (w, Draft (v, se)), set) : _ updatable_with_billing) s =
+    ((W (w, Draft (v, se)), set) :
+      wrapped_draft_election updatable_with_billing) s =
   let uuid = Storage.E.get_uuid storage in
   let open Belenios_web_api in
   let questions =

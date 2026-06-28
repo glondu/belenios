@@ -22,7 +22,7 @@
 open Belenios_core
 module Lopt = Lopt
 module Storage = Storage
-include module type of Serializable
+include module type of Signatures
 include module type of Extra
 include module type of Types
 
