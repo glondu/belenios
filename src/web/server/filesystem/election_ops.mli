@@ -21,7 +21,7 @@
 
 open Belenios
 open Belenios_storage_api
-open Serializable
+open Types
 
 type 'a file =
   | Election of uuid * 'a election_file

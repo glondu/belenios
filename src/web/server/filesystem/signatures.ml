@@ -19,19 +19,19 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_storage_api
-open Signatures
+open Belenios
 
-module type INPUT = sig
-  type session
-
-  val list_accounts : session -> int list Lwt.t
-  val get_account_by_id : session -> int -> account option Lwt.t
-  val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
+module type CONFIG = sig
+  val uuid_length : int
+  val account_id_min : int
+  val account_id_max : int
+  val spool_dir : string
+  val accounts_dir : string
+  val maps : string SMap.t
 end
 
-module Make (_ : INPUT) () : sig
-  module Clear : CLEAR
-
-  val get_user_id : user -> int option Lwt.t
+module type CLEAR = sig
+  val clear : unit -> unit
 end
+
+exception Not_implemented of string

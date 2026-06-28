@@ -22,7 +22,7 @@
 open Belenios
 
 let raw_draft_election_of_concrete x private_creds_downloaded =
-  let open Serializable in
+  let open Types in
   let {
     version;
     owners;
@@ -87,7 +87,7 @@ let raw_draft_election_to_concrete x =
   } =
     x
   in
-  let open Serializable in
+  let open Types in
   ( {
       version;
       owners;
@@ -112,7 +112,7 @@ let account =
   {
     of_string =
       (fun x ->
-        let open Serializable in
+        let open Types in
         let {
           id;
           name;
@@ -160,7 +160,7 @@ let account =
         } =
           x
         in
-        let open Serializable in
+        let open Types in
         let x =
           {
             id;

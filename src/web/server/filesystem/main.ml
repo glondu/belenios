@@ -24,7 +24,7 @@ open Belenios
 open Belenios_storage_api
 open Belenios_server_core
 open Types
-open Serializable
+open Signatures
 
 type 'a file = 'a Election_ops.file
 
@@ -603,7 +603,7 @@ module MakeBackend
     | Draft_concrete :
         ('a, 'b) group_witness
         * 'v Election.version
-        * ('a, 'b, 'v) Serializable.raw_draft_election
+        * ('a, 'b, 'v) Types.raw_draft_election
         -> draft_concrete
 
   let get_draft uuid () =
@@ -617,7 +617,7 @@ module MakeBackend
       let*& x = Filesystem.read_file (uuid /// draft_filename) in
       let x = String.trim x in
       let abstract =
-        !*(Serializable.raw_draft_election_of_yojson Fun.id Fun.id Fun.id) x
+        !*(Types.raw_draft_election_of_yojson Fun.id Fun.id Fun.id) x
       in
       let version = abstract.version in
       let module G = (val Group.of_string ~version abstract.group) in
@@ -656,8 +656,7 @@ module MakeBackend
         in
         let data =
           let open (val Election.get_serializers v) in
-          !+([%yojson_of_witness (w : _ Serializable.raw_draft_election)]
-               yojson_of_t)
+          !+([%yojson_of_witness (w : _ Types.raw_draft_election)] yojson_of_t)
             concrete
         in
         let* () =
@@ -781,7 +780,7 @@ module MakeBackend
               publish = e_date_publish;
             }
       | Some d ->
-          let d = !*Serializable.election_dates_of_yojson (String.trim d) in
+          let d = !*Types.election_dates_of_yojson (String.trim d) in
           Lwt.return_some
             {
               creation = Datetime.to_unixfloat d.creation;
@@ -815,7 +814,7 @@ module MakeBackend
           Filesystem.write_file filename (t ^ "\n")
     in
     let filename = uuid /// raw_dates_filename in
-    let dates : Serializable.election_dates =
+    let dates : Types.election_dates =
       {
         creation = Datetime.from_unixfloat d.creation;
         finalization = Option.map Datetime.from_unixfloat d.finalization;
@@ -828,7 +827,7 @@ module MakeBackend
       }
     in
     Filesystem.write_file filename
-      (!+Serializable.yojson_of_election_dates dates ^ "\n")
+      (!+Types.yojson_of_election_dates dates ^ "\n")
 
   let () =
     dates_ops.get <- get_dates;

@@ -21,7 +21,7 @@
 
 open Belenios
 open Belenios_storage_api
-open Types
+open Signatures
 
 module type INPUT = sig
   type session
