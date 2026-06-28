@@ -172,11 +172,8 @@ let rec show_draft_trustees uuid container =
   let (TWW (trustees, write)) =
     match trustees with
     | `Basic x ->
-        TWW
-          ( x.trustees,
-            yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string )
-    | `Threshold x ->
-        TWW (x.trustees, yojson_of_cert !&G.to_string !&G.Zq.to_string)
+        TWW (x.trustees, [%yojson_of_witness (G.witness : _ trustee_public_key)])
+    | `Threshold x -> TWW (x.trustees, [%yojson_of_witness (G.witness : _ cert)])
   in
   let all_trustees =
     List.map

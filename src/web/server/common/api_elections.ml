@@ -46,7 +46,6 @@ let find_trustee_id s token =
 
 let find_trustee_private_key s (type a b) (w : (a, b) group_witness) trustee_id
     =
-  let module T = (val Group_witness.get w) in
   let* keys = Storage.E.get s (Private_keys w) in
   let&* keys = Lopt.get_value keys in
   (* there is one Pedersen trustee *)
@@ -290,7 +289,7 @@ let post_partial_decryption s election ~trustee_id ~partial_decryption =
   let* pks =
     let* trustees = Public_archive.get_trustees s in
     trustees
-    |> !*(trustees_of_yojson !$W.(G.of_string) !$W.(G.Zq.of_string))
+    |> !*[%witness_of_yojson (W.G.witness : _ trustees)]
     |> List.map (function
       | `Single x -> [ x ]
       | `Pedersen t ->
@@ -299,7 +298,7 @@ let post_partial_decryption s election ~trustee_id ~partial_decryption =
   in
   let pk = pks.(trustee_id - 1).message.public_key in
   let pd =
-    !*(partial_decryption_of_yojson !$W.(G.of_string) !$W.(G.Zq.of_string))
+    !*[%witness_of_yojson (W.G.witness : _ partial_decryption)]
       partial_decryption
   in
   let* et =
@@ -309,7 +308,7 @@ let post_partial_decryption s election ~trustee_id ~partial_decryption =
     | Some x -> Lwt.return @@ !*(encrypted_tally_of_yojson !$W.(G.of_string)) x
   in
   if
-    !+(yojson_of_partial_decryption !&W.(G.to_string) !&W.(G.Zq.to_string)) pd
+    !+[%yojson_of_witness (W.G.witness : _ partial_decryption)] pd
     = partial_decryption
     && W.E.check_factor et pk pd
   then
@@ -492,7 +491,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
                 find_trustee_private_key s W.G.witness trustee_id
               in
               return_json 200
-                (!+(yojson_of_tally_trustee !&W.G.to_string !&W.G.Zq.to_string)
+                (!+[%yojson_of_witness (W.G.witness : _ tally_trustee)]
                    private_key)
           | `POST -> (
               let@ trustee_id = with_tally_trustee token s in
@@ -759,7 +758,6 @@ let dispatch ~token ~ifmatch endpoint method_ body =
               match Lopt.get_value se with
               | None -> not_found
               | Some (W (w, Draft (_, se))) ->
-                  let module T = (val Group_witness.get w) in
                   let@ trustees cont =
                     match se.trustees with
                     | `Basic x -> (
@@ -779,8 +777,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
                         | Some tp -> cont [ `Pedersen tp ])
                   in
                   trustees
-                  |> !+(yojson_of_trustees !&(T.element.to_string)
-                          !&(T.scalar.to_string))
+                  |> !+[%yojson_of_witness (w : _ trustees)]
                   |> return_json 200)
       | _ -> method_not_allowed)
   | [ uuid; "automatic-dates" ] -> (

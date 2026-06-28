@@ -134,7 +134,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let url = Printf.sprintf "%sapi/credentials/belenios" r.belenios_url in
   let body =
     { certificate; token = r.token; public_credentials = creds.public_with_ids }
-    |> !+(yojson_of_credentials_response !&G.to_string !&G.Zq.to_string)
+    |> !+[%yojson_of_witness (G.witness : _ credentials_response)]
     |> Cohttp_lwt.Body.of_string
   in
   let* x, body = Cohttp_lwt_unix.Client.post ~body (Uri.of_string url) in
@@ -525,11 +525,8 @@ let dispatch endpoint method_ body =
           match Lopt.get_value se with
           | None -> not_found
           | Some (W (w, (Draft (_, se) as x))) ->
-              let module T = (val Group_witness.get w) in
               let response =
-                !*(credentials_response_of_yojson !$(T.element.of_string)
-                     !$(T.scalar.of_string))
-                  response_s
+                !*[%witness_of_yojson (w : _ credentials_response)] response_s
               in
               if se.public_creds = response.token then
                 let set ?billing:_ x = set Value (W (w, x)) in

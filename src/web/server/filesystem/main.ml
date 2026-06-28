@@ -623,14 +623,13 @@ module MakeBackend
       in
       let version = abstract.version in
       let module G = (val Group.of_string ~version abstract.group) in
-      let module T = (val Group_witness.get G.witness) in
       let (Version v) = Election.version_of_int version in
       let open (val Election.get_serializers v) in
       Draft_concrete
         ( G.witness,
           v,
-          !*(raw_draft_election_of_yojson !$(T.element.of_string)
-               !$(T.scalar.of_string) t_of_yojson)
+          !*([%witness_of_yojson (G.witness : _ raw_draft_election)]
+               t_of_yojson)
             x )
       |> Lwt.return_some
     in
@@ -649,7 +648,6 @@ module MakeBackend
     match Lopt.get_value data with
     | None -> assert false
     | Some (W (w, Draft (v, abstract))) ->
-        let module T = (val Group_witness.get w) in
         let concrete, se_private_creds_downloaded =
           Converters.raw_draft_election_to_concrete abstract
         in
@@ -660,8 +658,8 @@ module MakeBackend
         in
         let data =
           let open (val Election.get_serializers v) in
-          !+(Serializable.yojson_of_raw_draft_election !&(T.element.to_string)
-               !&(T.scalar.to_string) yojson_of_t)
+          !+([%yojson_of_witness (w : _ Serializable.raw_draft_election)]
+               yojson_of_t)
             concrete
         in
         let* () =

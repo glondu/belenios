@@ -304,7 +304,7 @@ let validate_election_exn s uuid =
   (* initialize events *)
   let* () =
     let raw_trustees =
-      !+(yojson_of_trustees !&G.to_string !&G.Zq.to_string) trustees
+      !+[%yojson_of_witness (G.witness : _ trustees)] trustees
     in
     let raw_public_creds =
       !+(yojson_of_public_credentials !&G.to_string) public_creds
@@ -317,9 +317,7 @@ let validate_election_exn s uuid =
       | None -> ([], None)
       | Some c ->
           let raw =
-            c
-            |> !+(yojson_of_credentials_certificate !&G.to_string
-                    !&G.Zq.to_string)
+            c |> !+[%yojson_of_witness (G.witness : _ credentials_certificate)]
           in
           ([ Data raw ], Some (Hash.hash_string raw))
     in

@@ -51,7 +51,7 @@ let handle_shuffle { election; ciphertexts } =
     else cont ()
   in
   W.E.shuffle_ciphertexts ciphertexts
-  |> !+(yojson_of_shuffle !&W.(G.to_string) !&W.(G.Zq.to_string))
+  |> !+[%yojson_of_witness (W.G.witness : _ shuffle)]
   |> fun r -> Worker.post_message (ShuffleResult (Js.string r))
 
 let handle_request = function Shuffle r -> handle_shuffle r

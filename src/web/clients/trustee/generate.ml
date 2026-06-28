@@ -47,7 +47,7 @@ let generate_basic (Draft (_, draft)) ~name () =
   let public_key' = KG.prove ~name private_key in
   let private_key = private_key |> G.Zq.to_Z |> !+yojson_of_number in
   let public_key =
-    public_key' |> yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string
+    public_key' |> [%yojson_of_witness (G.witness : _ trustee_public_key)]
   in
   let fingerprint =
     public_key' |> (fun x -> x.message.public_key) |> G.to_string |> sha256_b64
@@ -71,7 +71,7 @@ let generate_threshold (Draft (_, draft)) context () =
     sha256_b64
     @@ !+(yojson_of_cert_keys !&G.to_string yojson_of_index) cert.message
   in
-  let public_key = yojson_of_cert !&G.to_string !&G.Zq.to_string cert in
+  let public_key = [%yojson_of_witness (G.witness : _ cert)] cert in
   let mime_type = "text/plain"
   and filename uuid =
     Printf.sprintf "private_key-%s.txt" (Uuid.to_string uuid)
@@ -93,7 +93,7 @@ let threshold_step (Draft (_, draft)) (type a b) (w : (a, b) group_witness)
   match pedersen.step with
   | 3 ->
       let* x = T.step3 certs private_key in
-      Lwt.return @@ yojson_of_polynomial !&G.to_string !&G.Zq.to_string x
+      Lwt.return @@ [%yojson_of_witness (G.witness : _ polynomial)] x
   | 5 ->
       let@ vinput cont =
         match pedersen.vinput with
@@ -101,7 +101,7 @@ let threshold_step (Draft (_, draft)) (type a b) (w : (a, b) group_witness)
         | None -> failwith "Unexpected state! (missing vinput)"
       in
       let* x = T.step5 certs private_key vinput in
-      Lwt.return @@ yojson_of_voutput !&G.to_string !&G.Zq.to_string x
+      Lwt.return @@ [%yojson_of_witness (G.witness : _ voutput)] x
   | _ -> failwith "Unexpected state!"
 
 let generate_key ~uuid ~token ~url generate continue =

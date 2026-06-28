@@ -60,10 +60,8 @@ let wrapped_draft_election_of_yojson (x : Json.t) : wrapped_draft_election =
 
 let yojson_of_wrapped_draft_election
     (W (w, Draft (v, x)) : wrapped_draft_election) : Json.t =
-  let module T = (val Group_witness.get w) in
   let open (val Election.get_serializers v) in
-  yojson_of_raw_draft_election !&(T.element.to_string) !&(T.scalar.to_string)
-    yojson_of_t x
+  [%yojson_of_witness (w : _ raw_draft_election)] yojson_of_t x
 
 let csv_of_string = split_lines >> List.map (String.split_on_char ',')
 let string_of_csv = List.map (String.concat ",") >> join_lines

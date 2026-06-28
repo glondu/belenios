@@ -783,9 +783,7 @@ let import_trustees (type a b) (w : (a, b) group_witness)
       let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
       let module Trustees = (val Trustees.get_by_version version) in
       let module K = Trustees.MakeCombinator (G) in
-      let trustees =
-        !*(trustees_of_yojson !$G.of_string !$G.Zq.of_string) trustees
-      in
+      let trustees = !*[%witness_of_yojson (G.witness : _ trustees)] trustees in
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen (t : (a, b) threshold_parameters) names =
@@ -1002,7 +1000,7 @@ let post_trustee_basic (type a b) (w : (a, b) group_witness)
       let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
       let module Trustees = (val Trustees.get_by_version version) in
       let pk : (a, b) trustee_public_key =
-        !*(trustee_public_key_of_yojson !$G.of_string !$G.Zq.of_string) data
+        !*[%witness_of_yojson (G.witness : _ trustee_public_key)] data
       in
       let module K = Trustees.MakeCombinator (G) in
       if pk.message.name = Some name && K.check [ `Single pk ] then (
@@ -1062,7 +1060,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group_witness)
   let () =
     match t.step with
     | Some 1 ->
-        let cert = !*(cert_of_yojson !$G.of_string !$G.Zq.of_string) data in
+        let cert = !*[%witness_of_yojson (G.witness : _ cert)] data in
         if K.step1_check full_context cert then (
           t.cert <- Some cert;
           t.step <- Some 2)
@@ -1070,7 +1068,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group_witness)
     | Some 3 ->
         let certs = get_certs () in
         let polynomial =
-          !*(polynomial_of_yojson !$G.of_string !$G.Zq.of_string) data
+          !*[%witness_of_yojson (G.witness : _ polynomial)] data
         in
         if K.step3_check { context; certs } i polynomial then (
           t.polynomial <- Some polynomial;
@@ -1079,9 +1077,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group_witness)
     | Some 5 ->
         let certs = get_certs () in
         let polynomials = get_polynomials () in
-        let voutput =
-          !*(voutput_of_yojson !$G.of_string !$G.Zq.of_string) data
-        in
+        let voutput = !*[%witness_of_yojson (G.witness : _ voutput)] data in
         if K.step5_check { context; certs } i polynomials voutput then (
           t.voutput <- Some voutput;
           t.step <- Some 6)
@@ -1251,10 +1247,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let get () =
         let@ () =
          fun cont ->
-          Lwt.return
-          @@ yojson_of_trustee_status !&(T.element.to_string)
-               !&(T.scalar.to_string)
-          @@ cont ()
+          Lwt.return @@ [%yojson_of_witness (w : _ trustee_status)] @@ cont ()
         in
         match trustee with
         | `Basic b ->
@@ -1325,9 +1318,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let get is_admin () =
         let open Belenios_web_api in
         let x = get_draft_trustees ~is_admin se in
-        Lwt.return
-        @@ yojson_of_draft_trustees !&(T.element.to_string)
-             !&(T.scalar.to_string) x
+        Lwt.return @@ [%yojson_of_witness (w : _ draft_trustees)] x
       in
       match (method_, who) with
       | `GET, `Nobody -> handle_get (get false)

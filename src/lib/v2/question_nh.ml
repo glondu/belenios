@@ -40,8 +40,8 @@ module Make (G : GROUP) = struct
 
   type nonrec answer = (G.t, G.Zq.t) answer
 
-  let answer_of_yojson = answer_of_yojson !$G.of_string !$G.Zq.of_string
-  let yojson_of_answer = yojson_of_answer !&G.to_string !&G.Zq.to_string
+  let answer_of_yojson = [%witness_of_yojson (G.witness : answer)]
+  let yojson_of_answer = [%yojson_of_witness (G.witness : answer)]
   let random () = Zq.random (Crypto_primitives.get_rng ())
 
   let create_answer q ~public_key:y ~prefix m =

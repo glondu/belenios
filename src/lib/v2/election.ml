@@ -96,8 +96,8 @@ module Parse (R : RAW_ELECTION) () = struct
 
   type nonrec ballot = (G.t, G.Zq.t) ballot
 
-  let yojson_of_ballot = yojson_of_ballot !&G.to_string !&G.Zq.to_string
-  let ballot_of_yojson = ballot_of_yojson !$G.of_string !$G.Zq.of_string
+  let yojson_of_ballot = [%yojson_of_witness (G.witness : ballot)]
+  let ballot_of_yojson = [%witness_of_yojson (G.witness : ballot)]
   let get_credential x = Some x.message.credential
 
   type result = json
@@ -157,8 +157,8 @@ struct
   let xch_ballot =
     {
       dst = dst_prefix ^ "-ballot";
-      of_yojson = raw_ballot_of_yojson !$G.of_string !$G.Zq.of_string;
-      to_yojson = yojson_of_raw_ballot !&G.to_string !&G.Zq.to_string;
+      of_yojson = [%witness_of_yojson (G.witness : _ raw_ballot)];
+      to_yojson = [%yojson_of_witness (G.witness : _ raw_ballot)];
     }
 
   let create_ballot ~sk m =
@@ -190,14 +190,13 @@ struct
 
   let check_rawballot rawballot =
     match
-      rawballot |> Json.of_string
-      |> ballot_of_yojson !$G.of_string !$G.Zq.of_string
+      rawballot |> Json.of_string |> [%witness_of_yojson (G.witness : _ ballot)]
     with
     | exception e -> Error (`SerializationError (Printexc.to_string e))
     | ballot ->
         if
           ballot
-          |> yojson_of_ballot !&G.to_string !&G.Zq.to_string
+          |> [%yojson_of_witness (G.witness : _ ballot)]
           |> Json.to_string = rawballot
         then
           Ok

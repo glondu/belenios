@@ -114,10 +114,8 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let xch_single_verification_key =
     {
       dst = dst_prefix ^ "-verification_key";
-      of_yojson =
-        raw_trustee_public_key_of_yojson !$G.of_string !$G.Zq.of_string;
-      to_yojson =
-        yojson_of_raw_trustee_public_key !&G.to_string !&G.Zq.to_string;
+      of_yojson = [%witness_of_yojson (G.witness : _ raw_trustee_public_key)];
+      to_yojson = [%yojson_of_witness (G.witness : _ raw_trustee_public_key)];
     }
 
   let check_single (trustee : _ trustee_public_key) =
@@ -127,15 +125,15 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let xch_certs =
     {
       dst = dst_prefix ^ "-pedersen-certs";
-      of_yojson = certs_of_yojson !$G.of_string !$G.Zq.of_string;
-      to_yojson = yojson_of_certs !&G.to_string !&G.Zq.to_string;
+      of_yojson = [%witness_of_yojson (G.witness : _ certs)];
+      to_yojson = [%yojson_of_witness (G.witness : _ certs)];
     }
 
   let xch_verification_key =
     {
       dst = dst_prefix ^ "-pedersen-verification_key";
-      of_yojson = trustee_public_key_of_yojson !$G.of_string !$G.Zq.of_string;
-      to_yojson = yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string;
+      of_yojson = [%witness_of_yojson (G.witness : _ trustee_public_key)];
+      to_yojson = [%yojson_of_witness (G.witness : _ trustee_public_key)];
     }
 
   let xch_decryption_key =

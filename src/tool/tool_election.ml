@@ -109,7 +109,7 @@ let make file =
       let factor = E.compute_factor tally sk in
       assert (E.check_factor tally pk factor);
       let pd =
-        !+(yojson_of_partial_decryption !&G.to_string !&G.Zq.to_string) factor
+        !+[%yojson_of_witness (G.witness : _ partial_decryption)] factor
       in
       let opd = { owner; payload = Hash.hash_string pd } in
       Lwt.return (pd, !+(yojson_of_owned yojson_of_hash) opd)
@@ -132,9 +132,7 @@ let make file =
       let vk = G.(g **~ sk) in
       let* pdk =
         C.recv ~algorithm Pedersen.xch_decryption_key dk vk
-        @@ !*(sent_partial_decryption_key_of_yojson !$G.of_string
-                !$G.Zq.of_string)
-             pdk
+        @@ !*[%witness_of_yojson (G.witness : sent_partial_decryption_key)] pdk
       in
       let pdk = pdk.decryption_key in
       let pvk = G.(g **~ pdk) in
@@ -158,7 +156,7 @@ let make file =
       let factor = E.compute_factor tally pdk in
       assert (E.check_factor tally pvk factor);
       let pd =
-        !+(yojson_of_partial_decryption !&G.to_string !&G.Zq.to_string) factor
+        !+[%yojson_of_witness (G.witness : _ partial_decryption)] factor
       in
       let opd = { owner; payload = Hash.hash_string pd } in
       Lwt.return (pd, !+(yojson_of_owned yojson_of_hash) opd)
@@ -173,7 +171,7 @@ let make file =
       let fill of_string (_, owned, x) = { owned with payload = of_string x } in
       let factors =
         List.map
-          (fill !*(partial_decryption_of_yojson !$G.of_string !$G.Zq.of_string))
+          (fill !*[%witness_of_yojson (G.witness : partial_decryption)])
           pds
       in
       let* tally, sized = Lazy.force encrypted_tally in
@@ -269,9 +267,7 @@ let make file =
             in
             let factors =
               List.map
-                (fill
-                   !*(partial_decryption_of_yojson !$G.of_string
-                        !$G.Zq.of_string))
+                (fill !*[%witness_of_yojson (G.witness : _ partial_decryption)])
                 pds
             in
             let* tally, sized = Lazy.force encrypted_tally in
@@ -286,9 +282,7 @@ let make file =
       let* cc, _ = Lazy.force encrypted_tally in
       let cc = E.extract_nh_ciphertexts cc in
       let shuffle = E.shuffle_ciphertexts cc in
-      let shuffle_s =
-        !+(yojson_of_shuffle !&G.to_string !&G.Zq.to_string) shuffle
-      in
+      let shuffle_s = !+[%yojson_of_witness (G.witness : _ shuffle)] shuffle in
       let owned = { owner; payload = Hash.hash_string shuffle_s } in
       Lwt.return (shuffle_s, !+(yojson_of_owned yojson_of_hash) owned)
 

@@ -50,8 +50,7 @@ let do_election uuid election private_key =
     | Error _ ->
         alert @@ s_ "Could not get trustee parameters for this election!";
         Lwt.return_unit
-    | Ok (x, _) ->
-        cont @@ !*(trustees_of_yojson !$W.G.of_string !$W.G.Zq.of_string) x
+    | Ok (x, _) -> cont @@ !*[%witness_of_yojson (W.G.witness : _ trustees)] x
   in
   let find_single =
     try

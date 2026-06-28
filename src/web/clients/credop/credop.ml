@@ -157,8 +157,8 @@ module App (U : UI) = struct
             match x with
             | Ok (x, _) ->
                 cont
-                @@ !*(credentials_certificate_of_yojson !$E.G.of_string
-                        !$E.G.Zq.of_string)
+                @@ !*[%witness_of_yojson
+                       (E.G.witness : _ credentials_certificate)]
                      x
             | Error _ -> fail ())
       in

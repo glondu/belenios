@@ -1,7 +1,7 @@
 (library
  (name belenios_storage_filesystem)
  (preprocess
-  (pps ppx_yojson_conv))
+  (pps ppx_yojson_conv ppx_group_witness))
  (libraries
   belenios_server_core
   belenios_storage_api

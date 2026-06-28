@@ -91,7 +91,7 @@ let compute_partial_decryption (type a b) (w : (a, b) group_witness)
               (Printexc.to_string e))
   in
   W.E.compute_factor encrypted_tally private_key
-  |> yojson_of_partial_decryption !&W.G.to_string !&W.G.Zq.to_string
+  |> [%yojson_of_witness (W.G.witness : _ partial_decryption)]
   |> Lwt.return
 
 let decrypt uuid ~token =

@@ -226,7 +226,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
     let* trustees_as_string = trustees_as_string in
     Lwt.return
     @@ Option.map
-         !*(trustees_of_yojson !$G.of_string !$G.Zq.of_string)
+         !*[%witness_of_yojson (G.witness : _ trustees)]
          trustees_as_string
 
   let pks =
@@ -379,8 +379,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
     lazy
       (let* x = Lazy.force shuffles_as_text in
        x
-       |> Option.map
-            (List.map !*(shuffle_of_yojson !$G.of_string !$G.Zq.of_string))
+       |> Option.map (List.map !*[%witness_of_yojson (G.witness : _ shuffle)])
        |> Lwt.return)
 
   let shuffles_hash =

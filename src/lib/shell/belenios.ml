@@ -37,9 +37,9 @@ module Credentials_certificate (G : GROUP) = struct
     {
       dst = dst_prefix ^ "-credentials_certificate";
       of_yojson =
-        raw_credentials_certificate_of_yojson !$G.of_string !$G.Zq.of_string;
+        [%witness_of_yojson (G.witness : _ raw_credentials_certificate)];
       to_yojson =
-        yojson_of_raw_credentials_certificate !&G.to_string !&G.Zq.to_string;
+        [%yojson_of_witness (G.witness : _ raw_credentials_certificate)];
     }
 
   let check (certificate : _ credentials_certificate) =

@@ -107,14 +107,12 @@ let append_to_shuffles s election owner shuffle_s =
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
-  let shuffle =
-    !*(shuffle_of_yojson !$W.G.of_string !$W.G.Zq.of_string) shuffle_s
-  in
+  let shuffle = !*[%witness_of_yojson (W.G.witness : _ shuffle)] shuffle_s in
   let shuffle_h = Hash.hash_string shuffle_s in
   let* last_nh = Public_archive.get_nh_ciphertexts s in
   let last_nh = !*(nh_ciphertexts_of_yojson !$W.G.of_string) last_nh in
   if
-    !+(yojson_of_shuffle !&W.G.to_string !&W.G.Zq.to_string) shuffle = shuffle_s
+    !+[%yojson_of_witness (W.G.witness : _ shuffle)] shuffle = shuffle_s
     && W.E.check_shuffle last_nh shuffle
   then
     let owned = { owner; payload = shuffle_h } in
@@ -180,14 +178,14 @@ let internal_release_tally ~force s set_state =
   in
   let* trustees =
     let* x = Public_archive.get_trustees s in
-    Lwt.return @@ !*(trustees_of_yojson !$W.G.of_string !$W.G.Zq.of_string) x
+    Lwt.return @@ !*[%witness_of_yojson (W.G.witness : _ trustees)] x
   in
   let* pds, transactions =
     let pds =
       List.rev_map
         (fun x ->
           let payload =
-            !*(partial_decryption_of_yojson !$W.G.of_string !$W.G.Zq.of_string)
+            !*[%witness_of_yojson (W.G.witness : _ partial_decryption)]
               x.payload
           in
           { x with payload })
@@ -200,8 +198,7 @@ let internal_release_tally ~force s set_state =
           let pd = W.E.compute_factor tally sk in
           let owned = { owner; payload = pd } in
           let pd =
-            !+(yojson_of_partial_decryption !&W.G.to_string !&W.G.Zq.to_string)
-              pd
+            !+[%yojson_of_witness (W.G.witness : _ partial_decryption)] pd
           in
           let payload =
             { owner; payload = Hash.hash_string pd }
@@ -815,7 +812,7 @@ let compute_encrypted_tally s =
         let cc = !*(nh_ciphertexts_of_yojson !$W.G.of_string) cc in
         let shuffle = W.E.shuffle_ciphertexts cc in
         let shuffle =
-          !+(yojson_of_shuffle !&W.G.to_string !&W.G.Zq.to_string) shuffle
+          !+[%yojson_of_witness (W.G.witness : _ shuffle)] shuffle
         in
         let* x = append_to_shuffles s election 1 shuffle in
         match x with
@@ -883,7 +880,6 @@ let set_election_automatic_dates s d =
 let get_draft_public_credentials s (type a b) (w : (a, b) group_witness) =
   let* x = Storage.E.get s (Public_creds w) in
   let&* x = Lopt.get_value x in
-  let module T = (val Group_witness.get w) in
   x
   |> List.map (fun (x : _ public_credential_with_id) -> x.credential)
   |> Lwt.return_some

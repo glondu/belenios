@@ -45,20 +45,17 @@ let get_election (type t) : t File.u -> t string_serializers = function
       let module T = (val Group_witness.get w) in
       { of_string = T.scalar.of_string; to_string = T.scalar.to_string }
   | Private_keys w ->
-      let module T = (val Group_witness.get w) in
       {
         of_string =
           (fun xs ->
             xs |> split_lines
             |> List.map
-                 !*(sent_partial_decryption_key_of_yojson
-                      !$(T.element.of_string) !$(T.scalar.of_string)));
+                 !*[%witness_of_yojson (w : _ sent_partial_decryption_key)]);
         to_string =
           (fun xs ->
             xs
             |> List.map
-                 !+(yojson_of_sent_partial_decryption_key
-                      !&(T.element.to_string) !&(T.scalar.to_string))
+                 !+[%yojson_of_witness (w : _ sent_partial_decryption_key)]
             |> join_lines);
       }
   | Audit_cache ->
@@ -141,14 +138,9 @@ let get_election (type t) : t File.u -> t string_serializers = function
         to_string = !+yojson_of_credentials_seed;
       }
   | Credentials_records w ->
-      let module T = (val Group_witness.get w) in
       {
-        of_string =
-          !*(credentials_records_of_yojson !$(T.element.of_string)
-               !$(T.scalar.of_string));
-        to_string =
-          !+(yojson_of_credentials_records !&(T.element.to_string)
-               !&(T.scalar.to_string));
+        of_string = !*[%witness_of_yojson (w : _ credentials_records)];
+        to_string = !+[%yojson_of_witness (w : _ credentials_records)];
       }
   | Credentials_credits ->
       {
