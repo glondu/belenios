@@ -776,7 +776,10 @@ let import_trustees (type a b) (w : (a, b) group_witness)
     (metadata : metadata) =
   match metadata.trustees with
   | None -> Lwt.return @@ Stdlib.Error `None
-  | Some names -> (
+  | Some trustees -> (
+      let ids =
+        List.map (Option.map (fun (x : external_trustee) -> x.id)) trustees
+      in
       let* trustees = Public_archive.get_trustees from in
       let version = se.version in
       let module G = (val Group.of_string ~version se.group : GROUP) in
@@ -786,14 +789,14 @@ let import_trustees (type a b) (w : (a, b) group_witness)
       let trustees = !*[%witness_of_yojson (G.witness : _ trustees)] trustees in
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
-        let import_pedersen (t : (a, b) threshold_parameters) names =
+        let import_pedersen (t : (a, b) threshold_parameters) ids =
           let* privs = Storage.E.get from (Private_keys G.witness) in
           let* x =
             match Lopt.get_value privs with
             | Some privs ->
                 let rec loop ts certs pubs privs accu =
                   match (ts, certs, pubs, privs) with
-                  | ( Some stt_id :: ts,
+                  | ( Some id :: ts,
                       cert :: certs,
                       (public_key : _ threshold_verification_key) :: pubs,
                       private_key :: privs ) ->
@@ -802,7 +805,7 @@ let import_trustees (type a b) (w : (a, b) group_witness)
                       let stt_voutput = { public_key; private_key } in
                       let stt =
                         {
-                          id = stt_id;
+                          id;
                           token = stt_token;
                           voutput = Some stt_voutput;
                           step = Some 7;
@@ -816,7 +819,7 @@ let import_trustees (type a b) (w : (a, b) group_witness)
                   | [], [], [], [] -> Lwt.return @@ Ok (List.rev accu)
                   | _ -> Lwt.return @@ Stdlib.Error `Inconsistent
                 in
-                loop names (Array.to_list t.certs)
+                loop ids (Array.to_list t.certs)
                   (Array.to_list t.verification_keys)
                   privs []
             | None -> Lwt.return @@ Stdlib.Error `MissingPrivateKeys
@@ -838,9 +841,9 @@ let import_trustees (type a b) (w : (a, b) group_witness)
           | Stdlib.Error _ as x -> Lwt.return x
         in
         match trustees with
-        | [ `Pedersen t ] -> import_pedersen t names
+        | [ `Pedersen t ] -> import_pedersen t ids
         | [ `Single x; `Pedersen t ] when x.message.name = None ->
-            import_pedersen t (List.tl names)
+            import_pedersen t (List.tl ids)
         | ts ->
             let@ ts cont =
               try
@@ -853,7 +856,7 @@ let import_trustees (type a b) (w : (a, b) group_witness)
             in
             let* ts =
               let module KG = Trustees.MakeSimple (G) in
-              List.combine names ts
+              List.combine ids ts
               |> Lwt_list.map_p
                    (fun (id, (public_key : _ trustee_public_key)) ->
                      let* kind, public_key =

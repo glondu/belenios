@@ -673,7 +673,6 @@ module MakeBackend
     draft_ops.set <- set_draft;
     draft_ops.del <- del_draft
 
-  let decryption_tokens_filename = "decryption_tokens.json"
   let skipped_shufflers_filename = "skipped_shufflers.json"
   let shuffle_token_filename = "shuffle_token.json"
 
@@ -681,11 +680,7 @@ module MakeBackend
     let* state = get (Election (uuid, State)) in
     match Lopt.get_value state with
     | Some `EncryptedTally ->
-        let* x = Filesystem.read_file (uuid /// decryption_tokens_filename) in
-        let&** x = x in
-        x |> String.trim
-        |> !*Belenios_storage_api.decryption_tokens_of_yojson
-        |> (fun x -> Some (`Decryption x))
+        Some `Decryption
         |> Lopt.some_value !+Belenios_storage_api.yojson_of_state_state
         |> Lwt.return
     | Some `Shuffling ->
@@ -715,13 +710,8 @@ module MakeBackend
     | None -> assert false
     | Some None ->
         cleanup_files uuid
-          [
-            decryption_tokens_filename;
-            skipped_shufflers_filename;
-            shuffle_token_filename;
-          ]
+          [ skipped_shufflers_filename; shuffle_token_filename ]
     | Some (Some (`Shuffle { skipped; token })) ->
-        let* () = cleanup_files uuid [ decryption_tokens_filename ] in
         let* () =
           skipped
           |> !+Belenios_storage_api.yojson_of_skipped_shufflers
@@ -738,15 +728,9 @@ module MakeBackend
               |> Filesystem.write_file (uuid /// shuffle_token_filename)
         in
         Lwt.return_unit
-    | Some (Some (`Decryption tokens)) ->
-        let* () =
-          cleanup_files uuid
-            [ skipped_shufflers_filename; shuffle_token_filename ]
-        in
-        tokens
-        |> !+Belenios_storage_api.yojson_of_decryption_tokens
-        |> (fun x -> x ^ "\n")
-        |> Filesystem.write_file (uuid /// decryption_tokens_filename)
+    | Some (Some `Decryption) ->
+        cleanup_files uuid
+          [ skipped_shufflers_filename; shuffle_token_filename ]
 
   let () =
     state_state_ops.get <- get_state_state;
@@ -1190,7 +1174,6 @@ module MakeBackend
         [
           extended_records_filename;
           credential_mappings_filename;
-          decryption_tokens_filename;
           public_creds_filename;
           private_key_filename;
           private_keys_filename;

@@ -53,7 +53,7 @@ type metadata = {
   auth_config : auth_config list option; [@yojson.option]
   cred_authority : string option; [@yojson.option]
   cred_authority_info : cred_authority_info option; [@yojson.option]
-  trustees : string option list option; [@yojson.option]
+  trustees : external_trustee option list option; [@yojson.option]
   languages : string list option; [@yojson.option]
   contact : string option; [@yojson.option]
   booth_version : int option; [@yojson.option]
@@ -215,12 +215,10 @@ let election_records_of_yojson : json -> election_records = function
   | `Assoc o -> List.map (fun (k, v) -> (k, float_of_yojson v)) o
   | x -> of_yojson_error "object expected" x
 
-type decryption_tokens = string list [@@deriving yojson]
 type skipped_shufflers = string list [@@deriving yojson]
 
 type shuffle_token = {
-  trustee : string;
-  token : string;
+  trustee : external_trustee;
   trustee_id : int;
   name : string;
 }
@@ -232,8 +230,7 @@ type shuffle_state = {
 }
 [@@deriving yojson]
 
-type some_state_state =
-  [ `Decryption of decryption_tokens | `Shuffle of shuffle_state ]
+type some_state_state = [ `Decryption | `Shuffle of shuffle_state ]
 [@@deriving yojson]
 
 type state_state = some_state_state option [@@deriving yojson]

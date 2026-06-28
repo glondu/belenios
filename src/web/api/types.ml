@@ -383,10 +383,11 @@ type ('a, 'b) tally_trustee_content = {
 type ('a, 'b) tally_trustee = ('a, 'b) tally_trustee_content option
 [@@deriving yojson]
 
+type external_trustee = { id : string; token : string } [@@deriving yojson]
+
 type shuffler = {
-  address : string option; [@yojson.option]
-  token : string option; [@yojson.option]
-  fingerprint : string option; [@yojson.option]
+  trustee : (external_trustee * bool) option; [@yojson.option]
+  fingerprint : hash option option; [@yojson.option]
 }
 [@@deriving yojson]
 

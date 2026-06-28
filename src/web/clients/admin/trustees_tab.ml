@@ -671,7 +671,7 @@ let ready_to_decrypt () =
   | None -> false
   | Some sh ->
       List.for_all
-        (fun (t : shuffler) -> t.address = None || t.fingerprint <> None)
+        (fun (t : shuffler) -> t.trustee = None || t.fingerprint <> None)
         sh.shufflers
 
 let trustee_shuffle_link ~token ~recipient =
@@ -716,18 +716,21 @@ let main_zone_shuffling () =
         let sel_exists =
           List.exists
             (fun (t : shuffler) ->
-              match t.token with Some _ -> true | _ -> false)
+              match t.trustee with Some (_, true) -> true | _ -> false)
             sl
         in
         let* sel_but_list =
           Lwt_list.map_s
             (fun (t : shuffler) ->
-              match (t.token, t.address) with
-              | _, None -> Lwt.return []
-              | Some token, Some recipient ->
-                  let* link = trustee_shuffle_link ~token ~recipient in
+              match t.trustee with
+              | None -> Lwt.return []
+              | Some (trustee, true) ->
+                  let* link =
+                    trustee_shuffle_link ~token:trustee.token
+                      ~recipient:trustee.id
+                  in
                   Lwt.return [ link ]
-              | None, Some address ->
+              | Some (trustee, false) ->
                   let attr =
                     if sel_exists || t.fingerprint <> None then
                       [ a_disabled () ]
@@ -736,7 +739,8 @@ let main_zone_shuffling () =
                   let make_but lab req =
                     button ~a:attr lab (fun () ->
                         let* x =
-                          Api.(post (election_shuffle uuid address) !user req)
+                          Api.(
+                            post (election_shuffle uuid trustee.id) !user req)
                         in
                         match x.code with
                         | 200 -> !update_main_zone ()
@@ -752,7 +756,7 @@ let main_zone_shuffling () =
         let rows_of_sh =
           List.map2
             (fun (t : shuffler) b ->
-              match t.address with
+              match t.trustee with
               | None ->
                   tr
                     [
@@ -763,17 +767,17 @@ let main_zone_shuffling () =
                       td [];
                       td [];
                     ]
-              | Some address ->
+              | Some (trustee, _) ->
                   tr
                     [
-                      td [ txt address ];
+                      td [ txt trustee.id ];
                       td b;
                       td
                         [
                           (txt
                           @@
                           match t.fingerprint with
-                          | Some "" -> s_ "skipped"
+                          | Some None -> s_ "skipped"
                           | Some _ -> s_ "yes"
                           | _ -> "no");
                         ];

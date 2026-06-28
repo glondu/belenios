@@ -36,13 +36,22 @@ let with_administrator token (metadata : metadata) f =
 let find_trustee_id s token =
   let* x = Storage.E.get s State_state in
   match Lopt.get_value x with
-  | Some (Some (`Decryption tokens)) ->
-      let rec find i = function
-        | [] -> None
-        | t :: ts -> if t = token then Some i else find (i + 1) ts
-      in
-      Lwt.return (find 1 tokens)
-  | _ -> Lwt.return (int_of_string_opt token)
+  | Some (Some `Decryption) -> (
+      let* metadata = Storage.E.get s Metadata in
+      match Lopt.get_value metadata with
+      | None -> Lwt.return_none
+      | Some metadata -> (
+          match metadata.trustees with
+          | None -> Lwt.return_none
+          | Some trustees ->
+              let rec find i = function
+                | [] -> None
+                | None :: ts -> find (i + 1) ts
+                | Some (t : external_trustee) :: ts ->
+                    if t.token = token then Some i else find (i + 1) ts
+              in
+              Lwt.return (find 1 trustees)))
+  | _ -> Lwt.return_none
 
 let find_trustee_private_key s (type a b) (w : (a, b) group_witness) trustee_id
     =
@@ -143,35 +152,19 @@ let get_partial_decryptions s (metadata : metadata) =
     in
     match metadata.trustees with None -> loop 1 [] | Some ts -> loop 1 ts
   in
-  let rec seq i j = if i >= j then [] else i :: seq (i + 1) j in
-  let* trustee_tokens =
-    match threshold with
-    | None -> Lwt.return @@ List.map string_of_int (seq 1 (npks + 1))
-    | Some _ -> (
-        let@ x, set = Storage.E.update s State_state in
-        match Lopt.get_value x with
-        | Some (Some (`Decryption x)) -> Lwt.return x
-        | _ -> (
-            match metadata.trustees with
-            | None -> failwith "missing trustees in get_tokens_decrypt"
-            | Some ts ->
-                let ts = List.map (fun _ -> generate_token 22) ts in
-                let* () = set Value (Some (`Decryption ts)) in
-                Lwt.return ts))
-  in
   Lwt.return
     ({
        trustees =
-         List.combine trustees trustee_tokens
-         |> List.filter_map (fun ((name, id), token) ->
-             match name with
+         trustees
+         |> List.filter_map (fun (trustee, index) ->
+             match trustee with
              | None -> None
-             | Some address ->
+             | Some (t : external_trustee) ->
                  Some
                    ({
-                      address;
-                      token;
-                      done_ = List.exists (fun x -> x.owner = id) pds;
+                      address = t.id;
+                      token = t.token;
+                      done_ = List.exists (fun x -> x.owner = index) pds;
                     }
                      : trustee_pd));
        threshold;
@@ -191,28 +184,42 @@ let get_shuffles s (metadata : metadata) =
   let* skipped, token =
     let* x = Storage.E.get s State_state in
     match Lopt.get_value x with
-    | Some (Some (`Shuffle { skipped; token })) -> Lwt.return (skipped, token)
+    | Some (Some (`Shuffle { skipped; token; _ })) -> Lwt.return (skipped, token)
     | _ -> Lwt.return ([], None)
   in
   Lwt.return
     ({
        shufflers =
          (match metadata.trustees with None -> [ None ] | Some ts -> ts)
-         |> List.mapi (fun i t ->
+         |> List.mapi (fun i (trustee : external_trustee option) ->
              let trustee_id = i + 1 in
+             let trustee_with_selected =
+               match trustee with
+               | None -> None
+               | Some trustee ->
+                   let selected =
+                     match token with
+                     | None -> false
+                     | Some token -> token.trustee = trustee
+                   in
+                   Some (trustee, selected)
+             in
              ({
-                address = t;
+                trustee = trustee_with_selected;
                 fingerprint =
                   List.find_map
                     (fun (_, o, _) ->
-                      if o.owner = trustee_id then Some (Hash.to_b64 o.payload)
-                      else if List.exists (fun x -> t = Some x) skipped then
-                        Some ""
+                      if o.owner = trustee_id then Some (Some o.payload)
+                      else if
+                        List.exists
+                          (fun x ->
+                            match trustee with
+                            | Some t when t.id = x -> true
+                            | _ -> false)
+                          skipped
+                      then Some None
                       else None)
                     shuffles;
-                token =
-                  Option.bind token (fun x ->
-                      if Some x.trustee = t then Some x.token else None);
               }
                : shuffler));
      }
@@ -234,19 +241,27 @@ let get_trustee_names s =
   let trustees = !*(trustees_of_yojson Fun.id Fun.id) trustees in
   Lwt.return (extract_names trustees)
 
-let get_trustee_name s (metadata : metadata) trustee =
+let get_trustee_by_id s (metadata : metadata) id =
   match metadata.trustees with
-  | None -> Lwt.return (1, None)
+  | None -> Lwt.return_none
   | Some xs ->
+      let rec find = function
+        | [] -> Lwt.return_none
+        | (x, (index, name)) :: xs -> (
+            match x with
+            | None -> find xs
+            | Some (x : external_trustee) ->
+                if x.id = id then Lwt.return_some (x, index, name) else find xs)
+      in
       let* names = get_trustee_names s in
-      Lwt.return (List.assoc trustee (List.combine xs names))
+      find (List.combine xs names)
 
 let skip_shuffler s trustee =
   let@ x, set = Storage.E.update s State_state in
   let current, set =
     let ok : Belenios_storage_api.shuffle_token option -> _ = function
       | None -> true
-      | Some t when t.trustee = trustee -> true
+      | Some t when t.trustee.id = trustee -> true
       | _ -> false
     in
     match Lopt.get_value x with
@@ -258,22 +273,20 @@ let skip_shuffler s trustee =
   if List.mem trustee current then Lwt.fail @@ Error `NotInExpectedState
   else set (Some (`Shuffle { skipped = trustee :: current; token = None }))
 
-let select_shuffler s metadata tk_trustee =
-  let* tk_trustee_id, tk_name = get_trustee_name s metadata (Some tk_trustee) in
+let select_shuffler s metadata trustee =
+  let@ trustee, trustee_id, name =
+   fun cont ->
+    let* x = get_trustee_by_id s metadata trustee in
+    match x with None -> failwith __FUNCTION__ | Some x -> cont x
+  in
   let@ x, set = Storage.E.update s State_state in
   let* skipped, set =
     match Lopt.get_value x with
     | Some (Some (`Shuffle { skipped; _ })) -> Lwt.return (skipped, set Value)
     | _ -> Lwt.return ([], set Value)
   in
-  let tk_token = generate_token 22 in
   let t : Belenios_storage_api.shuffle_token =
-    {
-      trustee = tk_trustee;
-      token = tk_token;
-      trustee_id = tk_trustee_id;
-      name = Option.value ~default:"N/A" tk_name;
-    }
+    { trustee; trustee_id; name = Option.value ~default:"N/A" name }
   in
   set (Some (`Shuffle { skipped; token = Some t }))
 
@@ -320,7 +333,8 @@ let post_partial_decryption s election ~trustee_id ~partial_decryption =
 let post_shuffle s election ~token ~shuffle =
   let@ x, set = Storage.E.update s State_state in
   match Lopt.get_value x with
-  | Some (Some (`Shuffle { skipped; token = Some x })) when token = x.token ->
+  | Some (Some (`Shuffle { skipped; token = Some x }))
+    when token = x.trustee.token ->
       Lwt.catch
         (fun () ->
           let* y =

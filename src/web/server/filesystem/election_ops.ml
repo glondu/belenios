@@ -248,7 +248,10 @@ let validate_election_exn s uuid =
                   (fun (x : _ draft_trustee) ->
                     match x.kind with
                     | Server _ -> None
-                    | External u -> Some u.id)
+                    | External u ->
+                        Some
+                          ({ id = u.id; token = u.token }
+                            : Belenios_web_api.external_trustee))
                   ts,
                 List.map
                   (fun { public_key; _ } ->
@@ -263,9 +266,12 @@ let validate_election_exn s uuid =
         match x.parameters with
         | None -> raise @@ Validation_error `KeyEstablishmentNotFinished
         | Some tp ->
-            let trustee_names =
+            let trustees =
               List.map
-                (fun ({ id; _ } : _ draft_threshold_trustee) -> Some id)
+                (fun (x : _ draft_threshold_trustee) ->
+                  Some
+                    ({ id = x.id; token = x.token }
+                      : Belenios_web_api.external_trustee))
                 ts
             in
             let private_keys =
@@ -279,7 +285,7 @@ let validate_election_exn s uuid =
             let server_private_key = KG.generate () in
             let server_public_key = KG.prove server_private_key in
             Lwt.return
-              ( None :: trustee_names,
+              ( None :: trustees,
                 [ `Single server_public_key; `Pedersen tp ],
                 `KEYS (server_private_key, private_keys) ))
   in
