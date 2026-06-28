@@ -35,6 +35,11 @@ let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let yojson_of_generic_string to_string x = yojson_of_string @@ to_string x
 let generic_string_of_yojson of_string x = of_string @@ string_of_yojson x
 
+type 'a serializers = 'a Group_witness.serializers = {
+  of_string : string -> 'a;
+  to_string : 'a -> string;
+}
+
 type number = Z.t
 
 module Group_witness = Group_witness

@@ -54,8 +54,3 @@ end
 module Language = Language
 
 type lang = Language.t
-
-type 'a string_serializers = {
-  of_string : string -> 'a;
-  to_string : 'a -> string;
-}

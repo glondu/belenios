@@ -308,9 +308,7 @@ module MakeBackend
          [] xs
 
   type _ election_file_props =
-    | Concrete :
-        string * kind * 'a Converters.t option
-        -> 'a election_file_props
+    | Concrete : string * kind * 'a serializers option -> 'a election_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
   let public_creds_filename = "public_creds.json"
@@ -358,7 +356,7 @@ module MakeBackend
   let credential_mappings_filename = "credential_mappings.jsons"
 
   type _ file_props =
-    | Concrete : string * kind * 'a Converters.t option -> 'a file_props
+    | Concrete : string * kind * 'a serializers option -> 'a file_props
     | Abstract : ('key, 'a) abstract_file_ops * uuid * 'key -> 'a file_props
     | Admin_password :
         string * admin_password_file

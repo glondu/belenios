@@ -21,8 +21,6 @@
 
 open Belenios
 
-type 'a t = 'a string_serializers
-
 let raw_draft_election_of_concrete x private_creds_downloaded =
   let open Serializable in
   let {

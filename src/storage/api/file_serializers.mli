@@ -19,5 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val get_election : 'a File.u -> 'a Belenios.string_serializers
-val get_account : 'a File.v -> 'a Belenios.string_serializers
+open Belenios_core
+
+val get_election : 'a File.u -> 'a serializers
+val get_account : 'a File.v -> 'a serializers
