@@ -1064,7 +1064,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group_witness)
   let () =
     match t.step with
     | Some 1 ->
-        let cert = !*[%witness_of_yojson (G.witness : _ cert)] data in
+        let cert = !*[%witness_of_yojson (G.witness : _ pedersen_cert)] data in
         if K.step1_check full_context cert then (
           t.cert <- Some cert;
           t.step <- Some 2)

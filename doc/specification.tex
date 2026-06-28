@@ -611,7 +611,7 @@ The secret seed $s$ is a 22-character string, where characters are
 taken from the set:
 \[\texttt{123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz}\]
 
-\paragraph{Deriving keys}
+\subsubsection{Deriving keys}
 
 The (private) signing key $\textsf{sk}$ and decryption key
 $\textsf{dk}$ are derived as follows:
@@ -626,7 +626,7 @@ encryption key $\textsf{ek}$ are derived as follows:
 \item $\textsf{ek}\leftarrow g^{\textsf{dk}}$
 \end{itemize}
 
-\paragraph{Signing}
+\subsubsection{Signing}
 \label{pki-signing}
 
 Signing --- denoted as $\textsf{sign}(d,\textsf{sk},M)$ --- takes a
@@ -660,7 +660,7 @@ To verify a \textsf{signature} using a verification key \textsf{vk},
 \item check that $\textsf{challenge}=\textsf{HashGroup}(d,m,(A))$
 \end{enumerate}
 
-\paragraph{Encrypting}
+\subsubsection{Encrypting}
 
 Encrypting --- denoted as $\textsf{encrypt}(d,\textsf{ek},M)$ ---
 takes a domain separation tag $d$, an encryption key $\textsf{ek}$ and
@@ -695,6 +695,22 @@ To decrypt an \texttt{encrypted\_msg} using a decryption key \textsf{dk}:
 \item compute the initialization vector as $\textsf{SHA256}(d\texttt{-iv|}\textsf{alpha})$
 \item decrypt $\textsf{data}$
 \end{enumerate}
+
+\subsubsection{Certificates}
+\label{certificates}
+
+A certificate is a \texttt{signed\_msg} encapsulating a serialized
+\texttt{cert\_keys} structure, itself filled with the public keys
+generated as described previously and a domain-specific context.
+\begin{gather*}
+  \alpha\ \texttt{cert\_keys}=\left\{
+    \begin{array}{rcl}
+      \textsf{context}&:&\alpha\\
+      \textsf{verification}&:&\G\\
+      \textsf{encryption}&:&\G
+    \end{array}
+  \right\}
+\end{gather*}
 
 \subsection{Verification keys}
 \label{trustee-keys}
@@ -748,18 +764,26 @@ exponentiations:
   \right\}
 \end{gather*}
 
-\subsubsection{Certificates}
-\label{certificates}
+\subsubsection{Pedersen certificates}
 
-A certificate is a \texttt{signed\_msg} encapsulating a serialized
-\texttt{cert\_keys} structure, itself filled with the public keys
-generated as described in section~\ref{pki} and the hash of the
-$\texttt{coefexps}$ structure computed in
-section~\ref{derived-polynomials}. Each certificate comes with a
-\texttt{context} containing the string description of the group, the
-names of the trustees participating in the Pedersen protocol, the
-threshold and the index (starting at 1) of the owner of the
-certificate.
+A Pedersen certificate is a \texttt{signed\_msg} encapsulating a
+serialized \texttt{cert\_keys} structure as described in
+section~\ref{certificates} with \textsf{context} set to a
+\texttt{pedersen\_context}.
+\begin{gather*}
+  \alpha\ \texttt{pedersen\_context} =\left\{
+    \begin{array}{rcl}
+      \textsf{context}&:&\alpha\\
+      \textsf{coefexps}&:&\hash
+    \end{array}
+  \right\}
+\end{gather*}
+\textsf{coefexps} is the hash of the $\texttt{coefexps}$ structure
+computed in section~\ref{derived-polynomials}. Each
+\texttt{pedersen\_context} comes with a nested \textsf{context}
+containing the string description of the group, the names of the
+trustees participating in the Pedersen protocol, the threshold and the
+index (starting at 1) of the owner of the certificate.
 \begin{gather*}
   \texttt{common\_context}=\left\{
     \begin{array}{rcl}
@@ -774,23 +798,15 @@ certificate.
       \textsf{index}&:&\I
     \end{array}
   \right\}\\
-  \alpha\ \texttt{cert\_keys}=\left\{
-    \begin{array}{rcl}
-      \textsf{context}&:&\alpha\\
-      \textsf{verification}&:&\G\\
-      \textsf{encryption}&:&\G\\
-      \textsf{coefexps}&:&\hash
-    \end{array}
-  \right\}\\
-  \texttt{cert}'=\texttt{full\_context}\ \texttt{cert\_keys}\ \texttt{signed\_msg}\\
-  \texttt{cert}=\I\ \texttt{cert\_keys}\ \texttt{signed\_msg}
+  \texttt{pedersen\_cert}'=\texttt{full\_context}\ \texttt{pedersen\_context}\ \texttt{cert\_keys}\ \texttt{signed\_msg}\\
+  \texttt{pedersen\_cert}=\I\ \texttt{pedersen\_context}\ \texttt{cert\_keys}\ \texttt{signed\_msg}
 \end{gather*}
-A $\texttt{cert}'$ message is signed with the signing key associated
-to \textsf{verification} and domain separation tag
+A $\texttt{pedersen\_cert}'$ message is signed with the signing key
+associated to \textsf{verification} and domain separation tag
 \texttt{\dstprefix-pedersen-cert}. In contexts where
-$\texttt{common\_context}$ is known, a $\texttt{cert}$' is stored in a
-compressed form $\texttt{cert}$ containing only the index (but the
-signature is still over the full context).
+$\texttt{common\_context}$ is known, a $\texttt{pedersen\_cert}'$ is
+stored in a compressed form $\texttt{pedersen\_cert}$ containing only
+the index (but the signature is still over the full context).
 
 \subsubsection{Channels}
 \label{channels}

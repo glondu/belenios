@@ -130,7 +130,9 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let get_certs () =
       let certs = get_mandatory_opt "--certs" certs in
       let* x =
-        load_from_file !*[%witness_of_yojson (G.witness : _ cert)] certs
+        load_from_file
+          !*[%witness_of_yojson (G.witness : _ pedersen_cert)]
+          certs
       in
       match x with
       | None -> Printf.ksprintf failwith "%s does not exist" certs
@@ -154,14 +156,16 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let key, cert = T.step1 { context; index } in
         let id =
           sha256_hex
-          @@ !+(yojson_of_cert_keys !&G.to_string yojson_of_index) cert.message
+          @@ !+(yojson_of_cert_keys !&G.to_string
+                  (yojson_of_pedersen_context yojson_of_index))
+               cert.message
         in
         Printf.eprintf "I: certificate %s has been generated\n%!" id;
         let pub =
           ( "certificate",
             id ^ ".cert",
             0o444,
-            !+[%yojson_of_witness (G.witness : _ cert)] cert )
+            !+[%yojson_of_witness (G.witness : _ pedersen_cert)] cert )
         in
         let prv = ("private key", id ^ ".key", 0o400, key) in
         let* () = save pub in
@@ -191,7 +195,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
           if i < n then
             let id =
               sha256_hex
-              @@ !+(yojson_of_cert_keys !&G.to_string yojson_of_index)
+              @@ !+(yojson_of_cert_keys !&G.to_string
+                      (yojson_of_pedersen_context yojson_of_index))
                    certs.(i).message
             in
             let fn = id ^ ".vinput" in
@@ -236,7 +241,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
           if i < n then
             let id =
               sha256_hex
-              @@ !+(yojson_of_cert_keys !&G.to_string yojson_of_index)
+              @@ !+(yojson_of_cert_keys !&G.to_string
+                      (yojson_of_pedersen_context yojson_of_index))
                    certs.(i).message
             in
             let fn = id ^ ".dkey" in

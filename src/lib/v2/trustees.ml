@@ -27,7 +27,7 @@ exception PedersenFailure of string
 module type VERIFY_CERT = sig
   module G : GROUP
 
-  val verify_cert : full_context -> (G.t, G.Zq.t) cert -> bool
+  val verify_cert : full_context -> (G.t, G.Zq.t) pedersen_cert -> bool
 end
 
 module MakeCert (P : PKI) = struct
@@ -36,8 +36,12 @@ module MakeCert (P : PKI) = struct
   let xch_cert_keys =
     {
       dst = dst_prefix ^ "-pedersen-cert";
-      to_yojson = yojson_of_cert_keys !&G.to_string yojson_of_full_context;
-      of_yojson = cert_keys_of_yojson !$G.of_string full_context_of_yojson;
+      to_yojson =
+        yojson_of_cert_keys !&G.to_string
+          (yojson_of_pedersen_context yojson_of_full_context);
+      of_yojson =
+        cert_keys_of_yojson !$G.of_string
+          (pedersen_context_of_yojson full_context_of_yojson);
     }
 
   let compute_polynomial ~seed ~threshold =
@@ -53,7 +57,7 @@ module MakeCert (P : PKI) = struct
 
   let compute_coefexps polynomial = Array.map (fun x -> G.(g **~ x)) polynomial
 
-  let make_cert ~seed ~sk ~dk ~(context : full_context) =
+  let make_cert ~seed ~sk ~dk ~(context : full_context) : _ pedersen_cert =
     let polynomial =
       compute_polynomial ~seed ~threshold:context.context.threshold
     in
@@ -66,19 +70,20 @@ module MakeCert (P : PKI) = struct
         {
           verification = G.(g **~ sk);
           encryption = G.(g **~ dk);
-          context;
-          coefexps;
+          context = { context; coefexps };
         }
     in
-    let message = { signed.message with context = context.index } in
+    let context = { context = context.index; coefexps } in
+    let message = { signed.message with context } in
     { signed with message }
 
-  let verify_cert context (x : _ signed_msg) =
+  let verify_cert context (x : _ pedersen_cert) =
     let keys = x.message in
     G.check keys.verification && G.check keys.encryption
-    && context.index = keys.context
+    && context.index = keys.context.context
     &&
-    let message = { x.message with context } in
+    let context = { keys.context with context } in
+    let message = { keys with context } in
     P.verify xch_cert_keys keys.verification { x with message }
 end
 
@@ -125,8 +130,8 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let xch_certs =
     {
       dst = dst_prefix ^ "-pedersen-certs";
-      of_yojson = [%witness_of_yojson (G.witness : _ certs)];
-      to_yojson = [%yojson_of_witness (G.witness : _ certs)];
+      of_yojson = [%witness_of_yojson (G.witness : _ pedersen_certs)];
+      to_yojson = [%yojson_of_witness (G.witness : _ pedersen_certs)];
     }
 
   let xch_verification_key =
@@ -157,11 +162,11 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
          (fun i c -> C.verify_cert { context; index = i + 1 } c)
          t.certs
     &&
-    let certs = Array.map (fun (x : _ cert) -> x.message) t.certs in
+    let certs = Array.map (fun (x : _ pedersen_cert) -> x.message) t.certs in
     Array.for_all2
-      (fun (cert : _ cert_keys) x ->
+      (fun (cert : (_, _ pedersen_context) cert_keys) x ->
         let hash = x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson in
-        hash = cert.coefexps)
+        hash = cert.context.coefexps)
       certs t.coefexps
     && (let sigs = t.signatures in
         let n = Array.length sigs in
@@ -258,8 +263,8 @@ module MakePedersen (C : CHANNELS) = struct
 
   type scalar = G.Zq.t
   type element = G.t
-  type nonrec cert = (element, scalar) cert
-  type nonrec certs = (element, scalar) certs
+  type nonrec cert = (element, scalar) pedersen_cert
+  type nonrec certs = (element, scalar) pedersen_certs
   type nonrec polynomial = (element, scalar) polynomial
 
   module Cert = MakeCert (P)
@@ -351,7 +356,7 @@ module MakePedersen (C : CHANNELS) = struct
       |> yojson_of_coefexps !&G.to_string
       |> Hash.hash_yojson
     in
-    hash = certs.certs.(i).message.coefexps
+    hash = certs.certs.(i).message.context.coefexps
     && P.verify Comb.xch_certs certs.certs.(i).message.verification
          { message = certs; signature = polynomial.signature }
 
@@ -367,7 +372,7 @@ module MakePedersen (C : CHANNELS) = struct
     Array.iteri
       (fun i x ->
         let hash = x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson in
-        if hash = certs.(i).coefexps then
+        if hash = certs.(i).context.coefexps then
           if threshold = Array.length x.coefexps then ()
           else
             let msg = Printf.sprintf "coefexps %d has wrong length" (i + 1) in
@@ -418,7 +423,7 @@ module MakePedersen (C : CHANNELS) = struct
           let hash =
             x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
           in
-          if hash <> certs.(i).coefexps then
+          if hash <> certs.(i).context.coefexps then
             raise
               (PedersenFailure
                  (Printf.sprintf "coefexps %d does not validate" (i + 1)));
@@ -457,7 +462,7 @@ module MakePedersen (C : CHANNELS) = struct
           let hash =
             x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
           in
-          if hash <> certs.(i).coefexps then
+          if hash <> certs.(i).context.coefexps then
             raise
               (PedersenFailure
                  (Printf.sprintf "coefexps %d does not validate" (i + 1)));
@@ -489,7 +494,7 @@ module MakePedersen (C : CHANNELS) = struct
           let hash =
             x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
           in
-          if hash <> certs'.(i).coefexps then fail ();
+          if hash <> certs'.(i).context.coefexps then fail ();
           let r = x.coefexps in
           if not (threshold = Array.length r) then fail ();
           r)

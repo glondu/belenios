@@ -196,7 +196,8 @@ let compute_checksums (type a b) (w : (a, b) group_witness) ~election ~trustees
                 ({
                    name = Option.value ~default:"N/A" key.message.message.name;
                    pki_key =
-                     Hash.hash_yojson @@ yojson_of_cert Fun.id Fun.id cert;
+                     Hash.hash_yojson
+                     @@ yojson_of_pedersen_cert Fun.id Fun.id cert;
                    verification_key =
                      Hash.hash_yojson key.message.message.public_key;
                  }

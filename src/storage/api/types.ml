@@ -101,7 +101,7 @@ type ('a, 'b) draft_threshold_trustee = {
   id : string;
   token : string;
   mutable step : int option; [@yojson.option]
-  mutable cert : ('a, 'b) cert option; [@yojson.option]
+  mutable cert : ('a, 'b) pedersen_cert option; [@yojson.option]
   mutable polynomial : ('a, 'b) polynomial option; [@yojson.option]
   mutable vinput : ('a, 'b) vinput option; [@yojson.option]
   mutable voutput : ('a, 'b) voutput option; [@yojson.option]

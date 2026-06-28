@@ -69,9 +69,11 @@ let generate_threshold (Draft (_, draft)) context () =
   let private_key, cert = T.step1 context in
   let fingerprint =
     sha256_b64
-    @@ !+(yojson_of_cert_keys !&G.to_string yojson_of_index) cert.message
+    @@ !+(yojson_of_cert_keys !&G.to_string
+            (yojson_of_pedersen_context yojson_of_index))
+         cert.message
   in
-  let public_key = [%yojson_of_witness (G.witness : _ cert)] cert in
+  let public_key = [%yojson_of_witness (G.witness : _ pedersen_cert)] cert in
   let mime_type = "text/plain"
   and filename uuid =
     Printf.sprintf "private_key-%s.txt" (Uuid.to_string uuid)

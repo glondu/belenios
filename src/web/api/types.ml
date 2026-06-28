@@ -184,7 +184,7 @@ type 'a raw_draft = {
 type ('a, 'b) pedersen = {
   context : full_context;
   step : int;
-  certs : ('a, 'b) cert array;
+  certs : ('a, 'b) pedersen_cert array;
   vinput : ('a, 'b) vinput option; [@yojson.option]
   voutput : ('a, 'b) voutput option; [@yojson.option]
 }
@@ -236,7 +236,7 @@ type ('a, 'b) basic_trustees = {
 
 type ('a, 'b) threshold_trustees = {
   threshold : int option; [@yojson.option]
-  trustees : ('a, 'b) cert trustee list;
+  trustees : ('a, 'b) pedersen_cert trustee list;
 }
 [@@deriving yojson]
 

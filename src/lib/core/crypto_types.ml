@@ -61,6 +61,13 @@ type ('a, 'b) trustee_public_key =
   ('a, 'b, ('a, 'b) raw_trustee_public_key) signed_msg
 [@@deriving yojson]
 
+type ('a, 'context) cert_keys = {
+  context : 'context;
+  verification : 'a;
+  encryption : 'a;
+}
+[@@deriving yojson]
+
 (** {2 Finite fields} *)
 
 type ff_embedding = { padding : int; bits_per_int : int } [@@deriving yojson]
@@ -141,20 +148,18 @@ type index = int [@@deriving yojson]
 type full_context = { context : common_context; index : index }
 [@@deriving yojson]
 
-type ('a, 'b) cert_keys = {
-  context : 'b;
-  verification : 'a;
-  encryption : 'a;
-  coefexps : hash;
-}
-[@@deriving yojson]
+type 'a pedersen_context = { context : 'a; coefexps : hash } [@@deriving yojson]
 
-type ('a, 'b) cert = ('a, 'b, ('a, index) cert_keys) signed_msg
+type ('a, 'b) pedersen_cert =
+  ('a, 'b, ('a, index pedersen_context) cert_keys) signed_msg
 [@@deriving yojson]
 
 type 'a coefexps = { coefexps : 'a array } [@@deriving yojson]
 
-type ('a, 'b) certs = { context : common_context; certs : ('a, 'b) cert array }
+type ('a, 'b) pedersen_certs = {
+  context : common_context;
+  certs : ('a, 'b) pedersen_cert array;
+}
 [@@deriving yojson]
 
 type 'a secret = { secret : 'a } [@@deriving yojson]
@@ -191,7 +196,7 @@ type ('a, 'b) voutput = {
 
 type ('a, 'b) threshold_parameters = {
   context : common_context;
-  certs : ('a, 'b) cert array;
+  certs : ('a, 'b) pedersen_cert array;
   coefexps : 'a coefexps array;
   signatures : 'b proof array;
   verification_keys : ('a, 'b) threshold_verification_key array;

@@ -52,7 +52,8 @@ let cast_bt_trustee a b =
   >> !*(trustee_of_yojson Fun.id)
 
 let cast_tt_trustee a b =
-  !+(yojson_of_trustee (yojson_of_cert a b)) >> !*(trustee_of_yojson Fun.id)
+  !+(yojson_of_trustee (yojson_of_pedersen_cert a b))
+  >> !*(trustee_of_yojson Fun.id)
 
 let get_trustees () =
   let uuid = get_current_uuid () in

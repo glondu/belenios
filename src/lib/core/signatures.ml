@@ -271,8 +271,8 @@ module type PEDERSEN = sig
 
   type scalar = Channels.P.Group.Zq.t
   type element = Channels.P.Group.t
-  type nonrec cert = (element, scalar) cert
-  type nonrec certs = (element, scalar) certs
+  type nonrec cert = (element, scalar) pedersen_cert
+  type nonrec certs = (element, scalar) pedersen_certs
   type nonrec polynomial = (element, scalar) polynomial
 
   val xch_decryption_key : scalar partial_decryption_key exchangeable
