@@ -21,7 +21,7 @@
 
 open Belenios_core
 open Belenios_web_api
-include Serializable
+include Types
 
 type metadata = message_metadata
 
@@ -54,5 +54,3 @@ let wrap_message ~key (message : message) =
 let check_message ~key (message : message_payload) =
   { message with hmac = None } |> !+yojson_of_message_payload |> hmac ~key
   |> fun x -> message.hmac = Some x
-
-module Serializable = Serializable

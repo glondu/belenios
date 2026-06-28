@@ -23,7 +23,7 @@
 (** {1 Web-specific serializable datatypes} *)
 
 open Ppx_yojson_conv_lib.Yojson_conv
-open Belenios_messages.Serializable
+open Belenios_messages
 
 (** {1 Bulk emails} *)
 
