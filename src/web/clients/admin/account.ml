@@ -35,10 +35,11 @@ let rec update_main_zone () =
       let input_name =
         let inp, _ =
           let onchange r =
+            let@ () = Lwt.async in
+            let* acc = Cache.get_until_success Cache.account in
             let newname = Js.to_string r##.value in
             Cache.set Cache.account { acc with name = newname };
             Cache.delayed_sync 1.;
-            let@ () = Lwt.async in
             let* () =
               let&&* container =
                 document##getElementById (Js.string "nav_username")
@@ -48,6 +49,56 @@ let rec update_main_zone () =
             update_main ()
           in
           input ~a:[ a_id "inpname" ] ~onchange ~value:acc.name `Text
+        in
+        inp
+      in
+      let input_contact =
+        let inp, _ =
+          let onchange r =
+            let@ () = Lwt.async in
+            let* acc = Cache.get_until_success Cache.account in
+            let contact = Js.to_string r##.value in
+            let preferences = { acc.preferences with contact } in
+            Cache.set Cache.account { acc with preferences };
+            Cache.delayed_sync 1.;
+            update_main ()
+          in
+          input
+            ~a:[ a_id "inpcontact"; a_size 50 ]
+            ~onchange ~value:acc.preferences.contact `Text
+        in
+        inp
+      in
+      let input_languages =
+        let inp, _ =
+          let onchange r =
+            let@ () = Lwt.async in
+            let* acc = Cache.get_until_success Cache.account in
+            let@ languages cont =
+              let rec loop accu = function
+                | [] -> cont @@ List.rev accu
+                | x :: xs -> (
+                    match Language.of_string_opt x with
+                    | None ->
+                        alert
+                        @@ Printf.sprintf
+                             (f_ "Error in languages: %S is not available")
+                             x;
+                        Lwt.return_unit
+                    | Some _ -> loop (x :: accu) xs)
+              in
+              Js.to_string r##.value |> String.split_on_char ' ' |> loop []
+            in
+            let preferences = { acc.preferences with languages } in
+            Cache.set Cache.account { acc with preferences };
+            Cache.delayed_sync 1.;
+            update_main ()
+          in
+          input
+            ~a:[ a_id "inplanguages" ]
+            ~onchange
+            ~value:(String.concat " " acc.preferences.languages)
+            `Text
         in
         inp
       in
@@ -67,10 +118,11 @@ let rec update_main_zone () =
             | "" -> None
             | x -> Language.of_string_opt x
           in
+          let@ () = Lwt.async in
+          let* acc = Cache.get_until_success Cache.account in
           Cache.set Cache.account
             { acc with language = Option.map Language.unwrap language };
           Cache.delayed_sync 1.;
-          let@ () = Lwt.async in
           let* () = Belenios_js.I18n.set ~language in
           update_main ()
         in
@@ -110,6 +162,22 @@ let rec update_main_zone () =
                     [ txt @@ s_ "Language for administrator interface:" ];
                   txt " ";
                   input_language;
+                ];
+              div
+                [
+                  label
+                    ~a:[ a_label_for "inpcontact" ]
+                    [ txt @@ s_ "Default contact for new elections: " ];
+                  txt " ";
+                  input_contact;
+                ];
+              div
+                [
+                  label
+                    ~a:[ a_label_for "inplanguages" ]
+                    [ txt @@ s_ "Default languages for new elections:" ];
+                  txt " ";
+                  input_languages;
                 ];
             ];
         ]

@@ -150,15 +150,17 @@ type authentication_method = {
 }
 [@@deriving yojson]
 
+type preferences = { languages : string list; contact : string }
+[@@deriving yojson]
+
 type api_account = {
   id : int;
   authentication_method : authentication_method;
   name : string;
   address : string option; [@yojson.option]
   language : string option; [@yojson.option]
-  default_voter_languages : string list;
-  default_contact : string;
   voters_limit : int option; [@yojson.option]
+  preferences : preferences;
 }
 [@@deriving yojson]
 

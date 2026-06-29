@@ -122,9 +122,8 @@ let account =
           consent;
           capabilities;
           language;
-          default_voter_languages;
-          default_contact;
           voters_limit;
+          preferences;
         } =
           !*account_of_yojson x
         in
@@ -138,9 +137,8 @@ let account =
           consent = Option.map Datetime.to_unixfloat consent;
           capabilities;
           language;
-          default_voter_languages;
-          default_contact;
           voters_limit;
+          preferences;
         });
     to_string =
       (fun x ->
@@ -154,9 +152,8 @@ let account =
           consent;
           capabilities;
           language;
-          default_voter_languages;
-          default_contact;
           voters_limit;
+          preferences;
         } =
           x
         in
@@ -171,9 +168,8 @@ let account =
             consent = Option.map Datetime.from_unixfloat consent;
             capabilities;
             language;
-            default_voter_languages;
-            default_contact;
             voters_limit;
+            preferences;
           }
         in
         !+yojson_of_account x);

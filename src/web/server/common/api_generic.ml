@@ -184,9 +184,8 @@ let get_account (a : account) (u : user) =
     name = a.name;
     address = a.email;
     language = a.language;
-    default_voter_languages = a.default_voter_languages;
-    default_contact = a.default_contact;
     voters_limit = a.voters_limit;
+    preferences = a.preferences;
   }
 
 let put_account ((a, set) : account updatable) (u : user) (b : api_account) =
@@ -198,13 +197,7 @@ let put_account ((a, set) : account updatable) (u : user) (b : api_account) =
       && b.authentication_method.username = u.name)
   then raise (Error (`CannotChange "authentication_method"));
   let a =
-    {
-      a with
-      name = b.name;
-      language = b.language;
-      default_voter_languages = b.default_voter_languages;
-      default_contact = b.default_contact;
-    }
+    { a with name = b.name; language = b.language; preferences = b.preferences }
   in
   set a
 

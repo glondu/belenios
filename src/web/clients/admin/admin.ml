@@ -127,9 +127,6 @@ let newdraft () =
   @@
   match (configuration_opt, account_opt) with
   | Some c, Some a ->
-      let address =
-        match a.address with None -> "" | Some x -> Printf.sprintf " <%s>" x
-      in
       Some
         {
           version = List.hd c.supported_crypto_versions;
@@ -143,8 +140,8 @@ let newdraft () =
               credential_authority = Some "server";
               language = None;
             };
-          languages = [ "en"; "fr" ];
-          contact = Some (a.name ^ address);
+          languages = a.preferences.languages;
+          contact = Some a.preferences.contact;
           booth = List.hd c.supported_booth_versions;
           authentication =
             (match c.authentications with

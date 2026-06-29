@@ -165,10 +165,8 @@ type account = {
   consent : float option; [@yojson.option]
   capabilities : int option; [@yojson.option]
   language : string option; [@yojson.option]
-  default_voter_languages : string list;
-      [@default []] [@yojson_drop_default ( = )]
-  default_contact : string; [@default ""] [@yojson_drop_default ( = )]
   voters_limit : int option; [@yojson.option]
+  preferences : preferences;
 }
 [@@deriving yojson]
 

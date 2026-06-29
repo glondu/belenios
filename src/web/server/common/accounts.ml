@@ -60,6 +60,14 @@ let create_account s ~name ~email (user : user) =
         if x = "" then Printf.sprintf "User #%d" id else x
     | Some x -> x
   in
+  let contact =
+    match email with
+    | None -> name
+    | Some email -> Printf.sprintf "%s <%s>" name email
+  in
+  let preferences : Belenios_web_api.preferences =
+    { languages = [ "en" ]; contact }
+  in
   let account =
     {
       id;
@@ -70,9 +78,8 @@ let create_account s ~name ~email (user : user) =
       consent = None;
       capabilities = None;
       language = None;
-      default_voter_languages = [];
-      default_contact = "";
       voters_limit = None;
+      preferences;
     }
   in
   let* () =
