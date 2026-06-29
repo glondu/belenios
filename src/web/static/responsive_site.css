@@ -41,6 +41,12 @@ body {
   }
 }
 
+@media print {
+  .noprint {
+    display: none !important;
+  }
+}
+
 .page {
   max-width: 880px;
   margin: 0 auto;

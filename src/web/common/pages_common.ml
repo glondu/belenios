@@ -90,7 +90,7 @@ module Make (Base : BASE) = struct
     in
     Lwt.return
     @@ div
-         ~a:[ a_class [ "lang_box" ] ]
+         ~a:[ a_class [ "lang_box"; "noprint" ] ]
          [
            form;
            div

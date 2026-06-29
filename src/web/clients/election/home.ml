@@ -760,7 +760,7 @@ let home configuration ?credential uuid =
         in
         Tyxml_js.Html.button ~a [ txt @@ s_ "Start" ]
       in
-      div ~a:[ a_class [ "container--center" ] ] [ div [ button ] ]
+      div ~a:[ a_class [ "container--center"; "noprint" ] ] [ div [ button ] ]
     in
     let* middle' =
       let* result = get_result uuid in
@@ -777,7 +777,7 @@ let home configuration ?credential uuid =
   let ballots_link =
     let href = Printf.sprintf "#%s/ballots" (Uuid.unwrap uuid) in
     p
-      ~a:[ a_class [ "container--center" ] ]
+      ~a:[ a_class [ "container--center"; "noprint" ] ]
       [
         a ~href
           ~a:
