@@ -1907,23 +1907,25 @@ that did it and is used as payload of \texttt{Shuffle} events.
 \newcommand{\decrypt}{\textsf{decrypt}}
 
 \begin{gather*}
-  \pdecryption=\left\{
+  \texttt{partial\_decryption\_factor}=\left\{
     \begin{array}{rcl}
-      \dfactors&:&\G^\ast{}^\ast\\
-      \dproofs&:&\proof^\ast{}^\ast
+      \textsf{factor}&:&\G\\
+      \textsf{proof}&:&\proof
     \end{array}
-  \right\}
+  \right\}\\
+  \texttt{raw\_partial\_decryption}=\texttt{partial\_decryption\_factor}^\ast{}^\ast\\
+  \pdecryption=\texttt{raw\_partial\_decryption}\ \texttt{signed\_msg}
 \end{gather*}
 From the encrypted tally $a'$ (where answers to non-homomorphic questions
 have been shuffled), each trustee computes a partial decryption using
 the \hyperref[trustee-keys]{private key} $x$ (and the corresponding
 public key $X=g^x$) he generated during election setup. It consists of
-so-called \emph{decryption factors}:
+so-called \emph{raw decryption factors} $F_{i,j}$ such that:
 \[
-\dfactors_{i,j}=\alphalabel(a'_{i,j})^x
+\textsf{factor}(F_{i,j})=\alphalabel(a'_{i,j})^x
 \]
-and proofs that they were correctly computed. Each $\dproofs_{i,j}$ is
-computed as follows:
+and proofs that they were correctly computed. Each
+$\textsf{proof}(F_{i,j})$ is computed as follows:
 \begin{enumerate}
 \item pick a random $w\in\Z_q$
 \item compute $A=g^w$ and $B=\alphalabel(a'_{i,j})^w$
@@ -1947,6 +1949,11 @@ B&=&{\alphalabel(a'_{i,j})^\response}\times{\dfactors_{i,j}^\challenge}
 \]
 \item check that $\Hash_\decrypt(\pklabel(k),A,B)=\challenge$
 \end{enumerate}
+
+A full \texttt{partial\_decryption} is a
+\texttt{raw\_partial\_decryption} signed with the PKI key of its
+owner, with the domain separation tag
+\texttt{\dstprefix-partial\_decryption}.
 
 \begin{gather*}
   \texttt{owned\_partial\_decryption}=\left\{
