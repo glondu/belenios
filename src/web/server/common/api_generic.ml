@@ -126,9 +126,7 @@ let handle_get_option get =
 let get_configuration_uris () =
   {
     home = !Web_config.prefix ^ "/";
-    logo = !Web_config.prefix ^ "/LOGO";
     belenios = Belenios_ui.Links.belenios;
-    source_code = !Web_config.prefix ^ "/belenios.tar.gz";
     tos = !Web_config.tos;
   }
 

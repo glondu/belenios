@@ -35,9 +35,13 @@ module Make (Base : BASE) = struct
 
   module Uris = struct
     let home = Xml.uri_of_string uris.home
-    let logo = Xml.uri_of_string uris.logo
+    let logo = Xml.uri_of_string (uris.home ^ "LOGO")
     let belenios = Xml.uri_of_string uris.belenios
-    let source_code = Xml.uri_of_string uris.source_code
+    let source_code = Xml.uri_of_string (uris.home ^ "belenios.tar.gz")
+
+    let specification =
+      Xml.uri_of_string (uris.home ^ "static/specification.pdf")
+
     let tos = Xml.uri_of_string uris.tos
   end
 
@@ -63,6 +67,8 @@ module Make (Base : BASE) = struct
           Belenios.Version.(Printf.ksprintf txt " %s (%s). " version build);
           restricted_mode;
           a ~a:[ a_href Uris.source_code ] [ txt (s_ "Get the source code") ];
+          txt ". ";
+          a ~a:[ a_href Uris.specification ] [ txt (s_ "Specification") ];
           txt ". ";
           a ~a:[ a_href Uris.tos ] [ txt (s_ "Terms of service") ];
           txt ".";

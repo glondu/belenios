@@ -125,9 +125,7 @@ type authentication_system =
 
 type configuration_uris = {
     home : string;
-    logo : string;
     belenios : string;
-    source_code : string;
     tos : string;
 }
 
