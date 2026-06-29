@@ -267,7 +267,9 @@ struct
   let eg_factor x ({ alpha; _ } : _ ciphertext) =
     let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string (g **~ x) ^ "|" in
     let dst = dst_prefix ^ "-decrypt" in
-    (alpha **~ x, fs_prove [| g; alpha |] x (hash ~dst zkp))
+    let factor = alpha **~ x in
+    let proof = fs_prove [| g; alpha |] x (hash ~dst zkp) in
+    { factor; proof }
 
   let check_ciphertext c =
     Shape.forall
@@ -275,27 +277,25 @@ struct
       c
 
   let compute_factor c x =
-    if check_ciphertext c then
-      let res = Shape.map (eg_factor x) c in
-      let decryption_factors, decryption_proofs = Shape.split res in
-      { decryption_factors; decryption_proofs }
+    if check_ciphertext c then Shape.map (eg_factor x) c
     else invalid_arg "Invalid ciphertext"
 
   let check_factor c y f =
     let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
     let dst = dst_prefix ^ "-decrypt" in
-    Shape.forall3
-      (fun ({ alpha; _ } : _ ciphertext) f { challenge; response } ->
-        G.check f
+    Shape.forall2
+      (fun ({ alpha; _ } : _ ciphertext)
+           { factor; proof = { challenge; response } } ->
+        G.check factor
         &&
         let commitments =
           [|
             (g **~ response) *~ (y **~ challenge);
-            (alpha **~ response) *~ (f **~ challenge);
+            (alpha **~ response) *~ (factor **~ challenge);
           |]
         in
         Zq.(G.hash ~dst zkp commitments =% challenge))
-      c f.decryption_factors f.decryption_proofs
+      c f
 
   type result_type = W.result
   type result = result_type election_result

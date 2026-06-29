@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Signatures
+open Common_types
 open Crypto_types
 
 let count_trustees trustees =
@@ -59,7 +60,7 @@ let compute_synthetic_factors_exc (type a b) trustees check partial_decryptions
           match y with
           | None -> raise (CombinationError MissingPartialDecryption)
           | Some y when check x.verification_key.message.message.public_key y ->
-              y.decryption_factors
+              Shape.map (fun x -> x.factor) y
           | _ -> raise (CombinationError InvalidPartialDecryption))
       | `Pedersen x, `Pedersen y ->
           let length = Array.length x.verification_keys in
