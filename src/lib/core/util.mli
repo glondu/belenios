@@ -25,7 +25,7 @@ open Crypto_types
 
 val compute_synthetic_factors :
   ('a, 'b) trustee_kind list ->
-  ('a -> ('a, 'b) partial_decryption -> bool) ->
+  (vk:'a -> pvk:'a -> ('a, 'b) partial_decryption -> bool) ->
   ('a, 'b) partial_decryption owned list ->
   ((int * ('a, 'b) partial_decryption) list -> 'a shape) ->
   ('a shape list, combination_error) result

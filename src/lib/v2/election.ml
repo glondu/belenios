@@ -276,26 +276,35 @@ struct
       (fun ({ alpha; beta } : _ ciphertext) -> G.check alpha && G.check beta)
       c
 
-  let compute_factor c x =
-    if check_ciphertext c then Shape.map (eg_factor x) c
+  let xch_partial_decryption =
+    {
+      dst = dst_prefix ^ "-partial_decryption";
+      of_yojson = [%witness_of_yojson (G.witness : _ raw_partial_decryption)];
+      to_yojson = [%yojson_of_witness (G.witness : _ raw_partial_decryption)];
+    }
+
+  let compute_factor c ~sk ~pdk =
+    if check_ciphertext c then
+      P.sign xch_partial_decryption sk (Shape.map (eg_factor pdk) c)
     else invalid_arg "Invalid ciphertext"
 
-  let check_factor c y f =
+  let check_factor c ~vk ~pvk:y f =
     let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
     let dst = dst_prefix ^ "-decrypt" in
-    Shape.forall2
-      (fun ({ alpha; _ } : _ ciphertext)
-           { factor; proof = { challenge; response } } ->
-        G.check factor
-        &&
-        let commitments =
-          [|
-            (g **~ response) *~ (y **~ challenge);
-            (alpha **~ response) *~ (factor **~ challenge);
-          |]
-        in
-        Zq.(G.hash ~dst zkp commitments =% challenge))
-      c f
+    P.verify xch_partial_decryption vk f
+    && Shape.forall2
+         (fun ({ alpha; _ } : _ ciphertext)
+              { factor; proof = { challenge; response } } ->
+           G.check factor
+           &&
+           let commitments =
+             [|
+               (g **~ response) *~ (y **~ challenge);
+               (alpha **~ response) *~ (factor **~ challenge);
+             |]
+           in
+           Zq.(G.hash ~dst zkp commitments =% challenge))
+         c f.message
 
   type result_type = W.result
   type result = result_type election_result
@@ -305,7 +314,7 @@ struct
   let compute_result encrypted_tally partial_decryptions trustees =
     let total_weight = encrypted_tally.total_weight in
     let et = encrypted_tally.encrypted_tally in
-    let check = check_factor et in
+    let check ~vk ~pvk f = check_factor et ~vk ~pvk f in
     match Combinator.combine_factors trustees check partial_decryptions with
     | Ok factors -> (
         match
@@ -324,7 +333,7 @@ struct
     let encrypted_tally = encrypted_tally.encrypted_tally in
     check_ciphertext encrypted_tally
     &&
-    let check = check_factor encrypted_tally in
+    let check ~vk ~pvk f = check_factor encrypted_tally ~vk ~pvk f in
     match Combinator.combine_factors trustees check partial_decryptions with
     | Error _ -> false
     | Ok factors -> (

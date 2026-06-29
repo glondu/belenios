@@ -101,7 +101,11 @@ type ('a, 'b) credentials_certificate =
 type ('a, 'b) partial_decryption_factor = { factor : 'a; proof : 'b proof }
 [@@deriving yojson]
 
-type ('a, 'b) partial_decryption = ('a, 'b) partial_decryption_factor shape
+type ('a, 'b) raw_partial_decryption = ('a, 'b) partial_decryption_factor shape
+[@@deriving yojson]
+
+type ('a, 'b) partial_decryption =
+  ('a, 'b, ('a, 'b) raw_partial_decryption) signed_msg
 [@@deriving yojson]
 
 type plaintext = int shape array [@@deriving yojson]

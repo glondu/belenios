@@ -156,9 +156,15 @@ module type ELECTION_OPS = sig
       key share and the encrypted tally, and contains a cryptographic proof that
       he or she didn't cheat. *)
 
-  val compute_factor : element ciphertext shape -> private_key -> factor
+  val compute_factor :
+    element ciphertext shape -> sk:private_key -> pdk:private_key -> factor
 
-  val check_factor : element ciphertext shape -> public_key -> factor -> bool
+  val check_factor :
+    element ciphertext shape ->
+    vk:public_key ->
+    pvk:public_key ->
+    factor ->
+    bool
   (** [check_factor c pk f] checks that [f], supposedly submitted by a trustee
       whose public_key is [pk], is valid with respect to the encrypted tally
       [c]. *)
@@ -391,7 +397,7 @@ module type TRUSTEES_SIG = sig
 
     val combine_factors :
       (G.t, G.Zq.t) trustees ->
-      (G.t -> (G.t, G.Zq.t) partial_decryption -> bool) ->
+      (vk:G.t -> pvk:G.t -> (G.t, G.Zq.t) partial_decryption -> bool) ->
       (G.t, G.Zq.t) partial_decryption owned list ->
       (G.t shape, combination_error) result
     (** Compute synthetic decryption factors. *)

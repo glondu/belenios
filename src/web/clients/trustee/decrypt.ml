@@ -38,25 +38,24 @@ let compute_partial_decryption (type a b) (w : (a, b) group_witness)
   let encrypted_tally =
     encrypted_tally_of_yojson !$W.G.of_string encrypted_tally
   in
-  let* private_key =
+  let module T = (val Trustees.get_by_version W.version) in
+  let module P = Pki.Make (W.G) in
+  let* sk, pdk =
     match trustee with
     | Some epk ->
         let algorithm = epk.algorithm in
         let epk = epk.private_key in
-        let module Trustees = (val Trustees.get_by_version W.version) in
-        let module PKI = Pki.Make (W.G) in
-        let module C = Pki.MakeChannels (PKI) in
-        let module Pedersen = Trustees.MakePedersen (C) in
-        let sk = PKI.derive_sk private_key and dk = PKI.derive_dk private_key in
+        let module C = Pki.MakeChannels (P) in
+        let module Pedersen = T.MakePedersen (C) in
+        let sk = P.derive_sk private_key and dk = P.derive_dk private_key in
         let vk = W.G.(g **~ sk) in
         let* epk = C.recv ~algorithm Pedersen.xch_decryption_key dk vk epk in
-        Lwt.return @@ epk.decryption_key
+        Lwt.return (sk, epk.decryption_key)
     | None ->
-        let module T = (val Trustees.get_by_version W.version) in
         let module KG = T.MakeBasic (W.G) in
-        Lwt.return @@ KG.derive private_key
+        Lwt.return (P.derive_sk private_key, KG.derive private_key)
   in
-  W.E.compute_factor encrypted_tally private_key
+  W.E.compute_factor encrypted_tally ~sk ~pdk
   |> [%yojson_of_witness (W.G.witness : _ partial_decryption)]
   |> Lwt.return
 

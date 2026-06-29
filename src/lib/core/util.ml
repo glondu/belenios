@@ -59,20 +59,25 @@ let compute_synthetic_factors_exc (type a b) trustees check partial_decryptions
       | `Single x, `Single y -> (
           match y with
           | None -> raise (CombinationError MissingPartialDecryption)
-          | Some y when check x.verification_key.message.message.public_key y ->
-              Shape.map (fun x -> x.factor) y
+          | Some y
+            when check ~vk:x.cert.message.verification
+                   ~pvk:x.verification_key.message.message.public_key y ->
+              Shape.map (fun x -> x.factor) y.message
           | _ -> raise (CombinationError InvalidPartialDecryption))
       | `Pedersen x, `Pedersen y ->
           let length = Array.length x.verification_keys in
           assert (length = Array.length y);
-          let check (x : _ raw_trustee_public_key) y =
-            match y with None -> true | Some y -> check x.public_key y
+          let check ~vk ~pvk y =
+            match y with None -> true | Some y -> check ~vk ~pvk y
           in
           let _invalid_partial_decryptions =
             let rec loop accu i =
               if i >= 0 then
-                if check x.verification_keys.(i).message.message y.(i) then
-                  loop accu (i - 1)
+                if
+                  check ~vk:x.certs.(i).message.verification
+                    ~pvk:x.verification_keys.(i).message.message.public_key
+                    y.(i)
+                then loop accu (i - 1)
                 else (
                   y.(i) <- None;
                   loop (i :: accu) (i - 1))

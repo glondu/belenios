@@ -195,10 +195,12 @@ let internal_release_tally ~force s set_state =
       let* x = Storage.E.get s Server_seed in
       match Lopt.get_value x with
       | Some seed ->
+          let module P = Pki.Make (W.G) in
           let module T = (val Trustees.get_by_version W.version) in
           let module KG = T.MakeBasic (W.G) in
-          let sk = KG.derive seed in
-          let pd = W.E.compute_factor tally sk in
+          let sk = P.derive_sk seed in
+          let pdk = KG.derive seed in
+          let pd = W.E.compute_factor tally ~sk ~pdk in
           let owned = { owner; payload = pd } in
           let pd =
             !+[%yojson_of_witness (W.G.witness : _ partial_decryption)] pd

@@ -234,7 +234,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
     (* neutral factor *)
     let dummy =
       match partial_decryptions with
-      | x :: _ -> Shape.map (fun _ -> G.one) x.payload
+      | x :: _ -> Shape.map (fun _ -> G.one) x.payload.message
       | [] -> failwith "no partial decryptions"
     in
     (* compute synthetic factor for each trustee_kind *)
@@ -243,7 +243,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
       List.fold_left
         (fun a (j, b) ->
           let l = lagrange indexes j in
-          Shape.map2 G.(fun x { factor = y; _ } -> x *~ (y **~ l)) a b)
+          Shape.map2 G.(fun x { factor = y; _ } -> x *~ (y **~ l)) a b.message)
         dummy pds_with_ids
     in
     let r = compute_synthetic_factors trustees check partial_decryptions fold in

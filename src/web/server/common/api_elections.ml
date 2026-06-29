@@ -305,12 +305,19 @@ let post_partial_decryption s election ~trustee_id ~partial_decryption =
     trustees
     |> !*[%witness_of_yojson (W.G.witness : _ trustees)]
     |> List.map (function
-      | `Single x -> [ x.verification_key.message ]
-      | `Pedersen t ->
-          Array.to_list t.verification_keys |> List.map (fun x -> x.message))
+      | `Single (x : _ basic_parameters) ->
+          [
+            ( x.cert.message.verification,
+              x.verification_key.message.message.public_key );
+          ]
+      | `Pedersen (t : _ threshold_parameters) ->
+          List.combine (Array.to_list t.certs)
+            (Array.to_list t.verification_keys)
+          |> List.map (fun (x, (y : _ threshold_verification_key)) ->
+              (x.message.verification, y.message.message.public_key)))
     |> List.flatten |> Array.of_list |> Lwt.return
   in
-  let pk = pks.(trustee_id - 1).message.public_key in
+  let vk, pvk = pks.(trustee_id - 1) in
   let pd =
     !*[%witness_of_yojson (W.G.witness : _ partial_decryption)]
       partial_decryption
@@ -324,7 +331,7 @@ let post_partial_decryption s election ~trustee_id ~partial_decryption =
   if
     !+[%yojson_of_witness (W.G.witness : _ partial_decryption)] pd
     = partial_decryption
-    && W.E.check_factor et pk pd
+    && W.E.check_factor et ~vk ~pvk pd
   then
     let pd = (trustee_id, partial_decryption) in
     let* () = Web_persist.add_partial_decryption s pd in

@@ -79,11 +79,14 @@ let make file =
       Lwt.return (!+yojson_of_ballot b)
 
     let decrypt owner seed =
+      let module P = Pki.Make (G) in
       let module KG = Trustees.MakeBasic (G) in
-      let sk = KG.derive seed in
-      let pk = G.(g **~ sk) in
+      let sk = P.derive_sk seed in
+      let vk = G.(g **~ sk) in
+      let pdk = KG.derive seed in
+      let pvk = G.(g **~ pdk) in
       let* pks = Lazy.force pks in
-      if Array.for_all (fun x -> not G.(x =~ pk)) pks then
+      if Array.for_all (fun x -> not G.(x =~ pvk)) pks then
         failwith "your key is not present in trustees";
       let* () =
         let* x = Lazy.force shuffles_hash in
@@ -107,8 +110,8 @@ let make file =
         else Lwt.return_unit
       in
       let* tally, _ = Lazy.force encrypted_tally in
-      let factor = E.compute_factor tally sk in
-      assert (E.check_factor tally pk factor);
+      let factor = E.compute_factor tally ~sk ~pdk in
+      assert (E.check_factor tally ~vk ~pvk factor);
       let pd =
         !+[%yojson_of_witness (G.witness : _ partial_decryption)] factor
       in
@@ -154,8 +157,8 @@ let make file =
                  ts
           then failwith "your key is not present in threshold parameters");
       let* tally, _ = Lazy.force encrypted_tally in
-      let factor = E.compute_factor tally pdk in
-      assert (E.check_factor tally pvk factor);
+      let factor = E.compute_factor tally ~sk ~pdk in
+      assert (E.check_factor tally ~vk ~pvk factor);
       let pd =
         !+[%yojson_of_witness (G.witness : _ partial_decryption)] factor
       in
