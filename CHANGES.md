@@ -14,10 +14,20 @@
    + Add a configurable extra.css to all pages
    + Properly set lang and dir attributes in generated HTML
    + Remove password authentication for voters
+   + Election interface
+     - Hide some elements in election homepage with print media to
+       make it more suitable as an election report
+     - Add link to specification in footer
    + Administrator interface
      - Fix a bug in contact tab
+     - Make `archive.zip` available only for tallied elections
+     - Offer `archive.zip` for download as soon as the election is
+       tallied
    + Trustee interface
      - Delete `Submit data` explicit steps in trustee key generation
+     - Fix a bug that was preventing shuffling
+   + API
+     - Add `/api/elections/$UUID/archive.zip` (GitHub issue #102)
    + Configuration
      - Add `allowed` attribute to `<credentials-server>`
      - Add `<credentials-client>` configuration
