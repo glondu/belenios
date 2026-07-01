@@ -53,8 +53,7 @@ let find_trustee_id s token =
               Lwt.return (find 1 trustees)))
   | _ -> Lwt.return_none
 
-let find_trustee_private_key s (type a b) (w : (a, b) group_witness) trustee_id
-    =
+let find_trustee_private_key s (type a b) (w : (a, b) group) trustee_id =
   let* keys = Storage.E.get s (Private_keys w) in
   let&* keys = Lopt.get_value keys in
   (* there is one Pedersen trustee *)
@@ -299,7 +298,7 @@ let select_shuffler s w metadata trustee =
 let post_partial_decryption s (election : Election.t) ~trustee_id
     ~partial_decryption =
   let module W = (val election) in
-  let* pds = Public_archive.get_partial_decryptions s W.G.witness in
+  let* pds = Public_archive.get_partial_decryptions s (module W.G) in
   let@ () =
    fun cont ->
     if List.exists (fun x -> x.owner = trustee_id) pds then
@@ -307,7 +306,7 @@ let post_partial_decryption s (election : Election.t) ~trustee_id
     else cont ()
   in
   let* pks =
-    let* trustees = Public_archive.get_trustees s W.G.witness in
+    let* trustees = Public_archive.get_trustees s (module W.G) in
     match Lopt.get_value trustees with
     | None -> assert false
     | Some trustees ->
@@ -327,7 +326,7 @@ let post_partial_decryption s (election : Election.t) ~trustee_id
   in
   let vk, pvk = pks.(trustee_id - 1) in
   let pd =
-    !*[%witness_of_yojson (W.G.witness : _ partial_decryption)]
+    !*[%witness_of_yojson ((module W.G) : _ partial_decryption)]
       partial_decryption
   in
   let* et =
@@ -337,7 +336,7 @@ let post_partial_decryption s (election : Election.t) ~trustee_id
     | Some x -> Lwt.return @@ !*(encrypted_tally_of_yojson !$W.(G.of_string)) x
   in
   if
-    !+[%yojson_of_witness (W.G.witness : _ partial_decryption)] pd
+    !+[%yojson_of_witness ((module W.G) : _ partial_decryption)] pd
     = partial_decryption
     && W.E.check_factor et ~vk ~pvk pd
   then
@@ -355,10 +354,10 @@ let post_shuffle s (election : Election.t) ~token ~shuffle =
         (fun () ->
           let module W = (val election) in
           let shuffle =
-            !*[%witness_of_yojson (W.G.witness : _ shuffle)] shuffle
+            !*[%witness_of_yojson ((module W.G) : _ shuffle)] shuffle
           in
           let@ vk cont =
-            let* trustees = Public_archive.get_trustees s W.G.witness in
+            let* trustees = Public_archive.get_trustees s (module W.G) in
             match Lopt.get_value trustees with
             | None -> assert false
             | Some trustees ->
@@ -526,7 +525,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
       | `GET ->
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
-          let* x = get_partial_decryptions s W.G.witness metadata in
+          let* x = get_partial_decryptions s (module W.G) metadata in
           return_json 200 (!+yojson_of_partial_decryptions x)
       | _ -> method_not_allowed)
   | [ "trustee" ] -> (
@@ -538,10 +537,10 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let@ trustee_id = with_tally_trustee token s in
               let@ () = handle_generic_error in
               let* private_key =
-                find_trustee_private_key s W.G.witness trustee_id
+                find_trustee_private_key s (module W.G) trustee_id
               in
               return_json 200
-                (!+[%yojson_of_witness (W.G.witness : _ tally_trustee)]
+                (!+[%yojson_of_witness ((module W.G) : _ tally_trustee)]
                    private_key)
           | `POST -> (
               let@ trustee_id = with_tally_trustee token s in
@@ -613,7 +612,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let* () = skip_shuffler s shuffler in
               ok
           | `Select ->
-              let* () = select_shuffler s W.G.witness metadata shuffler in
+              let* () = select_shuffler s (module W.G) metadata shuffler in
               ok)
       | _ -> method_not_allowed)
   | [ "ballots" ] -> (
@@ -803,7 +802,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
               let* election = Public_archive.get_election s in
               let election = Option.get @@ Lopt.get_value election in
               let module W = (val election) in
-              let* trustees = Public_archive.get_trustees s W.G.witness in
+              let* trustees = Public_archive.get_trustees s (module W.G) in
               Lwt.return @@ Option.get @@ Lopt.get_string trustees)
             (fun raw -> return_json 200 raw)
             (fun _ ->
@@ -831,7 +830,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
                         | Some tp -> cont [ `Pedersen tp ])
                   in
                   trustees
-                  |> !+[%yojson_of_witness (G.witness : _ trustees)]
+                  |> !+[%yojson_of_witness ((module G) : _ trustees)]
                   |> return_json 200)
       | _ -> method_not_allowed)
   | [ uuid; "automatic-dates" ] -> (

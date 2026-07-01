@@ -217,7 +217,7 @@ let belenios : belenios Js.t =
               in
               let* () = Lwt_js.yield () in
               let b = E.create_ballot ~sk plaintext in
-              let ballot' = !+[%yojson_of_witness (G.witness : _ ballot)] b in
+              let ballot' = !+[%yojson_of_witness ((module G) : _ ballot)] b in
               if !stateful then ballot := Some ballot';
               let tracker = sha256_b64 ballot' in
               callbacks##success (Js.string ballot') (Js.string tracker);

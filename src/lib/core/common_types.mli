@@ -23,16 +23,8 @@ open Belenios_platform
 
 val b58_digits : string
 
-type 'a serializers = 'a Group_witness.serializers = {
-  of_string : string -> 'a;
-  to_string : 'a -> string;
-}
-
+type 'a serializers = { of_string : string -> 'a; to_string : 'a -> string }
 type number = Z.t [@@deriving yojson]
-
-module Group_witness = Group_witness
-
-type ('a, 'b) group_witness = ('a, 'b) Group_witness.t
 
 module Json : sig
   type t = Yojson.Safe.t [@@deriving yojson]

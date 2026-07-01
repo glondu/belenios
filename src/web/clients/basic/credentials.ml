@@ -88,7 +88,7 @@ let show main uuid =
                 let* x =
                   Api.(
                     post
-                      (draft_public_credentials uuid G.witness)
+                      (draft_public_credentials uuid (module G))
                       !user public_with_ids)
                 in
                 let@ () = show_in button_container in

@@ -426,7 +426,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
         (i + 1, SSet.add cred_s creds))
       (0, SSet.empty) credentials
   in
-  let* () = Storage.E.set s (Public_creds G.witness) Value credentials in
+  let* () = Storage.E.set s (Public_creds (module G)) Value credentials in
   se.public_creds_received <- true;
   se.public_creds_certificate <- certificate;
   set (Draft (v, se))
@@ -776,7 +776,7 @@ let import_trustees (type a b) (w : (a, b) group)
         List.map (Option.map (fun (x : external_trustee) -> x.id)) trustees
       in
       let@ trustees cont =
-        let* x = Public_archive.get_trustees from G.witness in
+        let* x = Public_archive.get_trustees from (module G) in
         match Lopt.get_value x with
         | None -> Lwt.return @@ Stdlib.Error `Invalid
         | Some x -> cont x
@@ -786,7 +786,7 @@ let import_trustees (type a b) (w : (a, b) group)
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen (t : (a, b) threshold_parameters) ids =
-          let* privs = Storage.E.get from (Private_keys G.witness) in
+          let* privs = Storage.E.get from (Private_keys (module G)) in
           let* x =
             match Lopt.get_value privs with
             | Some privs ->
@@ -1000,7 +1000,7 @@ let post_trustee_basic (type a b) (w : (a, b) group)
   | None ->
       let module Trustees = (val Trustees.get_by_version se.version) in
       let parameters =
-        !*[%witness_of_yojson (G.witness : _ basic_parameters)] data
+        !*[%witness_of_yojson ((module G) : _ basic_parameters)] data
       in
       let module K = Trustees.MakeCombinator (G) in
       if
@@ -1061,7 +1061,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
   let () =
     match t.step with
     | Some 1 ->
-        let cert = !*[%witness_of_yojson (G.witness : _ pedersen_cert)] data in
+        let cert = !*[%witness_of_yojson ((module G) : _ pedersen_cert)] data in
         if K.step1_check full_context cert then (
           t.cert <- Some cert;
           t.step <- Some 2)
@@ -1069,7 +1069,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
     | Some 3 ->
         let certs = get_certs () in
         let polynomial =
-          !*[%witness_of_yojson (G.witness : _ polynomial)] data
+          !*[%witness_of_yojson ((module G) : _ polynomial)] data
         in
         if K.step3_check { context; certs } i polynomial then (
           t.polynomial <- Some polynomial;
@@ -1078,7 +1078,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
     | Some 5 ->
         let certs = get_certs () in
         let polynomials = get_polynomials () in
-        let voutput = !*[%witness_of_yojson (G.witness : _ voutput)] data in
+        let voutput = !*[%witness_of_yojson ((module G) : _ voutput)] data in
         if K.step5_check { context; certs } i polynomials voutput then (
           t.voutput <- Some voutput;
           t.step <- Some 6)
@@ -1150,7 +1150,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
       match method_ with
       | `GET ->
           handle_get_option (fun () ->
-              let* x = Web_persist.get_draft_public_credentials s G.witness in
+              let* x = Web_persist.get_draft_public_credentials s (module G) in
               match x with
               | None -> Lwt.return_none
               | Some x ->
@@ -1248,7 +1248,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
         let@ () =
          fun cont ->
           Lwt.return
-          @@ [%yojson_of_witness (G.witness : _ trustee_status)]
+          @@ [%yojson_of_witness ((module G) : _ trustee_status)]
           @@ cont ()
         in
         match trustee with
@@ -1320,7 +1320,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let get is_admin () =
         let open Belenios_web_api in
         let x = get_draft_trustees ~is_admin se in
-        Lwt.return @@ [%yojson_of_witness (G.witness : _ draft_trustees)] x
+        Lwt.return @@ [%yojson_of_witness ((module G) : _ draft_trustees)] x
       in
       match (method_, who) with
       | `GET, `Nobody -> handle_get (get false)

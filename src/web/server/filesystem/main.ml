@@ -626,7 +626,7 @@ module MakeBackend
       Draft_concrete
         ( (module G),
           v,
-          !*([%witness_of_yojson (G.witness : _ raw_draft_election)]
+          !*([%witness_of_yojson ((module G) : _ raw_draft_election)]
                t_of_yojson)
             x )
       |> Lwt.return_some
@@ -646,7 +646,6 @@ module MakeBackend
     match Lopt.get_value data with
     | None -> assert false
     | Some (W (w, Draft (v, abstract))) ->
-        let module G = (val w) in
         let concrete, se_private_creds_downloaded =
           Converters.raw_draft_election_to_concrete abstract
         in
@@ -657,8 +656,7 @@ module MakeBackend
         in
         let data =
           let open (val Election.get_serializers v) in
-          !+([%yojson_of_witness (G.witness : _ Types.raw_draft_election)]
-               yojson_of_t)
+          !+([%yojson_of_witness (w : _ Types.raw_draft_election)] yojson_of_t)
             concrete
         in
         let* () =
@@ -964,8 +962,8 @@ module MakeBackend
           let* x = credential_mappings_cache#find uuid in
           dump_credential_mappings uuid x)
 
-  let init_credential_mapping uuid (type a b) (w : (a, b) group_witness) =
-    let module T = (val Group_witness.get w) in
+  let init_credential_mapping uuid (type a b) (w : (a, b) group) =
+    let module G = (val w) in
     let* file = get (Election (uuid, Public_creds w)) in
     match Lopt.get_value file with
     | Some x ->
@@ -975,7 +973,7 @@ module MakeBackend
         let xs =
           List.fold_left
             (fun accu (x : _ public_credential) ->
-              let x = T.element.to_string x.credential in
+              let x = G.to_string x.credential in
               if SMap.mem x accu then
                 failwith "trying to add duplicate credential"
               else SMap.add x None accu)
@@ -1097,7 +1095,7 @@ module MakeBackend
     let module G = (val w) in
     let@ public_creds =
      fun cont ->
-      let* x = get (Election (uuid, Public_creds G.witness)) in
+      let* x = get (Election (uuid, Public_creds (module G))) in
       match Lopt.get_value x with
       | None ->
           (* public credentials mapping is no longer available, use

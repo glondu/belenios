@@ -54,7 +54,7 @@ val set_election_automatic_dates :
 val get_all_voters : Storage.E.t -> Voter.t list Lwt.t
 
 val get_draft_public_credentials :
-  Storage.E.t -> ('a, 'b) group_witness -> 'a public_credentials option Lwt.t
+  Storage.E.t -> ('a, 'b) group -> 'a public_credentials option Lwt.t
 
 val get_records :
   Storage.E.t -> Belenios_storage_api.election_records option Lwt.t

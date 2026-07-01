@@ -251,13 +251,11 @@ let wrapped_credentials_params_of_yojson : json -> wrapped_credentials_params =
  fun x ->
   let x' = credentials_params_of_yojson Fun.id Fun.id x in
   let module G = (val Group.of_string ~version:x'.version x'.group) in
-  let x = [%witness_of_yojson (G.witness : _ credentials_params)] x in
+  let x = [%witness_of_yojson ((module G) : _ credentials_params)] x in
   W ((module G), x)
 
 let yojson_of_wrapped_credentials_params : wrapped_credentials_params -> json =
- fun (W (w, x)) ->
-  let module G = (val w) in
-  [%yojson_of_witness (G.witness : _ credentials_params)] x
+ fun (W (w, x)) -> [%yojson_of_witness (w : _ credentials_params)] x
 
 type 'a credentials_record = {
   credential : 'a;

@@ -66,7 +66,7 @@ module Tkeygen : CMDLINER_MODULE = struct
       |> String.uppercase_ascii
     in
     let pub =
-      !+[%yojson_of_witness (G.witness : _ basic_parameters)] parameters
+      !+[%yojson_of_witness ((module G) : _ basic_parameters)] parameters
     in
     Printf.printf "I: keypair %s has been generated\n%!" id;
     let pubkey = ("public key", id ^ ".pubkey", 0o444, pub) in
@@ -132,7 +132,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
       let certs = get_mandatory_opt "--certs" certs in
       let* x =
         load_from_file
-          !*[%witness_of_yojson (G.witness : _ pedersen_cert)]
+          !*[%witness_of_yojson ((module G) : _ pedersen_cert)]
           certs
       in
       match x with
@@ -143,7 +143,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
       let polynomials = get_mandatory_opt "--polynomials" polynomials in
       let* x =
         load_from_file
-          !*[%witness_of_yojson (G.witness : _ polynomial)]
+          !*[%witness_of_yojson ((module G) : _ polynomial)]
           polynomials
       in
       match x with
@@ -166,7 +166,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
           ( "certificate",
             id ^ ".cert",
             0o444,
-            !+[%yojson_of_witness (G.witness : _ pedersen_cert)] cert )
+            !+[%yojson_of_witness ((module G) : _ pedersen_cert)] cert )
         in
         let prv = ("private key", id ^ ".key", 0o400, key) in
         let* () = save pub in
@@ -183,7 +183,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* key = get_mandatory_opt "--key" key |> string_of_file in
         let* polynomial = T.step3 { context; certs } key in
         Lwt_io.printl
-          (!+[%yojson_of_witness (G.witness : _ polynomial)] polynomial)
+          (!+[%yojson_of_witness ((module G) : _ polynomial)] polynomial)
     | 4 ->
         let* context = get_context () in
         let* certs = get_certs () in
@@ -208,7 +208,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
                   fn
               in
               write_line oc
-                (!+[%yojson_of_witness (G.witness : _ vinput)] vinputs.(i))
+                (!+[%yojson_of_witness ((module G) : _ vinput)] vinputs.(i))
             in
             let* () = Lwt_io.eprintlf "I: wrote %s" fn in
             loop (i + 1)
@@ -220,10 +220,10 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
         let vinput =
-          read_line () |> !*[%witness_of_yojson (G.witness : _ vinput)]
+          read_line () |> !*[%witness_of_yojson ((module G) : _ vinput)]
         in
         let* voutput = T.step5 { context; certs } key vinput in
-        Lwt_io.printl (!+[%yojson_of_witness (G.witness : _ voutput)] voutput)
+        Lwt_io.printl (!+[%yojson_of_witness ((module G) : _ voutput)] voutput)
     | 6 ->
         let* context = get_context () in
         let* certs = get_certs () in
@@ -233,7 +233,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* lines = lines_of_stdin () in
         let voutputs =
           lines
-          |> List.map !*[%witness_of_yojson (G.witness : _ voutput)]
+          |> List.map !*[%witness_of_yojson ((module G) : _ voutput)]
           |> Array.of_list
         in
         assert (n = Array.length voutputs);
@@ -255,7 +255,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
               in
               write_line oc
               @@ !+[%yojson_of_witness
-                     (G.witness : _ sent_partial_decryption_key)]
+                     ((module G) : _ sent_partial_decryption_key)]
                    voutputs.(i).private_key
             in
             let* () = Lwt_io.eprintlf "I: wrote %s" fn in
@@ -264,7 +264,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         in
         let* () = loop 0 in
         Lwt_io.printl
-          (!+[%yojson_of_witness (G.witness : _ threshold_parameters)] tparams)
+          (!+[%yojson_of_witness ((module G) : _ threshold_parameters)] tparams)
     | _ -> failwith "invalid step"
 
   let step_t =
@@ -576,7 +576,7 @@ module Mkelection : CMDLINER_MODULE = struct
       let open (val Election.get_serializers v) in
       Election.Template (v, !*(template_of_yojson t_of_yojson) template)
     in
-    let trustees = !*[%witness_of_yojson (G.witness : _ trustees)] trustees in
+    let trustees = !*[%witness_of_yojson ((module G) : _ trustees)] trustees in
     let y = K.combine_keys trustees in
     let public_key = G.to_string y in
     let params =

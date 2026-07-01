@@ -96,7 +96,7 @@ module Make (P : PARAMS) () = struct
     match x with
     | Ok sk ->
         let ballot = W.E.create_ballot ~sk (random_choice ()) in
-        let ballot = !+[%yojson_of_witness (W.G.witness : _ ballot)] ballot in
+        let ballot = !+[%yojson_of_witness ((module W.G) : _ ballot)] ballot in
         submit_ballot ~username ~ballot
     | Error _ ->
         Printf.ksprintf failwith "error in deriving key from %s" credential

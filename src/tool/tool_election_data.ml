@@ -28,10 +28,7 @@ module type GETTERS = sig
   val setup_data : setup_data Lwt.t
   val raw_election : string Lwt.t
   val get_trustees : unit -> string option Lwt.t
-
-  val get_public_creds :
-    ('a, 'b) group_witness -> 'a public_credentials option Lwt.t
-
+  val get_public_creds : ('a, 'b) group -> 'a public_credentials option Lwt.t
   val get_ballots : unit -> string list option Lwt.t
 
   val get_encrypted_tally :
@@ -79,12 +76,11 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
     | None -> failcmd "could not get election"
     | Some x -> Lwt.return x
 
-  let get_public_creds (type a b) (w : (a, b) group_witness) =
+  let get_public_creds (type a b) (w : (a, b) group) =
     let* setup_data = setup_data in
     let* x = get_data setup_data.credentials in
-    let module T = (val Group_witness.get w) in
-    Lwt.return
-    @@ Option.map !*(public_credentials_of_yojson !$(T.element.of_string)) x
+    let module G = (val w) in
+    Lwt.return @@ Option.map !*(public_credentials_of_yojson !$G.of_string) x
 
   let get_trustees () =
     let* setup_data = setup_data in
@@ -226,7 +222,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
     let* trustees_as_string = trustees_as_string in
     Lwt.return
     @@ Option.map
-         !*[%witness_of_yojson (G.witness : _ trustees)]
+         !*[%witness_of_yojson ((module G) : _ trustees)]
          trustees_as_string
 
   let pks =
@@ -251,7 +247,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
        | Some pks -> Lwt.return pks
        | None -> failwith "missing public keys")
 
-  let raw_public_creds = lazy (get_public_creds G.witness)
+  let raw_public_creds = lazy (get_public_creds (module G))
 
   module rec Cred :
     (Credential.S
@@ -351,7 +347,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
          let* x = Lazy.force unverified_ballots in
          x
          |> List.rev_map (fun (_, _, w, b) ->
-             (w, !*[%witness_of_yojson (G.witness : _ ballot)] b))
+             (w, !*[%witness_of_yojson ((module G) : _ ballot)] b))
          |> Lwt.return
        in
        let total_weight =
@@ -396,7 +392,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
        x
        |> Option.map
             (List.map (fun (x, t) ->
-                 (!*[%witness_of_yojson (G.witness : _ shuffle)] x, t)))
+                 (!*[%witness_of_yojson ((module G) : _ shuffle)] x, t)))
        |> Lwt.return)
 
   let shuffles_hash =

@@ -50,7 +50,7 @@ let do_election uuid (election : Election.t) seed =
     | Error _ ->
         alert @@ s_ "Could not get trustee parameters for this election!";
         Lwt.return_unit
-    | Ok (x, _) -> cont @@ !*[%witness_of_yojson (W.G.witness : _ trustees)] x
+    | Ok (x, _) -> cont @@ !*[%witness_of_yojson ((module W.G) : _ trustees)] x
   in
   let find_single =
     let module T = (val Trustees.get_by_version W.version) in
@@ -88,7 +88,7 @@ let do_draft uuid (draft : _ raw_draft) private_key =
   let version = draft.version in
   let module G = (val Group.of_string ~version draft.group) in
   let@ trustees cont =
-    let* x = Api.(get (draft_trustees uuid G.witness) `Nobody) in
+    let* x = Api.(get (draft_trustees uuid (module G)) `Nobody) in
     match x with
     | Error _ ->
         alert @@ s_ "Could not get trustee parameters for this election!";

@@ -100,7 +100,6 @@ module Make (B : LIBSODIUM_STUBS) = struct
   let invert = G.invert
   let to_string = G.to_string
   let of_string = G.of_string
-  let witness = G.witness
   let max_ints = G.max_ints
   let bits_per_int = G.bits_per_int
   let to_ints = G.to_ints

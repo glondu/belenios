@@ -54,7 +54,7 @@ let compute_partial_decryption (type a b) (election : (a, b) Election.u) trustee
         Lwt.return (P.derive_sk private_key, KG.derive private_key)
   in
   W.E.compute_factor encrypted_tally ~sk ~pdk
-  |> [%yojson_of_witness (W.G.witness : _ partial_decryption)]
+  |> [%yojson_of_witness ((module W.G) : _ partial_decryption)]
   |> Lwt.return
 
 let decrypt uuid ~token =
@@ -68,7 +68,7 @@ let decrypt uuid ~token =
   in
   let module W = (val election) in
   let@ trustee cont =
-    let* x = Api.(get (trustee_election uuid W.G.witness) (`Trustee token)) in
+    let* x = Api.(get (trustee_election uuid (module W.G)) (`Trustee token)) in
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let@ encrypted_tally cont =
@@ -83,7 +83,7 @@ let decrypt uuid ~token =
     let* x =
       Api.(
         post
-          (trustee_election uuid W.G.witness)
+          (trustee_election uuid (module W.G))
           (`Trustee token) !partial_decryption)
     in
     let msg =

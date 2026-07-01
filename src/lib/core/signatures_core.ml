@@ -60,9 +60,6 @@ module type GROUP = sig
   (** The type of elements. Note that it may be larger than the group itself,
       hence the [check] function below. *)
 
-  val witness : (t, Zq.t) Group_witness.t
-  (** Group witness. *)
-
   val check : t -> bool
   (** Check group membership. *)
 

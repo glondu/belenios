@@ -61,7 +61,7 @@ let get_trustees () =
   let module G = (val Group.of_string ~version:draft.version draft.group) in
   let* status = Cache.get_until_success Cache.status in
   step := status.trustees_setup_step;
-  let* x = Api.(get (draft_trustees uuid G.witness) !user) in
+  let* x = Api.(get (draft_trustees uuid (module G)) !user) in
   ifmatch_tt := get_ifmatch x;
   match x with
   | Error e ->
@@ -161,7 +161,7 @@ let recompute_main_zone_1 () =
             (val Group.of_string ~version:draft.version draft.group)
           in
           let* x =
-            Api.(post ?ifmatch (draft_trustees uuid G.witness) !user r)
+            Api.(post ?ifmatch (draft_trustees uuid (module G)) !user r)
           in
           let&&* d = document##getElementById (Js.string "popup") in
           d##.style##.display := Js.string "none";
@@ -227,7 +227,7 @@ let recompute_main_zone_1 () =
             (val Group.of_string ~version:draft.version draft.group)
           in
           let* x =
-            Api.(post ?ifmatch (draft_trustees uuid G.witness) !user mm)
+            Api.(post ?ifmatch (draft_trustees uuid (module G)) !user mm)
           in
           match x.code with
           | 200 -> !update_main_zone ()
@@ -262,7 +262,7 @@ let recompute_main_zone_1 () =
             (val Group.of_string ~version:draft.version draft.group)
           in
           let* x =
-            Api.(post ?ifmatch (draft_trustees uuid G.witness) !user mm)
+            Api.(post ?ifmatch (draft_trustees uuid (module G)) !user mm)
           in
           match x.code with
           | 200 -> !update_main_zone ()
@@ -306,7 +306,7 @@ let recompute_main_zone_1 () =
     let r = `Import from_uuid in
     let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
     let module G = (val Group.of_string ~version:draft.version draft.group) in
-    let* x = Api.(post (draft_trustees uuid G.witness) !user r) in
+    let* x = Api.(post (draft_trustees uuid (module G)) !user r) in
     match x.code with
     | 200 ->
         let* () = send_draft_request @@ `SetTrusteesSetupStep 3 in
@@ -336,7 +336,7 @@ let reset_but () =
     let uuid = get_current_uuid () in
     let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
     let module G = (val Group.of_string ~version:draft.version draft.group) in
-    let* x = Api.(post (draft_trustees uuid G.witness) !user `Reset) in
+    let* x = Api.(post (draft_trustees uuid (module G)) !user `Reset) in
     match x.code with
     | 200 -> !update_main_zone ()
     | code ->

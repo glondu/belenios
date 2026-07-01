@@ -173,7 +173,7 @@ let shuffle uuid ~token =
       Dom.removeChild container submit_div;
       let* x =
         Api.(
-          post (trustee_election uuid W.G.witness) (`Trustee token)
+          post (trustee_election uuid (module W.G)) (`Trustee token)
           @@ Json.of_string shuffle_data)
       in
       let msg =

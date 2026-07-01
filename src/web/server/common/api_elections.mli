@@ -28,13 +28,13 @@ val get_election_status : Storage.E.t -> election_status Lwt.t
 val get_records : Storage.E.t -> records Lwt.t
 
 val get_partial_decryptions :
-  Storage.E.t -> ('a, 'b) group_witness -> metadata -> partial_decryptions Lwt.t
+  Storage.E.t -> ('a, 'b) group -> metadata -> partial_decryptions Lwt.t
 
 val get_shuffles : Storage.E.t -> metadata -> shuffles Lwt.t
 val skip_shuffler : Storage.E.t -> string -> unit Lwt.t
 
 val select_shuffler :
-  Storage.E.t -> ('a, 'b) group_witness -> metadata -> string -> unit Lwt.t
+  Storage.E.t -> ('a, 'b) group -> metadata -> string -> unit Lwt.t
 
 val dispatch :
   token:string option ->

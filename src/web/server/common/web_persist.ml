@@ -98,12 +98,12 @@ let append_to_shuffles s (type a b) (election : (a, b) Election.u) owner
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
-  let shuffle_s = !+[%yojson_of_witness (W.G.witness : _ shuffle)] shuffle in
+  let shuffle_s = !+[%yojson_of_witness ((module W.G) : _ shuffle)] shuffle in
   let shuffle_h = Hash.hash_string shuffle_s in
   let* last_nh = Public_archive.get_nh_ciphertexts s in
   let last_nh = !*(nh_ciphertexts_of_yojson !$W.G.of_string) last_nh in
   if
-    !+[%yojson_of_witness (W.G.witness : _ shuffle)] shuffle = shuffle_s
+    !+[%yojson_of_witness ((module W.G) : _ shuffle)] shuffle = shuffle_s
     && W.E.check_shuffle ~vk last_nh shuffle
   then
     let owned = { owner; payload = shuffle_h } in
@@ -141,7 +141,7 @@ let internal_release_tally ~force s set_state =
     Option.value metadata.trustees ~default:[ None ]
     |> List.mapi (fun i x -> (i + 1, x))
   in
-  let* pds = Public_archive.get_partial_decryptions s W.G.witness in
+  let* pds = Public_archive.get_partial_decryptions s (module W.G) in
   let@ () =
    fun cont ->
     if force then cont ()
@@ -168,7 +168,7 @@ let internal_release_tally ~force s set_state =
         Lwt.return { x with encrypted_tally = tally }
   in
   let* trustees =
-    let* x = Public_archive.get_trustees s W.G.witness in
+    let* x = Public_archive.get_trustees s (module W.G) in
     match Lopt.get_value x with None -> assert false | Some x -> Lwt.return x
   in
   let* pds, transactions =
@@ -185,7 +185,7 @@ let internal_release_tally ~force s set_state =
           let pd = W.E.compute_factor tally ~sk ~pdk in
           let owned = { owner; payload = pd } in
           let pd =
-            !+[%yojson_of_witness (W.G.witness : _ partial_decryption)] pd
+            !+[%yojson_of_witness ((module W.G) : _ partial_decryption)] pd
           in
           let payload =
             { owner; payload = Hash.hash_string pd }
@@ -396,7 +396,7 @@ let raw_compute_encrypted_tally s (election : Election.t) =
   let* ballots =
     Public_archive.fold_on_ballots s
       (fun _ b accu ->
-        let ballot = !*[%witness_of_yojson (W.G.witness : _ ballot)] b in
+        let ballot = !*[%witness_of_yojson ((module W.G) : _ ballot)] b in
         let credential = ballot.message.credential in
         if GMap.mem credential accu then Lwt.return accu
         else Lwt.return @@ GMap.add credential ballot accu)
@@ -577,12 +577,12 @@ let compute_audit_cache s =
         Lwt.return_some x.encrypted_tally
       in
       let@ trustees cont =
-        let* x = Public_archive.get_trustees s W.G.witness in
+        let* x = Public_archive.get_trustees s (module W.G) in
         match Lopt.get_value x with None -> Lwt.return_none | Some x -> cont x
       in
       let* checksums =
         let* public_credentials =
-          Public_archive.get_public_creds s W.G.witness
+          Public_archive.get_public_creds s (module W.G)
         in
         let* final =
           let* roots = Public_archive.get_roots s in
@@ -872,7 +872,7 @@ let set_election_automatic_dates s d =
   let@ dates, set = update_election_dates s in
   set { dates with auto_open; auto_close; publish; grace_period }
 
-let get_draft_public_credentials s (type a b) (w : (a, b) group_witness) =
+let get_draft_public_credentials s (type a b) (w : (a, b) group) =
   let* x = Storage.E.get s (Public_creds w) in
   let&* x = Lopt.get_value x in
   x
@@ -920,7 +920,7 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           | Some (W (w, Draft (v, se))) ->
               let* () = private_creds |> Storage.E.set s Private_creds Value in
               let* () =
-                Storage.E.set s (Public_creds G.witness) Value public_with_ids
+                Storage.E.set s (Public_creds (module G)) Value public_with_ids
               in
               se.public_creds_received <- true;
               se.pending_credentials <- true;

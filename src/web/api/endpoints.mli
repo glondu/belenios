@@ -44,7 +44,7 @@ val draft_voters : uuid -> ([< admin | credauth ], voter_list, voters_request) t
 
 val draft_public_credentials :
   uuid ->
-  ('a, 'b) group_witness ->
+  ('a, 'b) group ->
   ( [< admin | credauth ],
     'a public_credentials,
     'a public_credentials_with_id )
@@ -55,16 +55,16 @@ val draft_credentials_token : uuid -> (admin, string, unit) t
 
 val draft_trustees :
   uuid ->
-  ('a, 'b) group_witness ->
+  ('a, 'b) group ->
   ([< nobody | admin ], ('a, 'b) draft_trustees, trustees_request) t
 
 val draft_trustee : uuid -> string -> (admin, unit, unit) t
 
 val trustee_draft :
-  uuid -> ('a, 'b) group_witness -> (trustee, ('a, 'b) trustee_status, json) t
+  uuid -> ('a, 'b) group -> (trustee, ('a, 'b) trustee_status, json) t
 
 val trustee_election :
-  uuid -> ('a, 'b) group_witness -> (trustee, ('a, 'b) tally_trustee, json) t
+  uuid -> ('a, 'b) group -> (trustee, ('a, 'b) tally_trustee, json) t
 
 val elections : (admin, summary_list, draft) t
 val election : uuid -> ([< nobody | admin ], Election.t, unit) t

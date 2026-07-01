@@ -83,9 +83,8 @@ let rec show_draft_voters uuid draft container =
   in
   Lwt.return [ div [ t ]; div [ b ]; import ]
 
-let rec show_draft_credentials : 'a 'b. uuid -> ('a, 'b) group_witness -> _ -> _
-    =
- fun uuid (type a b) (w : (a, b) group_witness) container ->
+let rec show_draft_credentials : 'a 'b. uuid -> ('a, 'b) group -> _ -> _ =
+ fun uuid (type a b) (w : (a, b) group) container ->
   let@ () = show_in container in
   let* x = Api.(get (draft_public_credentials uuid w) !user) in
   let@ x = with_ok_not_found "credentials" x in
@@ -121,10 +120,8 @@ let rec show_draft_credentials : 'a 'b. uuid -> ('a, 'b) group_witness -> _ -> _
               txt link;
             ])
   | Some (x, _) ->
-      let module T = (val Group_witness.get w) in
-      let t, _ =
-        textarea (!+(yojson_of_public_credentials !&(T.element.to_string)) x)
-      in
+      let module G = (val w) in
+      let t, _ = textarea (!+(yojson_of_public_credentials !&G.to_string) x) in
       Lwt.return [ t ]
 
 type trustee_with_writer =
@@ -135,7 +132,7 @@ let rec show_draft_trustees uuid container =
   let* draft = Api.(get (draft uuid) !user) in
   let@ Draft (_, draft), _ = with_ok "draft" draft in
   let module G = (val Group.of_string ~version:draft.version draft.group) in
-  let* x = Api.(get (draft_trustees uuid G.witness) !user) in
+  let* x = Api.(get (draft_trustees uuid (module G)) !user) in
   let@ trustees, ifmatch = with_ok "trustees" x in
   let mode =
     match trustees with
@@ -162,7 +159,7 @@ let rec show_draft_trustees uuid container =
             Lwt.return_unit
       in
       let* x =
-        Api.(post ~ifmatch (draft_trustees uuid G.witness) !user request)
+        Api.(post ~ifmatch (draft_trustees uuid (module G)) !user request)
       in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
@@ -172,9 +169,9 @@ let rec show_draft_trustees uuid container =
   let (TWW (trustees, write)) =
     match trustees with
     | `Basic x ->
-        TWW (x.trustees, [%yojson_of_witness (G.witness : _ basic_parameters)])
+        TWW (x.trustees, [%yojson_of_witness ((module G) : _ basic_parameters)])
     | `Threshold x ->
-        TWW (x.trustees, [%yojson_of_witness (G.witness : _ pedersen_cert)])
+        TWW (x.trustees, [%yojson_of_witness ((module G) : _ pedersen_cert)])
   in
   let all_trustees =
     List.map
@@ -197,7 +194,7 @@ let rec show_draft_trustees uuid container =
   let b =
     let@ () = button "Add trustee" in
     let r = `Add (!*(trustee_of_yojson Fun.id) (t2get ())) in
-    let* x = Api.(post ~ifmatch (draft_trustees uuid G.witness) !user r) in
+    let* x = Api.(post ~ifmatch (draft_trustees uuid (module G)) !user r) in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_trustees uuid container)
   in
@@ -206,7 +203,7 @@ let rec show_draft_trustees uuid container =
     let b =
       let@ () = button "Import trustees" in
       let r = `Import (Uuid.of_string (iget ())) in
-      let* x = Api.(post ~ifmatch (draft_trustees uuid G.witness) !user r) in
+      let* x = Api.(post ~ifmatch (draft_trustees uuid (module G)) !user r) in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in
@@ -261,7 +258,7 @@ let show_draft show_all uuid draft title container tab =
   | `Credentials ->
       let (Draft (_, draft)) = draft in
       let module G = (val Group.of_string ~version:draft.version draft.group) in
-      show_draft_credentials uuid G.witness container
+      show_draft_credentials uuid (module G) container
   | `Trustees -> show_draft_trustees uuid container
   | `Status -> show_draft_status uuid container
 

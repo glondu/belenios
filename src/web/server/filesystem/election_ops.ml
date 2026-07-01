@@ -48,7 +48,7 @@ module type BACKEND = sig
   val delete_draft_election : uuid -> unit Lwt.t
 
   val init_credential_mapping :
-    uuid -> ('a, 'b) group_witness -> 'a public_credentials Lwt.t
+    uuid -> ('a, 'b) group -> 'a public_credentials Lwt.t
 end
 
 let ( let&! ) x f = match x with None -> Lwt.return_unit | Some x -> f x
@@ -136,7 +136,7 @@ let delete_live_election s uuid roots =
                 match Lopt.get_value x with
                 | None -> Lwt.return accu
                 | Some b ->
-                    cont (!*[%witness_of_yojson (W.G.witness : _ ballot)] b)
+                    cont (!*[%witness_of_yojson ((module W.G) : _ ballot)] b)
               in
               let credential = ballot.message.credential in
               if CredSet.mem credential seen then loop seen accu p
@@ -301,11 +301,11 @@ let validate_election_exn s uuid =
   let* () = voters |> S.set (Election (uuid, Voters)) Value in
   let* () = metadata |> S.set (Election (uuid, Metadata)) Value in
   (* initialize credentials *)
-  let* public_creds = S.init_credential_mapping uuid G.witness in
+  let* public_creds = S.init_credential_mapping uuid (module G) in
   (* initialize events *)
   let* () =
     let raw_trustees =
-      !+[%yojson_of_witness (G.witness : _ trustees)] trustees
+      !+[%yojson_of_witness ((module G) : _ trustees)] trustees
     in
     let raw_public_creds =
       !+(yojson_of_public_credentials !&G.to_string) public_creds
@@ -318,7 +318,7 @@ let validate_election_exn s uuid =
       | None -> ([], None)
       | Some c ->
           let raw =
-            c |> !+[%yojson_of_witness (G.witness : _ credentials_certificate)]
+            c |> !+[%yojson_of_witness ((module G) : _ credentials_certificate)]
           in
           ([ Data raw ], Some (Hash.hash_string raw))
     in
@@ -351,7 +351,7 @@ let validate_election_exn s uuid =
     | `KEY x -> x |> S.set (Election (uuid, Server_seed)) Value
     | `KEYS (x, y) ->
         let* () = x |> S.set (Election (uuid, Server_seed)) Value in
-        y |> S.set (Election (uuid, Private_keys G.witness)) Value
+        y |> S.set (Election (uuid, Private_keys (module G))) Value
   in
   (* clean up draft *)
   let@ dates, set_dates =

@@ -158,7 +158,7 @@ module App (U : UI) = struct
             | Ok (x, _) ->
                 cont
                 @@ !*[%witness_of_yojson
-                       (E.G.witness : _ credentials_certificate)]
+                       ((module E.G) : _ credentials_certificate)]
                      x
             | Error _ -> fail ())
       in

@@ -53,7 +53,7 @@ let handle_shuffle { election; ciphertexts; seed } =
     else cont ()
   in
   W.E.shuffle_ciphertexts ~sk ciphertexts
-  |> !+[%yojson_of_witness (W.G.witness : _ shuffle)]
+  |> !+[%yojson_of_witness ((module W.G) : _ shuffle)]
   |> fun r -> Worker.post_message (ShuffleResult (Js.string r))
 
 let handle_request = function Shuffle r -> handle_shuffle r

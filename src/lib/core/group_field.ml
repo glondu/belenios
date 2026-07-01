@@ -28,20 +28,6 @@ open Common
 
 module type GROUP = GROUP with type t = Z.t
 
-module Params = struct
-  type t = ff_params
-
-  let ( ++ ) a b = if a = 0 then b else a
-
-  let compare a b =
-    Z.compare a.p b.p ++ Z.compare a.q b.q ++ Z.compare a.g b.g
-    ++ Stdlib.compare a.embedding b.embedding
-end
-
-module PMap = Map.Make (Params)
-
-let witnesses = ref PMap.empty
-
 let make description ff_params =
   let { p; q; g; embedding } = ff_params in
   let module G = struct
@@ -63,23 +49,6 @@ let make description ff_params =
     let check x = check_modulo p x && powm x q p =~ one
     let to_string = Z.to_string
     let of_string = Z.of_string
-
-    let witness =
-      match PMap.find_opt ff_params !witnesses with
-      | Some witness -> witness
-      | None ->
-          let witness =
-            let module X = struct
-              type element = t
-              type scalar = Zq.t
-
-              let element = Group_witness.{ to_string; of_string }
-              let scalar = Zq.(Group_witness.{ to_string; of_string })
-            end in
-            Group_witness.make (module X)
-          in
-          witnesses := PMap.add ff_params witness !witnesses;
-          witness
 
     let max_ints, bits_per_int =
       match embedding with

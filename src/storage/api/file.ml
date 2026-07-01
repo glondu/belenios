@@ -31,14 +31,12 @@ type _ u =
   | Dates : election_dates u
   | Metadata : metadata u
   | Server_seed : string u
-  | Private_keys :
-      ('a, 'b) group_witness
-      -> ('a, 'b) sent_partial_decryption_key list u
+  | Private_keys : ('a, 'b) group -> ('a, 'b) sent_partial_decryption_key list u
   | Audit_cache : audit_cache u
   | Archive_header : Archive.header u
   | Last_event : last_event u
   | Draft : wrapped_draft_election u
-  | Public_creds : ('a, 'b) group_witness -> 'a public_credentials_with_id u
+  | Public_creds : ('a, 'b) group -> 'a public_credentials_with_id u
   | Private_creds : private_credentials u
   | Sealing_log : string u
   | Records : election_records u
@@ -55,9 +53,7 @@ type _ u =
   | Credentials_params : wrapped_credentials_params u
   | Credentials_metadata : Belenios_web_api.message_metadata u
   | Credentials_seed : credentials_seed u
-  | Credentials_records :
-      ('a, 'b) group_witness
-      -> ('a, 'b) credentials_records u
+  | Credentials_records : ('a, 'b) group -> ('a, 'b) credentials_records u
   | Credentials_credits : Belenios_web_api.credentials_credits u
 
 type kind = Username of string | Address of string

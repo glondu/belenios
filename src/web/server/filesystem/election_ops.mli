@@ -47,7 +47,7 @@ module type BACKEND = sig
   val delete_draft_election : uuid -> unit Lwt.t
 
   val init_credential_mapping :
-    uuid -> ('a, 'b) group_witness -> 'a public_credentials Lwt.t
+    uuid -> ('a, 'b) group -> 'a public_credentials Lwt.t
 end
 
 val delete_live_election : (module BACKEND) -> uuid -> roots -> unit Lwt.t

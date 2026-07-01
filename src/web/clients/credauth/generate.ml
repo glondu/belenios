@@ -65,7 +65,7 @@ let make_submit_credentials_div (type a b) (w : (a, b) group) ~uuid ~token
     let* x =
       Api.(
         post
-          (draft_public_credentials uuid G.witness)
+          (draft_public_credentials uuid (module G))
           (`Credauth token) c.public_with_ids)
     in
     let msg =

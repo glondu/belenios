@@ -106,7 +106,9 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
     let* () =
       { seed; token = r.token } |> Storage.E.set s Credentials_seed Value
     in
-    Storage.E.set s (Credentials_records G.witness) Value { algorithm; records }
+    Storage.E.set s
+      (Credentials_records (module G))
+      Value { algorithm; records }
   in
   let* () =
     let* x =
@@ -134,7 +136,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let url = Printf.sprintf "%sapi/credentials/belenios" r.belenios_url in
   let body =
     { certificate; token = r.token; public_credentials = creds.public_with_ids }
-    |> !+[%yojson_of_witness (G.witness : _ credentials_response)]
+    |> !+[%yojson_of_witness ((module G) : _ credentials_response)]
     |> Cohttp_lwt.Body.of_string
   in
   let* x, body = Cohttp_lwt_unix.Client.post ~body (Uri.of_string url) in
@@ -153,7 +155,6 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
 
 let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
     (credentials_records : (a, b) credentials_records) =
-  let module G = (val w) in
   let@ roots cont =
     let e = Belenios_web_api.Endpoints.election_roots uuid in
     let url = Printf.sprintf "%sapi/%s" belenios_url e.path in
@@ -175,6 +176,7 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
     | 200 -> Lwt.return_some x
     | _ -> Lwt.return_none
   in
+  let module G = (val w) in
   let module GMap = Map.Make (G) in
   let* credentials_records =
     let module X = struct
@@ -224,7 +226,7 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
                 | None -> Lwt.return_none
                 | Some b ->
                     let ballot =
-                      !*[%witness_of_yojson (G.witness : _ ballot)] b
+                      !*[%witness_of_yojson ((module G) : _ ballot)] b
                     in
                     let c = ballot.message.credential in
                     Lwt.return_some (c, event.parent)))
@@ -244,7 +246,6 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
 let process_resend_request (r : credentials_resend) (type a b)
     (w : (a, b) group) (params : (a, b) credentials_params) metadata
     (credentials_records : (a, b) credentials_records) () =
-  let module G = (val w) in
   let { algorithm; records } = credentials_records in
   let voters =
     match r.spec with
@@ -264,6 +265,7 @@ let process_resend_request (r : credentials_resend) (type a b)
         get_missing_voters ~belenios_url:params.belenios_url ~seed:r.seed r.uuid
           w credentials_records
     | `Some_voters voters ->
+        let module G = (val w) in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk r.seed in
         records
@@ -383,14 +385,14 @@ let process_request : credentials_request -> _ = function
         match Lopt.get_value p with Some p -> cont p | None -> not_found
       in
       let (W (w, _)) = params in
-      let module G = (val w) in
       let@ credentials_records cont =
-        let* x = Storage.E.get s (Credentials_records G.witness) in
+        let* x = Storage.E.get s (Credentials_records w) in
         match Lopt.get_value x with Some x -> cont x | None -> not_found
       in
       let { algorithm; records } = credentials_records in
       let n = List.length records in
       let* credentials_records =
+        let module G = (val w) in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk seed in
         Lwt_list.filter_map_s
@@ -434,9 +436,8 @@ let process_request : credentials_request -> _ = function
       in
       if check_seed ~params ~seed:r.seed then (
         let (W (w, params)) = params in
-        let module G = (val w) in
         let@ credentials_records cont =
-          let* x = Storage.E.get s (Credentials_records G.witness) in
+          let* x = Storage.E.get s (Credentials_records w) in
           match Lopt.get_value x with Some x -> cont x | None -> not_found
         in
         let@ metadata cont =
@@ -500,10 +501,8 @@ let dispatch endpoint method_ body =
           match Lopt.get_value se with
           | None -> not_found
           | Some (W (w, (Draft (_, se) as x))) ->
-              let module G = (val w) in
               let response =
-                !*[%witness_of_yojson (G.witness : _ credentials_response)]
-                  response_s
+                !*[%witness_of_yojson (w : _ credentials_response)] response_s
               in
               if se.public_creds = response.token then
                 let set ?billing:_ x = set Value (W (w, x)) in

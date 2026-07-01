@@ -120,8 +120,8 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let xch_single_verification_key =
     {
       dst = dst_prefix ^ "-verification_key";
-      of_yojson = [%witness_of_yojson (G.witness : _ raw_trustee_public_key)];
-      to_yojson = [%yojson_of_witness (G.witness : _ raw_trustee_public_key)];
+      of_yojson = [%witness_of_yojson ((module G) : _ raw_trustee_public_key)];
+      to_yojson = [%yojson_of_witness ((module G) : _ raw_trustee_public_key)];
     }
 
   let check_single (trustee : _ trustee_public_key) =
@@ -144,15 +144,15 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let xch_certs =
     {
       dst = dst_prefix ^ "-pedersen-certs";
-      of_yojson = [%witness_of_yojson (G.witness : _ pedersen_certs)];
-      to_yojson = [%yojson_of_witness (G.witness : _ pedersen_certs)];
+      of_yojson = [%witness_of_yojson ((module G) : _ pedersen_certs)];
+      to_yojson = [%yojson_of_witness ((module G) : _ pedersen_certs)];
     }
 
   let xch_verification_key =
     {
       dst = dst_prefix ^ "-outer-verification_key";
-      of_yojson = [%witness_of_yojson (G.witness : _ trustee_public_key)];
-      to_yojson = [%yojson_of_witness (G.witness : _ trustee_public_key)];
+      of_yojson = [%witness_of_yojson ((module G) : _ trustee_public_key)];
+      to_yojson = [%yojson_of_witness ((module G) : _ trustee_public_key)];
     }
 
   let xch_decryption_key =

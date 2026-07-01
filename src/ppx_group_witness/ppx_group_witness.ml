@@ -59,7 +59,7 @@ let expand_witness ~ext_name ~derive_lid ~make_args ~ctxt expr =
       | Ok (lid, lid_loc) ->
           let fn_lid = { txt = derive_lid lid; loc = lid_loc } in
           [%expr
-            let module T = (val Group_witness.get [%e witness_expr]) in
+            let module G = (val ([%e witness_expr] : _ group)) in
             [%e pexp_apply ~loc (pexp_ident ~loc fn_lid) (make_args ~loc)]]
       end
   | _ ->
@@ -75,8 +75,7 @@ let witness_of_yojson_extension =
     (expand_witness ~ext_name:"witness_of_yojson"
        ~derive_lid:derive_of_yojson_lid ~make_args:(fun ~loc ->
          [
-           (Nolabel, [%expr !$(T.element.of_string)]);
-           (Nolabel, [%expr !$(T.scalar.of_string)]);
+           (Nolabel, [%expr !$G.of_string]); (Nolabel, [%expr !$G.Zq.of_string]);
          ]))
 
 let yojson_of_witness_extension =
@@ -85,8 +84,7 @@ let yojson_of_witness_extension =
     (expand_witness ~ext_name:"yojson_of_witness"
        ~derive_lid:derive_yojson_of_lid ~make_args:(fun ~loc ->
          [
-           (Nolabel, [%expr !&(T.element.to_string)]);
-           (Nolabel, [%expr !&(T.scalar.to_string)]);
+           (Nolabel, [%expr !&G.to_string]); (Nolabel, [%expr !&G.Zq.to_string]);
          ]))
 
 let () =
