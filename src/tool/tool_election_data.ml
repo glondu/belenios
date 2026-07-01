@@ -350,7 +350,8 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
       (let* ballots =
          let* x = Lazy.force unverified_ballots in
          x
-         |> List.rev_map (fun (_, _, w, b) -> (w, !*ballot_of_yojson b))
+         |> List.rev_map (fun (_, _, w, b) ->
+             (w, !*[%witness_of_yojson (G.witness : _ ballot)] b))
          |> Lwt.return
        in
        let total_weight =

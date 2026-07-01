@@ -39,14 +39,3 @@ type 'a params = {
 }
 [@@deriving yojson]
 (** Election parameters relevant for creating a ballot. *)
-
-type ('a, 'b) raw_ballot = {
-  election_uuid : uuid;
-  election_hash : hash;
-  credential : 'a;
-  answers : json array;
-}
-[@@deriving yojson]
-
-type ('a, 'b) ballot = ('a, 'b, ('a, 'b) raw_ballot) signed_msg
-[@@deriving yojson]

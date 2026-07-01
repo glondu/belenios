@@ -167,10 +167,9 @@ let get_ballot_weight s (election : Election.t) ballot =
   let module W = (val election) in
   Lwt.catch
     (fun () ->
-      let ballot = !*W.ballot_of_yojson ballot in
-      match W.get_credential ballot with
-      | None -> failwith "missing signature"
-      | Some credential -> get_credential_weight s (W.G.to_string credential))
+      let ballot = !*[%witness_of_yojson (W.G.witness : _ ballot)] ballot in
+      let credential = ballot.message.credential in
+      get_credential_weight s (W.G.to_string credential))
     (fun e ->
       Printf.ksprintf failwith "anomaly in get_ballot_weight (%s)"
         (Printexc.to_string e))
@@ -196,15 +195,13 @@ let fold_on_ballots_weeded s (election : Election.t) f accu =
   let* _, accu =
     fold_on_ballots s
       (fun _ b ((seen, accu) as x) ->
-        let ballot = !*W.ballot_of_yojson b in
-        match W.get_credential ballot with
-        | None -> assert false
-        | Some credential ->
-            if GSet.mem credential seen then Lwt.return x
-            else
-              let seen = GSet.add credential seen in
-              let* accu = f b accu in
-              Lwt.return (seen, accu))
+        let ballot = !*[%witness_of_yojson (W.G.witness : _ ballot)] b in
+        let credential = ballot.message.credential in
+        if GSet.mem credential seen then Lwt.return x
+        else
+          let seen = GSet.add credential seen in
+          let* accu = f b accu in
+          Lwt.return (seen, accu))
       (GSet.empty, accu)
   in
   Lwt.return accu

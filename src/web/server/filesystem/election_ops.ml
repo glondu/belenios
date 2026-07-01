@@ -135,13 +135,10 @@ let delete_live_election s uuid roots =
                 let* x = S.get (Election (uuid, Data b)) in
                 match Lopt.get_value x with
                 | None -> Lwt.return accu
-                | Some b -> cont (!*W.ballot_of_yojson b)
+                | Some b ->
+                    cont (!*[%witness_of_yojson (W.G.witness : _ ballot)] b)
               in
-              let@ credential cont =
-                match W.get_credential ballot with
-                | None -> loop seen (accu + 1) p
-                | Some c -> cont c
-              in
+              let credential = ballot.message.credential in
               if CredSet.mem credential seen then loop seen accu p
               else loop (CredSet.add credential seen) (accu + 1) p
           | _ -> Lwt.return accu

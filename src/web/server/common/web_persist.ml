@@ -396,12 +396,10 @@ let raw_compute_encrypted_tally s (election : Election.t) =
   let* ballots =
     Public_archive.fold_on_ballots s
       (fun _ b accu ->
-        let ballot = !*W.ballot_of_yojson b in
-        match W.get_credential ballot with
-        | None -> assert false
-        | Some credential ->
-            if GMap.mem credential accu then Lwt.return accu
-            else Lwt.return @@ GMap.add credential ballot accu)
+        let ballot = !*[%witness_of_yojson (W.G.witness : _ ballot)] b in
+        let credential = ballot.message.credential in
+        if GMap.mem credential accu then Lwt.return accu
+        else Lwt.return @@ GMap.add credential ballot accu)
       GMap.empty
   in
   let* ballots =

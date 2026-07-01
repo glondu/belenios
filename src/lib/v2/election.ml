@@ -94,12 +94,6 @@ module Parse (R : RAW_ELECTION) () = struct
   let fingerprint = Hash.hash_string R.raw_election
   let public_key = params.public_key
 
-  type nonrec ballot = (G.t, G.Zq.t) ballot
-
-  let yojson_of_ballot = [%yojson_of_witness (G.witness : ballot)]
-  let ballot_of_yojson = [%witness_of_yojson (G.witness : ballot)]
-  let get_credential x = Some x.message.credential
-
   type result = json
 
   let yojson_of_result = Fun.id

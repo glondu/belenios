@@ -49,6 +49,19 @@ type ('a, 'b, 'c) sent_msg =
   ('a, 'b, ('a, 'b, ('a, 'b, 'c) channel_msg) signed_msg) encrypted_msg
 [@@deriving yojson]
 
+(** {2 Ballots} *)
+
+type ('a, 'b) raw_ballot = {
+  election_uuid : uuid;
+  election_hash : hash;
+  credential : 'a;
+  answers : json array;
+}
+[@@deriving yojson]
+
+type ('a, 'b) ballot = ('a, 'b, ('a, 'b) raw_ballot) signed_msg
+[@@deriving yojson]
+
 (** {2 Trustees} *)
 
 type ('a, 'b) raw_trustee_public_key = {

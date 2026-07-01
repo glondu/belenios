@@ -240,11 +240,12 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b)
                 let* b = get_object h' in
                 match b with
                 | None -> Lwt.return_none
-                | Some b -> (
-                    let ballot = !*E.ballot_of_yojson b in
-                    match E.get_credential ballot with
-                    | None -> Lwt.return_none
-                    | Some c -> Lwt.return_some (c, event.parent))))
+                | Some b ->
+                    let ballot =
+                      !*[%witness_of_yojson (G.witness : _ ballot)] b
+                    in
+                    let c = ballot.message.credential in
+                    Lwt.return_some (c, event.parent)))
         | _ -> Lwt.return_none)
   in
   let rec loop accu = function

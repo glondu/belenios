@@ -1,5 +1,7 @@
 (executable
  (name main)
+ (preprocess
+  (pps ppx_group_witness))
  (libraries
   belenios_cohttp
   cmdliner

@@ -76,7 +76,7 @@ let make file =
       in
       let b = E.create_ballot ~sk choice in
       assert (E.check_ballot b);
-      Lwt.return (!+yojson_of_ballot b)
+      Lwt.return (!+[%yojson_of_witness (G.witness : _ ballot)] b)
 
     let decrypt owner seed =
       let module P = Pki.Make (G) in

@@ -68,13 +68,6 @@ module type ELECTION_BASE = sig
   val public_key : G.t
 end
 
-module type ELECTION_BALLOT = sig
-  type element
-  type ballot [@@deriving yojson]
-
-  val get_credential : ballot -> element option
-end
-
 module type ELECTION_RESULT = sig
   type result [@@deriving yojson]
 
@@ -84,7 +77,6 @@ end
 
 module type ELECTION_DATA = sig
   include ELECTION_BASE
-  include ELECTION_BALLOT with type element := G.t
   include ELECTION_RESULT
 end
 
@@ -120,7 +112,7 @@ module type ELECTION_OPS = sig
       When [x] is such a value, [x.(i).(j)] is the weight (0 or 1) given to
       answer [j] in question [i]. *)
 
-  type ballot
+  type nonrec ballot = (element, scalar) ballot
   (** A ballot ready to be transmitted, containing the encrypted answers and
       cryptographic proofs that they satisfy the election constraints. *)
 
@@ -202,7 +194,6 @@ module type ELECTION = sig
     ELECTION_OPS
       with type element = G.t
        and type scalar = G.Zq.t
-       and type ballot = ballot
        and type result_type = result
 end
 
