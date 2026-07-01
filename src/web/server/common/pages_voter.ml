@@ -35,10 +35,10 @@ struct
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
-  let lost_ballot s election () =
+  let lost_ballot s (election : Election.t) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION) in
+    let open (val election) in
     let title = template.name in
     let full_title = title in
     let* metadata = Web_persist.get_election_metadata s in

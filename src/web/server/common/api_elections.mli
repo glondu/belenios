@@ -46,7 +46,7 @@ val state_module : (module Web_auth_sig.STATE) option ref
 val cast_ballot :
   (Storage.E.t -> confirmation -> bool Lwt.t) ->
   Storage.E.t ->
-  (module Belenios.Election.ELECTION) ->
+  Belenios.Election.t ->
   ballot:string ->
   user:Web_auth_sig.timestamped_user ->
   precast_data:Web_persist.precast_data ->

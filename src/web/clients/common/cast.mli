@@ -27,6 +27,6 @@ val post_ballot : uuid -> ballot:json -> (string, cast_error) result Lwt.t
 
 val confirmation :
   configuration ->
-  (module Election.ELECTION) ->
+  Election.t ->
   cast_result ->
   [> `Div | `PCDATA ] Tyxml_js.Html.elt list

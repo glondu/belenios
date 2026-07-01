@@ -69,7 +69,7 @@ type cache = {
   uuid : uuid;
   status : election_status option;
   dates : election_auto_dates option;
-  election : (module Election.ELECTION) option;
+  election : Election.t option;
   audit_cache : audit_cache option;
   result : string option;
   sized_encrypted_tally : hash sized_encrypted_tally option;

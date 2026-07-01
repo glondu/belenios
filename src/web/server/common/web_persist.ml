@@ -387,8 +387,8 @@ let get_credential_user s cred =
            (Printf.sprintf "could not find credential record of %s/%s"
               (Uuid.to_string uuid) cred))
 
-let add_ballot s election last ballot =
-  let module W = (val election : Site_common_sig.ELECTION) in
+let add_ballot s (election : Election.t) last ballot =
+  let module W = (val election) in
   let hash = Hash.hash_string ballot in
   let* x =
     Storage.E.append s ~last [ Data ballot; Event (`Ballot, Some hash) ]
@@ -405,8 +405,8 @@ let get_credential_weight s credential =
   | None -> Lwt.return Weight.one
   | Some x -> Lwt.return x
 
-let raw_compute_encrypted_tally s election =
-  let module W = (val election : Site_common_sig.ELECTION) in
+let raw_compute_encrypted_tally s (election : Election.t) =
+  let module W = (val election) in
   let module GMap = Map.Make (W.G) in
   let@ last cont =
     let* x = Storage.E.get s Last_event in
@@ -498,8 +498,9 @@ let precast_ballot s ~ballot =
   if rc.rc_check () then Lwt.return @@ Ok { credential; credential_record }
   else Lwt.return @@ Error `InvalidBallot
 
-let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
-  let module W = (val election : Site_common_sig.ELECTION) in
+let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
+    ~precast_data =
+  let module W = (val election) in
   let@ last cont =
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x

@@ -46,5 +46,5 @@ val fold_on_ballots :
 val with_election :
   Storage.E.t ->
   fallback:(unit -> 'a Lwt.t) ->
-  ((module Site_common_sig.ELECTION) -> 'a Lwt.t) ->
+  (Election.t -> 'a Lwt.t) ->
   'a Lwt.t

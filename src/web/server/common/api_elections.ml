@@ -291,7 +291,8 @@ let select_shuffler s metadata trustee =
   in
   set (Some (`Shuffle { skipped; token = Some t }))
 
-let post_partial_decryption s election ~trustee_id ~partial_decryption =
+let post_partial_decryption s (election : Election.t) ~trustee_id
+    ~partial_decryption =
   let* pds = Public_archive.get_partial_decryptions s in
   let@ () =
    fun cont ->
@@ -299,7 +300,7 @@ let post_partial_decryption s election ~trustee_id ~partial_decryption =
       Lwt.return @@ Stdlib.Error `AlreadyDone
     else cont ()
   in
-  let module W = (val election : Election.ELECTION) in
+  let module W = (val election) in
   let* pks =
     let* trustees = Public_archive.get_trustees s in
     trustees
@@ -383,9 +384,10 @@ let get_records s =
   |> List.map (fun (username, date) -> ({ date; username } : voting_record))
   |> Lwt.return
 
-let cast_ballot send_confirmation s election ~ballot ~user ~precast_data =
+let cast_ballot send_confirmation s (election : Election.t) ~ballot ~user
+    ~precast_data =
   let { user; name; timestamp } : Web_auth_sig.timestamped_user = user in
-  let module W = (val election : Election.ELECTION) in
+  let module W = (val election) in
   let* recipient, weight =
     let* x = Web_persist.get_voter s user.name in
     match x with

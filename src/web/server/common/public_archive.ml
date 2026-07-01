@@ -93,7 +93,7 @@ let get_election s =
 
 module ElectionCacheTypes = struct
   type key = uuid
-  type value = (module Site_common_sig.ELECTION)
+  type value = Election.t
 end
 
 module ElectionCache = Ocsigen_cache.Make (ElectionCacheTypes)
@@ -158,8 +158,8 @@ let get_credential_weight s cred =
            (Printf.sprintf "could not find credential weight of %s/%s"
               (Uuid.to_string uuid) cred))
 
-let get_ballot_weight s election ballot =
-  let module W = (val election : Site_common_sig.ELECTION) in
+let get_ballot_weight s (election : Election.t) ballot =
+  let module W = (val election) in
   Lwt.catch
     (fun () ->
       let ballot = !*W.ballot_of_yojson ballot in
@@ -185,8 +185,8 @@ let fold_on_ballots s f accu =
   | None -> Lwt.return accu
   | Some e -> fold_on_event_payloads s `Ballot e f accu
 
-let fold_on_ballots_weeded s election f accu =
-  let module W = (val election : Site_common_sig.ELECTION) in
+let fold_on_ballots_weeded s (election : Election.t) f accu =
+  let module W = (val election) in
   let module GSet = Set.Make (W.G) in
   let* _, accu =
     fold_on_ballots s

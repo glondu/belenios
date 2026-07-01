@@ -41,9 +41,9 @@ let show_result name =
   alert msg;
   Lwt.return_unit
 
-let do_election uuid election private_key =
+let do_election uuid (election : Election.t) seed =
   let open (val !Belenios_js.I18n.gettext) in
-  let module W = (val election : Election.ELECTION) in
+  let module W = (val election) in
   let@ trustees cont =
     let* x = Api.(get (election_trustees uuid) `Nobody) in
     match x with
@@ -55,7 +55,7 @@ let do_election uuid election private_key =
   let find_single =
     let module T = (val Trustees.get_by_version W.version) in
     let module KG = T.MakeBasic (W.G) in
-    let private_key = KG.derive private_key in
+    let private_key = KG.derive seed in
     let public_key = W.G.(g **~ private_key) in
     fun (x : _ basic_parameters) ->
       if
@@ -67,7 +67,7 @@ let do_election uuid election private_key =
     try
       let module Trustees = (val Trustees.get_by_version W.version) in
       let module PKI = Pki.Make (W.G) in
-      let private_key = PKI.derive_sk private_key in
+      let private_key = PKI.derive_sk seed in
       let public_key = W.G.(g **~ private_key) in
       fun x ->
         Array.find_map

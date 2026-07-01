@@ -111,7 +111,7 @@ module type S = sig
     (module Belenios_ui.I18n.GETTEXT) ->
     snippet:'a Eliom_content.Html.elt ->
     progress:'a Eliom_content.Html.elt ->
-    (module Belenios.Election.ELECTION) ->
+    Belenios.Election.t ->
     Belenios_web_api.cast_result ->
     ([> Html_types.div_content_fun ] as 'a) Eliom_content.Html.elt list
 

@@ -19,14 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module type ELECTION = Belenios.Election.ELECTION
-
 module type S = sig
   val election_not_found : unit -> Eliom_registration.Html.result Lwt.t
 
   val with_election :
     Belenios_storage_api.Storage.E.t ->
-    ((module ELECTION) -> Eliom_registration.Html.result Lwt.t) ->
+    (Belenios.Election.t -> Eliom_registration.Html.result Lwt.t) ->
     Eliom_registration.Html.result Lwt.t
 
   val redir_preapply :

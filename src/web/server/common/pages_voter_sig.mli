@@ -24,7 +24,7 @@ open Belenios_storage_api
 module type S = sig
   val lost_ballot :
     Storage.E.t ->
-    (module Site_common_sig.ELECTION) ->
+    Belenios.Election.t ->
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end
