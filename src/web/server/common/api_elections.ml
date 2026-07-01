@@ -811,6 +811,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
               match Lopt.get_value se with
               | None -> not_found
               | Some (W (w, Draft (_, se))) ->
+                  let module G = (val w) in
                   let@ trustees cont =
                     match se.trustees with
                     | `Basic x -> (
@@ -830,7 +831,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
                         | Some tp -> cont [ `Pedersen tp ])
                   in
                   trustees
-                  |> !+[%yojson_of_witness (w : _ trustees)]
+                  |> !+[%yojson_of_witness (G.witness : _ trustees)]
                   |> return_json 200)
       | _ -> method_not_allowed)
   | [ uuid; "automatic-dates" ] -> (

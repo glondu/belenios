@@ -120,6 +120,8 @@ module type GROUP = sig
   val description : string
 end
 
+type ('a, 'b) group = (module GROUP with type t = 'a and type Zq.t = 'b)
+
 (** Monad signature. *)
 module type MONAD = sig
   type 'a t

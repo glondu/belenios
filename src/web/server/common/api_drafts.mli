@@ -52,14 +52,14 @@ val exn_of_generate_credentials_on_server_error :
 
 val submit_public_credentials :
   Storage.E.t ->
-  ('a, 'b) group_witness ->
+  ('a, 'b) group ->
   ('a, 'b) draft_election updatable_with_billing ->
   ?certificate:('a, 'b) credentials_certificate ->
   'a public_credentials_with_id ->
   unit Lwt.t
 
 val generate_server_trustee :
-  ('a, 'b) group_witness ->
+  ('a, 'b) group ->
   ('a, 'b) draft_election ->
   ('a, 'b) draft_basic_trustee Lwt.t
 
@@ -69,7 +69,7 @@ val get_draft_trustees :
   ('a, 'b) Belenios_web_api.draft_trustees
 
 val post_draft_trustees :
-  ('a, 'b) group_witness ->
+  ('a, 'b) group ->
   ('a, 'b) draft_election updatable_with_billing ->
   json trustee ->
   unit Lwt.t
@@ -110,7 +110,7 @@ val import_voters :
   Lwt.t
 
 val import_trustees :
-  ('a, 'b) group_witness ->
+  ('a, 'b) group ->
   ('a, 'b) draft_election updatable_with_billing ->
   Storage.E.t ->
   metadata ->
@@ -121,14 +121,14 @@ val import_trustees :
   Lwt.t
 
 val post_trustee_basic :
-  ('a, 'b) group_witness ->
+  ('a, 'b) group ->
   ('a, 'b) draft_election updatable_with_billing ->
   token:string ->
   string ->
   unit Lwt.t
 
 val post_trustee_threshold :
-  ('a, 'b) group_witness ->
+  ('a, 'b) group ->
   ('a, 'b) draft_election updatable_with_billing ->
   token:string ->
   string ->

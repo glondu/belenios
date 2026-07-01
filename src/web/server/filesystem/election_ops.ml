@@ -210,9 +210,7 @@ let validate_election_exn s uuid =
     { x with administrator; credential_authority }
   in
   (* trustees *)
-  let group = Group.of_string ~version se.group in
-  let module G = (val group : GROUP) in
-  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
+  let module G = (val w) in
   let trustees =
     let open Belenios_storage_api in
     se.trustees

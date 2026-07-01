@@ -525,8 +525,10 @@ let dispatch endpoint method_ body =
           match Lopt.get_value se with
           | None -> not_found
           | Some (W (w, (Draft (_, se) as x))) ->
+              let module G = (val w) in
               let response =
-                !*[%witness_of_yojson (w : _ credentials_response)] response_s
+                !*[%witness_of_yojson (G.witness : _ credentials_response)]
+                  response_s
               in
               if se.public_creds = response.token then
                 let set ?billing:_ x = set Value (W (w, x)) in

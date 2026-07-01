@@ -29,12 +29,10 @@ open Belenios_js.Session
 open Belenios_web_api
 open Common
 
-let compute_partial_decryption (type a b) (w : (a, b) group_witness)
-    (trustee : (a, b) tally_trustee_content option) ~election ~encrypted_tally
-    ~private_key =
+let compute_partial_decryption (type a b) (election : (a, b) Election.u) trustee
+    ~encrypted_tally ~private_key =
   let open (val !Belenios_js.I18n.gettext) in
-  let module W = (val (election : Election.t)) in
-  let Equal = Group_witness.provably_equal __FUNCTION__ w W.G.witness in
+  let module W = (val election) in
   let encrypted_tally =
     encrypted_tally_of_yojson !$W.G.of_string encrypted_tally
   in
@@ -102,8 +100,9 @@ let decrypt uuid ~token =
   in
   let handle_private_key private_key =
     let* pd =
-      compute_partial_decryption W.G.witness trustee ~election ~encrypted_tally
-        ~private_key
+      compute_partial_decryption
+        (module W)
+        trustee ~encrypted_tally ~private_key
     in
     partial_decryption := pd;
     let r = Tyxml_js.To_dom.of_button submit in

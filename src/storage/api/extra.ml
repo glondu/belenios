@@ -43,9 +43,7 @@ let yojson_of_draft_election to_yojson1 to_yojson2 (Draft (v, x)) =
   yojson_of_raw_draft_election to_yojson1 to_yojson2 yojson_of_t x
 
 type wrapped_draft_election =
-  | W :
-      ('a, 'b) group_witness * ('a, 'b) draft_election
-      -> wrapped_draft_election
+  | W : ('a, 'b) group * ('a, 'b) draft_election -> wrapped_draft_election
 
 let wrapped_draft_election_of_yojson (x : Json.t) : wrapped_draft_election =
   let abstract = raw_draft_election_of_yojson Fun.id Fun.id Fun.id x in
@@ -56,12 +54,13 @@ let wrapped_draft_election_of_yojson (x : Json.t) : wrapped_draft_election =
   let x =
     raw_draft_election_of_yojson !$G.of_string !$G.Zq.of_string t_of_yojson x
   in
-  W (G.witness, Draft (v, x))
+  W ((module G), Draft (v, x))
 
 let yojson_of_wrapped_draft_election
     (W (w, Draft (v, x)) : wrapped_draft_election) : Json.t =
+  let module G = (val w) in
   let open (val Election.get_serializers v) in
-  [%yojson_of_witness (w : _ raw_draft_election)] yojson_of_t x
+  [%yojson_of_witness (G.witness : _ raw_draft_election)] yojson_of_t x
 
 let csv_of_string = split_lines >> List.map (String.split_on_char ',')
 let string_of_csv = List.map (String.concat ",") >> join_lines

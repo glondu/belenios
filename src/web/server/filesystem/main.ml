@@ -136,12 +136,12 @@ module MakeBackend
   let credential_users_ops : (_, string) abstract_file_ops =
     make_uninitialized_ops "credential_users_ops"
 
-  type wrapped_witness = W : ('a, 'b) group_witness -> wrapped_witness
-
-  let get_witness uuid : wrapped_witness option Lwt.t =
+  let get_group uuid : (module GROUP) option Lwt.t =
     let* x = draft_ops.get uuid () in
     match Lopt.get_value x with
-    | Some (W (w, _)) -> Lwt.return_some (W w)
+    | Some (W (w, _)) ->
+        let module G = (val w) in
+        Lwt.return_some (module G : GROUP)
     | None -> (
         let* x = roots_ops.get uuid () in
         match Lopt.get_value x with
@@ -162,7 +162,7 @@ module MakeBackend
                     | Some election ->
                         let election = !*Election.t_of_yojson election in
                         let module W = (val election) in
-                        Lwt.return_some (W W.G.witness)))))
+                        Lwt.return_some (module W.G : GROUP)))))
 
   module PasswordRecordsCacheTypes = struct
     type key = Admin of string
@@ -601,7 +601,7 @@ module MakeBackend
 
   type draft_concrete =
     | Draft_concrete :
-        ('a, 'b) group_witness
+        ('a, 'b) group
         * 'v Election.version
         * ('a, 'b, 'v) Types.raw_draft_election
         -> draft_concrete
@@ -624,7 +624,7 @@ module MakeBackend
       let (Version v) = Election.version_of_int version in
       let open (val Election.get_serializers v) in
       Draft_concrete
-        ( G.witness,
+        ( (module G),
           v,
           !*([%witness_of_yojson (G.witness : _ raw_draft_election)]
                t_of_yojson)
@@ -646,6 +646,7 @@ module MakeBackend
     match Lopt.get_value data with
     | None -> assert false
     | Some (W (w, Draft (v, abstract))) ->
+        let module G = (val w) in
         let concrete, se_private_creds_downloaded =
           Converters.raw_draft_election_to_concrete abstract
         in
@@ -656,7 +657,8 @@ module MakeBackend
         in
         let data =
           let open (val Election.get_serializers v) in
-          !+([%yojson_of_witness (w : _ Types.raw_draft_election)] yojson_of_t)
+          !+([%yojson_of_witness (G.witness : _ Types.raw_draft_election)]
+               yojson_of_t)
             concrete
         in
         let* () =
@@ -1088,15 +1090,14 @@ module MakeBackend
   module CredCache = Ocsigen_cache.Make (CredCacheTypes)
 
   let raw_get_credential_cache uuid =
-    let@ (W w) =
-     fun cont ->
-      let* x = get_witness uuid in
+    let@ w cont =
+      let* x = get_group uuid in
       match x with Some x -> cont x | None -> assert false
     in
-    let module T = (val Group_witness.get w) in
+    let module G = (val w) in
     let@ public_creds =
      fun cont ->
-      let* x = get (Election (uuid, Public_creds w)) in
+      let* x = get (Election (uuid, Public_creds G.witness)) in
       match Lopt.get_value x with
       | None ->
           (* public credentials mapping is no longer available, use
@@ -1114,7 +1115,7 @@ module MakeBackend
           let* x = get (Election (uuid, Data setup_data.credentials)) in
           let& x = Lopt.get_value x in
           let public_creds =
-            x |> !*(public_credentials_of_yojson !$(T.element.of_string))
+            x |> !*(public_credentials_of_yojson !$G.of_string)
           in
           cont (List.map (fun x -> (x, None)) public_creds)
       | Some x ->
@@ -1127,8 +1128,7 @@ module MakeBackend
     let cred_map =
       List.fold_left
         (fun cred_map ((p : _ public_credential), id) ->
-          SMap.add
-            (T.element.to_string p.credential)
+          SMap.add (G.to_string p.credential)
             (id, Option.value ~default:Weight.one p.weight)
             cred_map)
         SMap.empty public_creds

@@ -29,9 +29,7 @@ type ('a, 'b) draft_election =
 [@@deriving yojson]
 
 type wrapped_draft_election =
-  | W :
-      ('a, 'b) group_witness * ('a, 'b) draft_election
-      -> wrapped_draft_election
+  | W : ('a, 'b) group * ('a, 'b) draft_election -> wrapped_draft_election
 [@@deriving yojson]
 
 val csv_of_string : string -> string list list

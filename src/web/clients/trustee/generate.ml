@@ -82,15 +82,12 @@ let generate_threshold (Draft (_, draft)) context () =
   in
   Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
 
-let threshold_step (Draft (_, draft)) (type a b) (w : (a, b) group_witness)
+let threshold_step (Draft (_, draft)) (type a b) (w : (a, b) group)
     (pedersen : (a, b) pedersen) ~private_key =
-  let version = draft.version in
-  let group = draft.group in
-  let module G = (val Group.of_string ~version group : GROUP) in
-  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
+  let module G = (val w) in
   let context = pedersen.context.context in
   let certs = { context; certs = pedersen.certs } in
-  let module Trustees = (val Trustees.get_by_version version) in
+  let module Trustees = (val Trustees.get_by_version draft.version) in
   let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
   let module T = Trustees.MakePedersen (C) in
@@ -239,7 +236,7 @@ let error () =
   Lwt.return [ txt @@ s_ "Error" ]
 
 let compute_threshold_step ~token ~url draft private_key_ref (type a b)
-    (w : (a, b) group_witness) (pedersen : (a, b) pedersen) =
+    (w : (a, b) group) (pedersen : (a, b) pedersen) =
   let open (val !Belenios_js.I18n.gettext) in
   match pedersen.step with
   | 3 | 5 ->
@@ -323,8 +320,8 @@ let get_status ~url ~token =
   | Error _ -> Lwt.return_none
   | Ok (x, _) -> Lwt.return_some x
 
-let actionable_threshold ~uuid ~token (type a b) (w : (a, b) group_witness) ~url
-    draft set_step s =
+let actionable_threshold ~uuid ~token (type a b) (w : (a, b) group) ~url draft
+    set_step s =
   let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   let private_key = ref None in
@@ -417,7 +414,7 @@ let generate configuration uuid ~token =
                 ^^^ step )
         in
         let* a =
-          actionable_threshold ~uuid ~token G.witness ~url draft set_step s
+          actionable_threshold ~uuid ~token (module G) ~url draft set_step s
         in
         Lwt.return_some (a, h)
     | None -> Lwt.return_none

@@ -265,7 +265,7 @@ let post_drafts account draft =
   let se = draft_of_api account uuid (Draft (v, se)) draft in
   let* () =
     let@ s = Storage.E.with_transaction uuid in
-    Web_persist.create_draft s (W (G.witness, se))
+    Web_persist.create_draft s (W ((module G), se))
   in
   Lwt.return_some uuid
 
@@ -354,18 +354,16 @@ let exn_of_generate_credentials_on_server_error = function
   | `Already -> Error (`GenericError "already done")
   | `NoServer -> Error (`GenericError "credential authority is not the server")
 
-let submit_public_credentials s (type a b) (w : (a, b) group_witness)
+let submit_public_credentials s (type a b) (w : (a, b) group)
     ((Draft (v, se), set) : _ updatable_with_billing)
     ?(certificate : (a, b) credentials_certificate option)
     (credentials : a public_credentials_with_id) =
+  let module G = (val w) in
   let () = if se.voters = [] then raise (Error (`ValidationError `NoVoters)) in
   let () =
     if not (List.length se.voters = List.length credentials) then
       raise (Error (`ValidationError `WrongLength))
   in
-  let version = se.version in
-  let module G = (val Group.of_string ~version se.group : GROUP) in
-  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
   let () =
     match certificate with
     | None -> ()
@@ -489,18 +487,16 @@ let ensure_none label x =
   if x <> None then
     raise (Error (`GenericError (Printf.sprintf "%s must not be set" label)))
 
-let generate_server_trustee (type a b) (w : (a, b) group_witness)
+let generate_server_trustee (type a b) (w : (a, b) group)
     (Draft (_, se) : (a, b) draft_election) : (a, b) draft_basic_trustee Lwt.t =
-  let version = se.version in
-  let module G = (val Group.of_string ~version se.group) in
-  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
-  let module Trustees = (val Trustees.get_by_version version) in
+  let module G = (val w) in
+  let module Trustees = (val Trustees.get_by_version se.version) in
   let module KG = Trustees.MakeBasic (G) in
   let seed = generate_token 22 in
   let parameters = Some (KG.make seed) in
   Lwt.return { kind = Server { seed }; parameters }
 
-let post_draft_trustees (type a b) (w : (a, b) group_witness)
+let post_draft_trustees (type a b) (w : (a, b) group)
     ((Draft (v, se), set) : (a, b) draft_election updatable_with_billing)
     (t : _ trustee) =
   let address =
@@ -769,9 +765,10 @@ let import_voters uuid ((Draft (v, se), set) : _ updatable_with_billing) from =
         let login = Voter.get x in
         Lwt.return @@ Stdlib.Error (`Duplicate login)
 
-let import_trustees (type a b) (w : (a, b) group_witness)
+let import_trustees (type a b) (w : (a, b) group)
     ((Draft (v, se), set) : (a, b) draft_election updatable_with_billing) from
     (metadata : metadata) =
+  let module G = (val w) in
   match metadata.trustees with
   | None -> Lwt.return @@ Stdlib.Error `None
   | Some trustees -> (
@@ -779,15 +776,12 @@ let import_trustees (type a b) (w : (a, b) group_witness)
         List.map (Option.map (fun (x : external_trustee) -> x.id)) trustees
       in
       let@ trustees cont =
-        let* x = Public_archive.get_trustees from w in
+        let* x = Public_archive.get_trustees from G.witness in
         match Lopt.get_value x with
         | None -> Lwt.return @@ Stdlib.Error `Invalid
         | Some x -> cont x
       in
-      let version = se.version in
-      let module G = (val Group.of_string ~version se.group : GROUP) in
-      let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
-      let module Trustees = (val Trustees.get_by_version version) in
+      let module Trustees = (val Trustees.get_by_version se.version) in
       let module K = Trustees.MakeCombinator (G) in
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
@@ -982,8 +976,9 @@ let () =
           let set ?billing:_ x = set Value x in
           post_draft_status ~admin_id s uuid (se, set) `ValidateElection
 
-let post_trustee_basic (type a b) (w : (a, b) group_witness)
+let post_trustee_basic (type a b) (w : (a, b) group)
     (((Draft (_, se) as fse), set) : _ updatable_with_billing) ~token data =
+  let module G = (val w) in
   let ts =
     match se.trustees with
     | `Basic x -> x.trustees
@@ -1003,11 +998,10 @@ let post_trustee_basic (type a b) (w : (a, b) group_witness)
   in
   match t.parameters with
   | None ->
-      let version = se.version in
-      let module G = (val Group.of_string ~version se.group : GROUP) in
-      let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
-      let module Trustees = (val Trustees.get_by_version version) in
-      let parameters = !*[%witness_of_yojson (w : _ basic_parameters)] data in
+      let module Trustees = (val Trustees.get_by_version se.version) in
+      let parameters =
+        !*[%witness_of_yojson (G.witness : _ basic_parameters)] data
+      in
       let module K = Trustees.MakeCombinator (G) in
       if
         parameters.verification_key.message.message.name = Some name
@@ -1018,12 +1012,10 @@ let post_trustee_basic (type a b) (w : (a, b) group_witness)
       else raise @@ Error `InvalidPublicKey
   | _ -> raise @@ Error `PublicKeyExists
 
-let post_trustee_threshold (type a b) (w : (a, b) group_witness)
+let post_trustee_threshold (type a b) (w : (a, b) group)
     (((Draft (_, se) as fse), set) :
       (a, b) draft_election updatable_with_billing) ~token data =
-  let version = se.version in
-  let module G = (val Group.of_string ~version se.group : GROUP) in
-  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
+  let module G = (val w) in
   let dtp =
     match se.trustees with
     | `Basic _ -> failwith "Wrong trustee mode"
@@ -1062,7 +1054,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group_witness)
         | Some y -> y)
       ts
   in
-  let module Trustees = (val Trustees.get_by_version version) in
+  let module Trustees = (val Trustees.get_by_version se.version) in
   let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
   let module K = Trustees.MakePedersen (C) in
@@ -1138,7 +1130,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group_witness)
 let dispatch_credentials ~token endpoint method_ body s uuid
     ((wse, wset) : _ updatable_with_billing) =
   let (W (w, se) : wrapped_draft_election) = wse in
-  let module T = (val Group_witness.get w) in
+  let module G = (val w) in
   let set ?billing x = wset ?billing (W (w, x)) in
   match endpoint with
   | [ "token" ] -> (
@@ -1158,19 +1150,18 @@ let dispatch_credentials ~token endpoint method_ body s uuid
       match method_ with
       | `GET ->
           handle_get_option (fun () ->
-              let* x = Web_persist.get_draft_public_credentials s w in
+              let* x = Web_persist.get_draft_public_credentials s G.witness in
               match x with
               | None -> Lwt.return_none
               | Some x ->
                   Lwt.return_some
-                  @@ yojson_of_public_credentials !&(T.element.to_string) x)
+                  @@ yojson_of_public_credentials !&G.to_string x)
       | `POST -> (
           let@ who = with_administrator_or_credential_authority token se in
           if Web_persist.get_credentials_status uuid se <> `None then forbidden
           else
             let@ x =
-              body.run
-                !*(public_credentials_with_id_of_yojson !$(T.element.of_string))
+              body.run !*(public_credentials_with_id_of_yojson !$G.of_string)
             in
             match (who, x) with
             | `Administrator account, [] -> (
@@ -1191,7 +1182,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
 let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
     ((wse, wset) : _ updatable_with_billing) =
   let (W (w, se) : wrapped_draft_election) = wse in
-  let module T = (val Group_witness.get w) in
+  let module G = (val w) in
   let set ?billing x = wset ?billing (W (w, x)) in
   match endpoint with
   | [] -> (
@@ -1256,7 +1247,9 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let get () =
         let@ () =
          fun cont ->
-          Lwt.return @@ [%yojson_of_witness (w : _ trustee_status)] @@ cont ()
+          Lwt.return
+          @@ [%yojson_of_witness (G.witness : _ trustee_status)]
+          @@ cont ()
         in
         match trustee with
         | `Basic b ->
@@ -1327,7 +1320,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let get is_admin () =
         let open Belenios_web_api in
         let x = get_draft_trustees ~is_admin se in
-        Lwt.return @@ [%yojson_of_witness (w : _ draft_trustees)] x
+        Lwt.return @@ [%yojson_of_witness (G.witness : _ draft_trustees)] x
       in
       match (method_, who) with
       | `GET, `Nobody -> handle_get (get false)
