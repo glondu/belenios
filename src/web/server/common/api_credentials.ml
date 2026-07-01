@@ -94,7 +94,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
     let@ s = Storage.E.with_transaction r.uuid in
     let* () =
       W
-        ( G.witness,
+        ( (module G),
           {
             belenios_url = r.belenios_url;
             version = draft.version;
@@ -151,9 +151,9 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
       Ocsigen_messages.errlog msg;
       Lwt.return_unit
 
-let get_missing_voters ~belenios_url ~seed uuid (type a b)
-    (w : (a, b) group_witness)
+let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
     (credentials_records : (a, b) credentials_records) =
+  let module G = (val w) in
   let@ roots cont =
     let e = Belenios_web_api.Endpoints.election_roots uuid in
     let url = Printf.sprintf "%sapi/%s" belenios_url e.path in
@@ -175,24 +175,6 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b)
     | 200 -> Lwt.return_some x
     | _ -> Lwt.return_none
   in
-  let@ setup cont =
-    match roots.setup_data with
-    | None -> Lwt.return_nil
-    | Some h -> (
-        let* x = get_object h in
-        match x with
-        | None -> Lwt.return_nil
-        | Some x -> cont @@ !*setup_data_of_yojson x)
-  in
-  let@ election cont =
-    let* x = get_object setup.election in
-    match x with
-    | None -> Lwt.return_nil
-    | Some x -> cont @@ !*Election.t_of_yojson x
-  in
-  let module E = (val election) in
-  let module G = E.G in
-  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
   let module GMap = Map.Make (G) in
   let* credentials_records =
     let module X = struct
@@ -260,8 +242,9 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b)
   GMap.fold (fun _ x accu -> x :: accu) credentials_records [] |> Lwt.return
 
 let process_resend_request (r : credentials_resend) (type a b)
-    (w : (a, b) group_witness) (params : (a, b) credentials_params) metadata
+    (w : (a, b) group) (params : (a, b) credentials_params) metadata
     (credentials_records : (a, b) credentials_records) () =
+  let module G = (val w) in
   let { algorithm; records } = credentials_records in
   let voters =
     match r.spec with
@@ -281,10 +264,6 @@ let process_resend_request (r : credentials_resend) (type a b)
         get_missing_voters ~belenios_url:params.belenios_url ~seed:r.seed r.uuid
           w credentials_records
     | `Some_voters voters ->
-        let module G =
-          (val Belenios.Group.of_string ~version:params.version params.group)
-        in
-        let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk r.seed in
         records
@@ -335,10 +314,7 @@ let process_resend_request (r : credentials_resend) (type a b)
 
 let check_seed ~(params : wrapped_credentials_params) ~seed =
   let (W (w, params)) = params in
-  let module G =
-    (val Belenios.Group.of_string ~version:params.version params.group)
-  in
-  let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
+  let module G = (val w) in
   let certificate = params.certificate in
   let module P = Pki.Make (G) in
   let decryption_key = P.derive_dk seed in
@@ -406,18 +382,15 @@ let process_request : credentials_request -> _ = function
         let* p = Storage.E.get s Credentials_params in
         match Lopt.get_value p with Some p -> cont p | None -> not_found
       in
-      let (W (w, params)) = params in
+      let (W (w, _)) = params in
+      let module G = (val w) in
       let@ credentials_records cont =
-        let* x = Storage.E.get s (Credentials_records w) in
+        let* x = Storage.E.get s (Credentials_records G.witness) in
         match Lopt.get_value x with Some x -> cont x | None -> not_found
       in
       let { algorithm; records } = credentials_records in
       let n = List.length records in
       let* credentials_records =
-        let module G =
-          (val Belenios.Group.of_string ~version:params.version params.group)
-        in
-        let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk seed in
         Lwt_list.filter_map_s
@@ -461,8 +434,9 @@ let process_request : credentials_request -> _ = function
       in
       if check_seed ~params ~seed:r.seed then (
         let (W (w, params)) = params in
+        let module G = (val w) in
         let@ credentials_records cont =
-          let* x = Storage.E.get s (Credentials_records w) in
+          let* x = Storage.E.get s (Credentials_records G.witness) in
           match Lopt.get_value x with Some x -> cont x | None -> not_found
         in
         let@ metadata cont =
