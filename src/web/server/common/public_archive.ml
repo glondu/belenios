@@ -42,11 +42,6 @@ let get_event s x =
   let* x = get_data s x in
   x |> Option.map !*event_of_yojson |> Lwt.return
 
-let get_from_data s f =
-  let* x = get_roots s in
-  let&* x = f x in
-  get_data s x
-
 let get_from_setup_data s f =
   let* x = get_roots s in
   let&* x = x.setup_data in
@@ -148,8 +143,6 @@ let get_partial_decryptions s (type a b) (w : (a, b) group_witness) =
           let x = { x with payload = pd } in
           Lwt.return @@ (x :: accu))
         []
-
-let get_result s = get_from_data s (fun x -> x.result)
 
 let get_public_creds s (type a b) (w : (a, b) group_witness) =
   let* x = get_from_setup_data s (fun x -> x.credentials) in

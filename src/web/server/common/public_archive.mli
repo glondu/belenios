@@ -35,8 +35,6 @@ val get_partial_decryptions :
   ('a, 'b) group_witness ->
   ('a, 'b) partial_decryption owned list Lwt.t
 
-val get_result : Storage.E.t -> string option Lwt.t
-
 val get_public_creds :
   Storage.E.t -> ('a, 'b) group_witness -> 'a public_credentials Lwt.t
 
