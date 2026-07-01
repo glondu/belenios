@@ -1,5 +1,5 @@
-3.3.0 (dev)
-===========
+3.3.0 (2026-07-02)
+==================
 
  * Cryptographic fixes: (thanks to Navid Abapour)
    + Add missing group membership checks
