@@ -76,10 +76,14 @@ let fold_on_event_payloads s typ last_event f accu =
       match x with None -> assert false | Some x -> f payload x accu)
     accu
 
-let get_trustees s =
+let get_trustees s (type a b) (w : (a, b) group_witness) =
   let* x = get_from_setup_data s (fun x -> x.trustees) in
   let@ () =
-   fun cont -> match x with None -> cont () | Some x -> Lwt.return x
+   fun cont ->
+    match x with
+    | None -> cont ()
+    | Some x ->
+        Lwt.return @@ Lopt.some_string !*[%witness_of_yojson (w : _ trustees)] x
   in
   let uuid = Storage.E.get_uuid s in
   let msg =
@@ -125,7 +129,7 @@ let with_election s ~fallback f =
     f
     (function Not_cachable -> fallback () | e -> Lwt.reraise e)
 
-let get_partial_decryptions s =
+let get_partial_decryptions s (type a b) (w : (a, b) group_witness) =
   let* x = get_roots s in
   match x.last_pd_event with
   | None -> Lwt.return []
@@ -135,7 +139,11 @@ let get_partial_decryptions s =
           let x = !*(owned_of_yojson hash_of_yojson) x in
           let* pd =
             let* x = get_data s x.payload in
-            match x with None -> assert false | Some x -> Lwt.return x
+            match x with
+            | None -> assert false
+            | Some x ->
+                Lwt.return
+                @@ !*[%witness_of_yojson (w : _ partial_decryption)] x
           in
           let x = { x with payload = pd } in
           Lwt.return @@ (x :: accu))

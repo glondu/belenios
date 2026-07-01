@@ -143,13 +143,12 @@ let supported_crypto_versions = [ Version V2 ]
 
 (** Computing checksums *)
 
-let compute_checksums (type a b) (w : (a, b) group_witness) ~election ~trustees
-    ~public_credentials ~shuffles ~encrypted_tally ~final =
-  let module T = (val Group_witness.get w) in
+let compute_checksums (type a b) (election : (a, b) u) trustees
+    public_credentials ~shuffles ~encrypted_tally ~final =
+  let module W = (val election) in
   let ec_public_credentials =
     Hash.hash_string
-      (!+(yojson_of_public_credentials !&(T.element.to_string))
-         public_credentials)
+      (!+(yojson_of_public_credentials !&W.G.to_string) public_credentials)
   in
   let ec_num_voters = List.length public_credentials in
   let ec_weights =
@@ -173,10 +172,9 @@ let compute_checksums (type a b) (w : (a, b) group_witness) ~election ~trustees
       | Some min, Some max -> Some { total; min; max }
       | _ -> failwith "inconsistent weights in credentials"
   in
-  let open Ppx_yojson_conv_lib.Yojson_conv in
   let tc_of_basic (k : _ basic_parameters) =
     let checksum =
-      Hash.hash_string @@ string_of_yojson k.cert.message.verification
+      Hash.hash_string @@ W.G.to_string k.cert.message.verification
     in
     let name = k.verification_key.message.message.name in
     { checksum; name }
@@ -189,14 +187,13 @@ let compute_checksums (type a b) (w : (a, b) group_witness) ~election ~trustees
              ((key : _ threshold_verification_key), (cert : _ pedersen_cert)) ->
              ({
                 checksum =
-                  Hash.hash_string @@ string_of_yojson cert.message.verification;
+                  Hash.hash_string @@ W.G.to_string cert.message.verification;
                 name = key.message.message.name;
               }
                : trustee_checksum))
     in
     { trustees; threshold = p.context.threshold }
   in
-  let trustees = !*(trustees_of_yojson Fun.id Fun.id) trustees in
   let trustees_basic =
     trustees
     |> List.map (function `Single k -> [ tc_of_basic k ] | `Pedersen _ -> [])
@@ -237,7 +234,7 @@ let compute_checksums (type a b) (w : (a, b) group_witness) ~election ~trustees
     Some (process_shuffles shuffles)
   in
   {
-    election;
+    election = Hash.hash_yojson W.json;
     trustees_basic;
     trustees_threshold;
     public_credentials = ec_public_credentials;

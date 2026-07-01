@@ -45,9 +45,9 @@ let make file =
     let file = file
   end) in
   let* raw_election = Getters.raw_election in
-  let module Election = (val !*Election.t_of_yojson raw_election) in
-  let open Election in
-  let open Tool_election_data.Make (Getters) (Election) in
+  let module W = (val !*Election.t_of_yojson raw_election) in
+  let open W in
+  let open Tool_election_data.Make (Getters) (W) in
   let module Trustees = (val Belenios.Trustees.get_by_version version) in
   let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
@@ -92,7 +92,7 @@ let make file =
         let* x = Lazy.force shuffles_hash in
         match x with
         | None | Some [] ->
-            if Election.has_nh_questions then
+            if W.has_nh_questions then
               failwith
                 "the election has non-homomorphic questions and no shuffles \
                  were found"
@@ -103,7 +103,7 @@ let make file =
                 Lwt_io.eprintlf "I: shuffle %s has been applied" s)
       in
       let* () =
-        if Election.has_nh_questions then
+        if W.has_nh_questions then
           Lwt_io.eprintl
             "I: you should check that your shuffle appears in the list of \
              applied shuffles"
@@ -293,7 +293,6 @@ let make file =
       Lwt.return (shuffle_s, !+(yojson_of_owned yojson_of_hash) owned)
 
     let checksums () =
-      let* election = election_hash in
       let* shuffles =
         let* x = Lazy.force raw_shuffles in
         match x with
@@ -310,7 +309,8 @@ let make file =
         let* trustees_as_string = trustees_as_string in
         match trustees_as_string with
         | None -> failwith "missing trustees"
-        | Some x -> Lwt.return x
+        | Some x ->
+            Lwt.return @@ !*[%witness_of_yojson (G.witness : _ trustees)] x
       in
       let* public_credentials =
         let* x = Lazy.force raw_public_creds in
@@ -319,8 +319,9 @@ let make file =
         | Some x -> Lwt.return x
       in
       let* final = Getters.get_final () in
-      Belenios.Election.compute_checksums G.witness ~election ~shuffles
-        ~encrypted_tally ~trustees ~public_credentials ~final
+      Belenios.Election.compute_checksums
+        (module W)
+        trustees public_credentials ~shuffles ~encrypted_tally ~final
       |> !+yojson_of_election_checksums
       |> Lwt.return
 

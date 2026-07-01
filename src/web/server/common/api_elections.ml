@@ -58,19 +58,21 @@ let find_trustee_private_key s (type a b) (w : (a, b) group_witness) trustee_id
   let* keys = Storage.E.get s (Private_keys w) in
   let&* keys = Lopt.get_value keys in
   (* there is one Pedersen trustee *)
-  let* trustees = Public_archive.get_trustees s in
-  let trustees = !*(trustees_of_yojson Fun.id Fun.id) trustees in
-  let rec loop i ts =
-    match ts with
-    | [] -> Lwt.return_none (* an error, actually *)
-    | `Single _ :: ts -> loop (i - 1) ts
-    | `Pedersen (p : _ threshold_parameters) :: _ ->
-        let algorithm = p.context.algorithm in
-        let private_key = List.nth keys i in
-        Lwt.return_some
-          ({ algorithm; private_key } : (a, b) tally_trustee_content)
-  in
-  loop (trustee_id - 1) trustees
+  let* trustees = Public_archive.get_trustees s w in
+  match Lopt.get_value trustees with
+  | None -> assert false
+  | Some trustees ->
+      let rec loop i ts =
+        match ts with
+        | [] -> Lwt.return_none (* an error, actually *)
+        | `Single _ :: ts -> loop (i - 1) ts
+        | `Pedersen (p : _ threshold_parameters) :: _ ->
+            let algorithm = p.context.algorithm in
+            let private_key = List.nth keys i in
+            Lwt.return_some
+              ({ algorithm; private_key } : (a, b) tally_trustee_content)
+      in
+      loop (trustee_id - 1) trustees
 
 let with_tally_trustee token s f =
   let@ token = Option.unwrap unauthorized token in
@@ -117,7 +119,7 @@ let get_election_status s =
       sealed = status_sealed;
     }
 
-let get_partial_decryptions s (metadata : metadata) =
+let get_partial_decryptions s w (metadata : metadata) =
   let@ () =
    fun cont ->
     let* state = Web_persist.get_election_state s in
@@ -125,51 +127,53 @@ let get_partial_decryptions s (metadata : metadata) =
     | `EncryptedTally -> cont ()
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
-  let* pds = Public_archive.get_partial_decryptions s in
-  let* trustees = Public_archive.get_trustees s in
-  let trustees = !*(trustees_of_yojson Fun.id Fun.id) trustees in
-  let threshold, npks =
-    let rec loop (trustees : _ trustee_kind list) threshold npks =
-      match trustees with
-      | [] -> (threshold, npks)
-      | `Single _ :: ts -> loop ts threshold (npks + 1)
-      | `Pedersen t :: ts -> (
-          match threshold with
-          | Some _ -> raise @@ Error (`Unsupported "two Pedersens")
-          | None ->
-              loop ts (Some t.context.threshold)
-                (npks + Array.length t.verification_keys))
-    in
-    loop trustees None 0
-  in
-  let trustees =
-    let rec loop i ts =
-      if i <= npks then
-        match ts with
-        | t :: ts -> (t, i) :: loop (i + 1) ts
-        | [] -> (None, i) :: loop (i + 1) ts
-      else []
-    in
-    match metadata.trustees with None -> loop 1 [] | Some ts -> loop 1 ts
-  in
-  Lwt.return
-    ({
-       trustees =
-         trustees
-         |> List.filter_map (fun (trustee, index) ->
-             match trustee with
-             | None -> None
-             | Some (t : external_trustee) ->
-                 Some
-                   ({
-                      address = t.id;
-                      token = t.token;
-                      done_ = List.exists (fun x -> x.owner = index) pds;
-                    }
-                     : trustee_pd));
-       threshold;
-     }
-      : partial_decryptions)
+  let* pds = Public_archive.get_partial_decryptions s w in
+  let* trustees = Public_archive.get_trustees s w in
+  match Lopt.get_value trustees with
+  | None -> assert false
+  | Some trustees ->
+      let threshold, npks =
+        let rec loop (trustees : _ trustee_kind list) threshold npks =
+          match trustees with
+          | [] -> (threshold, npks)
+          | `Single _ :: ts -> loop ts threshold (npks + 1)
+          | `Pedersen t :: ts -> (
+              match threshold with
+              | Some _ -> raise @@ Error (`Unsupported "two Pedersens")
+              | None ->
+                  loop ts (Some t.context.threshold)
+                    (npks + Array.length t.verification_keys))
+        in
+        loop trustees None 0
+      in
+      let trustees =
+        let rec loop i ts =
+          if i <= npks then
+            match ts with
+            | t :: ts -> (t, i) :: loop (i + 1) ts
+            | [] -> (None, i) :: loop (i + 1) ts
+          else []
+        in
+        match metadata.trustees with None -> loop 1 [] | Some ts -> loop 1 ts
+      in
+      Lwt.return
+        ({
+           trustees =
+             trustees
+             |> List.filter_map (fun (trustee, index) ->
+                 match trustee with
+                 | None -> None
+                 | Some (t : external_trustee) ->
+                     Some
+                       ({
+                          address = t.id;
+                          token = t.token;
+                          done_ = List.exists (fun x -> x.owner = index) pds;
+                        }
+                         : trustee_pd));
+           threshold;
+         }
+          : partial_decryptions)
 
 let get_shuffles s (metadata : metadata) =
   let@ () =
@@ -237,12 +241,13 @@ let extract_names trustees =
   |> List.flatten
   |> List.mapi (fun i x -> (i + 1, x))
 
-let get_trustee_names s =
-  let* trustees = Public_archive.get_trustees s in
-  let trustees = !*(trustees_of_yojson Fun.id Fun.id) trustees in
-  Lwt.return (extract_names trustees)
+let get_trustee_names s w =
+  let* trustees = Public_archive.get_trustees s w in
+  match Lopt.get_value trustees with
+  | None -> failwith __FUNCTION__
+  | Some trustees -> Lwt.return (extract_names trustees)
 
-let get_trustee_by_id s (metadata : metadata) id =
+let get_trustee_by_id s w (metadata : metadata) id =
   match metadata.trustees with
   | None -> Lwt.return_none
   | Some xs ->
@@ -254,7 +259,7 @@ let get_trustee_by_id s (metadata : metadata) id =
             | Some (x : external_trustee) ->
                 if x.id = id then Lwt.return_some (x, index, name) else find xs)
       in
-      let* names = get_trustee_names s in
+      let* names = get_trustee_names s w in
       find (List.combine xs names)
 
 let skip_shuffler s trustee =
@@ -274,10 +279,10 @@ let skip_shuffler s trustee =
   if List.mem trustee current then Lwt.fail @@ Error `NotInExpectedState
   else set (Some (`Shuffle { skipped = trustee :: current; token = None }))
 
-let select_shuffler s metadata trustee =
+let select_shuffler s w metadata trustee =
   let@ trustee, trustee_id, name =
    fun cont ->
-    let* x = get_trustee_by_id s metadata trustee in
+    let* x = get_trustee_by_id s w metadata trustee in
     match x with None -> failwith __FUNCTION__ | Some x -> cont x
   in
   let@ x, set = Storage.E.update s State_state in
@@ -293,30 +298,32 @@ let select_shuffler s metadata trustee =
 
 let post_partial_decryption s (election : Election.t) ~trustee_id
     ~partial_decryption =
-  let* pds = Public_archive.get_partial_decryptions s in
+  let module W = (val election) in
+  let* pds = Public_archive.get_partial_decryptions s W.G.witness in
   let@ () =
    fun cont ->
     if List.exists (fun x -> x.owner = trustee_id) pds then
       Lwt.return @@ Stdlib.Error `AlreadyDone
     else cont ()
   in
-  let module W = (val election) in
   let* pks =
-    let* trustees = Public_archive.get_trustees s in
-    trustees
-    |> !*[%witness_of_yojson (W.G.witness : _ trustees)]
-    |> List.map (function
-      | `Single (x : _ basic_parameters) ->
-          [
-            ( x.cert.message.verification,
-              x.verification_key.message.message.public_key );
-          ]
-      | `Pedersen (t : _ threshold_parameters) ->
-          List.combine (Array.to_list t.certs)
-            (Array.to_list t.verification_keys)
-          |> List.map (fun (x, (y : _ threshold_verification_key)) ->
-              (x.message.verification, y.message.message.public_key)))
-    |> List.flatten |> Array.of_list |> Lwt.return
+    let* trustees = Public_archive.get_trustees s W.G.witness in
+    match Lopt.get_value trustees with
+    | None -> assert false
+    | Some trustees ->
+        trustees
+        |> List.map (function
+          | `Single (x : _ basic_parameters) ->
+              [
+                ( x.cert.message.verification,
+                  x.verification_key.message.message.public_key );
+              ]
+          | `Pedersen (t : _ threshold_parameters) ->
+              List.combine (Array.to_list t.certs)
+                (Array.to_list t.verification_keys)
+              |> List.map (fun (x, (y : _ threshold_verification_key)) ->
+                  (x.message.verification, y.message.message.public_key)))
+        |> List.flatten |> Array.of_list |> Lwt.return
   in
   let vk, pvk = pks.(trustee_id - 1) in
   let pd =
@@ -351,20 +358,21 @@ let post_shuffle s (election : Election.t) ~token ~shuffle =
             !*[%witness_of_yojson (W.G.witness : _ shuffle)] shuffle
           in
           let@ vk cont =
-            let* trustees = Public_archive.get_trustees s in
-            let trustees =
-              !*[%witness_of_yojson (W.G.witness : _ trustees)] trustees
-            in
-            let keys =
-              trustees
-              |> List.map (function
-                | `Single (t : _ basic_parameters) ->
-                    [| t.cert.message.verification |]
-                | `Pedersen (t : _ threshold_parameters) ->
-                    t.certs |> Array.map (fun cert -> cert.message.verification))
-              |> Array.concat
-            in
-            cont @@ keys.(x.trustee_id - 1)
+            let* trustees = Public_archive.get_trustees s W.G.witness in
+            match Lopt.get_value trustees with
+            | None -> assert false
+            | Some trustees ->
+                let keys =
+                  trustees
+                  |> List.map (function
+                    | `Single (t : _ basic_parameters) ->
+                        [| t.cert.message.verification |]
+                    | `Pedersen (t : _ threshold_parameters) ->
+                        t.certs
+                        |> Array.map (fun cert -> cert.message.verification))
+                  |> Array.concat
+                in
+                cont @@ keys.(x.trustee_id - 1)
           in
           let* y =
             Web_persist.append_to_shuffles s (module W) x.trustee_id ~vk shuffle
@@ -434,7 +442,8 @@ let state_module = ref None
 (* initialized in Web_main *)
 
 let dispatch_election ~token ~ifmatch endpoint method_ body s
-    (metadata : metadata) =
+    (election : Election.t) (metadata : metadata) =
+  let module W = (val election) in
   match endpoint with
   | [] -> (
       let get () =
@@ -517,7 +526,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
       | `GET ->
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
-          let* x = get_partial_decryptions s metadata in
+          let* x = get_partial_decryptions s W.G.witness metadata in
           return_json 200 (!+yojson_of_partial_decryptions x)
       | _ -> method_not_allowed)
   | [ "trustee" ] -> (
@@ -528,11 +537,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
           | `GET ->
               let@ trustee_id = with_tally_trustee token s in
               let@ () = handle_generic_error in
-              let* election = Public_archive.get_election s in
-              let@ election =
-                Option.unwrap not_found (Lopt.get_value election)
-              in
-              let module W = (val election) in
               let* private_key =
                 find_trustee_private_key s W.G.witness trustee_id
               in
@@ -543,11 +547,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let@ trustee_id = with_tally_trustee token s in
               let@ () = handle_generic_error in
               let@ partial_decryption = body.run Fun.id in
-              let* election = Public_archive.get_election s in
-              let@ election =
-                Option.unwrap not_found (Lopt.get_value election)
-              in
-              let module W = (val election) in
               let* x =
                 post_partial_decryption s
                   (module W)
@@ -614,7 +613,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let* () = skip_shuffler s shuffler in
               ok
           | `Select ->
-              let* () = select_shuffler s metadata shuffler in
+              let* () = select_shuffler s W.G.witness metadata shuffler in
               ok)
       | _ -> method_not_allowed)
   | [ "ballots" ] -> (
@@ -800,7 +799,12 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       match method_ with
       | `GET ->
           Lwt.try_bind
-            (fun () -> Public_archive.get_trustees s)
+            (fun () ->
+              let* election = Public_archive.get_election s in
+              let election = Option.get @@ Lopt.get_value election in
+              let module W = (val election) in
+              let* trustees = Public_archive.get_trustees s W.G.witness in
+              Lwt.return @@ Option.get @@ Lopt.get_string trustees)
             (fun raw -> return_json 200 raw)
             (fun _ ->
               let* se = Storage.E.get s Draft in
@@ -898,5 +902,8 @@ let dispatch ~token ~ifmatch endpoint method_ body =
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
+      let* election = Public_archive.get_election s in
+      let@ election = Option.unwrap not_found @@ Lopt.get_value election in
       let* metadata = Web_persist.get_election_metadata s in
-      dispatch_election ~token ~ifmatch endpoint method_ body s metadata
+      dispatch_election ~token ~ifmatch endpoint method_ body s election
+        metadata

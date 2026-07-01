@@ -24,9 +24,17 @@ open Belenios_storage_api
 
 val get_roots : Storage.E.t -> roots Lwt.t
 val get_data : Storage.E.t -> hash -> string option Lwt.t
-val get_trustees : Storage.E.t -> string Lwt.t
+
+val get_trustees :
+  Storage.E.t -> ('a, 'b) group_witness -> ('a, 'b) trustees lopt Lwt.t
+
 val get_election : Storage.E.t -> Election.t lopt Lwt.t
-val get_partial_decryptions : Storage.E.t -> string owned list Lwt.t
+
+val get_partial_decryptions :
+  Storage.E.t ->
+  ('a, 'b) group_witness ->
+  ('a, 'b) partial_decryption owned list Lwt.t
+
 val get_result : Storage.E.t -> string option Lwt.t
 
 val get_public_creds :

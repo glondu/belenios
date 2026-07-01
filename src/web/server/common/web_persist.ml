@@ -27,16 +27,6 @@ open Belenios_storage_api
 open Belenios_server_core
 open Web_common
 
-let get_setup_data s =
-  let* x =
-    let* x = Public_archive.get_roots s in
-    let&* x = x.setup_data in
-    Public_archive.get_data s x
-  in
-  match x with
-  | None -> assert false
-  | Some x -> Lwt.return (!*setup_data_of_yojson x)
-
 let get_election_dates s =
   let* x = Storage.E.get s Dates in
   Lwt.return
@@ -136,6 +126,12 @@ let make_result_transaction yojson_of_result result =
   [ Data payload; Event (`Result, Some (Hash.hash_string payload)) ]
 
 let internal_release_tally ~force s set_state =
+  let@ election =
+    let uuid = Storage.E.get_uuid s in
+    Public_archive.with_election s ~fallback:(fun () ->
+        Lwt.fail (Election_not_found (uuid, "internal_release_tally")))
+  in
+  let module W = (val election) in
   let@ last cont =
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
@@ -145,7 +141,7 @@ let internal_release_tally ~force s set_state =
     Option.value metadata.trustees ~default:[ None ]
     |> List.mapi (fun i x -> (i + 1, x))
   in
-  let* pds = Public_archive.get_partial_decryptions s in
+  let* pds = Public_archive.get_partial_decryptions s W.G.witness in
   let@ () =
    fun cont ->
     if force then cont ()
@@ -157,12 +153,6 @@ let internal_release_tally ~force s set_state =
     then cont ()
     else Lwt.return_false
   in
-  let@ election =
-    let uuid = Storage.E.get_uuid s in
-    Public_archive.with_election s ~fallback:(fun () ->
-        Lwt.fail (Election_not_found (uuid, "internal_release_tally")))
-  in
-  let module W = (val election) in
   let* tally =
     let* x = Public_archive.get_latest_encrypted_tally s in
     match x with
@@ -178,20 +168,11 @@ let internal_release_tally ~force s set_state =
         Lwt.return { x with encrypted_tally = tally }
   in
   let* trustees =
-    let* x = Public_archive.get_trustees s in
-    Lwt.return @@ !*[%witness_of_yojson (W.G.witness : _ trustees)] x
+    let* x = Public_archive.get_trustees s W.G.witness in
+    match Lopt.get_value x with None -> assert false | Some x -> Lwt.return x
   in
   let* pds, transactions =
-    let pds =
-      List.rev_map
-        (fun x ->
-          let payload =
-            !*[%witness_of_yojson (W.G.witness : _ partial_decryption)]
-              x.payload
-          in
-          { x with payload })
-        pds
-    in
+    let pds = List.rev pds in
     let decrypt owner =
       let* x = Storage.E.get s Server_seed in
       match Lopt.get_value x with
@@ -597,10 +578,11 @@ let compute_audit_cache s =
         let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
         Lwt.return_some x.encrypted_tally
       in
-      let* trustees = Public_archive.get_trustees s in
+      let@ trustees cont =
+        let* x = Public_archive.get_trustees s W.G.witness in
+        match Lopt.get_value x with None -> Lwt.return_none | Some x -> cont x
+      in
       let* checksums =
-        let* setup_data = get_setup_data s in
-        let election = setup_data.election in
         let* public_credentials =
           Public_archive.get_public_creds s W.G.witness
         in
@@ -613,8 +595,9 @@ let compute_audit_cache s =
                (fun (x : last_event) -> x.hash)
                (Lopt.get_value last_event)
         in
-        Election.compute_checksums W.G.witness ~election ~shuffles
-          ~encrypted_tally ~trustees ~public_credentials ~final
+        Election.compute_checksums
+          (module W)
+          trustees public_credentials ~shuffles ~encrypted_tally ~final
         |> Lwt.return
       in
       let* sealing_log =

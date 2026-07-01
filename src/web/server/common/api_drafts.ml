@@ -778,13 +778,17 @@ let import_trustees (type a b) (w : (a, b) group_witness)
       let ids =
         List.map (Option.map (fun (x : external_trustee) -> x.id)) trustees
       in
-      let* trustees = Public_archive.get_trustees from in
+      let@ trustees cont =
+        let* x = Public_archive.get_trustees from w in
+        match Lopt.get_value x with
+        | None -> Lwt.return @@ Stdlib.Error `Invalid
+        | Some x -> cont x
+      in
       let version = se.version in
       let module G = (val Group.of_string ~version se.group : GROUP) in
       let Equal = Group_witness.provably_equal __FUNCTION__ w G.witness in
       let module Trustees = (val Trustees.get_by_version version) in
       let module K = Trustees.MakeCombinator (G) in
-      let trustees = !*[%witness_of_yojson (G.witness : _ trustees)] trustees in
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen (t : (a, b) threshold_parameters) ids =
