@@ -19,7 +19,7 @@ msgstr ""
 msgid " (server is not counted)"
 msgstr " (le serveur n'est pas pris en compte)"
 
-#: src/web/common/pages_common.ml:238
+#: src/web/common/pages_common.ml:244
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Un courriel de confirmation vous a été envoyé."
 
@@ -43,11 +43,11 @@ msgstr " et enregistrez-les dans un endroit sûr."
 msgid " and your e-mail address is: "
 msgstr " et votre adresse électronique est : "
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:242
 msgid " anytime during the election."
 msgstr " n'importe quand pendant l'élection."
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:231
 msgid " as user "
 msgstr " en tant que l'utilisateur "
 
@@ -56,7 +56,7 @@ msgstr " en tant que l'utilisateur "
 msgid " because "
 msgstr " parce que "
 
-#: src/web/common/pages_common.ml:227
+#: src/web/common/pages_common.ml:233
 msgid " has been accepted."
 msgstr " a été accepté."
 
@@ -70,7 +70,7 @@ msgstr " dans la boîte suivante : "
 msgid " in txt format."
 msgstr " au format txt."
 
-#: src/web/common/pages_common.ml:245
+#: src/web/common/pages_common.ml:251
 msgid " is rejected, because "
 msgstr " est refusé, parce que "
 
@@ -165,7 +165,7 @@ msgstr "Ajouter une autorité de déchiffrement"
 msgid "Administration"
 msgstr "Administration"
 
-#: src/web/clients/admin/account.ml:81
+#: src/web/clients/admin/account.ml:86
 msgid "Administrator's profile: "
 msgstr "Profil de l'administrateur : "
 
@@ -239,7 +239,7 @@ msgstr ""
 "En tant qu'autorité de déchiffrement, votre premier rôle est de mélanger les "
 "bulletins chiffrés."
 
-#: src/web/clients/admin/account.ml:87
+#: src/web/clients/admin/account.ml:92
 msgid "Authentication method: "
 msgstr "Moyen d'authentification : "
 
@@ -569,11 +569,11 @@ msgstr "Authentification faible (ne doit pas être utilisée en production) : "
 msgid "E-mail address:"
 msgstr "Adresse courriel :"
 
-#: src/web/clients/admin/account.ml:95
+#: src/web/clients/admin/account.ml:99
 msgid "E-mail: "
 msgstr "Courriel : "
 
-#: src/web/clients/admin/account.ml:146
+#: src/web/clients/admin/account.ml:150
 msgid "Edit profile"
 msgstr "Éditer le profil"
 
@@ -593,14 +593,14 @@ msgstr "L'élection est actuellement fermée"
 msgid "Election is currently open"
 msgstr "L'élection est actuellement ouverte"
 
-#: src/web/clients/admin/elections.ml:2111 src/web/clients/admin/elections.ml:297
+#: src/web/clients/admin/elections.ml:297
 msgid "Election main page"
 msgstr "Page principale de l'élection"
 
 #: src/web/server/common/pages_admin.ml:190
 #. src/web/server/common/pages_admin.ml:45
-#. src/web/common/pages_common.ml:137
-#. src/web/common/pages_common.ml:128
+#. src/web/common/pages_common.ml:143
+#. src/web/common/pages_common.ml:134
 msgid "Election server"
 msgstr "Serveur d'élections"
 
@@ -672,7 +672,7 @@ msgstr "Temps restant estimé : %d seconde(s)"
 msgid "Estimating computation time…"
 msgstr "Estimation du temps de calcul…"
 
-#: src/web/common/pages_common.ml:249
+#: src/web/common/pages_common.ml:255
 msgid "FAIL!"
 msgstr "ÉCHEC !"
 
@@ -725,17 +725,13 @@ msgstr "Générer et envoyer les codes de vote"
 msgid "Generate your contribution to decryption"
 msgstr "Générer votre contribution au déchiffrement"
 
-#: src/web/common/pages_common.ml:65
+#: src/web/common/pages_common.ml:69
 msgid "Get the source code"
 msgstr "Obtenir le code source"
 
-#: src/web/common/pages_common.ml:265
+#: src/web/common/pages_common.ml:271
 msgid "Go back to election"
 msgstr "Revenir à l'élection"
-
-#: src/web/clients/admin/elections.ml:2116
-msgid "Go see the result on the election main page!"
-msgstr "Allez voir le résultat sur la page principale de l'élection !"
 
 #: src/web/clients/admin/elections.ml:1158
 msgid "Grace period: "
@@ -757,7 +753,7 @@ msgstr "Voici le lien pour procéder au dépouillement :"
 msgid "Home"
 msgstr "Accueil"
 
-#: src/web/clients/admin/account.ml:84
+#: src/web/clients/admin/account.ml:89
 msgid "ID: "
 msgstr "Identifiant : "
 
@@ -838,7 +834,7 @@ msgstr "Il est désormais temps de calculer votre contribution au déchiffrement
 msgid "Language"
 msgstr "Langue"
 
-#: src/web/clients/admin/account.ml:106
+#: src/web/clients/admin/account.ml:110
 msgid "Language for administrator interface:"
 msgstr "Langue de l'interface d'administration :"
 
@@ -846,7 +842,7 @@ msgstr "Langue de l'interface d'administration :"
 msgid "Language of metadata"
 msgstr "Langue des métadonnées"
 
-#: src/web/common/pages_common.ml:88
+#: src/web/common/pages_common.ml:94
 msgid "Language:"
 msgstr "Langue :"
 
@@ -916,7 +912,7 @@ msgstr "Se connecter avec"
 msgid "Log in:"
 msgstr "Connexion :"
 
-#: src/web/clients/admin/admin.ml:366 src/web/clients/admin/account.ml:135
+#: src/web/clients/admin/admin.ml:366 src/web/clients/admin/account.ml:139
 #. src/web/server/common/pages_admin.ml:110
 msgid "Log out"
 msgstr "Déconnexion"
@@ -992,7 +988,7 @@ msgstr "Mes élections en cours"
 msgid "Name of the credential authority"
 msgstr "Nom de l'autorité de codes de vote"
 
-#: src/web/clients/admin/account.ml:99
+#: src/web/clients/admin/account.ml:103
 msgid "Name: "
 msgstr "Nom : "
 
@@ -1188,7 +1184,7 @@ msgstr "Veuillez patienter… "
 msgid "Poll"
 msgstr "Scrutin"
 
-#: src/web/common/pages_common.ml:61
+#: src/web/common/pages_common.ml:65
 msgid "Powered by "
 msgstr "Propulsé par "
 
@@ -1315,11 +1311,11 @@ msgstr "Ré-envoyer des codes de vote privés"
 msgid "Reset and start from scratch"
 msgstr "Réinitialiser et repartir à zéro"
 
-#: src/web/common/pages_common.ml:50
+#: src/web/common/pages_common.ml:54
 msgid "Restricted mode"
 msgstr "Mode restreint"
 
-#: src/web/clients/admin/elections.ml:2126 src/web/clients/admin/elections.ml:296
+#: src/web/clients/admin/elections.ml:2123 src/web/clients/admin/elections.ml:296
 msgid "Results page"
 msgstr "Page de résultats"
 
@@ -1457,6 +1453,10 @@ msgstr "Quelque chose ne va pas avec la configuration de l'authentification des 
 msgid "Sort propositions"
 msgstr "Classer les propositions"
 
+#: src/web/common/pages_common.ml:71
+msgid "Specification"
+msgstr ""
+
 #: src/web/clients/admin/trustees_tab.ml:465
 #. src/web/clients/admin/elections.ml:418
 msgid "Status"
@@ -1517,7 +1517,7 @@ msgstr "Dépouillement"
 msgid "Tallying: shuffling step"
 msgstr "Dépouillement : étape de mélange"
 
-#: src/web/server/common/pages_admin.ml:45 src/web/common/pages_common.ml:67
+#: src/web/server/common/pages_admin.ml:45 src/web/common/pages_common.ml:73
 msgid "Terms of service"
 msgstr "Conditions générales d'utilisation"
 
@@ -1525,7 +1525,7 @@ msgstr "Conditions générales d'utilisation"
 msgid "Thank you again for your help,"
 msgstr "Merci encore pour votre aide,"
 
-#: src/web/common/pages_common.ml:241
+#: src/web/common/pages_common.ml:247
 msgid "Thank you for voting!"
 msgstr "Merci pour votre vote !"
 
@@ -1543,7 +1543,7 @@ msgstr "La création du compte "
 msgid "The account has been created."
 msgstr "Le compte a été créé."
 
-#: src/web/clients/admin/elections.ml:2133
+#: src/web/clients/admin/elections.ml:2130
 msgid "The archive can be downloaded at: "
 msgstr "L'archive peut être téléchargée à l'adresse suivante "
 
@@ -1706,7 +1706,7 @@ msgstr "Ce contact sera ajouté aux courriels envoyés aux électeurs."
 msgid "This e-mail address is invalid!"
 msgstr "Cette adresse courriel est invalide !"
 
-#: src/web/clients/admin/elections.ml:2115
+#: src/web/clients/admin/elections.ml:2112
 msgid "This election has been tallied"
 msgstr "Ce scrutin a été dépouillé"
 
@@ -1714,7 +1714,7 @@ msgstr "Ce scrutin a été dépouillé"
 msgid "This election is a draft."
 msgstr "Cette élection est un brouillon."
 
-#: src/web/clients/admin/elections.ml:2130
+#: src/web/clients/admin/elections.ml:2113
 msgid "This election is archived"
 msgstr "Cette élection est archivée"
 
@@ -1761,7 +1761,7 @@ msgstr ""
 msgid "This name will be published on the election result page."
 msgstr "Ce nom sera publié sur la page de résultats de l'élection."
 
-#: src/web/common/pages_common.ml:202
+#: src/web/common/pages_common.ml:208
 msgid "This vote replaces any previous vote."
 msgstr "Ce vote remplace le vote précédent."
 
@@ -1967,7 +1967,7 @@ msgstr ""
 "Lorsque le résultat de l’élection est publié, assurez-vous que l’empreinte "
 "de votre mélange apparaît dans la page de résultats."
 
-#: src/web/common/pages_common.ml:102
+#: src/web/common/pages_common.ml:108
 msgid "Wish to help with translations?"
 msgstr "Vous souhaitez aider avec les traductions ?"
 
@@ -1975,7 +1975,7 @@ msgstr "Vous souhaitez aider avec les traductions ?"
 msgid "You can also log in with"
 msgstr "Vous pouvez aussi vous connecter avec"
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:240
 msgid "You can check its presence in the "
 msgstr "Vous pouvez vérifier sa présence dans l' "
 
@@ -2077,7 +2077,7 @@ msgstr ""
 "Vous ne pourrez pas changer les adresses e-mail une fois les codes de vote "
 "créés. Les électeurs ayant des adresses invalides ne pourront pas voter."
 
-#: src/web/common/pages_common.ml:255
+#: src/web/common/pages_common.ml:261
 msgid "Your ballot for "
 msgstr "Votre bulletin pour "
 
@@ -2110,7 +2110,7 @@ msgstr "Votre déchiffrement partiel a été reçu et vérifié !"
 msgid "Your public key has already been registered!"
 msgstr "Votre clé publique a déjà été enregistrée !"
 
-#: src/web/common/pages_common.ml:231
+#: src/web/common/pages_common.ml:237
 msgid "Your smart ballot tracker is "
 msgstr "Votre numéro de suivi est "
 
@@ -2118,7 +2118,7 @@ msgstr "Votre numéro de suivi est "
 msgid "Your username is: "
 msgstr "Votre identifiant est : "
 
-#: src/web/common/pages_common.ml:211
+#: src/web/common/pages_common.ml:217
 msgid "Your weight is %s."
 msgstr "Votre poids est %s."
 
@@ -2142,7 +2142,7 @@ msgstr "en tant qu'électeur pour l'élection %s."
 msgid "as an administrator."
 msgstr "en tant qu'administrateur."
 
-#: src/web/common/pages_common.ml:222
+#: src/web/common/pages_common.ml:228
 msgid "ballot box"
 msgstr "urne"
 

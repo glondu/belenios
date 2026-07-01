@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (εάν το ξεχάσατε, για παράδειγμα)."
 
-#: src/web/common/pages_common.ml:238
+#: src/web/common/pages_common.ml:244
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Σας έχει σταλεί ένα e-mail επιβεβαίωσης."
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:242
 msgid " anytime during the election."
 msgstr " οποιαδήποτε στιγμή κατά την διάρκεια της ψηφοφορίας."
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:231
 msgid " as user "
 msgstr ""
 
@@ -47,7 +47,7 @@ msgstr " ψήφος(ι) έχουν γίνει αποδεκτές."
 msgid " for more information."
 msgstr " για περισσότερες πληροφορίες."
 
-#: src/web/common/pages_common.ml:227
+#: src/web/common/pages_common.ml:233
 msgid " has been accepted."
 msgstr " έχει γίνει αποδεκτό."
 
@@ -59,7 +59,7 @@ msgstr " έχουν καταμετρηθεί."
 msgid " in the following box: "
 msgstr " στο ακόλουθο πεδίο: "
 
-#: src/web/common/pages_common.ml:245
+#: src/web/common/pages_common.ml:251
 msgid " is rejected, because "
 msgstr " απορρίφθηκε, επειδή "
 
@@ -285,11 +285,11 @@ msgstr ""
 msgid "Election identifier"
 msgstr ""
 
-#: src/web/clients/jslib/belenios_jslib.ml:272
+#: src/web/clients/jslib/belenios_jslib.ml:271
 msgid "Election public URL"
 msgstr ""
 
-#: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
+#: src/web/common/pages_common.ml:143 src/web/common/pages_common.ml:134
 msgid "Election server"
 msgstr "Διακομιστής ψηφοφορίας"
 
@@ -309,7 +309,7 @@ msgstr ""
 msgid "Expected fingerprint:"
 msgstr "Αναμενόμενο αποτύπωμα:"
 
-#: src/web/common/pages_common.ml:249
+#: src/web/common/pages_common.ml:255
 msgid "FAIL!"
 msgstr "ΑΠΟΤΥΧΙΑ!"
 
@@ -329,12 +329,12 @@ msgstr ""
 msgid "Forbidden"
 msgstr ""
 
-#: src/web/common/pages_common.ml:65
+#: src/web/common/pages_common.ml:69
 msgid "Get the source code"
 msgstr "Κατεβάστε τον πηγαίο κώδικα"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:265
+#. src/web/common/pages_common.ml:271
 msgid "Go back to election"
 msgstr "Επιστρέψτε στην ψηφοφορία"
 
@@ -369,7 +369,7 @@ msgstr ""
 msgid "JSON result"
 msgstr "Αποτέλεσμα JSON"
 
-#: src/web/server/common/pages_common.ml:174 src/web/common/pages_common.ml:88
+#: src/web/server/common/pages_common.ml:174 src/web/common/pages_common.ml:94
 msgid "Language:"
 msgstr "Γλώσσα:"
 
@@ -452,7 +452,7 @@ msgstr ""
 msgid "Please vote here using your personal link:"
 msgstr ""
 
-#: src/web/common/pages_common.ml:61
+#: src/web/common/pages_common.ml:65
 msgid "Powered by "
 msgstr "Βασισμένο στο "
 
@@ -482,7 +482,7 @@ msgstr ""
 msgid "Refresh status"
 msgstr ""
 
-#: src/web/common/pages_common.ml:50
+#: src/web/common/pages_common.ml:54
 msgid "Restricted mode"
 msgstr ""
 
@@ -498,7 +498,7 @@ msgstr ""
 msgid "See accepted ballots"
 msgstr "Δείτε τα αποδεκτά ψηφοδέλτια"
 
-#: src/web/clients/jslib/belenios_jslib.ml:337
+#: src/web/clients/jslib/belenios_jslib.ml:336
 msgid "Session expired"
 msgstr ""
 
@@ -512,9 +512,13 @@ msgstr ""
 "Διάφορες τεχνικές υπάρχουν για να αποφασιστεί ποια υποψηφιότητα θα επιλεγεί "
 "όταν δεν υπάρχει νικητής Condorcet."
 
-#: src/web/clients/jslib/belenios_jslib.ml:277
-#. src/web/clients/jslib/belenios_jslib.ml:263
+#: src/web/clients/jslib/belenios_jslib.ml:276
+#. src/web/clients/jslib/belenios_jslib.ml:262
 msgid "Smart ballot tracker"
+msgstr ""
+
+#: src/web/common/pages_common.ml:71
+msgid "Specification"
 msgstr ""
 
 #: src/web/clients/election/home.ml:761
@@ -542,11 +546,11 @@ msgstr ""
 "Οι υποψήφιοι αυτοί σημειώνονται ως \"TieWin\" όταν εκλεγούν και \"TieLose\" "
 "εαν έχουν χάσει."
 
-#: src/web/common/pages_common.ml:67
+#: src/web/common/pages_common.ml:73
 msgid "Terms of service"
 msgstr ""
 
-#: src/web/common/pages_common.ml:241
+#: src/web/common/pages_common.ml:247
 msgid "Thank you for voting!"
 msgstr "Σας ευχαριστούμε για την συμμετοχή σας στην ψηφοφορία!"
 
@@ -608,7 +612,7 @@ msgstr "Η ψηφοφορία έχει αρχειοθετηθεί."
 msgid "This election is currently closed."
 msgstr "Η ψηφοφορία είναι κλειστή αυτή την στιγμή."
 
-#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:202
+#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:208
 msgid "This vote replaces any previous vote."
 msgstr "Η ψήφος αυτή αντικαθιστά προηγούμενες ψήφους."
 
@@ -673,7 +677,7 @@ msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 "Εδώ χρησιμοποιούμε την μέθοδο Schulze και παραπέμπουμε τους ψηφοφόρους στο "
 
-#: src/web/server/common/pages_common.ml:194 src/web/common/pages_common.ml:102
+#: src/web/server/common/pages_common.ml:194 src/web/common/pages_common.ml:108
 msgid "Wish to help with translations?"
 msgstr "Θέλετε να βοηθήσετε με τις μεταφράσεις;"
 
@@ -713,7 +717,7 @@ msgstr "Μπορείτε επίσης να "
 msgid "You can also download the "
 msgstr "Μπορείτε επίσης να κατεβάσετε το "
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:240
 msgid "You can check its presence in the "
 msgstr "Μπορείτε να ελέγξετε την ύπαρξή του στην "
 
@@ -733,7 +737,7 @@ msgstr ""
 msgid "You cannot log in now. Please try later."
 msgstr ""
 
-#: src/web/common/pages_common.ml:255
+#: src/web/common/pages_common.ml:261
 msgid "Your ballot for "
 msgstr "To ψηφοδέλτιό σας για το "
 
@@ -753,7 +757,7 @@ msgstr ""
 msgid "Your smart ballot tracker is"
 msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σας είναι"
 
-#: src/web/common/pages_common.ml:231
+#: src/web/common/pages_common.ml:237
 msgid "Your smart ballot tracker is "
 msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σας είναι "
 
@@ -769,11 +773,11 @@ msgstr "Η ψήφος σας για την ψηφοφορία %s"
 msgid "Your vote was not recorded!"
 msgstr "Η ψήφος σας δεν καταγράφηκε!"
 
-#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:211
+#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:217
 msgid "Your weight is %s."
 msgstr ""
 
-#: src/web/common/pages_common.ml:222
+#: src/web/common/pages_common.ml:228
 msgid "ballot box"
 msgstr "κάλπη"
 

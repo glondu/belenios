@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (se per esempio l'ha dimenticata)."
 
-#: src/web/common/pages_common.ml:238
+#: src/web/common/pages_common.ml:244
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Ti è stata inviata un'email di conferma."
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:242
 msgid " anytime during the election."
 msgstr " ad ogni momento durante l'elezione."
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:231
 msgid " as user "
 msgstr " come utente "
 
@@ -47,7 +47,7 @@ msgstr " scheda(e) accettata(e)."
 msgid " for more information."
 msgstr " per ulteriori informazioni."
 
-#: src/web/common/pages_common.ml:227
+#: src/web/common/pages_common.ml:233
 msgid " has been accepted."
 msgstr " è stata accettata."
 
@@ -59,7 +59,7 @@ msgstr " sono state scrutinate."
 msgid " in the following box: "
 msgstr " nella casella seguente: "
 
-#: src/web/common/pages_common.ml:245
+#: src/web/common/pages_common.ml:251
 msgid " is rejected, because "
 msgstr " viene rifiutato, perché "
 
@@ -292,11 +292,11 @@ msgstr "Home dell'Elezione"
 msgid "Election identifier"
 msgstr "Identificatore elettorale"
 
-#: src/web/clients/jslib/belenios_jslib.ml:272
+#: src/web/clients/jslib/belenios_jslib.ml:271
 msgid "Election public URL"
 msgstr "URL pubblico delle elezioni"
 
-#: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
+#: src/web/common/pages_common.ml:143 src/web/common/pages_common.ml:134
 msgid "Election server"
 msgstr "Server delle elezioni"
 
@@ -316,7 +316,7 @@ msgstr "Errore durante il caricamento delle schede!"
 msgid "Expected fingerprint:"
 msgstr "Impronta attesa:"
 
-#: src/web/common/pages_common.ml:249
+#: src/web/common/pages_common.ml:255
 msgid "FAIL!"
 msgstr "NON RIUSCITO!"
 
@@ -336,12 +336,12 @@ msgstr "Impronta digitale del conteggio criptato"
 msgid "Forbidden"
 msgstr "Accesso non consentito"
 
-#: src/web/common/pages_common.ml:65
+#: src/web/common/pages_common.ml:69
 msgid "Get the source code"
 msgstr "Scaricare il codice sorgente"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:265
+#. src/web/common/pages_common.ml:271
 msgid "Go back to election"
 msgstr "Torna alle elezioni"
 
@@ -376,7 +376,7 @@ msgstr "Si aprirà alle %s (tempo rimanente: %s)."
 msgid "JSON result"
 msgstr "Risultato in JSON"
 
-#: src/web/server/common/pages_common.ml:174 src/web/common/pages_common.ml:88
+#: src/web/server/common/pages_common.ml:174 src/web/common/pages_common.ml:94
 msgid "Language:"
 msgstr "Lingua:"
 
@@ -461,7 +461,7 @@ msgstr ""
 msgid "Please vote here using your personal link:"
 msgstr "Si prega di votare utilizzando il vostro link personale:"
 
-#: src/web/common/pages_common.ml:61
+#: src/web/common/pages_common.ml:65
 msgid "Powered by "
 msgstr "Opera con "
 
@@ -491,7 +491,7 @@ msgstr "Reindirizzamento"
 msgid "Refresh status"
 msgstr "Aggiorna stato"
 
-#: src/web/common/pages_common.ml:50
+#: src/web/common/pages_common.ml:54
 msgid "Restricted mode"
 msgstr "Modalità limitata"
 
@@ -507,7 +507,7 @@ msgstr "Impronta digitale del registro di sigillatura"
 msgid "See accepted ballots"
 msgstr "Consultare le schede elettorali accettate"
 
-#: src/web/clients/jslib/belenios_jslib.ml:337
+#: src/web/clients/jslib/belenios_jslib.ml:336
 msgid "Session expired"
 msgstr "Sessione scaduta"
 
@@ -521,10 +521,14 @@ msgstr ""
 "Esistono diverse tecniche per decidere quale candidato eleggere quando non "
 "c'è un vincitore secondo Condorcet."
 
-#: src/web/clients/jslib/belenios_jslib.ml:277
-#. src/web/clients/jslib/belenios_jslib.ml:263
+#: src/web/clients/jslib/belenios_jslib.ml:276
+#. src/web/clients/jslib/belenios_jslib.ml:262
 msgid "Smart ballot tracker"
 msgstr "Tracciatore intelligente delle schede elettorali"
+
+#: src/web/common/pages_common.ml:71
+msgid "Specification"
+msgstr ""
 
 #: src/web/clients/election/home.ml:761
 msgid "Start"
@@ -551,11 +555,11 @@ msgstr ""
 "Tali candidati vengono contrassegnati come \"TieWin\" quando vengono eletti "
 "e come \"TieLose\" se perdono."
 
-#: src/web/common/pages_common.ml:67
+#: src/web/common/pages_common.ml:73
 msgid "Terms of service"
 msgstr "Termini del servizio"
 
-#: src/web/common/pages_common.ml:241
+#: src/web/common/pages_common.ml:247
 msgid "Thank you for voting!"
 msgstr "Grazie per aver votato!"
 
@@ -619,7 +623,7 @@ msgstr "Questa elezione è stata archiviata."
 msgid "This election is currently closed."
 msgstr "Questa elezione al momento è chiusa."
 
-#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:202
+#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:208
 msgid "This vote replaces any previous vote."
 msgstr "Questa votazione sostituisce ogni votazione precedente."
 
@@ -687,7 +691,7 @@ msgstr ""
 msgid "We use here the Schulze method and we refer voters to "
 msgstr "Utilizziamo qui il metodo Schulze e rimandiamo gli elettori a "
 
-#: src/web/server/common/pages_common.ml:194 src/web/common/pages_common.ml:102
+#: src/web/server/common/pages_common.ml:194 src/web/common/pages_common.ml:108
 msgid "Wish to help with translations?"
 msgstr "Vuoi dare una mano con le traduzioni?"
 
@@ -727,7 +731,7 @@ msgstr "Lei può anche "
 msgid "You can also download the "
 msgstr "È possibile scaricare il "
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:240
 msgid "You can check its presence in the "
 msgstr "Puoi verificarne la presenza nel "
 
@@ -752,7 +756,7 @@ msgstr ""
 "In questo momento non è possibile accedere. Si prega di provare di nuovo più "
 "tardi."
 
-#: src/web/common/pages_common.ml:255
+#: src/web/common/pages_common.ml:261
 msgid "Your ballot for "
 msgstr "La tua scheda elettorale per "
 
@@ -774,7 +778,7 @@ msgstr ""
 msgid "Your smart ballot tracker is"
 msgstr "Il suo codice di verifica è"
 
-#: src/web/common/pages_common.ml:231
+#: src/web/common/pages_common.ml:237
 msgid "Your smart ballot tracker is "
 msgstr "Il tuo smart ballot tracker è "
 
@@ -790,11 +794,11 @@ msgstr "La sua scheda per l'elezione %s"
 msgid "Your vote was not recorded!"
 msgstr "Il suo voto non è stato registrato!"
 
-#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:211
+#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:217
 msgid "Your weight is %s."
 msgstr "Il tuo peso è %s."
 
-#: src/web/common/pages_common.ml:222
+#: src/web/common/pages_common.ml:228
 msgid "ballot box"
 msgstr "urna elettorale"
 
