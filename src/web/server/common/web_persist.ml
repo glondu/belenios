@@ -101,14 +101,14 @@ let seal_election s seal =
           if b then set Value { metadata with sealed }
           else failwith "sealing error")
 
-let append_to_shuffles s election owner vk_s shuffle_s =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let vk = W.G.of_string vk_s in
+let append_to_shuffles s (type a b) (election : (a, b) Election.u) owner
+    ~(vk : a) (shuffle : (a, b) shuffle) =
+  let module W = (val election) in
   let@ last cont =
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
-  let shuffle = !*[%witness_of_yojson (W.G.witness : _ shuffle)] shuffle_s in
+  let shuffle_s = !+[%yojson_of_witness (W.G.witness : _ shuffle)] shuffle in
   let shuffle_h = Hash.hash_string shuffle_s in
   let* last_nh = Public_archive.get_nh_ciphertexts s in
   let last_nh = !*(nh_ciphertexts_of_yojson !$W.G.of_string) last_nh in
@@ -127,7 +127,7 @@ let append_to_shuffles s election owner vk_s shuffle_s =
         ]
     in
     match x with
-    | true -> return_some @@ sha256_b64 shuffle_s
+    | true -> return_some shuffle_h
     | false -> Lwt.fail @@ Failure "race condition in append_to_shuffles"
   else return_none
 
@@ -827,10 +827,7 @@ let compute_encrypted_tally s =
         let* cc = Public_archive.get_nh_ciphertexts s in
         let cc = !*(nh_ciphertexts_of_yojson !$W.G.of_string) cc in
         let shuffle = W.E.shuffle_ciphertexts ~sk cc in
-        let shuffle =
-          !+[%yojson_of_witness (W.G.witness : _ shuffle)] shuffle
-        in
-        let* x = append_to_shuffles s election 1 (W.G.to_string vk) shuffle in
+        let* x = append_to_shuffles s (module W) 1 ~vk shuffle in
         match x with
         | None -> Lwt.fail (Failure "server-side shuffle failed")
         | Some _ -> Lwt.return_true

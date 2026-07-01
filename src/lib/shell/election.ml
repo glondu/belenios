@@ -115,6 +115,7 @@ module type ELECTION = sig
 end
 
 type t = (module ELECTION)
+type ('a, 'b) u = (module ELECTION with type G.t = 'a and type G.Zq.t = 'b)
 
 let t_of_yojson x =
   match get_version x with

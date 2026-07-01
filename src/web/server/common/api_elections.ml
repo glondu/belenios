@@ -338,15 +338,18 @@ let post_partial_decryption s election ~trustee_id ~partial_decryption =
     Lwt.return @@ Ok ()
   else Lwt.return @@ Stdlib.Error `Invalid
 
-let post_shuffle s election ~token ~shuffle =
+let post_shuffle s (election : Election.t) ~token ~shuffle =
   let@ x, set = Storage.E.update s State_state in
   match Lopt.get_value x with
   | Some (Some (`Shuffle { skipped; token = Some x }))
     when token = x.trustee.token ->
       Lwt.catch
         (fun () ->
+          let module W = (val election) in
+          let shuffle =
+            !*[%witness_of_yojson (W.G.witness : _ shuffle)] shuffle
+          in
           let@ vk cont =
-            let module W = (val (election : Election.t)) in
             let* trustees = Public_archive.get_trustees s in
             let trustees =
               !*[%witness_of_yojson (W.G.witness : _ trustees)] trustees
@@ -360,10 +363,10 @@ let post_shuffle s election ~token ~shuffle =
                     t.certs |> Array.map (fun cert -> cert.message.verification))
               |> Array.concat
             in
-            cont @@ W.G.to_string @@ keys.(x.trustee_id - 1)
+            cont @@ keys.(x.trustee_id - 1)
           in
           let* y =
-            Web_persist.append_to_shuffles s election x.trustee_id vk shuffle
+            Web_persist.append_to_shuffles s (module W) x.trustee_id ~vk shuffle
           in
           match y with
           | Some _ ->

@@ -94,11 +94,11 @@ val cast_ballot :
 
 val append_to_shuffles :
   Storage.E.t ->
-  (module Site_common_sig.ELECTION) ->
+  ('a, 'b) Election.u ->
   int ->
-  string ->
-  string ->
-  string option Lwt.t
+  vk:'a ->
+  ('a, 'b) shuffle ->
+  hash option Lwt.t
 
 val add_partial_decryption : Storage.E.t -> int * string -> unit Lwt.t
 val release_tally : Storage.E.t -> unit Lwt.t

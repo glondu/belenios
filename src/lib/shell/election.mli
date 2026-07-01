@@ -70,6 +70,7 @@ module type ELECTION = sig
 end
 
 type t = (module ELECTION) [@@deriving yojson]
+type ('a, 'b) u = (module ELECTION with type G.t = 'a and type G.Zq.t = 'b)
 
 val supported_crypto_versions : some_version list
 
