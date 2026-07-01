@@ -9,7 +9,7 @@ function memset(dst, c, n) {
     }
 }
 
-const base = document.currentScript?.src;
+const base = globalThis.document?.currentScript?.src || globalThis.location?.href;
 
 if (typeof WebAssembly !== "undefined" && WebAssembly.instantiateStreaming && base) {
     var env = {memset: memset};
