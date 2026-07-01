@@ -1455,7 +1455,7 @@ msgstr "Classer les propositions"
 
 #: src/web/common/pages_common.ml:71
 msgid "Specification"
-msgstr ""
+msgstr "Spécification"
 
 #: src/web/clients/admin/trustees_tab.ml:465
 #. src/web/clients/admin/elections.ml:418

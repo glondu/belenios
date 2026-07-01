@@ -526,7 +526,7 @@ msgstr "Numéro de suivi du bulletin"
 
 #: src/web/common/pages_common.ml:71
 msgid "Specification"
-msgstr ""
+msgstr "Spécification"
 
 #: src/web/clients/election/home.ml:761
 msgid "Start"
