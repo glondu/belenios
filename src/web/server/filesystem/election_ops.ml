@@ -74,6 +74,7 @@ let delete_live_election s uuid roots =
     cont (!*(trustees_of_yojson Fun.id Fun.id) x)
   in
   let module W = (val election) in
+  let module G = W.G in
   let module CredSet = Set.Make (W.G) in
   let&? metadata = Metadata in
   let&? dates = Dates in
@@ -135,8 +136,7 @@ let delete_live_election s uuid roots =
                 let* x = S.get (Election (uuid, Data b)) in
                 match Lopt.get_value x with
                 | None -> Lwt.return accu
-                | Some b ->
-                    cont (!*[%witness_of_yojson ((module W.G) : _ ballot)] b)
+                | Some b -> cont (!*[%group_of_yojson: _ ballot] b)
               in
               let credential = ballot.message.credential in
               if CredSet.mem credential seen then loop seen accu p
@@ -304,9 +304,7 @@ let validate_election_exn s uuid =
   let* public_creds = S.init_credential_mapping uuid (module G) in
   (* initialize events *)
   let* () =
-    let raw_trustees =
-      !+[%yojson_of_witness ((module G) : _ trustees)] trustees
-    in
+    let raw_trustees = !+[%yojson_of_group: _ trustees] trustees in
     let raw_public_creds =
       !+(yojson_of_public_credentials !&G.to_string) public_creds
     in
@@ -317,9 +315,7 @@ let validate_election_exn s uuid =
       match se.public_creds_certificate with
       | None -> ([], None)
       | Some c ->
-          let raw =
-            c |> !+[%yojson_of_witness ((module G) : _ credentials_certificate)]
-          in
+          let raw = c |> !+[%yojson_of_group: _ credentials_certificate] in
           ([ Data raw ], Some (Hash.hash_string raw))
     in
     let setup_data =

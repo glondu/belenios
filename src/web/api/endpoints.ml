@@ -109,10 +109,11 @@ let draft_credentials_token uuid =
   }
 
 let draft_trustees uuid (type a b) (w : (a, b) group) =
+  let module G = (val w) in
   {
     path = Printf.sprintf "elections/%s/draft/trustees" (Uuid.to_string uuid);
-    of_yojson = [%witness_of_yojson (w : _ draft_trustees)];
-    to_yojson = [%yojson_of_witness (w : _ draft_trustees)];
+    of_yojson = [%group_of_yojson: _ draft_trustees];
+    to_yojson = [%yojson_of_group: _ draft_trustees];
     to_yojson_post = yojson_of_trustees_request;
   }
 
@@ -127,18 +128,20 @@ let draft_trustee uuid x =
   }
 
 let trustee_draft uuid (type a b) (w : (a, b) group) =
+  let module G = (val w) in
   {
     path = Printf.sprintf "elections/%s/draft/trustee" (Uuid.to_string uuid);
-    of_yojson = [%witness_of_yojson (w : _ trustee_status)];
-    to_yojson = [%yojson_of_witness (w : _ trustee_status)];
+    of_yojson = [%group_of_yojson: _ trustee_status];
+    to_yojson = [%yojson_of_group: _ trustee_status];
     to_yojson_post = Fun.id;
   }
 
 let trustee_election uuid (type a b) (w : (a, b) group) =
+  let module G = (val w) in
   {
     path = Printf.sprintf "elections/%s/trustee" (Uuid.to_string uuid);
-    of_yojson = [%witness_of_yojson (w : _ tally_trustee)];
-    to_yojson = [%yojson_of_witness (w : _ tally_trustee)];
+    of_yojson = [%group_of_yojson: _ tally_trustee];
+    to_yojson = [%yojson_of_group: _ tally_trustee];
     to_yojson_post = Fun.id;
   }
 

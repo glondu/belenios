@@ -2,7 +2,7 @@
  (name belenios_web_api)
  (public_name belenios-lib.api)
  (preprocess
-  (pps ppx_yojson_conv ppx_group_witness))
+  (pps ppx_yojson_conv ppx_yojson_group))
  (libraries
   (re_export uri)
   (re_export belenios-lib)))

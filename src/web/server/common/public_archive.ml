@@ -72,13 +72,14 @@ let fold_on_event_payloads s typ last_event f accu =
     accu
 
 let get_trustees s (type a b) (w : (a, b) group) =
+  let module G = (val w) in
   let* x = get_from_setup_data s (fun x -> x.trustees) in
   let@ () =
    fun cont ->
     match x with
     | None -> cont ()
     | Some x ->
-        Lwt.return @@ Lopt.some_string !*[%witness_of_yojson (w : _ trustees)] x
+        Lwt.return @@ Lopt.some_string !*[%group_of_yojson: _ trustees] x
   in
   let uuid = Storage.E.get_uuid s in
   let msg =
@@ -125,6 +126,7 @@ let with_election s ~fallback f =
     (function Not_cachable -> fallback () | e -> Lwt.reraise e)
 
 let get_partial_decryptions s (type a b) (w : (a, b) group) =
+  let module G = (val w) in
   let* x = get_roots s in
   match x.last_pd_event with
   | None -> Lwt.return []
@@ -137,8 +139,7 @@ let get_partial_decryptions s (type a b) (w : (a, b) group) =
             match x with
             | None -> assert false
             | Some x ->
-                Lwt.return
-                @@ !*[%witness_of_yojson (w : _ partial_decryption)] x
+                Lwt.return @@ !*[%group_of_yojson: _ partial_decryption] x
           in
           let x = { x with payload = pd } in
           Lwt.return @@ (x :: accu))
@@ -165,9 +166,10 @@ let get_credential_weight s cred =
 
 let get_ballot_weight s (election : Election.t) ballot =
   let module W = (val election) in
+  let module G = W.G in
   Lwt.catch
     (fun () ->
-      let ballot = !*[%witness_of_yojson ((module W.G) : _ ballot)] ballot in
+      let ballot = !*[%group_of_yojson: _ ballot] ballot in
       let credential = ballot.message.credential in
       get_credential_weight s (W.G.to_string credential))
     (fun e ->
@@ -191,11 +193,12 @@ let fold_on_ballots s f accu =
 
 let fold_on_ballots_weeded s (election : Election.t) f accu =
   let module W = (val election) in
+  let module G = W.G in
   let module GSet = Set.Make (W.G) in
   let* _, accu =
     fold_on_ballots s
       (fun _ b ((seen, accu) as x) ->
-        let ballot = !*[%witness_of_yojson ((module W.G) : _ ballot)] b in
+        let ballot = !*[%group_of_yojson: _ ballot] b in
         let credential = ballot.message.credential in
         if GSet.mem credential seen then Lwt.return x
         else

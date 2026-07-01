@@ -43,17 +43,16 @@ let get_election (type t) : t File.u -> t serializers = function
       { of_string = !*metadata_of_yojson; to_string = !+yojson_of_metadata }
   | Server_seed -> { of_string = Fun.id; to_string = Fun.id }
   | Private_keys w ->
+      let module G = (val w) in
       {
         of_string =
           (fun xs ->
             xs |> split_lines
-            |> List.map
-                 !*[%witness_of_yojson (w : _ sent_partial_decryption_key)]);
+            |> List.map !*[%group_of_yojson: _ sent_partial_decryption_key]);
         to_string =
           (fun xs ->
             xs
-            |> List.map
-                 !+[%yojson_of_witness (w : _ sent_partial_decryption_key)]
+            |> List.map !+[%yojson_of_group: _ sent_partial_decryption_key]
             |> join_lines);
       }
   | Audit_cache ->
@@ -134,9 +133,10 @@ let get_election (type t) : t File.u -> t serializers = function
         to_string = !+yojson_of_credentials_seed;
       }
   | Credentials_records w ->
+      let module G = (val w) in
       {
-        of_string = !*[%witness_of_yojson (w : _ credentials_records)];
-        to_string = !+[%yojson_of_witness (w : _ credentials_records)];
+        of_string = !*[%group_of_yojson: _ credentials_records];
+        to_string = !+[%yojson_of_group: _ credentials_records];
       }
   | Credentials_credits ->
       {

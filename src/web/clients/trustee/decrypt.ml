@@ -33,6 +33,7 @@ let compute_partial_decryption (type a b) (election : (a, b) Election.u) trustee
     ~encrypted_tally ~private_key =
   let open (val !Belenios_js.I18n.gettext) in
   let module W = (val election) in
+  let module G = W.G in
   let encrypted_tally =
     encrypted_tally_of_yojson !$W.G.of_string encrypted_tally
   in
@@ -54,8 +55,7 @@ let compute_partial_decryption (type a b) (election : (a, b) Election.u) trustee
         Lwt.return (P.derive_sk private_key, KG.derive private_key)
   in
   W.E.compute_factor encrypted_tally ~sk ~pdk
-  |> [%yojson_of_witness ((module W.G) : _ partial_decryption)]
-  |> Lwt.return
+  |> [%yojson_of_group: _ partial_decryption] |> Lwt.return
 
 let decrypt uuid ~token =
   let open (val !Belenios_js.I18n.gettext) in

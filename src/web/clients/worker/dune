@@ -3,4 +3,4 @@
  (modes js)
  (libraries belenios-platform-js belenios-lib belenios_worker_messages)
  (preprocess
-  (pps ppx_group_witness js_of_ocaml-ppx)))
+  (pps ppx_yojson_group js_of_ocaml-ppx)))

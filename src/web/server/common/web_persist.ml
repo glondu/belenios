@@ -94,16 +94,17 @@ let seal_election s seal =
 let append_to_shuffles s (type a b) (election : (a, b) Election.u) owner
     ~(vk : a) (shuffle : (a, b) shuffle) =
   let module W = (val election) in
+  let module G = W.G in
   let@ last cont =
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
-  let shuffle_s = !+[%yojson_of_witness ((module W.G) : _ shuffle)] shuffle in
+  let shuffle_s = !+[%yojson_of_group: _ shuffle] shuffle in
   let shuffle_h = Hash.hash_string shuffle_s in
   let* last_nh = Public_archive.get_nh_ciphertexts s in
   let last_nh = !*(nh_ciphertexts_of_yojson !$W.G.of_string) last_nh in
   if
-    !+[%yojson_of_witness ((module W.G) : _ shuffle)] shuffle = shuffle_s
+    !+[%yojson_of_group: _ shuffle] shuffle = shuffle_s
     && W.E.check_shuffle ~vk last_nh shuffle
   then
     let owned = { owner; payload = shuffle_h } in
@@ -132,6 +133,7 @@ let internal_release_tally ~force s set_state =
         Lwt.fail (Election_not_found (uuid, "internal_release_tally")))
   in
   let module W = (val election) in
+  let module G = W.G in
   let@ last cont =
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
@@ -184,9 +186,7 @@ let internal_release_tally ~force s set_state =
           let pdk = KG.derive seed in
           let pd = W.E.compute_factor tally ~sk ~pdk in
           let owned = { owner; payload = pd } in
-          let pd =
-            !+[%yojson_of_witness ((module W.G) : _ partial_decryption)] pd
-          in
+          let pd = !+[%yojson_of_group: _ partial_decryption] pd in
           let payload =
             { owner; payload = Hash.hash_string pd }
             |> !+(yojson_of_owned yojson_of_hash)
@@ -388,6 +388,7 @@ let get_credential_weight s credential =
 
 let raw_compute_encrypted_tally s (election : Election.t) =
   let module W = (val election) in
+  let module G = W.G in
   let module GMap = Map.Make (W.G) in
   let@ last cont =
     let* x = Storage.E.get s Last_event in
@@ -396,7 +397,7 @@ let raw_compute_encrypted_tally s (election : Election.t) =
   let* ballots =
     Public_archive.fold_on_ballots s
       (fun _ b accu ->
-        let ballot = !*[%witness_of_yojson ((module W.G) : _ ballot)] b in
+        let ballot = !*[%group_of_yojson: _ ballot] b in
         let credential = ballot.message.credential in
         if GMap.mem credential accu then Lwt.return accu
         else Lwt.return @@ GMap.add credential ballot accu)

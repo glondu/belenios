@@ -626,9 +626,7 @@ module MakeBackend
       Draft_concrete
         ( (module G),
           v,
-          !*([%witness_of_yojson ((module G) : _ raw_draft_election)]
-               t_of_yojson)
-            x )
+          !*([%group_of_yojson: _ raw_draft_election] t_of_yojson) x )
       |> Lwt.return_some
     in
     match concrete with
@@ -646,6 +644,7 @@ module MakeBackend
     match Lopt.get_value data with
     | None -> assert false
     | Some (W (w, Draft (v, abstract))) ->
+        let module G = (val w) in
         let concrete, se_private_creds_downloaded =
           Converters.raw_draft_election_to_concrete abstract
         in
@@ -656,7 +655,7 @@ module MakeBackend
         in
         let data =
           let open (val Election.get_serializers v) in
-          !+([%yojson_of_witness (w : _ Types.raw_draft_election)] yojson_of_t)
+          !+([%yojson_of_group: _ Types.raw_draft_election] yojson_of_t)
             concrete
         in
         let* () =

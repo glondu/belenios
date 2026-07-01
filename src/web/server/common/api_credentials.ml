@@ -136,7 +136,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let url = Printf.sprintf "%sapi/credentials/belenios" r.belenios_url in
   let body =
     { certificate; token = r.token; public_credentials = creds.public_with_ids }
-    |> !+[%yojson_of_witness ((module G) : _ credentials_response)]
+    |> !+[%yojson_of_group: _ credentials_response]
     |> Cohttp_lwt.Body.of_string
   in
   let* x, body = Cohttp_lwt_unix.Client.post ~body (Uri.of_string url) in
@@ -225,9 +225,7 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
                 match b with
                 | None -> Lwt.return_none
                 | Some b ->
-                    let ballot =
-                      !*[%witness_of_yojson ((module G) : _ ballot)] b
-                    in
+                    let ballot = !*[%group_of_yojson: _ ballot] b in
                     let c = ballot.message.credential in
                     Lwt.return_some (c, event.parent)))
         | _ -> Lwt.return_none)
@@ -501,8 +499,9 @@ let dispatch endpoint method_ body =
           match Lopt.get_value se with
           | None -> not_found
           | Some (W (w, (Draft (_, se) as x))) ->
+              let module G = (val w) in
               let response =
-                !*[%witness_of_yojson (w : _ credentials_response)] response_s
+                !*[%group_of_yojson: _ credentials_response] response_s
               in
               if se.public_creds = response.token then
                 let set ?billing:_ x = set Value (W (w, x)) in

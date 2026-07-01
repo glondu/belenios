@@ -117,15 +117,15 @@ module MakeChannels (P : PKI) = struct
   let cast_xch_inner { dst; of_yojson; to_yojson } =
     {
       dst = dst ^ "-channel_msg_inner";
-      to_yojson = [%yojson_of_witness ((module G) : _ channel_msg)] to_yojson;
-      of_yojson = [%witness_of_yojson ((module G) : _ channel_msg)] of_yojson;
+      to_yojson = [%yojson_of_group: _ channel_msg] to_yojson;
+      of_yojson = [%group_of_yojson: _ channel_msg] of_yojson;
     }
 
   let cast_xch_outer { dst; of_yojson; to_yojson } =
     {
       dst = dst ^ "-channel_msg_outer";
-      to_yojson = [%yojson_of_witness ((module G) : _ signed_msg)] to_yojson;
-      of_yojson = [%witness_of_yojson ((module G) : _ signed_msg)] of_yojson;
+      to_yojson = [%yojson_of_group: _ signed_msg] to_yojson;
+      of_yojson = [%group_of_yojson: _ signed_msg] of_yojson;
     }
 
   let send ~algorithm xch sk recipient message =

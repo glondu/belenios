@@ -151,8 +151,8 @@ struct
   let xch_ballot =
     {
       dst = dst_prefix ^ "-ballot";
-      of_yojson = [%witness_of_yojson ((module G) : _ raw_ballot)];
-      to_yojson = [%yojson_of_witness ((module G) : _ raw_ballot)];
+      of_yojson = [%group_of_yojson: _ raw_ballot];
+      to_yojson = [%yojson_of_group: _ raw_ballot];
     }
 
   let create_ballot ~sk m =
@@ -183,16 +183,10 @@ struct
          W.template.questions answers
 
   let check_rawballot rawballot =
-    match
-      rawballot |> Json.of_string
-      |> [%witness_of_yojson ((module G) : _ ballot)]
-    with
+    match rawballot |> Json.of_string |> [%group_of_yojson: _ ballot] with
     | exception e -> Error (`SerializationError (Printexc.to_string e))
     | ballot ->
-        if
-          ballot
-          |> [%yojson_of_witness ((module G) : _ ballot)]
-          |> Json.to_string = rawballot
+        if ballot |> [%yojson_of_group: _ ballot] |> Json.to_string = rawballot
         then
           Ok
             {
@@ -242,8 +236,8 @@ struct
   let xch_shuffle =
     {
       dst = dst_prefix ^ "-shuffle";
-      of_yojson = [%witness_of_yojson ((module G) : _ raw_shuffle)];
-      to_yojson = [%yojson_of_witness ((module G) : _ raw_shuffle)];
+      of_yojson = [%group_of_yojson: _ raw_shuffle];
+      to_yojson = [%yojson_of_group: _ raw_shuffle];
     }
 
   let shuffle_ciphertexts ~sk cc =
@@ -282,8 +276,8 @@ struct
   let xch_partial_decryption =
     {
       dst = dst_prefix ^ "-partial_decryption";
-      of_yojson = [%witness_of_yojson ((module G) : _ raw_partial_decryption)];
-      to_yojson = [%yojson_of_witness ((module G) : _ raw_partial_decryption)];
+      of_yojson = [%group_of_yojson: _ raw_partial_decryption];
+      to_yojson = [%yojson_of_group: _ raw_partial_decryption];
     }
 
   let compute_factor c ~sk ~pdk =

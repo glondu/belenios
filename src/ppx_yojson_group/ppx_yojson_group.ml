@@ -38,7 +38,7 @@ let derive_of_yojson_lid lid =
   | Ldot (path, name) -> Ldot (path, name ^ "_of_yojson")
   | Lapply _ ->
       failwith
-        "[%witness_of_yojson] functor application in type path not supported"
+        "[%group_of_yojson] functor application in type path not supported"
 
 (* Foo.Bar.my_type -> Foo.Bar.yojson_of_my_type *)
 let derive_yojson_of_lid lid =
@@ -47,42 +47,29 @@ let derive_yojson_of_lid lid =
   | Ldot (path, name) -> Ldot (path, "yojson_of_" ^ name)
   | Lapply _ ->
       failwith
-        "[%yojson_of_witness] functor application in type path not supported"
+        "[%yojson_of_group] functor application in type path not supported"
 
 (* Shared: parse (w : _ t) and call [derive_lid] and [make_args] to build the expansion *)
-let expand_witness ~ext_name ~derive_lid ~make_args ~ctxt expr =
+let expand_witness ~derive_lid ~make_args ~ctxt ty =
   let loc = Expansion_context.Extension.extension_point_loc ctxt in
-  match expr.pexp_desc with
-  | Pexp_constraint (witness_expr, ty) ->
-      begin match extract_type_constructor ~loc ty with
-      | Error ext -> pexp_extension ~loc ext
-      | Ok (lid, lid_loc) ->
-          let fn_lid = { txt = derive_lid lid; loc = lid_loc } in
-          [%expr
-            let module G = (val ([%e witness_expr] : _ group)) in
-            [%e pexp_apply ~loc (pexp_ident ~loc fn_lid) (make_args ~loc)]]
-      end
-  | _ ->
-      pexp_extension ~loc
-        (Location.error_extensionf ~loc
-           "[%%%s] expects an expression with a type annotation: (w : _ \
-            MyType.t)"
-           ext_name)
+  match extract_type_constructor ~loc ty with
+  | Error ext -> pexp_extension ~loc ext
+  | Ok (lid, lid_loc) ->
+      let fn_lid = { txt = derive_lid lid; loc = lid_loc } in
+      pexp_apply ~loc (pexp_ident ~loc fn_lid) (make_args ~loc)
 
 let witness_of_yojson_extension =
-  Extension.V3.declare "witness_of_yojson" Extension.Context.expression
-    Ast_pattern.(single_expr_payload __)
-    (expand_witness ~ext_name:"witness_of_yojson"
-       ~derive_lid:derive_of_yojson_lid ~make_args:(fun ~loc ->
+  Extension.V3.declare "group_of_yojson" Extension.Context.expression
+    Ast_pattern.(ptyp __)
+    (expand_witness ~derive_lid:derive_of_yojson_lid ~make_args:(fun ~loc ->
          [
            (Nolabel, [%expr !$G.of_string]); (Nolabel, [%expr !$G.Zq.of_string]);
          ]))
 
 let yojson_of_witness_extension =
-  Extension.V3.declare "yojson_of_witness" Extension.Context.expression
-    Ast_pattern.(single_expr_payload __)
-    (expand_witness ~ext_name:"yojson_of_witness"
-       ~derive_lid:derive_yojson_of_lid ~make_args:(fun ~loc ->
+  Extension.V3.declare "yojson_of_group" Extension.Context.expression
+    Ast_pattern.(ptyp __)
+    (expand_witness ~derive_lid:derive_yojson_of_lid ~make_args:(fun ~loc ->
          [
            (Nolabel, [%expr !&G.to_string]); (Nolabel, [%expr !&G.Zq.to_string]);
          ]))

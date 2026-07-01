@@ -3,7 +3,7 @@
  (public_name belenios-tool)
  (package belenios-tool)
  (preprocess
-  (pps ppx_yojson_conv ppx_group_witness))
+  (pps ppx_yojson_conv ppx_yojson_group))
  (libraries
   cmdliner
   belenios_cohttp

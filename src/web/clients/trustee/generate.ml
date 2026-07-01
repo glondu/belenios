@@ -45,9 +45,7 @@ let generate_basic (Draft (_, draft)) ~name () =
   let module KG = Trustees.MakeBasic (G) in
   let seed = generate_token 22 in
   let public_key' = KG.make ~name seed in
-  let public_key =
-    public_key' |> [%yojson_of_witness ((module G) : _ basic_parameters)]
-  in
+  let public_key = public_key' |> [%yojson_of_group: _ basic_parameters] in
   let fingerprint =
     public_key'
     |> (fun x -> x.cert.message.verification)
@@ -75,7 +73,7 @@ let generate_threshold (Draft (_, draft)) context () =
             (yojson_of_pedersen_context yojson_of_index))
          cert.message
   in
-  let public_key = [%yojson_of_witness ((module G) : _ pedersen_cert)] cert in
+  let public_key = [%yojson_of_group: _ pedersen_cert] cert in
   let mime_type = "text/plain"
   and filename uuid =
     Printf.sprintf "private_key-%s.txt" (Uuid.to_string uuid)
@@ -94,7 +92,7 @@ let threshold_step (Draft (_, draft)) (type a b) (w : (a, b) group)
   match pedersen.step with
   | 3 ->
       let* x = T.step3 certs private_key in
-      Lwt.return @@ [%yojson_of_witness ((module G) : _ polynomial)] x
+      Lwt.return @@ [%yojson_of_group: _ polynomial] x
   | 5 ->
       let@ vinput cont =
         match pedersen.vinput with
@@ -102,7 +100,7 @@ let threshold_step (Draft (_, draft)) (type a b) (w : (a, b) group)
         | None -> failwith "Unexpected state! (missing vinput)"
       in
       let* x = T.step5 certs private_key vinput in
-      Lwt.return @@ [%yojson_of_witness ((module G) : _ voutput)] x
+      Lwt.return @@ [%yojson_of_group: _ voutput] x
   | _ -> failwith "Unexpected state!"
 
 let generate_key ~uuid ~token ~url generate continue =

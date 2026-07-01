@@ -148,7 +148,8 @@ module App (U : UI) = struct
         Lwt.return_unit
       in
       let module E = (val election) in
-      let module C = Credentials_certificate (E.G) in
+      let module G = E.G in
+      let module C = Credentials_certificate (G) in
       let@ certificate cont =
         match setup.credentials_certificate with
         | None -> fail ()
@@ -156,10 +157,7 @@ module App (U : UI) = struct
             let* x = Api.(get (election_object uuid h) `Nobody) in
             match x with
             | Ok (x, _) ->
-                cont
-                @@ !*[%witness_of_yojson
-                       ((module E.G) : _ credentials_certificate)]
-                     x
+                cont @@ !*[%group_of_yojson: _ credentials_certificate] x
             | Error _ -> fail ())
       in
       let@ () =

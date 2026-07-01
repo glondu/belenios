@@ -999,9 +999,7 @@ let post_trustee_basic (type a b) (w : (a, b) group)
   match t.parameters with
   | None ->
       let module Trustees = (val Trustees.get_by_version se.version) in
-      let parameters =
-        !*[%witness_of_yojson ((module G) : _ basic_parameters)] data
-      in
+      let parameters = !*[%group_of_yojson: _ basic_parameters] data in
       let module K = Trustees.MakeCombinator (G) in
       if
         parameters.verification_key.message.message.name = Some name
@@ -1061,16 +1059,14 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
   let () =
     match t.step with
     | Some 1 ->
-        let cert = !*[%witness_of_yojson ((module G) : _ pedersen_cert)] data in
+        let cert = !*[%group_of_yojson: _ pedersen_cert] data in
         if K.step1_check full_context cert then (
           t.cert <- Some cert;
           t.step <- Some 2)
         else failwith "Invalid certificate"
     | Some 3 ->
         let certs = get_certs () in
-        let polynomial =
-          !*[%witness_of_yojson ((module G) : _ polynomial)] data
-        in
+        let polynomial = !*[%group_of_yojson: _ polynomial] data in
         if K.step3_check { context; certs } i polynomial then (
           t.polynomial <- Some polynomial;
           t.step <- Some 4)
@@ -1078,7 +1074,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
     | Some 5 ->
         let certs = get_certs () in
         let polynomials = get_polynomials () in
-        let voutput = !*[%witness_of_yojson ((module G) : _ voutput)] data in
+        let voutput = !*[%group_of_yojson: _ voutput] data in
         if K.step5_check { context; certs } i polynomials voutput then (
           t.voutput <- Some voutput;
           t.step <- Some 6)
@@ -1247,9 +1243,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let get () =
         let@ () =
          fun cont ->
-          Lwt.return
-          @@ [%yojson_of_witness ((module G) : _ trustee_status)]
-          @@ cont ()
+          Lwt.return @@ [%yojson_of_group: _ trustee_status] @@ cont ()
         in
         match trustee with
         | `Basic b ->
@@ -1320,7 +1314,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let get is_admin () =
         let open Belenios_web_api in
         let x = get_draft_trustees ~is_admin se in
-        Lwt.return @@ [%yojson_of_witness ((module G) : _ draft_trustees)] x
+        Lwt.return @@ [%yojson_of_group: _ draft_trustees] x
       in
       match (method_, who) with
       | `GET, `Nobody -> handle_get (get false)

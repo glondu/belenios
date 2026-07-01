@@ -3,7 +3,7 @@
  (modes js)
  (libraries belenios_js)
  (preprocess
-  (pps ppx_group_witness js_of_ocaml-ppx)))
+  (pps ppx_yojson_group js_of_ocaml-ppx)))
 
 (install
  (files

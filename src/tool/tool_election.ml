@@ -76,7 +76,7 @@ let make file =
       in
       let b = E.create_ballot ~sk choice in
       assert (E.check_ballot b);
-      Lwt.return (!+[%yojson_of_witness ((module G) : _ ballot)] b)
+      Lwt.return (!+[%yojson_of_group: _ ballot] b)
 
     let decrypt owner seed =
       let module P = Pki.Make (G) in
@@ -112,9 +112,7 @@ let make file =
       let* tally, _ = Lazy.force encrypted_tally in
       let factor = E.compute_factor tally ~sk ~pdk in
       assert (E.check_factor tally ~vk ~pvk factor);
-      let pd =
-        !+[%yojson_of_witness ((module G) : _ partial_decryption)] factor
-      in
+      let pd = !+[%yojson_of_group: _ partial_decryption] factor in
       let opd = { owner; payload = Hash.hash_string pd } in
       Lwt.return (pd, !+(yojson_of_owned yojson_of_hash) opd)
 
@@ -136,7 +134,7 @@ let make file =
       let vk = G.(g **~ sk) in
       let* pdk =
         C.recv ~algorithm Pedersen.xch_decryption_key dk vk
-        @@ !*[%witness_of_yojson ((module G) : sent_partial_decryption_key)] pdk
+        @@ !*[%group_of_yojson: sent_partial_decryption_key] pdk
       in
       let pdk = pdk.decryption_key in
       let pvk = G.(g **~ pdk) in
@@ -159,9 +157,7 @@ let make file =
       let* tally, _ = Lazy.force encrypted_tally in
       let factor = E.compute_factor tally ~sk ~pdk in
       assert (E.check_factor tally ~vk ~pvk factor);
-      let pd =
-        !+[%yojson_of_witness ((module G) : _ partial_decryption)] factor
-      in
+      let pd = !+[%yojson_of_group: _ partial_decryption] factor in
       let opd = { owner; payload = Hash.hash_string pd } in
       Lwt.return (pd, !+(yojson_of_owned yojson_of_hash) opd)
 
@@ -174,9 +170,7 @@ let make file =
       in
       let fill of_string (_, owned, x) = { owned with payload = of_string x } in
       let factors =
-        List.map
-          (fill !*[%witness_of_yojson ((module G) : partial_decryption)])
-          pds
+        List.map (fill !*[%group_of_yojson: partial_decryption]) pds
       in
       let* tally, sized = Lazy.force encrypted_tally in
       let sized = { sized with encrypted_tally = tally } in
@@ -271,10 +265,7 @@ let make file =
               { owned with payload = of_string x }
             in
             let factors =
-              List.map
-                (fill
-                   !*[%witness_of_yojson ((module G) : _ partial_decryption)])
-                pds
+              List.map (fill !*[%group_of_yojson: _ partial_decryption]) pds
             in
             let* tally, sized = Lazy.force encrypted_tally in
             let sized = { sized with encrypted_tally = tally } in
@@ -289,7 +280,7 @@ let make file =
       let cc = E.extract_nh_ciphertexts cc in
       let sk = P.derive_sk seed in
       let shuffle = E.shuffle_ciphertexts ~sk cc in
-      let shuffle_s = !+[%yojson_of_witness ((module G) : _ shuffle)] shuffle in
+      let shuffle_s = !+[%yojson_of_group: _ shuffle] shuffle in
       let owned = { owner; payload = Hash.hash_string shuffle_s } in
       Lwt.return (shuffle_s, !+(yojson_of_owned yojson_of_hash) owned)
 
@@ -310,8 +301,7 @@ let make file =
         let* trustees_as_string = trustees_as_string in
         match trustees_as_string with
         | None -> failwith "missing trustees"
-        | Some x ->
-            Lwt.return @@ !*[%witness_of_yojson ((module G) : _ trustees)] x
+        | Some x -> Lwt.return @@ !*[%group_of_yojson: _ trustees] x
       in
       let* public_credentials =
         let* x = Lazy.force raw_public_creds in

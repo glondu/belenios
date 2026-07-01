@@ -1,5 +1,5 @@
 (library
- (name ppx_group_witness)
+ (name ppx_yojson_group)
  (kind ppx_rewriter)
  (libraries ppxlib)
  (preprocess

@@ -2,7 +2,7 @@
  (name belenios)
  (public_name belenios-lib)
  (preprocess
-  (pps ppx_yojson_conv ppx_group_witness))
+  (pps ppx_yojson_conv ppx_yojson_group))
  (libraries
   (re_export belenios-lib.core)
   (re_export belenios-lib.question)

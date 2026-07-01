@@ -220,10 +220,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
 
   let trustees =
     let* trustees_as_string = trustees_as_string in
-    Lwt.return
-    @@ Option.map
-         !*[%witness_of_yojson ((module G) : _ trustees)]
-         trustees_as_string
+    Lwt.return @@ Option.map !*[%group_of_yojson: _ trustees] trustees_as_string
 
   let pks =
     lazy
@@ -347,7 +344,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
          let* x = Lazy.force unverified_ballots in
          x
          |> List.rev_map (fun (_, _, w, b) ->
-             (w, !*[%witness_of_yojson ((module G) : _ ballot)] b))
+             (w, !*[%group_of_yojson: _ ballot] b))
          |> Lwt.return
        in
        let total_weight =
@@ -391,8 +388,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
       (let* x = Lazy.force shuffles_as_text in
        x
        |> Option.map
-            (List.map (fun (x, t) ->
-                 (!*[%witness_of_yojson ((module G) : _ shuffle)] x, t)))
+            (List.map (fun (x, t) -> (!*[%group_of_yojson: _ shuffle] x, t)))
        |> Lwt.return)
 
   let shuffles_hash =
