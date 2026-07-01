@@ -21,7 +21,7 @@
 
 open Js_of_ocaml
 open Belenios
-open Belenios_js.Messages
+open Belenios_worker_messages
 
 let handle_shuffle { election; ciphertexts } =
   let election = Js.to_string election in

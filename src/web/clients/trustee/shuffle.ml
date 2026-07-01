@@ -26,7 +26,7 @@ open Tyxml_js.Html
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
-open Belenios_js.Messages
+open Belenios_worker_messages
 
 (* We create the worker here, so that its libsodium wasm module
    initializes as soon as possible. *)

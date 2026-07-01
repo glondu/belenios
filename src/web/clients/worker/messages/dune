@@ -1,0 +1,3 @@
+(library
+ (name belenios_worker_messages)
+ (libraries js_of_ocaml))

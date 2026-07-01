@@ -1,7 +1,7 @@
 (executable
  (name trustee)
  (modes js)
- (libraries belenios_js)
+ (libraries belenios_js belenios_worker_messages)
  (preprocess
   (pps js_of_ocaml-ppx)))
 

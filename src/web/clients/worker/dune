@@ -1,6 +1,6 @@
 (executable
  (name belenios_worker)
  (modes js)
- (libraries belenios_js)
+ (libraries belenios-platform-js belenios-lib belenios_worker_messages)
  (preprocess
   (pps js_of_ocaml-ppx)))
