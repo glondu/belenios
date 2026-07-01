@@ -27,12 +27,13 @@ open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
 open Belenios_worker_messages
+open Common
 
 (* We create the worker here, so that its libsodium wasm module
    initializes as soon as possible. *)
 let worker = Worker.create !!"static/belenios_worker.js"
 
-let compute_shuffle ~estimation election ciphertexts =
+let compute_shuffle ~estimation election ciphertexts seed =
   let open (val !Belenios_js.I18n.gettext) in
   let t1, u1 = Lwt.task () in
   let t2, u2 = Lwt.task () in
@@ -49,7 +50,7 @@ let compute_shuffle ~estimation election ciphertexts =
     Js._true
   in
   worker##.onmessage := onmessage1;
-  worker##postMessage (Shuffle { election; ciphertexts });
+  worker##postMessage (Shuffle { election; ciphertexts; seed });
   let@ result cont =
     let* x = t1 in
     match x with
@@ -100,9 +101,29 @@ let shuffle uuid ~token =
                  ballots.";
          ]
   in
+  let seed = ref None in
+  let shuffle_btn_ref = ref None in
+  let () =
+    Dom.appendChild container @@ Tyxml_js.To_dom.of_node
+    @@ make_private_key_input (fun seed' ->
+        seed := Some seed';
+        let () =
+          match !shuffle_btn_ref with
+          | Some b -> b##.disabled := Js._false
+          | None -> ()
+        in
+        Lwt.return_unit)
+  in
   let shuffle_div = Dom_html.createDiv document in
   let shuffle_btn =
-    let@ () = button @@ s_ "Compute shuffle" in
+    let@ () = button ~a:[ a_disabled () ] @@ s_ "Compute shuffle" in
+    let@ seed cont =
+      match !seed with
+      | None ->
+          alert @@ s_ "Private key is missing!";
+          Lwt.return_unit
+      | Some x -> cont x
+    in
     Dom.removeChild container shuffle_div;
     let estimation =
       div [ txt @@ s_ "Estimating computation time…" ] |> Tyxml_js.To_dom.of_div
@@ -121,6 +142,7 @@ let shuffle uuid ~token =
       compute_shuffle ~estimation
         (Js.string @@ Json.to_string @@ Election.yojson_of_t election)
         (Js.string @@ Json.to_string nh_ciphertexts)
+        (Js.string seed)
     in
     let shuffle_data = Js.to_string shuffle_data in
     Dom.removeChild container estimation;
@@ -167,6 +189,7 @@ let shuffle uuid ~token =
     Dom.appendChild container submit_div;
     Lwt.return_unit
   in
+  shuffle_btn_ref := Some (Tyxml_js.To_dom.of_button shuffle_btn);
   Dom.appendChild shuffle_div (Tyxml_js.To_dom.of_node shuffle_btn);
   Dom.appendChild container shuffle_div;
   let title = h3 [ txt @@ s_ "Shuffle" ] in

@@ -309,7 +309,7 @@ let get_nh_ciphertexts s =
                       in
                       Lwt.return
                       @@ !+(yojson_of_nh_ciphertexts !&W.G.to_string)
-                           x.ciphertexts))))
+                           x.message.ciphertexts))))
 
 let get_shuffles s =
   let* x = get_owned_shuffles s in

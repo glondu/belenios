@@ -345,8 +345,25 @@ let post_shuffle s election ~token ~shuffle =
     when token = x.trustee.token ->
       Lwt.catch
         (fun () ->
+          let@ vk cont =
+            let module W = (val (election : Election.t)) in
+            let* trustees = Public_archive.get_trustees s in
+            let trustees =
+              !*[%witness_of_yojson (W.G.witness : _ trustees)] trustees
+            in
+            let keys =
+              trustees
+              |> List.map (function
+                | `Single (t : _ basic_parameters) ->
+                    [| t.cert.message.verification |]
+                | `Pedersen (t : _ threshold_parameters) ->
+                    t.certs |> Array.map (fun cert -> cert.message.verification))
+              |> Array.concat
+            in
+            cont @@ W.G.to_string @@ keys.(x.trustee_id - 1)
+          in
           let* y =
-            Web_persist.append_to_shuffles s election x.trustee_id shuffle
+            Web_persist.append_to_shuffles s election x.trustee_id vk shuffle
           in
           match y with
           | Some _ ->

@@ -97,6 +97,7 @@ val append_to_shuffles :
   (module Site_common_sig.ELECTION) ->
   int ->
   string ->
+  string ->
   string option Lwt.t
 
 val add_partial_decryption : Storage.E.t -> int * string -> unit Lwt.t

@@ -144,9 +144,12 @@ belenios-tool election verify
 
 header "Shuffle ciphertexts"
 
-belenios-tool election shuffle --trustee-id=1 | belenios-tool archive add-event --type=Shuffle
-echo >&2
-belenios-tool election shuffle --trustee-id=2 | belenios-tool archive add-event --type=Shuffle
+trustee_id=1
+for u in *.privkey; do
+    belenios-tool election shuffle --key $u --trustee-id $trustee_id | belenios-tool archive add-event --type=Shuffle
+    echo >&2
+    : $((trustee_id++))
+done
 belenios-tool archive add-event --type=EndShuffles < /dev/null
 
 header "Perform decryption"

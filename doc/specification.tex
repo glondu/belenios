@@ -1851,12 +1851,13 @@ permuted, and a zero-knowledge proof of the permutation is
 computed. All these shuffles are then assembled into a
 $\texttt{shuffle}$ structure:
 \begin{gather*}
-  \texttt{shuffle}=\left\{
+  \texttt{raw\_shuffle}=\left\{
     \begin{array}{rcl}
       \textsf{ciphertexts}&:&\ciphertext^\ast{}^\ast\\
       \textsf{proofs}&:&\texttt{shuffle\_proof}^\ast
     \end{array}
-  \right\}
+  \right\}\\
+  \texttt{shuffle}=\texttt{raw\_shuffle}\ \texttt{signed\_msg}
 \end{gather*}
 which uses the following auxiliary types:
 \begin{gather*}
@@ -1871,7 +1872,9 @@ which uses the following auxiliary types:
                                       &\times&\texttt{shuffle\_chained\_challenges}
   \end{array}
 \end{gather*}
-For each non-homomorphic question $i$:
+Each \texttt{shuffle} is signed by a trustee with their PKI key and
+domain separation tag \texttt{\dstprefix-shuffle}.  For each
+non-homomorphic question $i$:
 \begin{enumerate}
 \item let $\textbf{e}=b_i=[e_1,\dots,e_N]$ be the array of ciphertexts
   corresponding to question $i$ ($N$ being the number of ballots);

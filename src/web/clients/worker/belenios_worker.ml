@@ -23,10 +23,12 @@ open Js_of_ocaml
 open Belenios
 open Belenios_worker_messages
 
-let handle_shuffle { election; ciphertexts } =
+let handle_shuffle { election; ciphertexts; seed } =
   let election = Js.to_string election in
   let ciphertexts = Js.to_string ciphertexts in
   let module W = (val !*Election.t_of_yojson election) in
+  let module P = Pki.Make (W.G) in
+  let sk = P.derive_sk @@ Js.to_string seed in
   let ciphertexts = !*(nh_ciphertexts_of_yojson !$W.G.of_string) ciphertexts in
   let nballots =
     if Array.length ciphertexts > 0 then Array.length ciphertexts.(0) else 0
@@ -37,7 +39,7 @@ let handle_shuffle { election; ciphertexts } =
     if nballots > threshold then (
       let sub = Array.map (fun x -> Array.sub x 0 threshold) ciphertexts in
       let start = new%js Js.date_now in
-      let _ = W.E.shuffle_ciphertexts sub in
+      let _ = W.E.shuffle_ciphertexts ~sk sub in
       let stop = new%js Js.date_now in
       let delta =
         (Js.to_float stop##valueOf -. Js.to_float start##valueOf) /. 1000.
@@ -50,7 +52,7 @@ let handle_shuffle { election; ciphertexts } =
       cont ())
     else cont ()
   in
-  W.E.shuffle_ciphertexts ciphertexts
+  W.E.shuffle_ciphertexts ~sk ciphertexts
   |> !+[%yojson_of_witness (W.G.witness : _ shuffle)]
   |> fun r -> Worker.post_message (ShuffleResult (Js.string r))
 

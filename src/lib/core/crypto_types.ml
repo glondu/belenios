@@ -131,10 +131,13 @@ type ('a, 'b) shuffle_proof =
 
 type ('a, 'b) shuffle_proofs = ('a, 'b) shuffle_proof array [@@deriving yojson]
 
-type ('a, 'b) shuffle = {
+type ('a, 'b) raw_shuffle = {
   ciphertexts : 'a nh_ciphertexts;
   proofs : ('a, 'b) shuffle_proofs;
 }
+[@@deriving yojson]
+
+type ('a, 'b) shuffle = ('a, 'b, ('a, 'b) raw_shuffle) signed_msg
 [@@deriving yojson]
 
 (** {2 Basic decryption support} *)

@@ -92,7 +92,9 @@ let main uuid url dir action =
       X.verify_ballot ballot
   | `Verify skip_ballot_check -> X.verify ~skip_ballot_check ()
   | `ComputeResult -> X.compute_result () |> printl1
-  | `Shuffle trustee_id -> X.shuffle_ciphertexts trustee_id |> printl2
+  | `Shuffle (seed, trustee_id) ->
+      let* seed = string_of_file seed in
+      X.shuffle_ciphertexts ~seed trustee_id |> printl2
   | `Checksums -> X.checksums () |> printl1
   | `ComputeVoters privcreds ->
       let* privcreds = string_of_file privcreds in
@@ -252,13 +254,14 @@ let shuffle_cmd =
     @ common_man
   in
   let main =
-    Term.const (fun uuid u d i ->
+    Term.const (fun uuid u d i k ->
         let i = get_mandatory_opt "--trustee-id" i in
-        main uuid u d (`Shuffle i))
+        let k = get_mandatory_opt "--key" k in
+        main uuid u d (`Shuffle (k, i)))
   in
   Cmd.v
     (Cmd.info "shuffle" ~doc ~man)
-    Term.(ret (main $ uuid_t $ url_t $ optdir_t $ trustee_id_t))
+    Term.(ret (main $ uuid_t $ url_t $ optdir_t $ trustee_id_t $ key_t))
 
 let checksums_cmd =
   let doc = "compute checksums" in

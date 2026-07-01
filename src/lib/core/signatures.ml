@@ -144,10 +144,11 @@ module type ELECTION_OPS = sig
   val merge_nh_ciphertexts :
     element nh_ciphertexts -> element encrypted_tally -> element encrypted_tally
 
-  val shuffle_ciphertexts : element nh_ciphertexts -> (element, scalar) shuffle
+  val shuffle_ciphertexts :
+    sk:scalar -> element nh_ciphertexts -> (element, scalar) shuffle
 
   val check_shuffle :
-    element nh_ciphertexts -> (element, scalar) shuffle -> bool
+    vk:element -> element nh_ciphertexts -> (element, scalar) shuffle -> bool
 
   (** {2 Partial decryptions} *)
 

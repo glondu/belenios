@@ -244,7 +244,14 @@ struct
     in
     loop 0 0
 
-  let shuffle_ciphertexts cc =
+  let xch_shuffle =
+    {
+      dst = dst_prefix ^ "-shuffle";
+      of_yojson = [%witness_of_yojson (G.witness : _ raw_shuffle)];
+      to_yojson = [%yojson_of_witness (G.witness : _ raw_shuffle)];
+    }
+
+  let shuffle_ciphertexts ~sk cc =
     let rec loop i accu =
       if i >= 0 then
         let c = cc.(i) in
@@ -253,14 +260,15 @@ struct
         loop (i - 1) ((c', pi) :: accu)
       else
         let ciphertexts, proofs = Array.(split (of_list accu)) in
-        { ciphertexts; proofs }
+        P.sign xch_shuffle sk { ciphertexts; proofs }
     in
     loop (Array.length cc - 1) []
 
-  let check_shuffle cc s =
-    Array.for_all3
-      (Mix.check_shuffle_proof W.public_key)
-      cc s.ciphertexts s.proofs
+  let check_shuffle ~vk cc s =
+    P.verify xch_shuffle vk s
+    && Array.for_all3
+         (Mix.check_shuffle_proof W.public_key)
+         cc s.message.ciphertexts s.message.proofs
 
   type factor = (element, scalar) partial_decryption
 

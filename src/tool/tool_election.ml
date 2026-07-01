@@ -33,7 +33,7 @@ module type S = sig
   val compute_result : unit -> string Lwt.t
   val verify_ballot : string -> unit Lwt.t
   val verify : ?skip_ballot_check:bool -> unit -> unit Lwt.t
-  val shuffle_ciphertexts : int -> (string * string) Lwt.t
+  val shuffle_ciphertexts : seed:string -> int -> (string * string) Lwt.t
   val checksums : unit -> string Lwt.t
   val compute_voters : (string * string) list -> string list Lwt.t
   val compute_ballot_summary : unit -> string Lwt.t
@@ -210,8 +210,9 @@ let make file =
       let cc = E.extract_nh_ciphertexts rtally in
       let rec loop i cc ss =
         match ss with
-        | s :: ss ->
-            if E.check_shuffle cc s then loop (i + 1) s.ciphertexts ss
+        | (s, vk) :: ss ->
+            if E.check_shuffle cc ~vk s then
+              loop (i + 1) s.message.ciphertexts ss
             else Printf.ksprintf failwith "shuffle #%d failed tests" i
         | [] -> Lwt.return_true
       in
@@ -282,10 +283,11 @@ let make file =
       in
       Lwt_io.eprintl "I: all checks passed"
 
-    let shuffle_ciphertexts owner =
+    let shuffle_ciphertexts ~seed owner =
       let* cc, _ = Lazy.force encrypted_tally in
       let cc = E.extract_nh_ciphertexts cc in
-      let shuffle = E.shuffle_ciphertexts cc in
+      let sk = P.derive_sk seed in
+      let shuffle = E.shuffle_ciphertexts ~sk cc in
       let shuffle_s = !+[%yojson_of_witness (G.witness : _ shuffle)] shuffle in
       let owned = { owner; payload = Hash.hash_string shuffle_s } in
       Lwt.return (shuffle_s, !+(yojson_of_owned yojson_of_hash) owned)

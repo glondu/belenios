@@ -200,7 +200,7 @@ module type ELECTION_DATA = sig
     (t encrypted_tally * hash sized_encrypted_tally) Lwt.t Lazy.t
 
   val raw_shuffles : (hash * hash owned * string) list option Lwt.t Lazy.t
-  val shuffles : (t, s) shuffle list option Lwt.t Lazy.t
+  val shuffles : ((t, s) shuffle * t) list option Lwt.t Lazy.t
   val shuffles_hash : string list option Lwt.t Lazy.t
 
   val encrypted_tally :
@@ -373,19 +373,35 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
   let shuffles_as_text =
     lazy
       (let* x = Lazy.force raw_shuffles in
-       x |> Option.map (List.map (fun (_, _, x) -> x)) |> Lwt.return)
+       let* ts = trustees in
+       let ts =
+         match ts with
+         | None -> failwith "missing trustees"
+         | Some ts ->
+             ts
+             |> List.map (function
+               | `Single t -> [| t.cert.message.verification |]
+               | `Pedersen t ->
+                   t.certs |> Array.map (fun c -> c.message.verification))
+             |> Array.concat
+       in
+       x
+       |> Option.map (List.map (fun (_, i, x) -> (x, ts.(i.owner - 1))))
+       |> Lwt.return)
 
   let shuffles =
     lazy
       (let* x = Lazy.force shuffles_as_text in
        x
-       |> Option.map (List.map !*[%witness_of_yojson (G.witness : _ shuffle)])
+       |> Option.map
+            (List.map (fun (x, t) ->
+                 (!*[%witness_of_yojson (G.witness : _ shuffle)] x, t)))
        |> Lwt.return)
 
   let shuffles_hash =
     lazy
       (let* x = Lazy.force shuffles_as_text in
-       x |> Option.map (List.map sha256_b64) |> Lwt.return)
+       x |> Option.map (List.map (fst >> sha256_b64)) |> Lwt.return)
 
   let encrypted_tally =
     lazy
@@ -398,9 +414,10 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
            in
            let* x = Lazy.force shuffles in
            match Option.map List.rev x with
-           | Some (s :: _) ->
+           | Some ((s, _) :: _) ->
                Lwt.return
-                 ( E.merge_nh_ciphertexts s.ciphertexts raw_encrypted_tally,
+                 ( E.merge_nh_ciphertexts s.message.ciphertexts
+                     raw_encrypted_tally,
                    ntally )
            | _ -> Lwt.return (raw_encrypted_tally, ntally)))
 

@@ -101,8 +101,9 @@ let seal_election s seal =
           if b then set Value { metadata with sealed }
           else failwith "sealing error")
 
-let append_to_shuffles s election owner shuffle_s =
+let append_to_shuffles s election owner vk_s shuffle_s =
   let module W = (val election : Site_common_sig.ELECTION) in
+  let vk = W.G.of_string vk_s in
   let@ last cont =
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
@@ -113,7 +114,7 @@ let append_to_shuffles s election owner shuffle_s =
   let last_nh = !*(nh_ciphertexts_of_yojson !$W.G.of_string) last_nh in
   if
     !+[%yojson_of_witness (W.G.witness : _ shuffle)] shuffle = shuffle_s
-    && W.E.check_shuffle last_nh shuffle
+    && W.E.check_shuffle ~vk last_nh shuffle
   then
     let owned = { owner; payload = shuffle_h } in
     let owned_s = !+(yojson_of_owned yojson_of_hash) owned in
@@ -810,17 +811,26 @@ let compute_encrypted_tally s =
             Lwt.fail (Election_not_found (uuid, "compute_encrypted_tally")))
       in
       let module W = (val election) in
+      let@ sk cont =
+        let* x = Storage.E.get s Server_seed in
+        match Lopt.get_value x with
+        | None -> Lwt.return_false
+        | Some seed ->
+            let module P = Pki.Make (W.G) in
+            cont @@ P.derive_sk seed
+      in
+      let vk = W.G.(g **~ sk) in
       let* () = raw_compute_encrypted_tally s election in
       if W.has_nh_questions then
         let* () = set_state `Shuffling in
         (* perform server-side shuffle *)
         let* cc = Public_archive.get_nh_ciphertexts s in
         let cc = !*(nh_ciphertexts_of_yojson !$W.G.of_string) cc in
-        let shuffle = W.E.shuffle_ciphertexts cc in
+        let shuffle = W.E.shuffle_ciphertexts ~sk cc in
         let shuffle =
           !+[%yojson_of_witness (W.G.witness : _ shuffle)] shuffle
         in
-        let* x = append_to_shuffles s election 1 shuffle in
+        let* x = append_to_shuffles s election 1 (W.G.to_string vk) shuffle in
         match x with
         | None -> Lwt.fail (Failure "server-side shuffle failed")
         | Some _ -> Lwt.return_true

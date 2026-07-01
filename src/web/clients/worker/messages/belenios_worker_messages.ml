@@ -24,6 +24,7 @@ open Js_of_ocaml
 type shuffle_request = {
   election : Js.js_string Js.t;
   ciphertexts : Js.js_string Js.t;
+  seed : Js.js_string Js.t;
 }
 
 type request = Shuffle of shuffle_request

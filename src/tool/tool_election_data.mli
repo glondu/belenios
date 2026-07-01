@@ -77,7 +77,7 @@ module type ELECTION_DATA = sig
     (t encrypted_tally * hash sized_encrypted_tally) Lwt.t Lazy.t
 
   val raw_shuffles : (hash * hash owned * string) list option Lwt.t Lazy.t
-  val shuffles : (t, s) shuffle list option Lwt.t Lazy.t
+  val shuffles : ((t, s) shuffle * t) list option Lwt.t Lazy.t
   val shuffles_hash : string list option Lwt.t Lazy.t
 
   val encrypted_tally :

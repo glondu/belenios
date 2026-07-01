@@ -11,7 +11,7 @@ module type S = sig
   val compute_result : unit -> string Lwt.t
   val verify_ballot : string -> unit Lwt.t
   val verify : ?skip_ballot_check:bool -> unit -> unit Lwt.t
-  val shuffle_ciphertexts : int -> (string * string) Lwt.t
+  val shuffle_ciphertexts : seed:string -> int -> (string * string) Lwt.t
   val checksums : unit -> string Lwt.t
   val compute_voters : (string * string) list -> string list Lwt.t
   val compute_ballot_summary : unit -> string Lwt.t
