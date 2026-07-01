@@ -581,8 +581,8 @@ let compute_audit_cache s =
   let* election = Public_archive.get_election s in
   match election with
   | None -> Lwt.return_none
-  | Some e ->
-      let module W = (val Election.t_of_yojson e) in
+  | Some election ->
+      let module W = (val election) in
       let* voters = get_all_voters s in
       let voters_hash = Hash.hash_string (Voter.list_to_string voters) in
       let* shuffles =

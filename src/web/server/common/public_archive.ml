@@ -89,7 +89,7 @@ let get_trustees s =
 
 let get_election s =
   let*& x = get_from_setup_data s (fun x -> x.election) in
-  Lwt.return_some @@ Json.of_string x
+  Lwt.return_some @@ Election.t_of_yojson @@ Json.of_string x
 
 module ElectionCacheTypes = struct
   type key = uuid
@@ -102,9 +102,7 @@ exception Not_cachable
 
 let raw_get_election s =
   let* x = get_election s in
-  match x with
-  | None -> Lwt.fail Not_cachable
-  | Some x -> Lwt.return @@ Election.t_of_yojson x
+  match x with None -> Lwt.fail Not_cachable | Some x -> Lwt.return x
 
 let election_cache = new ElectionCache.cache not_in_cache ~timer:3600. 500
 

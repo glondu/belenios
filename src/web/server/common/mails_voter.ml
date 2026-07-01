@@ -45,9 +45,9 @@ let extract_metadata ~admin_id ~has_weights uuid (template : _ template)
 
 let get_metadata s ~admin_id =
   let uuid = Storage.E.get_uuid s in
-  let* raw = Public_archive.get_election s in
-  match raw with
-  | Some raw -> (
+  let* election = Public_archive.get_election s in
+  match election with
+  | Some election -> (
       let* has_weights =
         let* x = Storage.E.get s Voters_config in
         match Lopt.get_value x with
@@ -60,7 +60,6 @@ let get_metadata s ~admin_id =
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/running"
             (Uuid.to_string uuid)
       | Some metadata ->
-          let election = Election.t_of_yojson raw in
           let module W = (val election) in
           Lwt.return
           @@ extract_metadata ~admin_id ~has_weights W.uuid W.template metadata)

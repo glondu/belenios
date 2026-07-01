@@ -526,9 +526,9 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
           | `GET ->
               let@ trustee_id = with_tally_trustee token s in
               let@ () = handle_generic_error in
-              let* raw = Public_archive.get_election s in
-              let@ raw = Option.unwrap not_found raw in
-              let module W = (val Election.t_of_yojson raw) in
+              let* election = Public_archive.get_election s in
+              let@ election = Option.unwrap not_found election in
+              let module W = (val election) in
               let* private_key =
                 find_trustee_private_key s W.G.witness trustee_id
               in
@@ -539,9 +539,9 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let@ trustee_id = with_tally_trustee token s in
               let@ () = handle_generic_error in
               let@ partial_decryption = body.run Fun.id in
-              let* raw = Public_archive.get_election s in
-              let@ raw = Option.unwrap not_found raw in
-              let module W = (val Election.t_of_yojson raw) in
+              let* election = Public_archive.get_election s in
+              let@ election = Option.unwrap not_found election in
+              let module W = (val election) in
               let* x =
                 post_partial_decryption s
                   (module W)
@@ -558,9 +558,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let@ token = Option.unwrap unauthorized token in
               let@ () = handle_generic_error in
               let@ shuffle = body.run Fun.id in
-              let* raw = Public_archive.get_election s in
-              let@ raw = Option.unwrap not_found raw in
-              let election = Election.t_of_yojson raw in
+              let* election = Public_archive.get_election s in
+              let@ election = Option.unwrap not_found election in
               let* x = post_shuffle s election ~token ~shuffle in
               match x with
               | Ok () -> ok
@@ -762,11 +761,11 @@ let dispatch ~token ~ifmatch endpoint method_ body =
   | [ uuid; "election" ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
-      let* raw = Public_archive.get_election s in
-      match raw with
-      | Some raw -> (
+      let* election = Public_archive.get_election s in
+      match election with
+      | Some election -> (
           match method_ with
-          | `GET -> return_yojson 200 raw
+          | `GET -> return_yojson 200 (Election.yojson_of_t election)
           | _ -> method_not_allowed)
       | None -> (
           let* se = Storage.E.get s Draft in
