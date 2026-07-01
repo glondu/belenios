@@ -46,7 +46,7 @@ let extract_metadata ~admin_id ~has_weights uuid (template : _ template)
 let get_metadata s ~admin_id =
   let uuid = Storage.E.get_uuid s in
   let* election = Public_archive.get_election s in
-  match election with
+  match Lopt.get_value election with
   | Some election -> (
       let* has_weights =
         let* x = Storage.E.get s Voters_config in

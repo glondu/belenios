@@ -580,7 +580,7 @@ let cast_ballot s ~ballot ~user ~weight date ~precast_data =
 
 let compute_audit_cache s =
   let* election = Public_archive.get_election s in
-  match election with
+  match Lopt.get_value election with
   | None -> Lwt.return_none
   | Some election ->
       let module W = (val election) in

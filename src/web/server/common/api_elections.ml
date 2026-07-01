@@ -529,7 +529,9 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let@ trustee_id = with_tally_trustee token s in
               let@ () = handle_generic_error in
               let* election = Public_archive.get_election s in
-              let@ election = Option.unwrap not_found election in
+              let@ election =
+                Option.unwrap not_found (Lopt.get_value election)
+              in
               let module W = (val election) in
               let* private_key =
                 find_trustee_private_key s W.G.witness trustee_id
@@ -542,7 +544,9 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let@ () = handle_generic_error in
               let@ partial_decryption = body.run Fun.id in
               let* election = Public_archive.get_election s in
-              let@ election = Option.unwrap not_found election in
+              let@ election =
+                Option.unwrap not_found (Lopt.get_value election)
+              in
               let module W = (val election) in
               let* x =
                 post_partial_decryption s
@@ -561,7 +565,9 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let@ () = handle_generic_error in
               let@ shuffle = body.run Fun.id in
               let* election = Public_archive.get_election s in
-              let@ election = Option.unwrap not_found election in
+              let@ election =
+                Option.unwrap not_found (Lopt.get_value election)
+              in
               let* x = post_shuffle s election ~token ~shuffle in
               match x with
               | Ok () -> ok
@@ -764,10 +770,10 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       let* election = Public_archive.get_election s in
-      match election with
+      match Lopt.get_string election with
       | Some election -> (
           match method_ with
-          | `GET -> return_yojson 200 (Election.yojson_of_t election)
+          | `GET -> return_json 200 election
           | _ -> method_not_allowed)
       | None -> (
           let* se = Storage.E.get s Draft in
@@ -839,7 +845,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
             | Some (W (_, Draft (_, se))) -> cont se.metadata
             | None ->
                 let* raw = Public_archive.get_election s in
-                let@ _ = Option.unwrap not_found raw in
+                let@ _ = Option.unwrap not_found (Lopt.get_string raw) in
                 let* metadata = Web_persist.get_election_metadata s in
                 cont metadata
           in
@@ -880,8 +886,8 @@ let dispatch ~token ~ifmatch endpoint method_ body =
         match Lopt.get_value draft with
         | Some (W (_, Draft (_, se))) -> cont se.metadata
         | None ->
-            let* raw = Public_archive.get_election s in
-            let@ _ = Option.unwrap not_found raw in
+            let* election = Public_archive.get_election s in
+            let@ _ = Option.unwrap not_found (Lopt.get_string election) in
             let* metadata = Web_persist.get_election_metadata s in
             cont metadata
       in
