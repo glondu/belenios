@@ -1,3 +1,12 @@
+3.3.0
+=====
+
+ * Support for AES-CCM in PKI has been removed. It has been deprecated
+   in favour of AES-GCM in version 3.1; election data from before are
+   no longer supported.
+ * Password authentication for voters (where static passwords are
+   generated per-election) is no longer supported.
+
 3.1
 ===
 
