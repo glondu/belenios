@@ -1,6 +1,9 @@
 4.0.0 (dev)
 ===========
 
+ * Switch from `atdgen` to `ppx_yojson_conv` for serialization: it
+   changes they way some types are serialized to JSON, making the new
+   version not backward-compatible
  * Cryptographic changes:
    + Bump crypto version to 2
    + Systematically use RFC9380's `hash_to_field` to avoid a bias in
@@ -15,11 +18,18 @@
    + Use domain separation tags everywhere
    + The public key infrastructure is promoted and no longer specific
      to threshold support
-   + Restructure `ballot`, `trustee_public_key` and
-     `credentials_certificate` types: they are `signed_msg` now
+   + Set up PKI for all trustees (even in basic mode)
+   + Restructure `ballot`, `trustee_public_key`,
+     `credentials_certificate`, `partial_decryptions`, `shuffle`
+     types (in particular, they are `signed_msg` now)
    + Restructure types used in threshold mode
    + Restructure questions (remove special-casing of homomorphic
      questions)
+   + Restructure public credentials
+ * Web server:
+   + Bump spool version to 2
+   + Bump web API version to 7
+   + Add default election preferences to admin UI
 
 3.3.0 (2026-07-02)
 ==================
