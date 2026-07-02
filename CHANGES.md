@@ -1,3 +1,26 @@
+4.0.0 (dev)
+===========
+
+ * Cryptographic changes:
+   + Bump crypto version to 2
+   + Systematically use RFC9380's `hash_to_field` to avoid a bias in
+     finite field element sampling (thanks to Thomas Haines and Navid
+     Abapour)
+   + Include verification key in signature commitments (fixes a
+     weakness in the Fiat-Shamir transform, thanks to Navid Abapour)
+   + Derive polynomial used in Pedersen key generation from the seed
+     and reveal the hash of its coefexps early in the protocol to
+     avoid an attack by a rushing adversary to bias the master key
+     (thanks to Navid Abapour)
+   + Use domain separation tags everywhere
+   + The public key infrastructure is promoted and no longer specific
+     to threshold support
+   + Restructure `ballot`, `trustee_public_key` and
+     `credentials_certificate` types: they are `signed_msg` now
+   + Restructure types used in threshold mode
+   + Restructure questions (remove special-casing of homomorphic
+     questions)
+
 3.3.0 (2026-07-02)
 ==================
 
