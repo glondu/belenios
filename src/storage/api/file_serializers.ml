@@ -20,10 +20,11 @@
 (**************************************************************************)
 
 open Belenios
+open File_types
 open Types
 open Extra
 
-let get_election (type t) : t File.u -> t serializers = function
+let get_election (type t) : t election_file -> t serializers = function
   | State ->
       {
         of_string = !*election_state_of_yojson;
@@ -144,7 +145,7 @@ let get_election (type t) : t File.u -> t serializers = function
         to_string = !+Belenios_web_api.yojson_of_credentials_credits;
       }
 
-let get_account (type t) : t File.v -> t serializers = function
+let get_account (type t) : t account_file -> t serializers = function
   | Account _ ->
       { of_string = !*account_of_yojson; to_string = !+yojson_of_account }
   | Auth_db _ -> { of_string = split_lines; to_string = join_lines }

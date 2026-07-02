@@ -21,12 +21,10 @@
 
 open Belenios
 open Types
+open File_types
 
 (** {1 Type definitions} *)
 
-type 'a election_file = 'a File.u
-type 'a account_file = 'a File.v
-type admin_password_file = File.kind
 type 'a lopt = 'a Lopt.t
 type append_operation = Data of string | Event of event_type * hash option
 

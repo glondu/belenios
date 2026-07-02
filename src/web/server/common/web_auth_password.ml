@@ -62,7 +62,7 @@ struct
                   Lwt.fail @@ Failure "invalid configuration for admin site"
               | Some x -> cont x
             in
-            let key : admin_password_file =
+            let key : admin_password_kind =
               if is_email name then Address name else Username name
             in
             let update x =

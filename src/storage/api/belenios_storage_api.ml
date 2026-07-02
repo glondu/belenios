@@ -21,6 +21,7 @@
 
 module Lopt = Lopt
 module Storage = Storage
+include File_types
 include Signatures
 include Extra
 include Types

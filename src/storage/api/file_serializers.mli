@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_core
+open File_types
 
-val get_election : 'a File.u -> 'a serializers
-val get_account : 'a File.v -> 'a serializers
+val get_election : 'a election_file -> 'a serializers
+val get_account : 'a account_file -> 'a serializers

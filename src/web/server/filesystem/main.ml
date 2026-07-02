@@ -215,7 +215,7 @@ module MakeBackend
       (fun () -> password_records_cache#find where)
       (fun (u, a) ->
         let key, map =
-          match (who : admin_password_file) with
+          match (who : admin_password_kind) with
           | Username u' -> (u', u)
           | Address a' -> (a', a)
         in
@@ -258,7 +258,7 @@ module MakeBackend
       | [] -> List.rev_append (update [] :: accu) []
     in
     let csv =
-      match (key : admin_password_file) with
+      match (key : admin_password_kind) with
       | Username u -> update_by_username (String.lowercase_ascii u) [] csv
       | Address u -> update_by_address (String.lowercase_ascii u) [] csv
     in
@@ -359,7 +359,7 @@ module MakeBackend
     | Concrete : string * kind * 'a serializers option -> 'a file_props
     | Abstract : ('key, 'a) abstract_file_ops * uuid * 'key -> 'a file_props
     | Admin_password :
-        string * admin_password_file
+        string * admin_password_kind
         -> password_record file_props
 
   let get_props (type t) : t file -> t file_props = function
