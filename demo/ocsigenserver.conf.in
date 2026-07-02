@@ -95,7 +95,6 @@
         <storage backend="filesystem">
           <uuid length="14"/>
           <spool dir="_VARDIR_/spool"/>
-          <accounts dir="_VARDIR_/accounts"/>
           <map from="demo_allowlist" to="demo/dummy_logins.txt"/>
           <map from="local_passwords" to="demo/password_db.csv"/>
           <map from="public_passwords" to="_VARDIR_/password_db.csv"/>

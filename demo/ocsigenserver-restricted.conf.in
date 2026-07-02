@@ -82,7 +82,6 @@
         <storage backend="filesystem">
           <uuid length="14"/>
           <spool dir="_VARDIR_/spool"/>
-          <accounts dir="_VARDIR_/accounts"/>
           <map from="local_passwords" to="demo/password_db.csv"/>
         </storage>
         <admin-home file="_VARDIR_/admin-home.html"/>

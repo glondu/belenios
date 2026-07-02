@@ -26,7 +26,6 @@ module type CONFIG = sig
   val account_id_min : int
   val account_id_max : int
   val spool_dir : string
-  val accounts_dir : string
   val maps : string SMap.t
 end
 

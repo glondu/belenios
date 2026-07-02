@@ -303,7 +303,7 @@ module MakeBackend
   let files_of_directory d = Lwt_unix.files_of_directory d |> Lwt_stream.to_list
 
   let list_accounts () =
-    let* xs = files_of_directory Config.accounts_dir in
+    let* xs = files_of_directory (Config.spool_dir // "accounts") in
     Lwt.return
     @@ List.fold_left
          (fun accu x ->
@@ -376,7 +376,7 @@ module MakeBackend
   let get_props (type t) : t file -> t file_props = function
     | Account (Account id) ->
         Concrete
-          ( Config.accounts_dir // Printf.sprintf "%d.json" id,
+          ( Config.spool_dir // "accounts" // Printf.sprintf "%d.json" id,
             Trim,
             Some Converters.account )
     | Election (uuid, f) -> (
@@ -1828,7 +1828,6 @@ let backend_name = "filesystem"
 
 let make_backend (config : Xml.xml list) =
   let spool_dir = ref None in
-  let accounts_dir = ref None in
   let uuid_length = ref Uuid.min_length in
   let account_id_min = ref 100000000 in
   let account_id_max = ref 999999999 in
@@ -1845,7 +1844,6 @@ let make_backend (config : Xml.xml list) =
            if length >= Uuid.min_length then uuid_length := length
            else failwith "UUID length is too small"
        | Element ("spool", [ ("dir", dir) ], []) -> spool_dir := Some dir
-       | Element ("accounts", [ ("dir", dir) ], []) -> accounts_dir := Some dir
        | Element ("account-ids", [ ("min", min); ("max", max) ], []) ->
            let min = int_of_string min and max = int_of_string max in
            if min > 0 && max - min > 4000000 then (
@@ -1866,19 +1864,11 @@ let make_backend (config : Xml.xml list) =
         Printf.ksprintf failwith "missing <spool> in configuration of %s"
           backend_name
   in
-  let accounts_dir =
-    match !accounts_dir with
-    | Some d -> d
-    | None ->
-        Printf.ksprintf failwith "missing <accounts> in configuration of %s"
-          backend_name
-  in
   let module Config = struct
     let uuid_length = !uuid_length
     let account_id_min = !account_id_min
     let account_id_max = !account_id_max
     let spool_dir = spool_dir
-    let accounts_dir = accounts_dir
     let maps = !maps
   end in
   let* () =

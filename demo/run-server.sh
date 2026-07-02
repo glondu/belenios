@@ -45,10 +45,10 @@ mkdir -p \
       $BELENIOS_VARDIR/log \
       $BELENIOS_VARDIR/lib \
       $BELENIOS_VARDIR/upload \
-      $BELENIOS_VARDIR/accounts \
       $BELENIOS_RUNDIR
 
 if ! [ -d $BELENIOS_VARDIR/spool ]; then
+    mkdir -p $BELENIOS_VARDIR/spool/accounts
     mkdir -p $BELENIOS_VARDIR/spool/elections
     mkdir -p $BELENIOS_VARDIR/spool/credentials
     echo 2 > $BELENIOS_VARDIR/spool/version
