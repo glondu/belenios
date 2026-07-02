@@ -118,6 +118,8 @@ let get_election (type t) : t election_file -> t serializers = function
   | Credential_weight _ ->
       { of_string = Weight.of_string; to_string = Weight.to_string }
   | Credential_user _ -> { of_string = Fun.id; to_string = Fun.id }
+
+let get_credentials (type t) : t credentials_file -> t serializers = function
   | Credentials_params ->
       {
         of_string = !*wrapped_credentials_params_of_yojson;

@@ -38,6 +38,7 @@ let some_string_or_value (type a b) (f : a file)
     match f with
     | Account x -> get_account_file_serializers x
     | Election (_, x) -> get_election_file_serializers x
+    | Credentials (_, x) -> get_credentials_file_serializers x
   in
   match spec with
   | String -> Lopt.some_string s.of_string x
@@ -284,11 +285,18 @@ module MakeBackend
 
   (** {1 Generic operations} *)
 
-  let ( !! ) x = Config.spool_dir // x
-  let ( /// ) uuid x = !!(Uuid.to_string uuid // x)
+  let spool_elections uuid x =
+    Config.spool_dir // "elections" // Uuid.to_string uuid // x
+
+  let spool_credentials uuid x =
+    Config.spool_dir // "credentials" // Uuid.to_string uuid // x
 
   let cleanup_files uuid xs =
-    Lwt_list.iter_p (fun x -> Filesystem.cleanup_file (uuid /// x)) xs
+    Lwt_list.iter_p
+      (function
+        | `Elections x -> Filesystem.cleanup_file (spool_elections uuid x)
+        | `Credentials x -> Filesystem.cleanup_file (spool_credentials uuid x))
+      xs
 
   type kind = Raw | Trim
 
@@ -341,6 +349,9 @@ module MakeBackend
     | Voter key -> Abstract (voters_ops, key)
     | Credential_weight key -> Abstract (credential_weights_ops, key)
     | Credential_user key -> Abstract (credential_users_ops, key)
+
+  let get_credentials_file_props _uuid (type t) :
+      t credentials_file -> t election_file_props = function
     | Credentials_params -> Concrete ("credentials_params.json", Raw, None)
     | Credentials_metadata -> Concrete ("credentials_metadata.json", Raw, None)
     | Credentials_seed -> Concrete ("credentials_seed.json", Raw, None)
@@ -371,7 +382,12 @@ module MakeBackend
     | Election (uuid, f) -> (
         match get_election_file_props uuid f with
         | Concrete (fname, kind, convert) ->
-            Concrete (uuid /// fname, kind, convert)
+            Concrete (spool_elections uuid fname, kind, convert)
+        | Abstract (ops, key) -> Abstract (ops, uuid, key))
+    | Credentials (uuid, f) -> (
+        match get_credentials_file_props uuid f with
+        | Concrete (fname, kind, convert) ->
+            Concrete (spool_credentials uuid fname, kind, convert)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
     | Account (Auth_db f) -> Concrete (SMap.find f Config.maps, Raw, None)
     | Account (Admin_password (file, key)) ->
@@ -385,13 +401,15 @@ module MakeBackend
   let deleted_filename = "deleted.json"
 
   let list_elections () =
-    let* xs = files_of_directory Config.spool_dir in
+    let* xs = files_of_directory (Config.spool_dir // "elections") in
     Lwt_list.fold_left_s
       (fun accu x ->
         match Uuid.of_string x with
         | exception _ -> Lwt.return accu
         | uuid ->
-            let* b = Filesystem.file_exists (uuid /// deleted_filename) in
+            let* b =
+              Filesystem.file_exists (spool_elections uuid deleted_filename)
+            in
             if b then Lwt.return accu else Lwt.return (uuid :: accu))
       [] xs
 
@@ -491,7 +509,8 @@ module MakeBackend
       if trials > 0 then
         let uuid = generate_token length in
         Lwt.try_bind
-          (fun () -> Lwt_unix.mkdir !!uuid 0o700)
+          (fun () ->
+            Lwt_unix.mkdir (Config.spool_dir // "elections" // uuid) 0o700)
           (fun () -> Lwt.return_some @@ Uuid.of_string uuid)
           (fun _ -> loop (trials - 1))
       else Lwt.return_none
@@ -521,12 +540,14 @@ module MakeBackend
     in
     let* () =
       Lwt_list.iter_p
-        (fun x -> try_copy_file (uuid /// x) (temp_dir // "public" // x))
+        (fun x ->
+          try_copy_file (spool_elections uuid x) (temp_dir // "public" // x))
         [ Uuid.to_string uuid ^ ".bel" ]
     in
     let* () =
       Lwt_list.iter_p
-        (fun x -> try_copy_file (uuid /// x) (temp_dir // "restricted" // x))
+        (fun x ->
+          try_copy_file (spool_elections uuid x) (temp_dir // "restricted" // x))
         [ "voters.txt"; "records" ]
     in
     let command =
@@ -536,7 +557,7 @@ module MakeBackend
     let* r = Lwt_process.exec command in
     match r with
     | Unix.WEXITED 0 ->
-        let fname = uuid /// "archive.zip" in
+        let fname = spool_elections uuid "archive.zip" in
         let fname_new = fname ^ ".new" in
         let* () = copy_file (temp_dir // "archive.zip") fname_new in
         let* () = Lwt_unix.rename fname_new fname in
@@ -609,12 +630,13 @@ module MakeBackend
   let get_draft uuid () =
     let* se_private_creds_downloaded =
       let* x =
-        Filesystem.read_file (uuid /// private_creds_downloaded_filename)
+        Filesystem.read_file
+          (spool_elections uuid private_creds_downloaded_filename)
       in
       match x with None -> Lwt.return_false | Some _ -> Lwt.return_true
     in
     let* concrete =
-      let*& x = Filesystem.read_file (uuid /// draft_filename) in
+      let*& x = Filesystem.read_file (spool_elections uuid draft_filename) in
       let x = String.trim x in
       let abstract =
         !*(Types.raw_draft_election_of_yojson Fun.id Fun.id Fun.id) x
@@ -649,7 +671,9 @@ module MakeBackend
           Converters.raw_draft_election_to_concrete abstract
         in
         let* () =
-          let filename = uuid /// private_creds_downloaded_filename in
+          let filename =
+            spool_elections uuid private_creds_downloaded_filename
+          in
           if se_private_creds_downloaded then Filesystem.write_file filename ""
           else Filesystem.cleanup_file filename
         in
@@ -659,13 +683,18 @@ module MakeBackend
             concrete
         in
         let* () =
-          Filesystem.write_file (uuid /// draft_filename) (data ^ "\n")
+          Filesystem.write_file
+            (spool_elections uuid draft_filename)
+            (data ^ "\n")
         in
         let () = Elections_cache.clear () in
         Lwt.return_unit
 
   let del_draft uuid () =
-    cleanup_files uuid [ private_creds_downloaded_filename; draft_filename ]
+    cleanup_files uuid
+      [
+        `Elections private_creds_downloaded_filename; `Elections draft_filename;
+      ]
 
   let () =
     draft_ops.get <- get_draft;
@@ -684,7 +713,7 @@ module MakeBackend
         |> Lwt.return
     | Some `Shuffling ->
         let* skipped =
-          Filesystem.read_file (uuid /// skipped_shufflers_filename)
+          Filesystem.read_file (spool_elections uuid skipped_shufflers_filename)
         in
         let skipped =
           skipped
@@ -693,7 +722,9 @@ module MakeBackend
                >> !*Belenios_storage_api.skipped_shufflers_of_yojson)
           |> Option.value ~default:[]
         in
-        let* token = Filesystem.read_file (uuid /// shuffle_token_filename) in
+        let* token =
+          Filesystem.read_file (spool_elections uuid shuffle_token_filename)
+        in
         let token =
           token
           |> Option.map
@@ -709,27 +740,35 @@ module MakeBackend
     | None -> assert false
     | Some None ->
         cleanup_files uuid
-          [ skipped_shufflers_filename; shuffle_token_filename ]
+          [
+            `Elections skipped_shufflers_filename;
+            `Elections shuffle_token_filename;
+          ]
     | Some (Some (`Shuffle { skipped; token })) ->
         let* () =
           skipped
           |> !+Belenios_storage_api.yojson_of_skipped_shufflers
           |> (fun x -> x ^ "\n")
-          |> Filesystem.write_file (uuid /// skipped_shufflers_filename)
+          |> Filesystem.write_file
+               (spool_elections uuid skipped_shufflers_filename)
         in
         let* () =
           match token with
-          | None -> cleanup_files uuid [ shuffle_token_filename ]
+          | None -> cleanup_files uuid [ `Elections shuffle_token_filename ]
           | Some token ->
               token
               |> !+Belenios_storage_api.yojson_of_shuffle_token
               |> (fun x -> x ^ "\n")
-              |> Filesystem.write_file (uuid /// shuffle_token_filename)
+              |> Filesystem.write_file
+                   (spool_elections uuid shuffle_token_filename)
         in
         Lwt.return_unit
     | Some (Some `Decryption) ->
         cleanup_files uuid
-          [ skipped_shufflers_filename; shuffle_token_filename ]
+          [
+            `Elections skipped_shufflers_filename;
+            `Elections shuffle_token_filename;
+          ]
 
   let () =
     state_state_ops.get <- get_state_state;
@@ -739,8 +778,12 @@ module MakeBackend
   let hide_result_filename = "hide_result"
 
   let get_dates uuid () =
-    let* raw_dates = Filesystem.read_file (uuid /// raw_dates_filename) in
-    let* hide_result = Filesystem.read_file (uuid /// hide_result_filename) in
+    let* raw_dates =
+      Filesystem.read_file (spool_elections uuid raw_dates_filename)
+    in
+    let* hide_result =
+      Filesystem.read_file (spool_elections uuid hide_result_filename)
+    in
     let e_date_publish =
       Option.map
         (String.trim >> !*datetime_of_yojson >> Datetime.to_unixfloat)
@@ -789,14 +832,14 @@ module MakeBackend
       | Some d -> cont (d : Belenios_storage_api.election_dates)
     in
     let* () =
-      let filename = uuid /// hide_result_filename in
+      let filename = spool_elections uuid hide_result_filename in
       match d.publish with
       | None -> Filesystem.cleanup_file filename
       | Some t ->
           let t = t |> Datetime.from_unixfloat |> !+yojson_of_datetime in
           Filesystem.write_file filename (t ^ "\n")
     in
-    let filename = uuid /// raw_dates_filename in
+    let filename = spool_elections uuid raw_dates_filename in
     let dates : Types.election_dates =
       {
         creation = Datetime.from_unixfloat d.creation;
@@ -829,7 +872,9 @@ module MakeBackend
       (username, date)
 
   let get_records uuid () =
-    let* raw_records = Filesystem.read_file (uuid /// records_filename) in
+    let* raw_records =
+      Filesystem.read_file (spool_elections uuid records_filename)
+    in
     let&** raw_records = raw_records in
     raw_records |> split_lines
     |> List.map split_voting_record
@@ -846,7 +891,9 @@ module MakeBackend
   module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
 
   let raw_get_extended_records uuid =
-    let* x = Filesystem.read_file (uuid /// extended_records_filename) in
+    let* x =
+      Filesystem.read_file (spool_elections uuid extended_records_filename)
+    in
     let x = match x with None -> [] | Some x -> split_lines x in
     Lwt_list.fold_left_s
       (fun accu x ->
@@ -875,10 +922,10 @@ module MakeBackend
     in
     let* () =
       Filesystem.write_file
-        (uuid /// extended_records_filename)
+        (spool_elections uuid extended_records_filename)
         extended_records
     in
-    Filesystem.write_file (uuid /// records_filename) records
+    Filesystem.write_file (spool_elections uuid records_filename) records
 
   let extended_records_cache =
     new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
@@ -904,7 +951,7 @@ module MakeBackend
       { username; date; credential }
       |> !+yojson_of_extended_record
       |> (fun x -> [ x ])
-      |> append_to_file (uuid /// extended_records_filename)
+      |> append_to_file (spool_elections uuid extended_records_filename)
     in
     Indexed_defer.defer extended_records_deferrer (Some uuid);
     Lwt.return_unit
@@ -935,7 +982,9 @@ module MakeBackend
   module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
 
   let raw_get_credential_mappings uuid =
-    let* x = Filesystem.read_file (uuid /// credential_mappings_filename) in
+    let* x =
+      Filesystem.read_file (spool_elections uuid credential_mappings_filename)
+    in
     let x = match x with None -> [] | Some x -> split_lines x in
     Lwt_list.fold_left_s
       (fun accu x ->
@@ -949,7 +998,7 @@ module MakeBackend
       xs []
     |> List.rev_map !+yojson_of_credential_mapping
     |> join_lines
-    |> Filesystem.write_file (uuid /// credential_mappings_filename)
+    |> Filesystem.write_file (spool_elections uuid credential_mappings_filename)
 
   let credential_mappings_cache =
     new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
@@ -995,7 +1044,7 @@ module MakeBackend
       { credential = cred; ballot = mapping }
       |> !+yojson_of_credential_mapping
       |> (fun x -> [ x ])
-      |> append_to_file (uuid /// credential_mappings_filename)
+      |> append_to_file (spool_elections uuid credential_mappings_filename)
     in
     Indexed_defer.defer credential_mappings_deferrer (Some uuid);
     Lwt.return_unit
@@ -1159,7 +1208,7 @@ module MakeBackend
   (** {1 Cleaning operations} *)
 
   let delete_draft_election uuid =
-    let* () = rmdir !!(Uuid.to_string uuid) in
+    let* () = rmdir (Config.spool_dir // "elections" // Uuid.to_string uuid) in
     Elections_cache.clear ();
     Lwt.return_unit
 
@@ -1169,11 +1218,11 @@ module MakeBackend
     let* () =
       cleanup_files uuid
         [
-          extended_records_filename;
-          credential_mappings_filename;
-          public_creds_filename;
-          server_seed_filename;
-          private_keys_filename;
+          `Elections extended_records_filename;
+          `Elections credential_mappings_filename;
+          `Elections public_creds_filename;
+          `Elections server_seed_filename;
+          `Elections private_keys_filename;
         ]
     in
     let* () =
@@ -1197,12 +1246,12 @@ module MakeBackend
     let* () =
       cleanup_files uuid
         [
-          raw_dates_filename;
-          hide_result_filename;
-          records_filename;
-          skipped_shufflers_filename;
-          shuffle_token_filename;
-          archive_filename uuid;
+          `Elections raw_dates_filename;
+          `Elections hide_result_filename;
+          `Elections records_filename;
+          `Elections skipped_shufflers_filename;
+          `Elections shuffle_token_filename;
+          `Elections (archive_filename uuid);
         ]
     in
     Elections_cache.clear ();
@@ -1326,7 +1375,7 @@ module MakeBackend
       | None -> raise Creation_not_requested
       | Some x -> (x.height + 100, x.pos)
     in
-    let filename = uuid /// archive_filename uuid in
+    let filename = spool_elections uuid (archive_filename uuid) in
     let*& map, roots, timestamp = build_roots ~size ~pos filename in
     let remove () = Hashtbl.remove indexes uuid in
     let timeout = Lwt_timeout.create 3600 remove in
@@ -1394,14 +1443,14 @@ module MakeBackend
       (fun () -> get_index ~creat:false uuid)
       (fun r ->
         let&** r = r in
-        let filename = uuid /// archive_filename uuid in
+        let filename = spool_elections uuid (archive_filename uuid) in
         gethash ~index:r.map ~filename x)
       (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
 
   let () = data_ops.get <- get_data
 
   let get_archive_header uuid () =
-    let filename = uuid /// archive_filename uuid in
+    let filename = spool_elections uuid (archive_filename uuid) in
     let@ ic = Lwt_io.with_file ~mode:Lwt_io.input filename in
     let* header = Reader.read_header ic in
     Lwt.return @@ Lopt.some_value !+Archive.yojson_of_header header
@@ -1459,7 +1508,7 @@ module MakeBackend
     let last_hash = match last_hash with None -> assert false | Some x -> x in
     let items = List.rev items in
     let* last_pos, records =
-      let filename = uuid /// archive_filename uuid in
+      let filename = spool_elections uuid (archive_filename uuid) in
       raw_append ~filename ~timestamp:index.timestamp pos items
     in
     let* () =
@@ -1501,7 +1550,7 @@ module MakeBackend
       de
       |> !+yojson_of_deleted_election
       |> (fun x -> x ^ "\n")
-      |> Filesystem.write_file (uuid /// deleted_filename)
+      |> Filesystem.write_file (spool_elections uuid deleted_filename)
 
     let delete_draft_election = delete_draft_election
     let init_credential_mapping = init_credential_mapping
@@ -1746,6 +1795,21 @@ module Make (Config : CONFIG) : STORAGE = struct
     let archive_election (uuid, x) = archive_election x uuid
     let delete_election (uuid, x) = delete_election x uuid
     let validate_election (uuid, x) = validate_election x uuid
+  end
+
+  module C : CREDENTIALS_TRANSACTION = struct
+    type nonrec t = uuid * t
+
+    let with_transaction uuid f = with_transaction (fun x -> f (uuid, x))
+    let get (uuid, x) f = get x (Credentials (uuid, f))
+    let set (uuid, x) f = set x (Credentials (uuid, f))
+    let del (uuid, x) f = del x (Credentials (uuid, f))
+    let update (uuid, x) f = update x (Credentials (uuid, f))
+
+    let new_election uuid =
+      Lwt_unix.mkdir
+        (Config.spool_dir // "credentials" // Uuid.to_string uuid)
+        0o700
   end
 
   module A : ACCOUNT_TRANSACTION = struct

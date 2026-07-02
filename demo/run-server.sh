@@ -49,7 +49,8 @@ mkdir -p \
       $BELENIOS_RUNDIR
 
 if ! [ -d $BELENIOS_VARDIR/spool ]; then
-    mkdir $BELENIOS_VARDIR/spool
+    mkdir -p $BELENIOS_VARDIR/spool/elections
+    mkdir -p $BELENIOS_VARDIR/spool/credentials
     echo 2 > $BELENIOS_VARDIR/spool/version
 fi
 

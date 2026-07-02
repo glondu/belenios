@@ -25,6 +25,7 @@ open Types
 
 type 'a file =
   | Election of uuid * 'a election_file
+  | Credentials of uuid * 'a credentials_file
   | Account of 'a account_file
 
 module type BACKEND = sig

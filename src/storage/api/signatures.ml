@@ -94,6 +94,17 @@ module type ELECTION_TRANSACTION = sig
     t -> (unit, Belenios_web_api.validation_error) result Lwt.t
 end
 
+module type CREDENTIALS_TRANSACTION = sig
+  type t
+
+  val with_transaction : uuid -> (t -> 'a Lwt.t) -> 'a Lwt.t
+
+  include
+    BACKEND_GENERIC with type t := t and type 'a file := 'a credentials_file
+
+  val new_election : uuid -> unit Lwt.t
+end
+
 (** Token for account and auth-db operations ([Account _], [Auth_db _],
     [Admin_password _] files, [new_account_id]). *)
 module type ACCOUNT_TRANSACTION = sig
@@ -112,6 +123,7 @@ module type STORAGE = sig
   val readonly : bool smart_ref
 
   module E : ELECTION_TRANSACTION
+  module C : CREDENTIALS_TRANSACTION
   module A : ACCOUNT_TRANSACTION
 
   val get_user_id : user -> int option Lwt.t

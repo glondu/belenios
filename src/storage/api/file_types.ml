@@ -52,13 +52,15 @@ type _ election_file =
   | Voter : string -> Voter.t election_file
   | Credential_weight : string -> Weight.t election_file
   | Credential_user : string -> string election_file
-  | Credentials_params : wrapped_credentials_params election_file
-  | Credentials_metadata : Belenios_web_api.message_metadata election_file
-  | Credentials_seed : credentials_seed election_file
+
+type _ credentials_file =
+  | Credentials_params : wrapped_credentials_params credentials_file
+  | Credentials_metadata : Belenios_web_api.message_metadata credentials_file
+  | Credentials_seed : credentials_seed credentials_file
   | Credentials_records :
       ('a, 'b) group
-      -> ('a, 'b) credentials_records election_file
-  | Credentials_credits : Belenios_web_api.credentials_credits election_file
+      -> ('a, 'b) credentials_records credentials_file
+  | Credentials_credits : Belenios_web_api.credentials_credits credentials_file
 
 type admin_password_kind = Username of string | Address of string
 

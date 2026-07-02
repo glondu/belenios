@@ -90,25 +90,39 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let certificate =
     P.sign xch_credentials_certificate signature_key raw_certificate
   in
-  let* () =
-    let@ s = Storage.E.with_transaction r.uuid in
-    let* () =
-      W
-        ( (module G),
-          {
-            belenios_url = r.belenios_url;
-            version = draft.version;
-            group = draft.group;
-            certificate;
-          } )
-      |> Storage.E.set s Credentials_params Value
-    in
-    let* () =
-      { seed; token = r.token } |> Storage.E.set s Credentials_seed Value
-    in
-    Storage.E.set s
-      (Credentials_records (module G))
-      Value { algorithm; records }
+  let@ () =
+   fun cont ->
+    Lwt.try_bind
+      (fun () -> Storage.C.new_election r.uuid)
+      (fun () ->
+        let@ s = Storage.C.with_transaction r.uuid in
+        let* () =
+          W
+            ( (module G),
+              {
+                belenios_url = r.belenios_url;
+                version = draft.version;
+                group = draft.group;
+                certificate;
+              } )
+          |> Storage.C.set s Credentials_params Value
+        in
+        let* () =
+          { seed; token = r.token } |> Storage.C.set s Credentials_seed Value
+        in
+        let* () =
+          Storage.C.set s
+            (Credentials_records (module G))
+            Value { algorithm; records }
+        in
+        cont ())
+      (fun e ->
+        let msg =
+          Printf.sprintf "could not create credentials spool dir for %s [%s]"
+            (Uuid.to_string r.uuid) (Printexc.to_string e)
+        in
+        Ocsigen_messages.errlog msg;
+        Lwt.return_unit)
   in
   let* () =
     let* x =
@@ -299,8 +313,8 @@ let process_resend_request (r : credentials_resend) (type a b)
     }
   in
   let* success =
-    let@ s = Storage.E.with_transaction r.uuid in
-    let@ x, set = Storage.E.update s Credentials_credits in
+    let@ s = Storage.C.with_transaction r.uuid in
+    let@ x, set = Storage.C.update s Credentials_credits in
     match Lopt.get_value x with
     | None -> Lwt.return_false
     | Some xs ->
@@ -370,21 +384,21 @@ let process_request : credentials_request -> _ = function
       Lwt.async (process_request_new r draft voter_list);
       ok
   | `Validate r ->
-      let@ s = Storage.E.with_transaction r.uuid in
-      let* () = Storage.E.set s Credentials_metadata Value r.metadata in
+      let@ s = Storage.C.with_transaction r.uuid in
+      let* () = Storage.C.set s Credentials_metadata Value r.metadata in
       let@ seed cont =
-        let* x = Storage.E.get s Credentials_seed in
+        let* x = Storage.C.get s Credentials_seed in
         match Lopt.get_value x with
         | Some x -> if r.token = x.token then cont x.seed else forbidden
         | None -> not_found
       in
       let@ params cont =
-        let* p = Storage.E.get s Credentials_params in
+        let* p = Storage.C.get s Credentials_params in
         match Lopt.get_value p with Some p -> cont p | None -> not_found
       in
       let (W (w, _)) = params in
       let@ credentials_records cont =
-        let* x = Storage.E.get s (Credentials_records w) in
+        let* x = Storage.C.get s (Credentials_records w) in
         match Lopt.get_value x with Some x -> cont x | None -> not_found
       in
       let { algorithm; records } = credentials_records in
@@ -413,7 +427,7 @@ let process_request : credentials_request -> _ = function
           credentials_records
       in
       let* () = Mails_voter_bulk.submit_bulk_emails jobs in
-      let* () = Storage.E.del s Credentials_seed in
+      let* () = Storage.C.del s Credentials_seed in
       let* () =
         let timestamp = Unix.gettimeofday () in
         let credits =
@@ -423,23 +437,23 @@ let process_request : credentials_request -> _ = function
         let credit : credentials_credit =
           { credits; success = true; kind = `Initial; timestamp }
         in
-        Storage.E.set s Credentials_credits Value [ credit ]
+        Storage.C.set s Credentials_credits Value [ credit ]
       in
       ok
   | `Resend r ->
-      let@ s = Storage.E.with_transaction r.uuid in
+      let@ s = Storage.C.with_transaction r.uuid in
       let@ params cont =
-        let* p = Storage.E.get s Credentials_params in
+        let* p = Storage.C.get s Credentials_params in
         match Lopt.get_value p with Some p -> cont p | None -> not_found
       in
       if check_seed ~params ~seed:r.seed then (
         let (W (w, params)) = params in
         let@ credentials_records cont =
-          let* x = Storage.E.get s (Credentials_records w) in
+          let* x = Storage.C.get s (Credentials_records w) in
           match Lopt.get_value x with Some x -> cont x | None -> not_found
         in
         let@ metadata cont =
-          let* x = Storage.E.get s Credentials_metadata in
+          let* x = Storage.C.get s Credentials_metadata in
           match Lopt.get_value x with Some x -> cont x | None -> not_found
         in
         Lwt.async
@@ -458,7 +472,7 @@ let dispatch endpoint method_ body =
       | _ -> method_not_allowed)
   | [ "server"; "credits"; uuid ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
-      let@ s = Storage.E.with_transaction uuid in
+      let@ s = Storage.C.with_transaction uuid in
       match method_ with
       | `GET ->
           let@ seed cont =
@@ -474,11 +488,11 @@ let dispatch endpoint method_ body =
                 | Some x -> cont x)
           in
           let@ params cont =
-            let* p = Storage.E.get s Credentials_params in
+            let* p = Storage.C.get s Credentials_params in
             match Lopt.get_value p with Some p -> cont p | None -> not_found
           in
           if check_seed ~params ~seed then
-            let* p = Storage.E.get s Credentials_credits in
+            let* p = Storage.C.get s Credentials_credits in
             match Lopt.get_string p with
             | Some p -> return_json 200 p
             | None -> not_found
