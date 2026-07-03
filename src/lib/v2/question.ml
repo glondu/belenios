@@ -32,7 +32,7 @@ let lookup_type (type a) (type_ : a question_type) =
     | [] -> None
     | x :: xs -> (
         let module X = (val x : QUESTION_IMPL) in
-        match X.id with
+        match X.Q.Id with
         | Q.Id -> Some ((module X) : a question_impl)
         | _ -> loop xs)
   in
@@ -44,7 +44,7 @@ module type PACK = sig
   val concrete : Belenios_core.Question.t
   val abstract : question
 
-  module Kind : QUESTION_IMPL with type question = question
+  module Kind : QUESTION_IMPL with type Q.question = question
 end
 
 type t = (module PACK)
@@ -61,14 +61,12 @@ let of_concrete (x : Belenios_core.Question.t) : t =
   | Some kind ->
       let module Kind = (val kind) in
       let module X = struct
-        type question = Kind.question
+        type question = Kind.Q.question
 
         let concrete = x
 
         let abstract =
-          match Kind.of_concrete x with
-          | Some x -> x
-          | None -> failwith "of_concrete"
+          match Kind.cast x with Some x -> x | None -> failwith "of_concrete"
 
         module Kind = Kind
       end in
@@ -109,10 +107,10 @@ module Make (G : GROUP) = struct
   let compute_result ~total_weight (q : t) x =
     let module X = (val q) in
     let module Q = X.Kind.Make (G) in
-    Q.compute_result ~total_weight X.abstract x |> X.Kind.yojson_of_result
+    Q.compute_result ~total_weight X.abstract x |> X.Kind.Q.yojson_of_result
 
   let check_result ~total_weight (q : t) x r =
     let module X = (val q) in
     let module Q = X.Kind.Make (G) in
-    r |> X.Kind.result_of_yojson |> Q.check_result ~total_weight X.abstract x
+    r |> X.Kind.Q.result_of_yojson |> Q.check_result ~total_weight X.abstract x
 end

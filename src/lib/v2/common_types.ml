@@ -22,18 +22,16 @@
 open Belenios_core
 
 module type QUESTION_IMPL = sig
-  type question
-  type result [@@deriving yojson]
+  module Q : Belenios_core.Question.QUESTION_TYPE
 
-  val id : question Belenios_core.Question.id
-  val of_concrete : Belenios_core.Question.t -> question option
-  val get_complexity : question -> complexity
+  val cast : Belenios_core.Question.t -> Q.question option
+  val get_complexity : Q.question -> complexity
 
   module Make (G : GROUP) :
     QUESTION
       with type element := G.t
-       and type question := question
-       and type result := result
+       and type question := Q.question
+       and type result := Q.result
 end
 
-type 'a question_impl = (module QUESTION_IMPL with type question = 'a)
+type 'a question_impl = (module QUESTION_IMPL with type Q.question = 'a)

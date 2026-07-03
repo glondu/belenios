@@ -21,14 +21,10 @@
 
 open Belenios_core
 open Belenios_core.Question
-open Homomorphic
+module Q = Homomorphic
+open Q
 
-type nonrec question = question
-type nonrec result = result [@@deriving yojson]
-
-let id = Id
-
-let of_concrete (Q x : Belenios_core.Question.t) : question option =
+let cast (Q x : Belenios_core.Question.t) : question option =
   let module Q = (val x.type_) in
   match Q.Id with Id -> Some x.value | _ -> None
 
