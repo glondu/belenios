@@ -1,7 +1,6 @@
 (library
  (name belenios_question)
  (public_name belenios-lib.question)
- (modules_without_implementation types)
  (preprocess
   (pps ppx_yojson_conv))
  (libraries belenios-lib.core))

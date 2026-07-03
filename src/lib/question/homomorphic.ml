@@ -21,24 +21,11 @@
 
 module Syntax = Question_h
 
-type t = Syntax.question
+type t = Syntax.question [@@deriving yojson]
 type Types.raw_question += Q of t
 
-let extract = function Q x -> Some x | _ -> None
 let type_ = "Homomorphic"
 let make ~value ~extra = Types.{ type_; value = Q value; extra }
-
-let wrap ~value ~extra =
-  let value = Q (value |> Syntax.question_of_yojson) in
-  Types.{ type_; value; extra }
-
-let unwrap (q : Types.question) =
-  match q.value with
-  | Q x ->
-      let value = x |> Syntax.yojson_of_question in
-      let o = match q.extra with None -> [] | Some x -> [ ("extra", x) ] in
-      Some (`Assoc (("type", `String type_) :: ("value", value) :: o))
-  | _ -> None
 
 let erase (q : t) : t =
   {

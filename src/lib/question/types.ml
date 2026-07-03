@@ -1,7 +1,8 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2023-2024 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,15 +20,33 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Syntax = Question_l
+open Ppx_yojson_conv_lib.Yojson_conv
+open Belenios_core
 
-type t = Syntax.question [@@deriving yojson]
-type Types.raw_question += Q of t
+type 'a generic_question = {
+  type_ : string; [@key "type"]
+  value : 'a;
+  extra : json option; [@yojson.option]
+}
+[@@deriving yojson]
 
-let type_ = "Lists"
-let make ~value ~extra = Types.{ type_; value = Q value; extra }
+type raw_question = ..
+type question = raw_question generic_question
 
-let erase (q : t) : t =
-  { answers = Array.map (Array.map (fun _ -> "")) q.answers; question = "" }
+module type QUESTION = sig
+  type t [@@deriving yojson]
+  type raw_question += Q of t
 
-let check _ _ = Ok ()
+  val type_ : string
+  val make : value:t -> extra:json option -> question
+  val erase : t -> t
+
+  val check :
+    (module GROUP) Lazy.t -> t generic_question -> (unit, question_error) result
+end
+
+module type PACK = sig
+  module Ops : QUESTION
+
+  val it : Ops.t
+end

@@ -19,53 +19,44 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
+open Types
 module Homomorphic = Homomorphic
 module Non_homomorphic = Non_homomorphic
 module Lists = Lists
 
-type t = Types.question
+type t = question
 
-let types : (module Types.QUESTION) list =
+let types : (module QUESTION) list =
   [ (module Homomorphic); (module Non_homomorphic); (module Lists) ]
 
 let lookup_type type_ =
   let rec loop = function
     | [] -> None
     | x :: xs ->
-        let module X = (val x : Types.QUESTION) in
+        let module X = (val x : QUESTION) in
         if X.type_ = type_ then Some x else loop xs
   in
   loop types
 
-let t_of_yojson = function
-  | `Assoc o -> (
-      let type_, value, extra =
-        match List.assoc_opt "type" o with
-        | Some (`String type_) ->
-            let value =
-              match List.assoc_opt "value" o with
-              | None -> invalid_arg "read_question: value expected"
-              | Some x -> x
-            in
-            (type_, value, List.assoc_opt "extra" o)
-        | _ -> invalid_arg "read_question: string expected in type"
-      in
-      match lookup_type type_ with
-      | None ->
-          Printf.ksprintf invalid_arg "read_question: unsupported type %s" type_
-      | Some x ->
-          let module X = (val x) in
-          X.wrap ~value ~extra)
-  | _ -> invalid_arg "read_question: object expected"
-
-let yojson_of_t (q : t) =
-  match lookup_type q.type_ with
+let t_of_yojson x =
+  let x = generic_question_of_yojson Fun.id x in
+  match lookup_type x.type_ with
   | None ->
-      Printf.ksprintf invalid_arg "write_question: unsupported type %s" q.type_
-  | Some x -> (
-      let module X = (val x) in
-      match X.unwrap q with Some x -> x | None -> invalid_arg "write_question")
+      Printf.ksprintf invalid_arg "%s: unsupported type %s" __FUNCTION__ x.type_
+  | Some q ->
+      let open (val q) in
+      { x with value = Q (t_of_yojson x.value) }
+
+let yojson_of_t (x : t) =
+  match lookup_type x.type_ with
+  | None ->
+      Printf.ksprintf invalid_arg "%s: unsupported type %s" __FUNCTION__ x.type_
+  | Some q -> (
+      let open (val q) in
+      match x.value with
+      | Q q ->
+          yojson_of_generic_question Fun.id { x with value = yojson_of_t q }
+      | _ -> invalid_arg __FUNCTION__)
 
 let is_nh_question (x : t) =
   match x.value with Non_homomorphic.Q _ -> true | _ -> false
@@ -75,15 +66,15 @@ let extract (x : t) =
   | None -> None
   | Some q -> (
       let module Ops = (val q) in
-      match Ops.extract x.value with
-      | None -> None
-      | Some x ->
+      match x.value with
+      | Ops.Q q ->
           let module X = struct
             module Ops = Ops
 
-            let it = x
+            let it = q
           end in
-          Some (module X : Types.PACK))
+          Some (module X : Types.PACK)
+      | _ -> None)
 
 let erase_question x =
   match extract x with
