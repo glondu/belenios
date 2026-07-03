@@ -150,7 +150,7 @@ module Make (G : GROUP) = struct
     >> Array.to_list >> String.concat ","
 
   let unshapify = function
-    | `Array xs -> Array.map Shape.to_array xs
+    | Shape.Array xs -> Array.map Shape.to_array xs
     | _ -> invalid_arg "unshapify"
 
   let split_first f accu xs =
@@ -331,17 +331,18 @@ module Make (G : GROUP) = struct
     verify_nonzero_proof y zkp c a.nonzero_proof
 
   let extract_ciphertexts _ a =
-    `Array
+    Shape.Array
       (Array.map
-         (Array.map (fun x -> `Atomic x) >> fun x -> `Array x)
+         (Array.map (fun x -> Shape.Atomic x) >> fun x -> Shape.Array x)
          a.choices)
 
   let process_ciphertexts q es =
     let neutral =
       q.answers
       |> Array.map
-           (Array.map (fun _ -> `Atomic dummy_ciphertext) >> fun x -> `Array x)
-      |> fun x -> `Array x
+           ( Array.map (fun _ -> Shape.Atomic dummy_ciphertext) >> fun x ->
+             Shape.Array x )
+      |> fun x -> Shape.Array x
     in
     let ( * ) = Shape.map2 eg_combine in
     let rec power b n =

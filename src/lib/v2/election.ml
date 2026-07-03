@@ -196,7 +196,7 @@ struct
         else Error `NonCanonical
 
   let process_ballots bs =
-    `Array
+    Shape.Array
       (Array.mapi
          (fun i q ->
            Q.process_ciphertexts q
@@ -229,7 +229,7 @@ struct
             loop (i + 1) (j + 1))
       else (
         assert (j = m);
-        `Array x)
+        Shape.Array x)
     in
     loop 0 0
 
@@ -317,11 +317,11 @@ struct
         match
           Shape.map2 (fun ({ beta; _ } : _ ciphertext) f -> beta / f) et factors
         with
-        | `Array rs ->
+        | Shape.Array rs ->
             Array.map2 (Q.compute_result ~total_weight) W.template.questions rs
             |> W.of_generic_result
             |> fun result -> Ok { result }
-        | `Atomic _ -> failwith "compute_result: invalid shape")
+        | Shape.Atomic _ -> failwith "compute_result: invalid shape")
     | Error e -> Error e
 
   let check_result encrypted_tally partial_decryptions trustees
@@ -339,12 +339,12 @@ struct
             (fun ({ beta; _ } : _ ciphertext) f -> beta / f)
             encrypted_tally factors
         with
-        | `Array rs ->
+        | Shape.Array rs ->
             Array.for_all3
               (Q.check_result ~total_weight)
               W.template.questions rs
               (W.to_generic_result result)
-        | `Atomic _ -> failwith "check_result: invalid shape")
+        | Shape.Atomic _ -> failwith "check_result: invalid shape")
 end
 
 module Make (R : RAW_ELECTION) () = struct

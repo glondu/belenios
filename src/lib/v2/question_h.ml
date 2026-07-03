@@ -388,11 +388,12 @@ module Make (G : GROUP) = struct
     | _, _ -> false
 
   let extract_ciphertexts _ a =
-    `Array (Array.map (fun x -> `Atomic x) a.choices)
+    Shape.Array (Array.map (fun x -> Shape.Atomic x) a.choices)
 
   let process_ciphertexts q es =
     let neutral =
-      `Array (Array.make (question_length q) (`Atomic dummy_ciphertext))
+      Shape.Array
+        (Array.make (question_length q) (Shape.Atomic dummy_ciphertext))
     in
     let ( * ) = Shape.map2 eg_combine in
     let rec power b n =

@@ -80,11 +80,11 @@ module Make (G : GROUP) = struct
     let dst = dst_prefix ^ "-raweg" in
     Zq.(challenge =% G.hash ~dst zkp [| commitment |])
 
-  let extract_ciphertexts _ a = `Atomic a.choices
+  let extract_ciphertexts _ a = Shape.Atomic a.choices
 
   let compare_ciphertexts x y =
     match (x, y) with
-    | `Atomic x, `Atomic y ->
+    | Shape.Atomic x, Shape.Atomic y ->
         let c = G.compare x.alpha y.alpha in
         if c = 0 then G.compare x.beta y.beta else c
     | _, _ -> invalid_arg "Question_nh.compare_ciphertexts"
@@ -99,14 +99,14 @@ module Make (G : GROUP) = struct
         (Array.of_list es)
     in
     Array.fast_sort compare_ciphertexts es;
-    `Array es
+    Shape.Array es
 
   let compute_result ~total_weight:_ q x =
     match x with
-    | `Array xs ->
+    | Shape.Array xs ->
         xs
         |> Array.map (function
-          | `Atomic x -> G.to_ints (Array.length q.answers) x
+          | Shape.Atomic x -> G.to_ints (Array.length q.answers) x
           | _ -> invalid_arg "Question_nh.compute_result/1")
     | _ -> invalid_arg "Question_nh.compute_result/2"
 

@@ -204,60 +204,59 @@ module Array = struct
 end
 
 module Shape = struct
-  type 'a t = [ `Atomic of 'a | `Array of 'a t array ]
+  type 'a t = Atomic of 'a | Array of 'a t array
 
   let rec yojson_of_t to_yojson : 'a t -> json = function
-    | `Array xs -> `List (Array.map (yojson_of_t to_yojson) xs |> Array.to_list)
-    | `Atomic o -> to_yojson o
+    | Array xs -> `List (Array.map (yojson_of_t to_yojson) xs |> Array.to_list)
+    | Atomic o -> to_yojson o
 
   let rec t_of_yojson of_yojson : json -> 'a t = function
-    | `List xs -> `Array (List.map (t_of_yojson of_yojson) xs |> Array.of_list)
-    | o -> `Atomic (of_yojson o)
+    | `List xs -> Array (List.map (t_of_yojson of_yojson) xs |> Array.of_list)
+    | o -> Atomic (of_yojson o)
 
-  let __t_of_yojson__ = t_of_yojson
-  let of_array x = `Array (Array.map (fun x -> `Atomic x) x)
+  let of_array x = Array (Array.map (fun x -> Atomic x) x)
 
   let to_array = function
-    | `Atomic _ -> invalid_arg "Shape.to_array"
-    | `Array xs ->
+    | Atomic _ -> invalid_arg "Shape.to_array"
+    | Array xs ->
         Array.map
-          (function `Atomic x -> x | `Array _ -> invalid_arg "Shape.to_array")
+          (function Atomic x -> x | Array _ -> invalid_arg "Shape.to_array")
           xs
 
   let to_shape_array = function
-    | `Atomic _ -> invalid_arg "Shape.to_shape_array"
-    | `Array xs -> xs
+    | Atomic _ -> invalid_arg "Shape.to_shape_array"
+    | Array xs -> xs
 
   let rec map f = function
-    | `Atomic x -> `Atomic (f x)
-    | `Array x -> `Array (Array.map (map f) x)
+    | Atomic x -> Atomic (f x)
+    | Array x -> Array (Array.map (map f) x)
 
   let rec map2 f a b =
     match (a, b) with
-    | `Atomic x, `Atomic y -> `Atomic (f x y)
-    | `Array x, `Array y -> `Array (Array.map2 (map2 f) x y)
+    | Atomic x, Atomic y -> Atomic (f x y)
+    | Array x, Array y -> Array (Array.map2 (map2 f) x y)
     | _, _ -> invalid_arg "Shape.map2"
 
   let rec flatten = function
-    | `Atomic x -> [ x ]
-    | `Array xs -> Array.map flatten xs |> Array.to_list |> List.flatten
+    | Atomic x -> [ x ]
+    | Array xs -> Array.map flatten xs |> Array.to_list |> List.flatten
 
   let split x = (map fst x, map snd x)
 
   let rec forall p = function
-    | `Atomic x -> p x
-    | `Array x -> Array.for_all (forall p) x
+    | Atomic x -> p x
+    | Array x -> Array.for_all (forall p) x
 
   let rec forall2 p x y =
     match (x, y) with
-    | `Atomic x, `Atomic y -> p x y
-    | `Array x, `Array y -> Array.for_all2 (forall2 p) x y
+    | Atomic x, Atomic y -> p x y
+    | Array x, Array y -> Array.for_all2 (forall2 p) x y
     | _, _ -> invalid_arg "Shape.forall2"
 
   let rec forall3 p x y z =
     match (x, y, z) with
-    | `Atomic x, `Atomic y, `Atomic z -> p x y z
-    | `Array x, `Array y, `Array z -> Array.for_all3 (forall3 p) x y z
+    | Atomic x, Atomic y, Atomic z -> p x y z
+    | Array x, Array y, Array z -> Array.for_all3 (forall3 p) x y z
     | _, _, _ -> invalid_arg "Shape.forall3"
 end
 

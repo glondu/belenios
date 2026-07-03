@@ -96,7 +96,7 @@ module Array : sig
 end
 
 module Shape : sig
-  type 'a t = [ `Atomic of 'a | `Array of 'a t array ] [@@deriving yojson]
+  type 'a t = Atomic of 'a | Array of 'a t array [@@deriving yojson]
 
   val of_array : 'a array -> 'a t
   val to_array : 'a t -> 'a array

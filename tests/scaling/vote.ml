@@ -59,8 +59,9 @@ module Make (P : PARAMS) () = struct
   let random_choice () =
     let i = Stdlib.Random.int nb_candidates in
     [|
-      `Array
-        (Array.init nb_candidates (fun j -> `Atomic (if j = i then 1 else 0)));
+      Shape.Array
+        (Array.init nb_candidates (fun j ->
+             Shape.Atomic (if j = i then 1 else 0)));
     |]
 
   let submit_ballot ~username ~ballot =
