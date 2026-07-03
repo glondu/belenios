@@ -23,7 +23,7 @@ open Belenios_core
 open Belenios_core.Question
 open Common_types
 
-let types : (module QUESTION_KIND) list =
+let types : (module QUESTION_IMPL) list =
   [ (module Question_h); (module Question_nh); (module Question_l) ]
 
 let lookup_type (type a) (type_ : a question_type) =
@@ -31,9 +31,9 @@ let lookup_type (type a) (type_ : a question_type) =
   let rec loop = function
     | [] -> None
     | x :: xs -> (
-        let module X = (val x : QUESTION_KIND) in
+        let module X = (val x : QUESTION_IMPL) in
         match X.id with
-        | Q.Id -> Some ((module X) : a question_kind)
+        | Q.Id -> Some ((module X) : a question_impl)
         | _ -> loop xs)
   in
   loop types
@@ -44,7 +44,7 @@ module type PACK = sig
   val concrete : Belenios_core.Question.t
   val abstract : question
 
-  module Kind : QUESTION_KIND with type question = question
+  module Kind : QUESTION_IMPL with type question = question
 end
 
 type t = (module PACK)

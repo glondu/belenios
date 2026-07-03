@@ -21,7 +21,7 @@
 
 open Belenios_core
 
-module type QUESTION_KIND = sig
+module type QUESTION_IMPL = sig
   type question
   type result [@@deriving yojson]
 
@@ -36,4 +36,4 @@ module type QUESTION_KIND = sig
        and type result := result
 end
 
-type 'a question_kind = (module QUESTION_KIND with type question = 'a)
+type 'a question_impl = (module QUESTION_IMPL with type question = 'a)
