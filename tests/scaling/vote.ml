@@ -49,7 +49,7 @@ module Make (P : PARAMS) () = struct
       end)
 
   let nb_candidates =
-    let open Belenios_question in
+    let open Belenios.Question_core in
     let open (val Belenios.Election.get_serializers W.witness) in
     let (Q question) = to_concrete W.template.questions.(0) in
     let module Q = (val question.type_) in

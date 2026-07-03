@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2023-2024 Inria                                           *)
+(*  Copyright © 2012-2023 Inria                                           *)
 (*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
@@ -20,32 +20,44 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
+open Ppx_yojson_conv_lib.Yojson_conv
+open Common_types
+open Crypto_types
+open Question_types
 
-type ('a, 'b) generic_question = {
-  type_ : 'a; [@key "type"]
-  value : 'b;
-  extra : json option; [@yojson.option]
+type question = {
+  answers : string array;
+  blank : bool;
+  min : int;
+  max : int;
+  question : string;
 }
 [@@deriving yojson]
 
-type _ id = ..
+type ('a, 'b) answer = {
+  choices : 'a ciphertext array;
+  individual_proofs : 'b disjunctive_proof array;
+  overall_proof : 'b disjunctive_proof;
+  blank_proof : 'b disjunctive_proof option; [@yojson.option]
+}
+[@@deriving yojson]
+(** An answer to a question. It consists of a weight for each choice, a proof
+    that each of these weights is 0 or 1, and an overall proof that the total
+    weight is within bounds. *)
 
-module type QUESTION = sig
-  type t [@@deriving yojson]
-  type _ id += Id : t id
+type result = weight array [@@deriving yojson]
+type _ id += Id : question id
 
-  val type_ : string
-  val erase : t -> t
+let type_ = "Homomorphic"
 
-  val check :
-    (module GROUP) Lazy.t ->
-    extra:json option ->
-    t ->
-    (unit, question_error) result
-end
+let erase (q : question) : question =
+  {
+    answers = Array.map (fun _ -> "") q.answers;
+    blank = q.blank;
+    min = q.min;
+    max = q.max;
+    question = "";
+  }
 
-type 'a question = (module QUESTION with type t = 'a)
-
-type wrapped_question =
-  | Q : ('a question, 'a) generic_question -> wrapped_question
+let check _ ~extra:_ (q : question) =
+  if q.min <= q.max then Ok () else Error `Min_max

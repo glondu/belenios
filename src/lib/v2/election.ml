@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios_core
-open Belenios_question
+open Question_core
 open Types
 
 let get_complexity qs =

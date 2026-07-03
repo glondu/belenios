@@ -42,8 +42,8 @@ let get_uuid x =
 module type SERIALIZABLE_QUESTION = sig
   type t [@@deriving yojson]
 
-  val of_concrete : Belenios_question.t -> t
-  val to_concrete : t -> Belenios_question.t
+  val of_concrete : Question_core.t -> t
+  val to_concrete : t -> Question_core.t
 end
 
 type _ version = V2 : Belenios_v2.Question.t version

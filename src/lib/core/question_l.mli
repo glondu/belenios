@@ -2,6 +2,7 @@
 (*                                BELENIOS                                *)
 (*                                                                        *)
 (*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,51 +20,32 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
-module Syntax = Question_nh
+open Common_types
+open Crypto_types
 
-type t = Syntax.question [@@deriving yojson]
-type _ Types.id += Id : t Types.id
+(** {2 Non-zero proof} *)
 
-let type_ = "NonHomomorphic"
+type ('a, 'b) nonzero_proof = {
+  commitment : 'a;
+  challenge : 'b;
+  response : 'b * 'b;
+}
+[@@deriving yojson]
 
-let erase (q : t) : t =
-  { answers = Array.map (fun _ -> "") q.answers; question = "" }
+(** {2 Questions and answers} *)
 
-type counting_method =
-  [ `None
-  | `MajorityJudgment of Question_nh.mj_extra
-  | `Schulze of Question_nh.schulze_extra
-  | `STV of Question_nh.stv_extra ]
+type question = { answers : string array array; question : string }
+[@@deriving yojson]
 
-let get_counting_method extra =
-  let open Question_nh in
-  match extra with
-  | Some (`Assoc o as extra) -> (
-      match List.assoc_opt "method" o with
-      | Some (`String "MajorityJudgment") -> (
-          match mj_extra_of_yojson extra with
-          | x -> `MajorityJudgment x
-          | exception _ -> `None)
-      | Some (`String "Schulze") -> (
-          match schulze_extra_of_yojson extra with
-          | x -> `Schulze x
-          | exception _ -> `None)
-      | Some (`String "STV") -> (
-          match stv_extra_of_yojson extra with
-          | x -> `STV x
-          | exception _ -> `None)
-      | _ -> `None)
-  | _ -> `None
+type ('a, 'b) answer = {
+  choices : 'a ciphertext array array;
+  individual_proofs : 'b disjunctive_proof array array;
+  overall_proof : 'b proof;
+  list_proofs : 'b disjunctive_proof array;
+  nonzero_proof : ('a, 'b) nonzero_proof;
+}
+[@@deriving yojson]
 
-let check group ~extra (q : t) =
-  let module G = (val Lazy.force group : GROUP) in
-  let n = Array.length q.answers in
-  if n > G.max_ints then Error `Vector_size
-  else
-    match get_counting_method extra with
-    | `None -> Ok ()
-    | `Schulze _ | `STV _ ->
-        if n < 1 lsl G.bits_per_int then Ok () else Error `Int_size
-    | `MajorityJudgment { grades = g; _ } ->
-        if Array.length g < 1 lsl G.bits_per_int then Ok () else Error `Int_size
+type result = weight array array [@@deriving yojson]
+
+include Question_types.QUESTION with type question := question

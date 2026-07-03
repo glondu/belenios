@@ -3,4 +3,4 @@
  (public_name belenios-lib.v2)
  (preprocess
   (pps ppx_yojson_conv ppx_yojson_group))
- (libraries belenios-lib.core belenios-lib.question))
+ (libraries belenios-lib.core))

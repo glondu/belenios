@@ -2,6 +2,7 @@
 (*                                BELENIOS                                *)
 (*                                                                        *)
 (*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,11 +20,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
-include module type of Types
-module Homomorphic = Homomorphic
-module Non_homomorphic = Non_homomorphic
-module Lists = Lists
+open Signatures_core
+include module type of Question_types
+module Homomorphic = Question_h
+module Non_homomorphic = Question_nh
+module Lists = Question_l
 
 type t = wrapped_question [@@deriving yojson]
 

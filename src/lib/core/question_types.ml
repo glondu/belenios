@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2023-2024 Inria                                           *)
 (*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
@@ -20,32 +20,33 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-(** {1 Serializable datatypes for lists questions} *)
+open Common_types
+open Signatures_core
 
-open Ppx_yojson_conv_lib.Yojson_conv
-open Belenios_core
-
-(** {2 Non-zero proof} *)
-
-type ('a, 'b) nonzero_proof = {
-  commitment : 'a;
-  challenge : 'b;
-  response : 'b * 'b;
+type ('a, 'b) generic_question = {
+  type_ : 'a; [@key "type"]
+  value : 'b;
+  extra : json option; [@yojson.option]
 }
 [@@deriving yojson]
 
-(** {2 Questions and answers} *)
+type _ id = ..
 
-type question = { answers : string array array; question : string }
-[@@deriving yojson]
+module type QUESTION = sig
+  type question [@@deriving yojson]
+  type _ id += Id : question id
 
-type ('a, 'b) answer = {
-  choices : 'a ciphertext array array;
-  individual_proofs : 'b disjunctive_proof array array;
-  overall_proof : 'b proof;
-  list_proofs : 'b disjunctive_proof array;
-  nonzero_proof : ('a, 'b) nonzero_proof;
-}
-[@@deriving yojson]
+  val type_ : string
+  val erase : question -> question
 
-type result = weight array array [@@deriving yojson]
+  val check :
+    (module GROUP) Lazy.t ->
+    extra:json option ->
+    question ->
+    (unit, question_error) result
+end
+
+type 'a question_module = (module QUESTION with type question = 'a)
+
+type wrapped_question =
+  | Q : ('a question_module, 'a) generic_question -> wrapped_question

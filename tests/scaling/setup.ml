@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_question.Homomorphic.Syntax
+open Question_core.Homomorphic
 open Belenios_web_api
 open Common
 
@@ -46,9 +46,9 @@ module Make (P : PARAMS) = struct
     Array.init n (fun i -> Printf.sprintf "Candidate %d" (i + 1))
 
   let questions =
-    let open Belenios_question in
+    let open Question_core in
     if nh then
-      let value : Non_homomorphic.t =
+      let value : Non_homomorphic.question =
         {
           answers = generate_candidates nb_candidates;
           question = "Rank the candidates";
@@ -56,7 +56,7 @@ module Make (P : PARAMS) = struct
       in
       [| Q { type_ = (module Non_homomorphic); value; extra = None } |]
     else
-      let value : Homomorphic.t =
+      let value : Homomorphic.question =
         {
           answers = generate_candidates nb_candidates;
           blank = false;
@@ -96,7 +96,7 @@ module Make (P : PARAMS) = struct
 
   let create_draft () =
     let body =
-      !+(yojson_of_raw_draft Belenios_question.yojson_of_t) draft
+      !+(yojson_of_raw_draft Question_core.yojson_of_t) draft
       |> Cohttp_lwt.Body.of_string
     in
     let* response, x =

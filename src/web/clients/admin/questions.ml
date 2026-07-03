@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_question
+open Question_core
 open Belenios_web_api
 open Lwt.Syntax
 open Js_of_ocaml
@@ -77,7 +77,7 @@ let curr_doing = ref (-1)
 let update_question = ref (fun ?save:_ _ -> Lwt.return_unit)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
-let q_to_gen (Q question : Belenios_question.t) =
+let q_to_gen (Q question : Question_core.t) =
   let ( question,
         answers,
         answers_lists,
@@ -261,7 +261,7 @@ let local_save () =
       let group = lazy (Group.of_string ~version draft_group) in
       Array.iteri
         (fun i q ->
-          match Belenios_question.check_question group q with
+          match Question_core.check_question group q with
           | Ok () -> ()
           | Error `Min_max ->
               raise

@@ -295,7 +295,7 @@ let majority_judgment_content uuid q (r : Method_mj.result) =
   let open Method_mj in
   let open (val !Belenios_js.I18n.gettext) in
   let explicit_winners =
-    let open Belenios_question.Non_homomorphic.Syntax in
+    let open Question_core.Non_homomorphic in
     List.map (List.map (fun i -> q.answers.(i))) r.winners
   in
   let pretty_winners =
@@ -357,7 +357,7 @@ let schulze_content q (r : Method_schulze.result) =
     | None -> txt ""
   in
   let explicit_winners =
-    let open Belenios_question.Non_homomorphic.Syntax in
+    let open Question_core.Non_homomorphic in
     List.map (List.map (fun i -> q.answers.(i))) r.winners
   in
   let pretty_winners =
@@ -408,7 +408,7 @@ let stv_content uuid q (r : Method_stv.result) =
   let open Method_stv in
   let open (val !Belenios_js.I18n.gettext) in
   let winners =
-    let open Belenios_question.Non_homomorphic.Syntax in
+    let open Question_core.Non_homomorphic in
     r.winners
     |> List.map (fun i -> q.answers.(i))
     |> List.map (fun l -> li [ txt l ])
@@ -476,14 +476,14 @@ let stv_content uuid q (r : Method_stv.result) =
     div [ invalid ];
   ]
 
-let format_question_result uuid r (Q question : Belenios_question.t) =
+let format_question_result uuid r (Q question : Question_core.t) =
   let open (val !Belenios_js.I18n.gettext) in
-  let open Belenios_question in
+  let open Question_core in
   let module Q = (val question.type_) in
   (fun (type a) (id : a id) (q : a) ->
     match id with
     | Homomorphic.Id ->
-        let open Homomorphic.Syntax in
+        let open Homomorphic in
         let r = !*result_of_yojson r in
         let answers = Array.to_list q.answers in
         let answers =
@@ -512,7 +512,7 @@ let format_question_result uuid r (Q question : Belenios_question.t) =
             answers;
           ]
     | Non_homomorphic.Id ->
-        let open Non_homomorphic.Syntax in
+        let open Non_homomorphic in
         let ballots = !*result_of_yojson r in
         let applied_counting_method, show_others =
           match Non_homomorphic.get_counting_method question.extra with
@@ -569,7 +569,7 @@ let format_question_result uuid r (Q question : Belenios_question.t) =
               ];
           ]
     | Lists.Id ->
-        let open Lists.Syntax in
+        let open Lists in
         let r = r |> !*result_of_yojson in
         let answers = Array.to_list q.answers in
         let line_of_candidate name votes =

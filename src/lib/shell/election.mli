@@ -29,8 +29,8 @@ val get_uuid : string -> uuid
 module type SERIALIZABLE_QUESTION = sig
   type t [@@deriving yojson]
 
-  val of_concrete : Belenios_question.t -> t
-  val to_concrete : t -> Belenios_question.t
+  val of_concrete : Question_core.t -> t
+  val to_concrete : t -> Question_core.t
 end
 
 type 'a version
@@ -51,7 +51,7 @@ type versioned_template =
 
 val election_uuid_of_string_ballot : string -> uuid
 val has_nh_questions : versioned_template -> bool
-val get_questions : versioned_template -> Belenios_question.t array
+val get_questions : versioned_template -> Question_core.t array
 val get_complexity : versioned_template -> complexity
 
 val make_raw_election :

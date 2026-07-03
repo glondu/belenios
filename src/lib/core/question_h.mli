@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2021 Inria                                           *)
+(*  Copyright © 2012-2023 Inria                                           *)
 (*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
@@ -20,12 +20,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-(** {1 Serializable datatypes for homomorphic questions} *)
-
-open Ppx_yojson_conv_lib.Yojson_conv
-open Belenios_core
-
-(** {2 Questions and answers} *)
+open Common_types
+open Crypto_types
 
 type question = {
   answers : string array;
@@ -48,3 +44,5 @@ type ('a, 'b) answer = {
     weight is within bounds. *)
 
 type result = weight array [@@deriving yojson]
+
+include Question_types.QUESTION with type question := question

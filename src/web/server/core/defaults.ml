@@ -29,7 +29,7 @@ let description = ""
 let contact = ""
 
 let questions =
-  let open Belenios_question in
+  let open Belenios.Question_core in
   [|
     Q
       {

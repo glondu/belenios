@@ -41,3 +41,4 @@ module Ed25519_libsodium = Ed25519_libsodium
 module Method_schulze = Method_schulze
 module Method_stv = Method_stv
 module Method_mj = Method_mj
+module Question_core = Question

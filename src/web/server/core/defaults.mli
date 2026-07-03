@@ -21,7 +21,7 @@
 
 val version : int
 val contact : string
-val questions : Belenios_question.t array
+val questions : Belenios.Question_core.t array
 val name : string
 val description : string
 val days_to_archive : float

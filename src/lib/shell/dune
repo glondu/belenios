@@ -5,5 +5,4 @@
   (pps ppx_yojson_conv ppx_yojson_group))
  (libraries
   (re_export belenios-lib.core)
-  (re_export belenios-lib.question)
   belenios-lib.v2))

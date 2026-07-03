@@ -1,7 +1,8 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -20,46 +21,39 @@
 (**************************************************************************)
 
 open Ppx_yojson_conv_lib.Yojson_conv
-include Types
-module Homomorphic = Homomorphic
-module Non_homomorphic = Non_homomorphic
-module Lists = Lists
+open Common_types
+open Crypto_types
+open Question_types
 
-type t = wrapped_question
+(** {2 Non-zero proof} *)
 
-let types : (module QUESTION) list =
-  [ (module Homomorphic); (module Non_homomorphic); (module Lists) ]
+type ('a, 'b) nonzero_proof = {
+  commitment : 'a;
+  challenge : 'b;
+  response : 'b * 'b;
+}
+[@@deriving yojson]
 
-let lookup_type type_ =
-  let rec loop = function
-    | [] -> None
-    | x :: xs ->
-        let module X = (val x : QUESTION) in
-        if X.type_ = type_ then Some x else loop xs
-  in
-  loop types
+(** {2 Questions and answers} *)
 
-let t_of_yojson x =
-  let x = generic_question_of_yojson string_of_yojson Fun.id x in
-  match lookup_type x.type_ with
-  | None ->
-      Printf.ksprintf invalid_arg "%s: unsupported type %s" __FUNCTION__ x.type_
-  | Some q ->
-      let module Q = (val q) in
-      Q { x with type_ = (module Q); value = Q.t_of_yojson x.value }
+type question = { answers : string array array; question : string }
+[@@deriving yojson]
 
-let yojson_of_t (Q x : t) =
-  let open (val x.type_) in
-  yojson_of_generic_question yojson_of_string yojson_of_t { x with type_ }
+type ('a, 'b) answer = {
+  choices : 'a ciphertext array array;
+  individual_proofs : 'b disjunctive_proof array array;
+  overall_proof : 'b proof;
+  list_proofs : 'b disjunctive_proof array;
+  nonzero_proof : ('a, 'b) nonzero_proof;
+}
+[@@deriving yojson]
 
-let is_nh_question (Q x : t) =
-  let open (val x.type_) in
-  match Id with Non_homomorphic.Id -> true | _ -> false
+type result = weight array array [@@deriving yojson]
+type _ id += Id : question id
 
-let erase_question (Q x : t) =
-  let open (val x.type_) in
-  Q { x with value = erase x.value }
+let type_ = "Lists"
 
-let check_question group (Q x : t) =
-  let open (val x.type_) in
-  check group ~extra:x.extra x.value
+let erase (q : question) : question =
+  { answers = Array.map (Array.map (fun _ -> "")) q.answers; question = "" }
+
+let check _ ~extra:_ _ = Ok ()

@@ -1,7 +1,8 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,14 +20,32 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Syntax = Question_l
+open Common_types
+open Crypto_types
 
-type t = Syntax.question [@@deriving yojson]
-type _ Types.id += Id : t Types.id
+(** {2 Questions and answers} *)
 
-let type_ = "Lists"
+type question = { answers : string array; question : string }
+[@@deriving yojson]
 
-let erase (q : t) : t =
-  { answers = Array.map (Array.map (fun _ -> "")) q.answers; question = "" }
+type ('a, 'b) answer = { choices : 'a ciphertext; proof : 'b proof }
+[@@deriving yojson]
+(** An answer to a question. *)
 
-let check _ ~extra:_ _ = Ok ()
+type result = int array array [@@deriving yojson]
+
+(** {2 Counting methods} *)
+
+type mj_extra = { blank : bool; grades : string array } [@@deriving yojson]
+type schulze_extra = { blank : bool } [@@deriving yojson]
+type stv_extra = { blank : bool; seats : int } [@@deriving yojson]
+
+include Question_types.QUESTION with type question := question
+
+type counting_method =
+  [ `None
+  | `MajorityJudgment of mj_extra
+  | `Schulze of schulze_extra
+  | `STV of stv_extra ]
+
+val get_counting_method : json option -> counting_method

@@ -20,9 +20,8 @@
 (**************************************************************************)
 
 open Belenios_core
-open Belenios_question
+open Question_core
 open Lists
-open Syntax
 
 type nonrec 'a cipertext = 'a ciphertext = { alpha : 'a; beta : 'a }
 type nonrec question = question
@@ -30,7 +29,7 @@ type nonrec result = result [@@deriving yojson]
 
 let id = Id
 
-let of_concrete (Q x : Belenios_question.t) : question option =
+let of_concrete (Q x : Question_core.t) : question option =
   let module Q = (val x.type_) in
   match Q.Id with Id -> Some x.value | _ -> None
 

@@ -25,8 +25,8 @@ module type QUESTION_KIND = sig
   type question
   type result [@@deriving yojson]
 
-  val id : question Belenios_question.id
-  val of_concrete : Belenios_question.t -> question option
+  val id : question Question_core.id
+  val of_concrete : Question_core.t -> question option
   val get_complexity : question -> complexity
 
   module Make (G : GROUP) :
