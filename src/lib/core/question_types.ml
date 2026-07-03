@@ -32,8 +32,10 @@ type ('a, 'b) generic_question = {
 
 type _ id = ..
 
-module type QUESTION = sig
+module type QUESTION_TYPE = sig
   type question [@@deriving yojson]
+  type ('a, 'b) answer [@@deriving yojson]
+  type result [@@deriving yojson]
   type _ id += Id : question id
 
   val type_ : string
@@ -43,10 +45,10 @@ module type QUESTION = sig
     (module GROUP) Lazy.t ->
     extra:json option ->
     question ->
-    (unit, question_error) result
+    (unit, question_error) Stdlib.result
 end
 
-type 'a question_module = (module QUESTION with type question = 'a)
+type 'a question_type = (module QUESTION_TYPE with type question = 'a)
 
 type wrapped_question =
-  | Q : ('a question_module, 'a) generic_question -> wrapped_question
+  | Q : ('a question_type, 'a) generic_question -> wrapped_question

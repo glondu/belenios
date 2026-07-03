@@ -40,7 +40,11 @@ type mj_extra = { blank : bool; grades : string array } [@@deriving yojson]
 type schulze_extra = { blank : bool } [@@deriving yojson]
 type stv_extra = { blank : bool; seats : int } [@@deriving yojson]
 
-include Question_types.QUESTION with type question := question
+include
+  Question_types.QUESTION_TYPE
+    with type question := question
+     and type ('a, 'b) answer := ('a, 'b) answer
+     and type result := result
 
 type counting_method =
   [ `None

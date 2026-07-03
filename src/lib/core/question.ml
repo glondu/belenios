@@ -28,14 +28,14 @@ module Lists = Question_l
 
 type t = wrapped_question
 
-let types : (module QUESTION) list =
+let types : (module QUESTION_TYPE) list =
   [ (module Homomorphic); (module Non_homomorphic); (module Lists) ]
 
 let lookup_type type_ =
   let rec loop = function
     | [] -> None
     | x :: xs ->
-        let module X = (val x : QUESTION) in
+        let module X = (val x : QUESTION_TYPE) in
         if X.type_ = type_ then Some x else loop xs
   in
   loop types

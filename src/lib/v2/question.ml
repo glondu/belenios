@@ -26,7 +26,7 @@ open Common_types
 let types : (module QUESTION_KIND) list =
   [ (module Question_h); (module Question_nh); (module Question_l) ]
 
-let lookup_type (type a) (type_ : a question_module) =
+let lookup_type (type a) (type_ : a question_type) =
   let module Q = (val type_) in
   let rec loop = function
     | [] -> None
