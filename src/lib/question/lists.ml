@@ -22,12 +22,11 @@
 module Syntax = Question_l
 
 type t = Syntax.question [@@deriving yojson]
-type Types.raw_question += Q of t
 
 let type_ = "Lists"
-let make ~value ~extra = Types.{ type_; value = Q value; extra }
+let id = Type.Id.make ()
 
 let erase (q : t) : t =
   { answers = Array.map (Array.map (fun _ -> "")) q.answers; question = "" }
 
-let check _ _ = Ok ()
+let check _ ~extra:_ _ = Ok ()

@@ -46,18 +46,17 @@ module Make (P : PARAMS) = struct
     Array.init n (fun i -> Printf.sprintf "Candidate %d" (i + 1))
 
   let questions =
+    let open Belenios_question in
     if nh then
-      let open Belenios_question.Non_homomorphic in
-      let value : t =
+      let value : Non_homomorphic.t =
         {
           answers = generate_candidates nb_candidates;
           question = "Rank the candidates";
         }
       in
-      [| make ~value ~extra:None |]
+      [| Q { type_ = (module Non_homomorphic); value; extra = None } |]
     else
-      let open Belenios_question.Homomorphic in
-      let value : t =
+      let value : Homomorphic.t =
         {
           answers = generate_candidates nb_candidates;
           blank = false;
@@ -66,7 +65,7 @@ module Make (P : PARAMS) = struct
           question = "Which candidate do you prefer?";
         }
       in
-      [| make ~value ~extra:None |]
+      [| Q { type_ = (module Homomorphic); value; extra = None } |]
 
   let questions =
     {

@@ -23,10 +23,9 @@ open Belenios_core
 module Syntax = Question_nh
 
 type t = Syntax.question [@@deriving yojson]
-type Types.raw_question += Q of t
 
 let type_ = "NonHomomorphic"
-let make ~value ~extra = Types.{ type_; value = Q value; extra }
+let id = Type.Id.make ()
 
 let erase (q : t) : t =
   { answers = Array.map (fun _ -> "") q.answers; question = "" }
@@ -57,12 +56,12 @@ let get_counting_method extra =
       | _ -> `None)
   | _ -> `None
 
-let check group (q : t Types.generic_question) =
+let check group ~extra (q : t) =
   let module G = (val Lazy.force group : GROUP) in
-  let n = Array.length q.value.answers in
+  let n = Array.length q.answers in
   if n > G.max_ints then Error `Vector_size
   else
-    match get_counting_method q.extra with
+    match get_counting_method extra with
     | `None -> Ok ()
     | `Schulze _ | `STV _ ->
         if n < 1 lsl G.bits_per_int then Ok () else Error `Int_size

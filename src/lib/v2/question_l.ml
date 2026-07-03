@@ -28,10 +28,13 @@ type nonrec 'a cipertext = 'a ciphertext = { alpha : 'a; beta : 'a }
 type nonrec question = question
 type nonrec result = result [@@deriving yojson]
 
-let type_ = type_
+let id = id
 
-let of_concrete (x : Belenios_question.t) =
-  match x.value with Q x -> Some x | _ -> None
+let of_concrete (Q x : Belenios_question.t) : question option =
+  let module Q = (val x.type_) in
+  match Type.Id.provably_equal Q.id id with
+  | Some Equal -> Some x.value
+  | _ -> None
 
 (** Helper functions *)
 

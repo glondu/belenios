@@ -29,17 +29,21 @@ let description = ""
 let contact = ""
 
 let questions =
+  let open Belenios_question in
   [|
-    Belenios_question.Homomorphic.make
-      ~value:
-        {
-          answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
-          blank = false;
-          min = 1;
-          max = 1;
-          question = "Question 1?";
-        }
-      ~extra:None;
+    Q
+      {
+        type_ = (module Homomorphic);
+        value =
+          {
+            answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
+            blank = false;
+            min = 1;
+            max = 1;
+            question = "Question 1?";
+          };
+        extra = None;
+      };
   |]
 
 let days_to_archive = 7.

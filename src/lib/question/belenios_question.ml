@@ -19,12 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Types
+open Ppx_yojson_conv_lib.Yojson_conv
+include Types
 module Homomorphic = Homomorphic
 module Non_homomorphic = Non_homomorphic
 module Lists = Lists
 
-type t = question
+type t = wrapped_question
 
 let types : (module QUESTION) list =
   [ (module Homomorphic); (module Non_homomorphic); (module Lists) ]
@@ -39,53 +40,28 @@ let lookup_type type_ =
   loop types
 
 let t_of_yojson x =
-  let x = generic_question_of_yojson Fun.id x in
+  let x = generic_question_of_yojson string_of_yojson Fun.id x in
   match lookup_type x.type_ with
   | None ->
       Printf.ksprintf invalid_arg "%s: unsupported type %s" __FUNCTION__ x.type_
   | Some q ->
-      let open (val q) in
-      { x with value = Q (t_of_yojson x.value) }
+      let module Q = (val q) in
+      Q { x with type_ = (module Q); value = Q.t_of_yojson x.value }
 
-let yojson_of_t (x : t) =
-  match lookup_type x.type_ with
-  | None ->
-      Printf.ksprintf invalid_arg "%s: unsupported type %s" __FUNCTION__ x.type_
-  | Some q -> (
-      let open (val q) in
-      match x.value with
-      | Q q ->
-          yojson_of_generic_question Fun.id { x with value = yojson_of_t q }
-      | _ -> invalid_arg __FUNCTION__)
+let yojson_of_t (Q x : t) =
+  let open (val x.type_) in
+  yojson_of_generic_question yojson_of_string yojson_of_t { x with type_ }
 
-let is_nh_question (x : t) =
-  match x.value with Non_homomorphic.Q _ -> true | _ -> false
+let is_nh_question (Q x : t) =
+  let open (val x.type_) in
+  match Type.Id.provably_equal id Non_homomorphic.id with
+  | Some _ -> true
+  | None -> false
 
-let extract (x : t) =
-  match lookup_type x.type_ with
-  | None -> None
-  | Some q -> (
-      let module Ops = (val q) in
-      match x.value with
-      | Ops.Q q ->
-          let module X = struct
-            module Ops = Ops
+let erase_question (Q x : t) =
+  let open (val x.type_) in
+  Q { x with value = erase x.value }
 
-            let it = q
-          end in
-          Some (module X : Types.PACK)
-      | _ -> None)
-
-let erase_question x =
-  match extract x with
-  | None -> failwith "erase_question"
-  | Some p ->
-      let module P = (val p) in
-      { x with value = P.Ops.Q (P.Ops.erase P.it) }
-
-let check_question group x =
-  match extract x with
-  | None -> Ok ()
-  | Some p ->
-      let module P = (val p) in
-      P.Ops.check group { x with value = P.it }
+let check_question group (Q x : t) =
+  let open (val x.type_) in
+  check group ~extra:x.extra x.value

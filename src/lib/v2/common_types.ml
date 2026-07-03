@@ -25,7 +25,7 @@ module type QUESTION_KIND = sig
   type question
   type result [@@deriving yojson]
 
-  val type_ : string
+  val id : question Type.Id.t
   val of_concrete : Belenios_question.t -> question option
   val get_complexity : question -> complexity
 
@@ -35,3 +35,5 @@ module type QUESTION_KIND = sig
        and type question := question
        and type result := result
 end
+
+type 'a question_kind = (module QUESTION_KIND with type question = 'a)

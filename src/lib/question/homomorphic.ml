@@ -22,10 +22,9 @@
 module Syntax = Question_h
 
 type t = Syntax.question [@@deriving yojson]
-type Types.raw_question += Q of t
 
 let type_ = "Homomorphic"
-let make ~value ~extra = Types.{ type_; value = Q value; extra }
+let id = Type.Id.make ()
 
 let erase (q : t) : t =
   {
@@ -36,6 +35,4 @@ let erase (q : t) : t =
     question = "";
   }
 
-let check _ (q : t Types.generic_question) =
-  let q = q.value in
-  if q.min <= q.max then Ok () else Error `Min_max
+let check _ ~extra:_ (q : t) = if q.min <= q.max then Ok () else Error `Min_max

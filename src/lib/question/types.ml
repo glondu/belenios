@@ -20,33 +20,30 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios_core
 
-type 'a generic_question = {
-  type_ : string; [@key "type"]
-  value : 'a;
+type ('a, 'b) generic_question = {
+  type_ : 'a; [@key "type"]
+  value : 'b;
   extra : json option; [@yojson.option]
 }
 [@@deriving yojson]
 
-type raw_question = ..
-type question = raw_question generic_question
-
 module type QUESTION = sig
   type t [@@deriving yojson]
-  type raw_question += Q of t
 
   val type_ : string
-  val make : value:t -> extra:json option -> question
+  val id : t Type.Id.t
   val erase : t -> t
 
   val check :
-    (module GROUP) Lazy.t -> t generic_question -> (unit, question_error) result
+    (module GROUP) Lazy.t ->
+    extra:json option ->
+    t ->
+    (unit, question_error) result
 end
 
-module type PACK = sig
-  module Ops : QUESTION
+type 'a question = (module QUESTION with type t = 'a)
 
-  val it : Ops.t
-end
+type wrapped_question =
+  | Q : ('a question, 'a) generic_question -> wrapped_question

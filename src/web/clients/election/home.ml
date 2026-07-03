@@ -476,126 +476,144 @@ let stv_content uuid q (r : Method_stv.result) =
     div [ invalid ];
   ]
 
-let format_question_result uuid r (question : Belenios_question.t) =
+let format_question_result uuid r (Q question : Belenios_question.t) =
   let open (val !Belenios_js.I18n.gettext) in
   let open Belenios_question in
-  match question.value with
-  | Homomorphic.Q x ->
-      let open Homomorphic.Syntax in
-      let r = !*result_of_yojson r in
-      let answers = Array.to_list x.answers in
-      let answers =
-        match x.blank with
-        | true -> s_ "Blank vote" :: answers
-        | false -> answers
-      in
-      let answers =
-        List.mapi
-          (fun j x ->
-            tr [ td [ markup x ]; td [ txt @@ Weight.to_string r.(j) ] ])
-          answers
-      in
-      let answers =
-        match answers with
-        | [] -> txt ""
-        | y :: ys -> (
-            match x.blank with
-            | true -> table (ys @ [ y ])
-            | false -> table (y :: ys))
-      in
-      li
-        ~a:[ a_class [ "result_question_item" ] ]
-        [
-          div ~a:[ a_class [ "result_question" ] ] [ markup x.question ];
-          answers;
-        ]
-  | Non_homomorphic.Q q ->
-      let open Non_homomorphic.Syntax in
-      let ballots = !*result_of_yojson r in
-      let applied_counting_method, show_others =
-        match Non_homomorphic.get_counting_method question.extra with
-        | `None -> (txt "", true)
-        | `MajorityJudgment o ->
-            let ngrades = Array.length o.grades in
-            let nchoices = Array.length q.answers in
-            let blank_allowed = o.blank in
-            let mj =
-              Method_mj.compute ~nchoices ~ngrades ~blank_allowed ballots
-            in
-            let contents = majority_judgment_content uuid q mj in
-            (div ~a:[ a_class [ "majority_judgment_result" ] ] contents, false)
-        | `Schulze o ->
-            let nchoices = Array.length q.answers in
-            let blank_allowed = o.blank in
-            let r = Method_schulze.compute ~nchoices ~blank_allowed ballots in
-            let contents = schulze_content q r in
-            (div ~a:[ a_class [ "schulze_result" ] ] contents, false)
-        | `STV o ->
-            let nseats = o.seats in
-            let r = Method_stv.compute ~nseats ballots in
-            let contents = stv_content uuid q r in
-            (div ~a:[ a_class [ "stv_result" ] ] contents, false)
-      in
-      let others =
-        if show_others then
-          div
-            [
-              txt (s_ "It is up to you to apply your favorite counting method.");
-            ]
-        else txt ""
-      in
-      li
-        ~a:[ a_class [ "result_question_item" ] ]
-        [
-          div ~a:[ a_class [ "result_question" ] ] [ markup q.question ];
-          applied_counting_method;
-          div
-            [
-              txt (s_ "The raw results can be viewed in the ");
-              a_data ~mime_type:"application/json"
-                ~filename:
-                  (Printf.sprintf "raw_result-%s.json" (Uuid.to_string uuid))
-                ~data:r
-              @@ s_ "JSON result";
-              txt ". ";
-              txt
-                (s_
-                   "It contains all submitted ballots in clear, in random \
-                    order.");
-              others;
-            ];
-        ]
-  | Lists.Q x ->
-      let open Lists.Syntax in
-      let r = r |> !*result_of_yojson in
-      let answers = Array.to_list x.answers in
-      let line_of_candidate name votes =
-        tr [ td [ markup name ]; td [ txt @@ Weight.to_string votes ] ]
-      in
-      let answers =
-        List.flatten
-          (List.mapi
-             (fun list_index x ->
-               Array.to_list
-                 (Array.mapi
-                    (fun candidate_index x ->
-                      line_of_candidate x r.(list_index).(candidate_index))
-                    x))
-             answers)
-      in
-      let answers =
-        match answers with [] -> txt "" | y :: ys -> table (y :: ys)
-      in
-      li
-        ~a:[ a_class [ "result_question_item" ] ]
-        [
-          div ~a:[ a_class [ "result_question" ] ] [ markup x.question ];
-          answers;
-        ]
-  | _ ->
-      li
-        ~a:[ a_class [ "result_question_item" ] ]
-        [ div [ txt @@ s_ "Unsupported question type" ] ]
+  let module Q = (val question.type_) in
+  let@ () =
+   fun next ->
+    match Type.Id.provably_equal Q.id Homomorphic.id with
+    | Some Equal ->
+        let x = question.value in
+        let open Homomorphic.Syntax in
+        let r = !*result_of_yojson r in
+        let answers = Array.to_list x.answers in
+        let answers =
+          match x.blank with
+          | true -> s_ "Blank vote" :: answers
+          | false -> answers
+        in
+        let answers =
+          List.mapi
+            (fun j x ->
+              tr [ td [ markup x ]; td [ txt @@ Weight.to_string r.(j) ] ])
+            answers
+        in
+        let answers =
+          match answers with
+          | [] -> txt ""
+          | y :: ys -> (
+              match x.blank with
+              | true -> table (ys @ [ y ])
+              | false -> table (y :: ys))
+        in
+        li
+          ~a:[ a_class [ "result_question_item" ] ]
+          [
+            div ~a:[ a_class [ "result_question" ] ] [ markup x.question ];
+            answers;
+          ]
+    | None -> next ()
+  in
+  let@ () =
+   fun next ->
+    match Type.Id.provably_equal Q.id Non_homomorphic.id with
+    | Some Equal ->
+        let q = question.value in
+        let open Non_homomorphic.Syntax in
+        let ballots = !*result_of_yojson r in
+        let applied_counting_method, show_others =
+          match Non_homomorphic.get_counting_method question.extra with
+          | `None -> (txt "", true)
+          | `MajorityJudgment o ->
+              let ngrades = Array.length o.grades in
+              let nchoices = Array.length q.answers in
+              let blank_allowed = o.blank in
+              let mj =
+                Method_mj.compute ~nchoices ~ngrades ~blank_allowed ballots
+              in
+              let contents = majority_judgment_content uuid q mj in
+              (div ~a:[ a_class [ "majority_judgment_result" ] ] contents, false)
+          | `Schulze o ->
+              let nchoices = Array.length q.answers in
+              let blank_allowed = o.blank in
+              let r = Method_schulze.compute ~nchoices ~blank_allowed ballots in
+              let contents = schulze_content q r in
+              (div ~a:[ a_class [ "schulze_result" ] ] contents, false)
+          | `STV o ->
+              let nseats = o.seats in
+              let r = Method_stv.compute ~nseats ballots in
+              let contents = stv_content uuid q r in
+              (div ~a:[ a_class [ "stv_result" ] ] contents, false)
+        in
+        let others =
+          if show_others then
+            div
+              [
+                txt
+                  (s_ "It is up to you to apply your favorite counting method.");
+              ]
+          else txt ""
+        in
+        li
+          ~a:[ a_class [ "result_question_item" ] ]
+          [
+            div ~a:[ a_class [ "result_question" ] ] [ markup q.question ];
+            applied_counting_method;
+            div
+              [
+                txt (s_ "The raw results can be viewed in the ");
+                a_data ~mime_type:"application/json"
+                  ~filename:
+                    (Printf.sprintf "raw_result-%s.json" (Uuid.to_string uuid))
+                  ~data:r
+                @@ s_ "JSON result";
+                txt ". ";
+                txt
+                  (s_
+                     "It contains all submitted ballots in clear, in random \
+                      order.");
+                others;
+              ];
+          ]
+    | None -> next ()
+  in
+  let@ () =
+   fun next ->
+    match Type.Id.provably_equal Q.id Lists.id with
+    | Some Equal ->
+        let x = question.value in
+        let open Lists.Syntax in
+        let r = r |> !*result_of_yojson in
+        let answers = Array.to_list x.answers in
+        let line_of_candidate name votes =
+          tr [ td [ markup name ]; td [ txt @@ Weight.to_string votes ] ]
+        in
+        let answers =
+          List.flatten
+            (List.mapi
+               (fun list_index x ->
+                 Array.to_list
+                   (Array.mapi
+                      (fun candidate_index x ->
+                        line_of_candidate x r.(list_index).(candidate_index))
+                      x))
+               answers)
+        in
+        let answers =
+          match answers with [] -> txt "" | y :: ys -> table (y :: ys)
+        in
+        li
+          ~a:[ a_class [ "result_question_item" ] ]
+          [
+            div ~a:[ a_class [ "result_question" ] ] [ markup x.question ];
+            answers;
+          ]
+    | None -> next ()
+  in
+  li
+    ~a:[ a_class [ "result_question_item" ] ]
+    [ div [ txt @@ s_ "Unsupported question type" ] ]
 
 let make_result_div election t ~result =
   let open (val !Belenios_js.I18n.gettext) in

@@ -20,11 +20,12 @@
 (**************************************************************************)
 
 open Belenios_core
+include module type of Types
 module Homomorphic = Homomorphic
 module Non_homomorphic = Non_homomorphic
 module Lists = Lists
 
-type t = Types.question [@@deriving yojson]
+type t = wrapped_question [@@deriving yojson]
 
 val erase_question : t -> t
 val check_question : (module GROUP) Lazy.t -> t -> (unit, question_error) result

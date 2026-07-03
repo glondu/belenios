@@ -49,12 +49,23 @@ module Make (P : PARAMS) () = struct
       end)
 
   let nb_candidates =
+    let open Belenios_question in
     let open (val Belenios.Election.get_serializers W.witness) in
-    let question = to_concrete W.template.questions.(0) in
-    match question.value with
-    | Belenios_question.Homomorphic.Q q -> Array.length q.answers
-    | Belenios_question.Non_homomorphic.Q q -> Array.length q.answers
-    | _ -> failwith "unexpected question"
+    let (Q question) = to_concrete W.template.questions.(0) in
+    let module Q = (val question.type_) in
+    let@ () =
+     fun cont ->
+      match Type.Id.provably_equal Q.id Homomorphic.id with
+      | Some Equal -> Array.length question.value.answers
+      | None -> cont ()
+    in
+    let@ () =
+     fun cont ->
+      match Type.Id.provably_equal Q.id Non_homomorphic.id with
+      | Some Equal -> Array.length question.value.answers
+      | None -> cont ()
+    in
+    failwith "unexpected question"
 
   let random_choice () =
     let i = Stdlib.Random.int nb_candidates in

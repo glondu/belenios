@@ -26,12 +26,14 @@ open Common_types
 let types : (module QUESTION_KIND) list =
   [ (module Question_h); (module Question_nh); (module Question_l) ]
 
-let lookup_type type_ =
+let lookup_id (type a) (id : a Type.Id.t) =
   let rec loop = function
     | [] -> None
-    | x :: xs ->
+    | x :: xs -> (
         let module X = (val x : QUESTION_KIND) in
-        if X.type_ = type_ then Some x else loop xs
+        match Type.Id.provably_equal X.id id with
+        | Some Equal -> Some ((module X) : a question_kind)
+        | None -> loop xs)
   in
   loop types
 
@@ -51,8 +53,10 @@ let to_concrete (x : t) =
   X.concrete
 
 let of_concrete (x : Belenios_question.t) : t =
-  match lookup_type x.type_ with
-  | None -> Printf.ksprintf failwith "of_concrete: unsupported type %s" x.type_
+  let (Q q) = x in
+  let open (val q.type_) in
+  match lookup_id id with
+  | None -> Printf.ksprintf failwith "of_concrete: unsupported type %s" type_
   | Some kind ->
       let module Kind = (val kind) in
       let module X = struct

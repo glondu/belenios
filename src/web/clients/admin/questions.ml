@@ -77,51 +77,71 @@ let curr_doing = ref (-1)
 let update_question = ref (fun ?save:_ _ -> Lwt.return_unit)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
-let q_to_gen (question : Belenios_question.t) =
-  let ( question,
-        answers,
-        answers_lists,
-        blank,
-        kind,
-        sel_min,
-        sel_max,
-        seats,
-        meth,
-        names ) =
-    match question.value with
-    | Homomorphic.Q q ->
-        ( q.question,
-          q.answers,
-          [| q.answers |],
-          q.blank,
-          `Select,
-          q.min,
-          q.max,
-          1,
-          `None,
-          default_grades )
-    | Non_homomorphic.Q q ->
-        let me = Non_homomorphic.get_counting_method question.extra in
-        let bk, ki, gr, me, seats =
-          match me with
-          | `Schulze o -> (o.blank, `Sort, default_grades, `Schulze, 1)
-          | `STV o -> (o.blank, `Sort, default_grades, `STV, o.seats)
-          | `MajorityJudgment o -> (o.blank, `Grade, o.grades, `MJ, 1)
-          | `None -> (false, `Grade, default_grades, `None, 1)
-        in
-        (q.question, q.answers, [| q.answers |], bk, ki, 1, 1, seats, me, gr)
-    | Lists.Q q ->
-        ( q.question,
-          q.answers.(0),
-          q.answers,
-          false,
-          `Lists,
-          1,
-          1,
-          1,
-          `None,
-          default_grades )
-    | _ -> failwith "q_to_gen"
+let q_to_gen (Q question : Belenios_question.t) =
+  let@ ( question,
+         answers,
+         answers_lists,
+         blank,
+         kind,
+         sel_min,
+         sel_max,
+         seats,
+         meth,
+         names ) =
+   fun cont ->
+    let module Q = (val question.type_) in
+    let q = question.value in
+    let@ () =
+     fun next ->
+      match Type.Id.provably_equal Q.id Homomorphic.id with
+      | Some Equal ->
+          cont
+            ( q.question,
+              q.answers,
+              [| q.answers |],
+              q.blank,
+              `Select,
+              q.min,
+              q.max,
+              1,
+              `None,
+              default_grades )
+      | None -> next ()
+    in
+    let@ () =
+     fun next ->
+      match Type.Id.provably_equal Q.id Non_homomorphic.id with
+      | Some Equal ->
+          let me = Non_homomorphic.get_counting_method question.extra in
+          let bk, ki, gr, me, seats =
+            match me with
+            | `Schulze o -> (o.blank, `Sort, default_grades, `Schulze, 1)
+            | `STV o -> (o.blank, `Sort, default_grades, `STV, o.seats)
+            | `MajorityJudgment o -> (o.blank, `Grade, o.grades, `MJ, 1)
+            | `None -> (false, `Grade, default_grades, `None, 1)
+          in
+          cont
+            (q.question, q.answers, [| q.answers |], bk, ki, 1, 1, seats, me, gr)
+      | None -> next ()
+    in
+    let@ () =
+     fun next ->
+      match Type.Id.provably_equal Q.id Lists.id with
+      | Some Equal ->
+          cont
+            ( q.question,
+              q.answers.(0),
+              q.answers,
+              false,
+              `Lists,
+              1,
+              1,
+              1,
+              `None,
+              default_grades )
+      | None -> next ()
+    in
+    failwith "q_to_gen"
   in
   {
     question;
@@ -139,16 +159,19 @@ let q_to_gen (question : Belenios_question.t) =
 let gen_to_q q =
   match q.kind with
   | `Select ->
-      Homomorphic.make
-        ~value:
-          {
-            question = q.question;
-            answers = q.answers;
-            blank = q.blank;
-            min = q.sel_min;
-            max = q.sel_max;
-          }
-        ~extra:None
+      Q
+        {
+          type_ = (module Homomorphic);
+          value =
+            {
+              question = q.question;
+              answers = q.answers;
+              blank = q.blank;
+              min = q.sel_min;
+              max = q.sel_max;
+            };
+          extra = None;
+        }
   | `Sort ->
       let extra =
         match q.count_meth with
@@ -171,9 +194,12 @@ let gen_to_q q =
                  ])
         | _ -> None
       in
-      Non_homomorphic.make
-        ~value:{ question = q.question; answers = q.answers }
-        ~extra
+      Q
+        {
+          type_ = (module Non_homomorphic);
+          value = { question = q.question; answers = q.answers };
+          extra;
+        }
   | `Grade ->
       let extra =
         Some
@@ -188,13 +214,19 @@ let gen_to_q q =
                    |> List.map (fun x -> `String x)) );
              ])
       in
-      Non_homomorphic.make
-        ~value:{ question = q.question; answers = q.answers }
-        ~extra
+      Q
+        {
+          type_ = (module Non_homomorphic);
+          value = { question = q.question; answers = q.answers };
+          extra;
+        }
   | `Lists ->
-      Lists.make
-        ~value:{ question = q.question; answers = q.answers_lists }
-        ~extra:None
+      Q
+        {
+          type_ = (module Lists);
+          value = { question = q.question; answers = q.answers_lists };
+          extra = None;
+        }
 
 let delete_or_insert item attr handler_d handler_i =
   let del =
