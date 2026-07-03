@@ -29,8 +29,8 @@ val get_uuid : string -> uuid
 module type SERIALIZABLE_QUESTION = sig
   type t [@@deriving yojson]
 
-  val of_concrete : Question.t -> t
-  val to_concrete : t -> Question.t
+  val intract : Question.t -> t
+  val extract : t -> Question.t
 end
 
 type 'a version

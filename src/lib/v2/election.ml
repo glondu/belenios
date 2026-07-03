@@ -68,10 +68,7 @@ let make_raw_election (template : _ template) ~uuid ~group ~public_key =
 module Parse (R : RAW_ELECTION) () = struct
   let yojson_of_question = yojson_of_question
   let question_of_yojson = question_of_yojson
-
-  let erase_question =
-    Question_.to_concrete >> erase_question >> Question_.of_concrete
-
+  let erase_question = Question_.extract >> erase_question >> Question_.intract
   let json_election = Json.of_string R.raw_election
   let j = params_of_yojson Fun.id json_election
 

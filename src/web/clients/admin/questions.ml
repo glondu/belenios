@@ -242,7 +242,7 @@ let local_save () =
   let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   let draft_questions =
     let open (val Election.get_serializers v) in
-    let questions = Array.map of_concrete qq in
+    let questions = Array.map intract qq in
     { draft.questions with questions }
   in
   let* server_configuration = Cache.get Cache.config in
@@ -293,7 +293,7 @@ let local_save () =
     (* restore cache state *)
     let qs = draft.questions.questions in
     let open (val Election.get_serializers v) in
-    !all_gen_quest.(i) <- (to_concrete >> q_to_gen) qs.(i);
+    !all_gen_quest.(i) <- (extract >> q_to_gen) qs.(i);
     !update_question ~save:false (i + 1)
 
 let insert_new_q ind =
@@ -1089,7 +1089,7 @@ let questions_content () =
       Lwt.return (Questions (W.witness, W.template.questions))
   in
   let open (val Election.get_serializers v) in
-  all_gen_quest := Array.map (to_concrete >> q_to_gen) qs;
+  all_gen_quest := Array.map (extract >> q_to_gen) qs;
   if !curr_doing < 0 || !curr_doing >= Array.length !all_gen_quest then
     curr_doing := 0;
   let* () =

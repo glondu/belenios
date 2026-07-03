@@ -38,79 +38,59 @@ let lookup_type (type a) (type_ : a question_type) =
   in
   loop types
 
-module type PACK = sig
-  type question
+type t = Q : ('a question_impl, 'a) generic_question -> t
 
-  val concrete : Belenios_core.Question.t
-  val abstract : question
+let extract (Q q : t) : Belenios_core.Question.t =
+  let open (val q.type_) in
+  Q { q with type_ = (module Q) }
 
-  module Kind : QUESTION_IMPL with type Q.question = question
-end
-
-type t = (module PACK)
-
-let to_concrete (x : t) =
-  let module X = (val x) in
-  X.concrete
-
-let of_concrete (x : Belenios_core.Question.t) : t =
-  let (Q q) = x in
+let intract (Q q : Belenios_core.Question.t) : t =
   let open (val q.type_) in
   match lookup_type q.type_ with
   | None -> Printf.ksprintf failwith "of_concrete: unsupported type %s" type_
-  | Some kind ->
-      let module Kind = (val kind) in
-      let module X = struct
-        type question = Kind.Q.question
+  | Some impl ->
+      let module Impl = (val impl) in
+      Q { q with type_ = (module Impl) }
 
-        let concrete = x
+let t_of_yojson = Belenios_core.Question.t_of_yojson >> intract
+let yojson_of_t = extract >> Belenios_core.Question.yojson_of_t
+let is_nh_question = extract >> is_nh_question
 
-        let abstract =
-          match Kind.cast x with Some x -> x | None -> failwith "of_concrete"
-
-        module Kind = Kind
-      end in
-      (module X)
-
-let t_of_yojson = Belenios_core.Question.t_of_yojson >> of_concrete
-let yojson_of_t = to_concrete >> Belenios_core.Question.yojson_of_t
-let is_nh_question = to_concrete >> is_nh_question
-
-let get_complexity (x : t) =
-  let module X = (val x) in
-  X.Kind.get_complexity X.abstract
+let get_complexity (Q q : t) =
+  let open (val q.type_) in
+  get_complexity q.value
 
 module Make (G : GROUP) = struct
   let yojson_of_answer = Fun.id
   let answer_of_yojson = Fun.id
 
-  let create_answer (x : t) ~public_key ~prefix m =
-    let module X = (val x) in
-    let module Q = X.Kind.Make (G) in
-    Q.create_answer X.abstract ~public_key ~prefix m |> Q.yojson_of_answer
+  let create_answer (Q q : t) ~public_key ~prefix m =
+    let open (val q.type_) in
+    let open Make (G) in
+    create_answer q.value ~public_key ~prefix m |> yojson_of_answer
 
-  let verify_answer (x : t) ~public_key ~prefix a =
-    let module X = (val x) in
-    let module Q = X.Kind.Make (G) in
-    a |> Q.answer_of_yojson |> Q.verify_answer X.abstract ~public_key ~prefix
+  let verify_answer (Q q : t) ~public_key ~prefix a =
+    let open (val q.type_) in
+    let open Make (G) in
+    a |> answer_of_yojson |> verify_answer q.value ~public_key ~prefix
 
-  let extract_ciphertexts (x : t) a =
-    let module X = (val x) in
-    let module Q = X.Kind.Make (G) in
-    a |> Q.answer_of_yojson |> Q.extract_ciphertexts X.abstract
+  let extract_ciphertexts (Q q : t) a =
+    let open (val q.type_) in
+    let open Make (G) in
+    a |> answer_of_yojson |> extract_ciphertexts q.value
 
-  let process_ciphertexts (x : t) e =
-    let module X = (val x) in
-    let module Q = X.Kind.Make (G) in
-    Q.process_ciphertexts X.abstract e
+  let process_ciphertexts (Q q : t) e =
+    let open (val q.type_) in
+    let open Make (G) in
+    process_ciphertexts q.value e
 
-  let compute_result ~total_weight (q : t) x =
-    let module X = (val q) in
-    let module Q = X.Kind.Make (G) in
-    Q.compute_result ~total_weight X.abstract x |> X.Kind.Q.yojson_of_result
+  let compute_result ~total_weight (Q q : t) x =
+    let open (val q.type_) in
+    let open Make (G) in
+    compute_result ~total_weight q.value x |> Q.yojson_of_result
 
-  let check_result ~total_weight (q : t) x r =
-    let module X = (val q) in
-    let module Q = X.Kind.Make (G) in
-    r |> X.Kind.Q.result_of_yojson |> Q.check_result ~total_weight X.abstract x
+  let check_result ~total_weight (Q q : t) x r =
+    let open (val q.type_) in
+    let open Make (G) in
+    r |> Q.result_of_yojson |> check_result ~total_weight q.value x
 end

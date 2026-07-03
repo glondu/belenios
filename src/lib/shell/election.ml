@@ -42,8 +42,8 @@ let get_uuid x =
 module type SERIALIZABLE_QUESTION = sig
   type t [@@deriving yojson]
 
-  val of_concrete : Question.t -> t
-  val to_concrete : t -> Question.t
+  val intract : Question.t -> t
+  val extract : t -> Question.t
 end
 
 type _ version = V2 : Belenios_v2.Question.t version
@@ -102,7 +102,7 @@ let has_nh_questions (Template (V2, e)) =
   Array.exists Belenios_v2.Question.is_nh_question e.questions
 
 let get_questions (Template (V2, e)) =
-  Array.map Belenios_v2.Question.to_concrete e.questions
+  Array.map Belenios_v2.Question.extract e.questions
 
 let get_complexity (Template (V2, e)) =
   Belenios_v2.Election.get_complexity e.questions
