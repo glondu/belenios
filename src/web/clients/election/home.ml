@@ -480,16 +480,14 @@ let format_question_result uuid r (Q question : Belenios_question.t) =
   let open (val !Belenios_js.I18n.gettext) in
   let open Belenios_question in
   let module Q = (val question.type_) in
-  let@ () =
-   fun next ->
-    match Type.Id.provably_equal Q.id Homomorphic.id with
-    | Some Equal ->
-        let x = question.value in
+  (fun (type a) (id : a id) (q : a) ->
+    match id with
+    | Homomorphic.Id ->
         let open Homomorphic.Syntax in
         let r = !*result_of_yojson r in
-        let answers = Array.to_list x.answers in
+        let answers = Array.to_list q.answers in
         let answers =
-          match x.blank with
+          match q.blank with
           | true -> s_ "Blank vote" :: answers
           | false -> answers
         in
@@ -503,23 +501,17 @@ let format_question_result uuid r (Q question : Belenios_question.t) =
           match answers with
           | [] -> txt ""
           | y :: ys -> (
-              match x.blank with
+              match q.blank with
               | true -> table (ys @ [ y ])
               | false -> table (y :: ys))
         in
         li
           ~a:[ a_class [ "result_question_item" ] ]
           [
-            div ~a:[ a_class [ "result_question" ] ] [ markup x.question ];
+            div ~a:[ a_class [ "result_question" ] ] [ markup q.question ];
             answers;
           ]
-    | None -> next ()
-  in
-  let@ () =
-   fun next ->
-    match Type.Id.provably_equal Q.id Non_homomorphic.id with
-    | Some Equal ->
-        let q = question.value in
+    | Non_homomorphic.Id ->
         let open Non_homomorphic.Syntax in
         let ballots = !*result_of_yojson r in
         let applied_counting_method, show_others =
@@ -576,16 +568,10 @@ let format_question_result uuid r (Q question : Belenios_question.t) =
                 others;
               ];
           ]
-    | None -> next ()
-  in
-  let@ () =
-   fun next ->
-    match Type.Id.provably_equal Q.id Lists.id with
-    | Some Equal ->
-        let x = question.value in
+    | Lists.Id ->
         let open Lists.Syntax in
         let r = r |> !*result_of_yojson in
-        let answers = Array.to_list x.answers in
+        let answers = Array.to_list q.answers in
         let line_of_candidate name votes =
           tr [ td [ markup name ]; td [ txt @@ Weight.to_string votes ] ]
         in
@@ -606,14 +592,14 @@ let format_question_result uuid r (Q question : Belenios_question.t) =
         li
           ~a:[ a_class [ "result_question_item" ] ]
           [
-            div ~a:[ a_class [ "result_question" ] ] [ markup x.question ];
+            div ~a:[ a_class [ "result_question" ] ] [ markup q.question ];
             answers;
           ]
-    | None -> next ()
-  in
-  li
-    ~a:[ a_class [ "result_question_item" ] ]
-    [ div [ txt @@ s_ "Unsupported question type" ] ]
+    | _ ->
+        li
+          ~a:[ a_class [ "result_question_item" ] ]
+          [ div [ txt @@ s_ "Unsupported question type" ] ])
+    Q.Id question.value
 
 let make_result_div election t ~result =
   let open (val !Belenios_js.I18n.gettext) in

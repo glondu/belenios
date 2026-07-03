@@ -29,11 +29,13 @@ type ('a, 'b) generic_question = {
 }
 [@@deriving yojson]
 
+type _ id = ..
+
 module type QUESTION = sig
   type t [@@deriving yojson]
+  type _ id += Id : t id
 
   val type_ : string
-  val id : t Type.Id.t
   val erase : t -> t
 
   val check :

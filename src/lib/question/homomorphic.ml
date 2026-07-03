@@ -22,9 +22,9 @@
 module Syntax = Question_h
 
 type t = Syntax.question [@@deriving yojson]
+type _ Types.id += Id : t Types.id
 
 let type_ = "Homomorphic"
-let id = Type.Id.make ()
 
 let erase (q : t) : t =
   {

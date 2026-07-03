@@ -22,9 +22,9 @@
 module Syntax = Question_l
 
 type t = Syntax.question [@@deriving yojson]
+type _ Types.id += Id : t Types.id
 
 let type_ = "Lists"
-let id = Type.Id.make ()
 
 let erase (q : t) : t =
   { answers = Array.map (Array.map (fun _ -> "")) q.answers; question = "" }

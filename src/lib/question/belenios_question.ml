@@ -54,9 +54,7 @@ let yojson_of_t (Q x : t) =
 
 let is_nh_question (Q x : t) =
   let open (val x.type_) in
-  match Type.Id.provably_equal id Non_homomorphic.id with
-  | Some _ -> true
-  | None -> false
+  match Id with Non_homomorphic.Id -> true | _ -> false
 
 let erase_question (Q x : t) =
   let open (val x.type_) in

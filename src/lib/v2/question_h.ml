@@ -27,13 +27,11 @@ open Syntax
 type nonrec question = question
 type nonrec result = result [@@deriving yojson]
 
-let id = id
+let id = Id
 
 let of_concrete (Q x : Belenios_question.t) : question option =
   let module Q = (val x.type_) in
-  match Type.Id.provably_equal Q.id id with
-  | Some Equal -> Some x.value
-  | _ -> None
+  match Q.Id with Id -> Some x.value | _ -> None
 
 (** Helper functions *)
 

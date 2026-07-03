@@ -78,40 +78,31 @@ let update_question = ref (fun ?save:_ _ -> Lwt.return_unit)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
 let q_to_gen (Q question : Belenios_question.t) =
-  let@ ( question,
-         answers,
-         answers_lists,
-         blank,
-         kind,
-         sel_min,
-         sel_max,
-         seats,
-         meth,
-         names ) =
-   fun cont ->
+  let ( question,
+        answers,
+        answers_lists,
+        blank,
+        kind,
+        sel_min,
+        sel_max,
+        seats,
+        meth,
+        names ) =
     let module Q = (val question.type_) in
-    let q = question.value in
-    let@ () =
-     fun next ->
-      match Type.Id.provably_equal Q.id Homomorphic.id with
-      | Some Equal ->
-          cont
-            ( q.question,
-              q.answers,
-              [| q.answers |],
-              q.blank,
-              `Select,
-              q.min,
-              q.max,
-              1,
-              `None,
-              default_grades )
-      | None -> next ()
-    in
-    let@ () =
-     fun next ->
-      match Type.Id.provably_equal Q.id Non_homomorphic.id with
-      | Some Equal ->
+    (fun (type a) (id : a id) (q : a) ->
+      match id with
+      | Homomorphic.Id ->
+          ( q.question,
+            q.answers,
+            [| q.answers |],
+            q.blank,
+            `Select,
+            q.min,
+            q.max,
+            1,
+            `None,
+            default_grades )
+      | Non_homomorphic.Id ->
           let me = Non_homomorphic.get_counting_method question.extra in
           let bk, ki, gr, me, seats =
             match me with
@@ -120,28 +111,20 @@ let q_to_gen (Q question : Belenios_question.t) =
             | `MajorityJudgment o -> (o.blank, `Grade, o.grades, `MJ, 1)
             | `None -> (false, `Grade, default_grades, `None, 1)
           in
-          cont
-            (q.question, q.answers, [| q.answers |], bk, ki, 1, 1, seats, me, gr)
-      | None -> next ()
-    in
-    let@ () =
-     fun next ->
-      match Type.Id.provably_equal Q.id Lists.id with
-      | Some Equal ->
-          cont
-            ( q.question,
-              q.answers.(0),
-              q.answers,
-              false,
-              `Lists,
-              1,
-              1,
-              1,
-              `None,
-              default_grades )
-      | None -> next ()
-    in
-    failwith "q_to_gen"
+          (q.question, q.answers, [| q.answers |], bk, ki, 1, 1, seats, me, gr)
+      | Lists.Id ->
+          ( q.question,
+            q.answers.(0),
+            q.answers,
+            false,
+            `Lists,
+            1,
+            1,
+            1,
+            `None,
+            default_grades )
+      | _ -> failwith "q_to_gen")
+      Q.Id question.value
   in
   {
     question;

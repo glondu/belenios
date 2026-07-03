@@ -23,9 +23,9 @@ open Belenios_core
 module Syntax = Question_nh
 
 type t = Syntax.question [@@deriving yojson]
+type _ Types.id += Id : t Types.id
 
 let type_ = "NonHomomorphic"
-let id = Type.Id.make ()
 
 let erase (q : t) : t =
   { answers = Array.map (fun _ -> "") q.answers; question = "" }
