@@ -21,9 +21,10 @@
 (**************************************************************************)
 
 open Ppx_yojson_conv_lib.Yojson_conv
+module Question_ = Question
 open Belenios_core
 
-type question = Question.t [@@deriving yojson]
+type question = Question_.t [@@deriving yojson]
 
 type 'a params = {
   version : int;

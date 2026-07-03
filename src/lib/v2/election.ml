@@ -19,14 +19,15 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+module Question_ = Question
 open Belenios_core
-open Question_core
+open Question
 open Types
 
 let get_complexity qs =
   Array.fold_left
     (fun accu q ->
-      let { nb_ciphertexts; nb_zkps } = Question.get_complexity q in
+      let { nb_ciphertexts; nb_zkps } = Question_.get_complexity q in
       {
         nb_ciphertexts = accu.nb_ciphertexts + nb_ciphertexts;
         nb_zkps = accu.nb_zkps + nb_zkps;
@@ -69,7 +70,7 @@ module Parse (R : RAW_ELECTION) () = struct
   let question_of_yojson = question_of_yojson
 
   let erase_question =
-    Question.to_concrete >> erase_question >> Question.of_concrete
+    Question_.to_concrete >> erase_question >> Question_.of_concrete
 
   let json_election = Json.of_string R.raw_election
   let j = params_of_yojson Fun.id json_election
@@ -90,7 +91,7 @@ module Parse (R : RAW_ELECTION) () = struct
       language = params.language;
     }
 
-  let has_nh_questions = Array.exists Question.is_nh_question params.questions
+  let has_nh_questions = Array.exists Question_.is_nh_question params.questions
   let fingerprint = Hash.hash_string R.raw_election
   let public_key = params.public_key
 
@@ -105,13 +106,13 @@ module Parse (R : RAW_ELECTION) () = struct
     | _ -> invalid_arg "to_generirc_result: list expected"
 end
 
-module MakeElection (W : ELECTION_DATA with type question := Question.t) =
+module MakeElection (W : ELECTION_DATA with type question := Question_.t) =
 struct
   type element = W.G.t
   type scalar = W.G.Zq.t
 
   module G = W.G
-  module Q = Question.Make (G)
+  module Q = Question_.Make (G)
   module Mix = Mixnet.Make (W)
   module P = Pki.Make (G)
   open G
@@ -210,7 +211,7 @@ struct
     let x = Shape.to_shape_array x in
     let rec loop i accu =
       if i >= 0 then
-        match Question.is_nh_question W.template.questions.(i) with
+        match Question_.is_nh_question W.template.questions.(i) with
         | false -> loop (i - 1) accu
         | true -> loop (i - 1) (Shape.to_array x.(i) :: accu)
       else Array.of_list accu
@@ -222,7 +223,7 @@ struct
     let n = Array.length x and m = Array.length cc in
     let rec loop i j =
       if i < n && j < m then (
-        match Question.is_nh_question W.template.questions.(i) with
+        match Question_.is_nh_question W.template.questions.(i) with
         | false -> loop (i + 1) j
         | true ->
             x.(i) <- Shape.of_array cc.(j);

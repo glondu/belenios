@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios_core
-open Question_core
+open Belenios_core.Question
 open Common_types
 
 let types : (module QUESTION_KIND) list =
@@ -41,7 +41,7 @@ let lookup_type (type a) (type_ : a question_module) =
 module type PACK = sig
   type question
 
-  val concrete : Question_core.t
+  val concrete : Belenios_core.Question.t
   val abstract : question
 
   module Kind : QUESTION_KIND with type question = question
@@ -53,7 +53,7 @@ let to_concrete (x : t) =
   let module X = (val x) in
   X.concrete
 
-let of_concrete (x : Question_core.t) : t =
+let of_concrete (x : Belenios_core.Question.t) : t =
   let (Q q) = x in
   let open (val q.type_) in
   match lookup_type q.type_ with
@@ -74,8 +74,8 @@ let of_concrete (x : Question_core.t) : t =
       end in
       (module X)
 
-let t_of_yojson = Question_core.t_of_yojson >> of_concrete
-let yojson_of_t = to_concrete >> Question_core.yojson_of_t
+let t_of_yojson = Belenios_core.Question.t_of_yojson >> of_concrete
+let yojson_of_t = to_concrete >> Belenios_core.Question.yojson_of_t
 let is_nh_question = to_concrete >> is_nh_question
 
 let get_complexity (x : t) =

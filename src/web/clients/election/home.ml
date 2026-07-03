@@ -295,7 +295,7 @@ let majority_judgment_content uuid q (r : Method_mj.result) =
   let open Method_mj in
   let open (val !Belenios_js.I18n.gettext) in
   let explicit_winners =
-    let open Question_core.Non_homomorphic in
+    let open Question.Non_homomorphic in
     List.map (List.map (fun i -> q.answers.(i))) r.winners
   in
   let pretty_winners =
@@ -357,7 +357,7 @@ let schulze_content q (r : Method_schulze.result) =
     | None -> txt ""
   in
   let explicit_winners =
-    let open Question_core.Non_homomorphic in
+    let open Question.Non_homomorphic in
     List.map (List.map (fun i -> q.answers.(i))) r.winners
   in
   let pretty_winners =
@@ -408,7 +408,7 @@ let stv_content uuid q (r : Method_stv.result) =
   let open Method_stv in
   let open (val !Belenios_js.I18n.gettext) in
   let winners =
-    let open Question_core.Non_homomorphic in
+    let open Question.Non_homomorphic in
     r.winners
     |> List.map (fun i -> q.answers.(i))
     |> List.map (fun l -> li [ txt l ])
@@ -476,9 +476,9 @@ let stv_content uuid q (r : Method_stv.result) =
     div [ invalid ];
   ]
 
-let format_question_result uuid r (Q question : Question_core.t) =
+let format_question_result uuid r (Q question : Question.t) =
   let open (val !Belenios_js.I18n.gettext) in
-  let open Question_core in
+  let open Question in
   let module Q = (val question.type_) in
   (fun (type a) (id : a id) (q : a) ->
     match id with
