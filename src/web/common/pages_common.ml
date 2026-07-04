@@ -193,9 +193,10 @@ module Make (Base : BASE) = struct
     let module M = Markup_light.Make (Base) in
     M.markup
 
-  let confirmation_fragment l ~snippet ~progress election result =
+  let confirmation_fragment l ~snippet ~progress (election : Election.t) result
+      =
     let open (val l : I18n.GETTEXT) in
-    let open (val election : Belenios.Election.ELECTION) in
+    let open (val election) in
     let name = template.name in
     let result, step_title, final_step_class =
       match result with

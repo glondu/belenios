@@ -57,6 +57,7 @@ end
 module type ELECTION_BASE = sig
   module G : GROUP
 
+  val json : json
   val template : template
   val has_nh_questions : bool
   val version : int

@@ -1062,9 +1062,6 @@ let running_recompute_main_zone () =
   in
   Lwt.return (h2 [ txt @@ s_ "Questions (non editable):" ] :: q_show)
 
-type questions =
-  | Questions : 'a Belenios.Election.version * Question.t array -> questions
-
 (* Called from the outside.
  * Returns stuff to be put in the main zone.
  * In draft mode, if empty questions, then create a new draft question when
@@ -1074,14 +1071,14 @@ let questions_content () =
   let is_draft =
     match !where_am_i with Election { status = Draft; _ } -> true | _ -> false
   in
-  let* (Questions (_, qs)) =
+  let* qs =
     if is_draft then
-      let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-      Lwt.return (Questions (v, draft.questions.questions))
+      let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+      Lwt.return draft.questions.questions
     else
       let* x = Cache.get_until_success Cache.e_elec in
       let module W = (val x) in
-      Lwt.return (Questions (W.witness, W.template.questions))
+      Lwt.return W.template.questions
   in
   all_gen_quest := Array.map q_to_gen qs;
   if !curr_doing < 0 || !curr_doing >= Array.length !all_gen_quest then

@@ -88,17 +88,8 @@ let make_raw_election ~version template ~uuid ~group ~public_key =
 let has_nh_questions (Template (V2, e)) =
   Array.exists Belenios_v2.Question.is_nh_question e.questions
 
-let get_questions (Template (V2, e)) : Question.t array = e.questions
-
 let get_complexity (Template (V2, e)) =
   Belenios_v2.Election.get_complexity e.questions
-
-module type ELECTION = sig
-  include ELECTION
-
-  val witness : Question.t version
-  val json : json
-end
 
 type t = (module ELECTION)
 type ('a, 'b) u = (module ELECTION with type G.t = 'a and type G.Zq.t = 'b)
@@ -109,12 +100,7 @@ let t_of_yojson x =
       let module R = struct
         let raw_election = Json.to_string x
       end in
-      let module X = struct
-        include Belenios_v2.Election.Make (R) ()
-
-        let witness = V2
-        let json = x
-      end in
+      let module X = Belenios_v2.Election.Make (R) () in
       (module X : ELECTION)
   | n ->
       Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n

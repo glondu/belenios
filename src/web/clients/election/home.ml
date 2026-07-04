@@ -78,9 +78,9 @@ let make_object_link uuid h =
   let href = !/Belenios_web_api.Endpoints.((election_object uuid h).path) in
   a ~href (Hash.to_b64 h)
 
-let make_audit_div election cache =
+let make_audit_div (election : Election.t) cache =
   let open (val !Belenios_js.I18n.gettext) in
-  let open (val election : Election.ELECTION) in
+  let open (val election) in
   let audit_election =
     [
       tr
@@ -601,10 +601,10 @@ let format_question_result uuid r (Q question : Question.t) =
           [ div [ txt @@ s_ "Unsupported question type" ] ])
     Q.Id question.value
 
-let make_result_div election t ~result =
+let make_result_div (election : Election.t) t ~result =
   let open (val !Belenios_js.I18n.gettext) in
-  let open (val election : Election.ELECTION) in
-  let questions = Election.get_questions (Template (witness, template)) in
+  let open (val election) in
+  let questions = template.questions in
   let r = !*(election_result_of_yojson result_of_yojson) result in
   let nballots = t.num_tallied in
   let total_weight = t.total_weight in

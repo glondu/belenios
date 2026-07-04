@@ -40,9 +40,9 @@ class type renderingFunctions = object
 end
 
 module type ELECTION_WITH_SK = sig
-  include Election.ELECTION
+  module E : ELECTION
 
-  val sk : G.Zq.t
+  val sk : E.G.Zq.t
 end
 
 class type initCallbacks = object
@@ -184,7 +184,7 @@ let belenios : belenios Js.t =
                 match x with
                 | Ok sk ->
                     let module X : ELECTION_WITH_SK = struct
-                      include W
+                      module E = W
 
                       let sk = sk
                     end
@@ -211,6 +211,7 @@ let belenios : belenios Js.t =
             (fun () ->
               let* () = Lwt_js.yield () in
               let open (val election : ELECTION_WITH_SK) in
+              let open E in
               let plaintext =
                 Js._JSON##stringify plaintext
                 |> Js.to_string |> !*plaintext_of_yojson
@@ -246,7 +247,8 @@ let belenios : belenios Js.t =
 
     method formatTracker election tracker =
       let open (val !Belenios_js.I18n.gettext) in
-      let module W = (val election : ELECTION_WITH_SK) in
+      let open (val election : ELECTION_WITH_SK) in
+      let module W = E in
       let uuid_s = Uuid.to_string W.uuid in
       let prefix = compute_prefix () in
       let tracker = Js.to_string tracker in

@@ -35,9 +35,9 @@ type page = {
 
 let error x = { title = "Error"; contents = [ txt x ]; footer = [] }
 
-let make_audit_footer election =
+let make_audit_footer (election : Election.t) =
   let open (val !Belenios_js.I18n.gettext) in
-  let open (val election : Election.ELECTION) in
+  let open (val election) in
   let uuid = Uuid.to_string uuid in
   let parameters = !/(Printf.sprintf "elections/%s/election" uuid) in
   let public_data = !/(Printf.sprintf "elections/%s/last-event" uuid) in

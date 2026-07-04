@@ -54,12 +54,12 @@ let make_raw_election (template : template) ~uuid ~group ~public_key =
   yojson_of_params !&G.to_string params
 
 module Parse (R : RAW_ELECTION) () = struct
-  let json_election = Json.of_string R.raw_election
-  let j = params_of_yojson Fun.id json_election
+  let json = Json.of_string R.raw_election
+  let j = params_of_yojson Fun.id json
 
   module G = (val Group.of_string j.group)
 
-  let params = params_of_yojson !$G.of_string json_election
+  let params = params_of_yojson !$G.of_string json
   let version = params.version
   let uuid = params.uuid
 
