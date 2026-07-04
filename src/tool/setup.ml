@@ -555,8 +555,7 @@ module Mkelection : CMDLINER_MODULE = struct
     let module K = Trustees.MakeCombinator (G) in
     let template =
       let (Version v) = Election.version_of_int version in
-      let open (val Election.get_serializers v) in
-      Election.Template (v, !*(template_of_yojson question_of_yojson) template)
+      Election.Template (v, !*template_of_yojson template)
     in
     let trustees = !*[%group_of_yojson: _ trustees] trustees in
     let y = K.combine_keys trustees in

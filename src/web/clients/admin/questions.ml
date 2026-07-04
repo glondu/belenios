@@ -240,11 +240,7 @@ let set_complexity = ref (fun _ -> ())
 let local_save () =
   let qq = Array.map gen_to_q !all_gen_quest in
   let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-  let draft_questions =
-    let open (val Election.get_serializers v) in
-    let questions = Array.map intract qq in
-    { draft.questions with questions }
-  in
+  let draft_questions = { draft.questions with questions = qq } in
   let* server_configuration = Cache.get Cache.config in
   let draft_group =
     if Election.has_nh_questions (Template (v, draft_questions)) then
@@ -292,8 +288,7 @@ let local_save () =
     alert msg;
     (* restore cache state *)
     let qs = draft.questions.questions in
-    let open (val Election.get_serializers v) in
-    !all_gen_quest.(i) <- (extract >> q_to_gen) qs.(i);
+    !all_gen_quest.(i) <- q_to_gen qs.(i);
     !update_question ~save:false (i + 1)
 
 let insert_new_q ind =
@@ -1068,7 +1063,7 @@ let running_recompute_main_zone () =
   Lwt.return (h2 [ txt @@ s_ "Questions (non editable):" ] :: q_show)
 
 type questions =
-  | Questions : 'a Belenios.Election.version * 'a array -> questions
+  | Questions : 'a Belenios.Election.version * Question.t array -> questions
 
 (* Called from the outside.
  * Returns stuff to be put in the main zone.
@@ -1079,7 +1074,7 @@ let questions_content () =
   let is_draft =
     match !where_am_i with Election { status = Draft; _ } -> true | _ -> false
   in
-  let* (Questions (v, qs)) =
+  let* (Questions (_, qs)) =
     if is_draft then
       let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
       Lwt.return (Questions (v, draft.questions.questions))
@@ -1088,8 +1083,7 @@ let questions_content () =
       let module W = (val x) in
       Lwt.return (Questions (W.witness, W.template.questions))
   in
-  let open (val Election.get_serializers v) in
-  all_gen_quest := Array.map (extract >> q_to_gen) qs;
+  all_gen_quest := Array.map q_to_gen qs;
   if !curr_doing < 0 || !curr_doing >= Array.length !all_gen_quest then
     curr_doing := 0;
   let* () =

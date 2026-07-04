@@ -55,13 +55,9 @@ module type QUESTION_OPS = sig
 end
 
 module type ELECTION_BASE = sig
-  type question [@@deriving yojson]
-
-  val erase_question : question -> question
-
   module G : GROUP
 
-  val template : question template
+  val template : template
   val has_nh_questions : bool
   val version : int
   val uuid : uuid
@@ -345,9 +341,7 @@ module type QUESTION_SIG = sig
 end
 
 module type MIXNET_SIG = sig
-  type question
-
-  module Make (W : ELECTION_DATA with type question := question) :
+  module Make (W : ELECTION_DATA) :
     MIXNET
       with type element := W.G.t
        and type scalar := W.G.Zq.t
@@ -355,15 +349,12 @@ module type MIXNET_SIG = sig
 end
 
 module type ELECTION_SIG = sig
-  type question
-
-  val get_complexity : question array -> complexity
-  val template_of_yojson : json -> question template
+  val get_complexity : Question.t array -> complexity
 
   val make_raw_election :
-    question template -> uuid:uuid -> group:string -> public_key:string -> json
+    template -> uuid:uuid -> group:string -> public_key:string -> json
 
-  module Make (_ : RAW_ELECTION) () : ELECTION with type question := question
+  module Make (_ : RAW_ELECTION) () : ELECTION
 end
 
 module type TRUSTEES_SIG = sig

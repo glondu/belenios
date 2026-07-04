@@ -64,12 +64,11 @@ module Make (I : INPUT) () = struct
       | None -> Lwt.fail Exit
       | Some setup_data ->
           let* setup_data = get !*setup_data_of_yojson (Data setup_data) in
-          let* (Template (_, template)) =
-            get
-              !*Election.versioned_template_of_yojson
-              (Data setup_data.election)
+          let* election =
+            get !*Election.t_of_yojson (Data setup_data.election)
           in
-          Lwt.return template.name
+          let module W = (val election) in
+          Lwt.return W.template.name
     in
     let* date =
       let* dates = get Fun.id Dates in

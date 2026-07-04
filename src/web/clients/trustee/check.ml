@@ -84,7 +84,7 @@ let do_election uuid (election : Election.t) seed =
     trustees
   |> show_result
 
-let do_draft uuid (draft : _ raw_draft) private_key =
+let do_draft uuid (draft : raw_draft) private_key =
   let open (val !Belenios_js.I18n.gettext) in
   let version = draft.version in
   let module G = (val Group.of_string ~version draft.group) in

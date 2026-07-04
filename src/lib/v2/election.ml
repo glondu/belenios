@@ -21,7 +21,6 @@
 
 module Question_ = Question
 open Belenios_core
-open Question
 open Types
 
 let get_complexity qs =
@@ -35,18 +34,7 @@ let get_complexity qs =
     { nb_ciphertexts = 0; nb_zkps = 0 }
     qs
 
-let template_of_yojson x =
-  let params = params_of_yojson Fun.id x in
-  {
-    name = params.name;
-    description = params.description;
-    questions = params.questions;
-    administrator = params.administrator;
-    credential_authority = params.credential_authority;
-    language = params.language;
-  }
-
-let make_raw_election (template : _ template) ~uuid ~group ~public_key =
+let make_raw_election (template : template) ~uuid ~group ~public_key =
   let module G = (val Group.of_string group) in
   let public_key = G.of_string public_key in
   let params =
@@ -66,9 +54,6 @@ let make_raw_election (template : _ template) ~uuid ~group ~public_key =
   yojson_of_params !&G.to_string params
 
 module Parse (R : RAW_ELECTION) () = struct
-  let yojson_of_question = yojson_of_question
-  let question_of_yojson = question_of_yojson
-  let erase_question = Question_.extract >> erase_question >> Question_.intract
   let json_election = Json.of_string R.raw_election
   let j = params_of_yojson Fun.id json_election
 
@@ -103,8 +88,7 @@ module Parse (R : RAW_ELECTION) () = struct
     | _ -> invalid_arg "to_generirc_result: list expected"
 end
 
-module MakeElection (W : ELECTION_DATA with type question := Question_.question) =
-struct
+module MakeElection (W : ELECTION_DATA) = struct
   type element = W.G.t
   type scalar = W.G.Zq.t
 

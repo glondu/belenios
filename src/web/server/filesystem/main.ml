@@ -622,9 +622,7 @@ module MakeBackend
 
   type draft_concrete =
     | Draft_concrete :
-        ('a, 'b) group
-        * 'v Election.version
-        * ('a, 'b, 'v) Types.raw_draft_election
+        ('a, 'b) group * 'v Election.version * ('a, 'b) Types.raw_draft_election
         -> draft_concrete
 
   let get_draft uuid () =
@@ -638,17 +636,12 @@ module MakeBackend
     let* concrete =
       let*& x = Filesystem.read_file (spool_elections uuid draft_filename) in
       let x = String.trim x in
-      let abstract =
-        !*(Types.raw_draft_election_of_yojson Fun.id Fun.id Fun.id) x
-      in
+      let abstract = !*(Types.raw_draft_election_of_yojson Fun.id Fun.id) x in
       let version = abstract.version in
       let module G = (val Group.of_string ~version abstract.group) in
       let (Version v) = Election.version_of_int version in
-      let open (val Election.get_serializers v) in
       Draft_concrete
-        ( (module G),
-          v,
-          !*([%group_of_yojson: _ raw_draft_election] question_of_yojson) x )
+        ((module G), v, !*[%group_of_yojson: _ raw_draft_election] x)
       |> Lwt.return_some
     in
     match concrete with
@@ -665,7 +658,7 @@ module MakeBackend
   let set_draft uuid () (data : wrapped_draft_election lopt) =
     match Lopt.get_value data with
     | None -> assert false
-    | Some (W (w, Draft (v, abstract))) ->
+    | Some (W (w, Draft (_, abstract))) ->
         let module G = (val w) in
         let concrete, se_private_creds_downloaded =
           Converters.raw_draft_election_to_concrete abstract
@@ -677,11 +670,7 @@ module MakeBackend
           if se_private_creds_downloaded then Filesystem.write_file filename ""
           else Filesystem.cleanup_file filename
         in
-        let data =
-          let open (val Election.get_serializers v) in
-          !+([%yojson_of_group: _ Types.raw_draft_election] yojson_of_question)
-            concrete
-        in
+        let data = !+[%yojson_of_group: _ Types.raw_draft_election] concrete in
         let* () =
           Filesystem.write_file
             (spool_elections uuid draft_filename)

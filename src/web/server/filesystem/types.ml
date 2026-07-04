@@ -51,12 +51,12 @@ type extended_record = {
 }
 [@@deriving yojson]
 
-type ('a, 'b, 'question) raw_draft_election = {
+type ('a, 'b) raw_draft_election = {
   version : int;
   owners : int list;
   mutable group : string;
   mutable voters : draft_voter list;
-  mutable questions : 'question template;
+  mutable questions : template;
   mutable trustees : ('a, 'b) draft_trustees;
   mutable metadata : metadata;
   public_creds : string;
@@ -83,7 +83,7 @@ type deleted_trustee = [ `Single | `Pedersen of int * int ] [@@deriving yojson]
 
 type deleted_election = {
   uuid : uuid;
-  template : json template;
+  template : template;
   owners : int list;
   nb_voters : int;
   nb_ballots : int;

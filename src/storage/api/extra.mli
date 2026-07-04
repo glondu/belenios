@@ -24,7 +24,7 @@ open Types
 
 type ('a, 'b) draft_election =
   | Draft :
-      'q Election.version * ('a, 'b, 'q) raw_draft_election
+      'q Election.version * ('a, 'b) raw_draft_election
       -> ('a, 'b) draft_election
 [@@deriving yojson]
 

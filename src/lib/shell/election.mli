@@ -26,17 +26,7 @@ open Belenios_core
 val get_version : json -> int
 val get_uuid : string -> uuid
 
-module type SERIALIZABLE_QUESTION = sig
-  type question [@@deriving yojson]
-
-  val intract : Question.t -> question
-  val extract : question -> Question.t
-end
-
 type 'a version
-
-val get_serializers :
-  'a version -> (module SERIALIZABLE_QUESTION with type question = 'a)
 
 val compare_version : 'a version -> 'b version -> ('a, 'b) Type.eq option
 
@@ -46,7 +36,7 @@ val int_of_version : 'a version -> int
 val version_of_int : int -> some_version
 
 type versioned_template =
-  | Template : 'a version * 'a template -> versioned_template
+  | Template : 'a version * template -> versioned_template
 [@@deriving yojson]
 
 val election_uuid_of_string_ballot : string -> uuid
@@ -65,7 +55,7 @@ val make_raw_election :
 module type ELECTION = sig
   include ELECTION
 
-  val witness : question version
+  val witness : Question.t version
   val json : json
 end
 

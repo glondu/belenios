@@ -24,15 +24,13 @@ open Ppx_yojson_conv_lib.Yojson_conv
 module Question_ = Question
 open Belenios_core
 
-type question = Question_.question [@@deriving yojson]
-
 type 'a params = {
   version : int;
   description : string;
   name : string;
   group : string;
   public_key : 'a;
-  questions : question array;
+  questions : Question.t array;
   uuid : uuid;
   administrator : string option; [@yojson.option]
   credential_authority : string option; [@yojson.option]

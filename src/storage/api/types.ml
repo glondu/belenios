@@ -128,12 +128,12 @@ type ('a, 'b) draft_trustees =
   | `Threshold of ('a, 'b) draft_threshold_params ]
 [@@deriving yojson]
 
-type ('a, 'b, 'question) raw_draft_election = {
+type ('a, 'b) raw_draft_election = {
   version : int;
   owners : int list;
   mutable group : string;
   mutable voters : draft_voter list;
-  mutable questions : 'question template;
+  mutable questions : template;
   mutable trustees : ('a, 'b) draft_trustees;
   mutable metadata : metadata;
   public_creds : string;

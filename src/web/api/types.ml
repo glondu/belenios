@@ -170,10 +170,10 @@ type authentication = [ `CAS of string | `Configured of string ]
 type cred_authority_info = { server : string; operator : string }
 [@@deriving yojson]
 
-type 'a raw_draft = {
+type raw_draft = {
   version : int;
   owners : int list;
-  questions : 'a template;
+  questions : template;
   languages : string list;
   contact : string option; [@yojson.option]
   booth : int;

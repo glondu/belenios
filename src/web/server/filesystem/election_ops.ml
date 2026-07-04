@@ -84,13 +84,11 @@ let delete_live_election s uuid roots =
     {
       description = "";
       name = W.template.name;
-      questions = Array.map W.erase_question W.template.questions;
+      questions = Array.map Question.erase_question W.template.questions;
       administrator = None;
       credential_authority = None;
       language = None;
     }
-    |> !+(yojson_of_template W.yojson_of_question)
-    |> !*(template_of_yojson Fun.id)
   in
   let de_owners = metadata.owners in
   let de_date =

@@ -50,8 +50,7 @@ module Make (P : PARAMS) () = struct
 
   let nb_candidates =
     let open Belenios.Question in
-    let open (val Belenios.Election.get_serializers W.witness) in
-    let (Q question) = extract W.template.questions.(0) in
+    let (Q question) = W.template.questions.(0) in
     let module Q = (val question.type_) in
     (fun (type a) (id : a id) (q : a) ->
       match id with

@@ -39,18 +39,7 @@ let get_uuid x =
       | _ -> failwith "Election.get_uuid: invalid data")
   | _ -> failwith "Election.get_uuid: object expected"
 
-module type SERIALIZABLE_QUESTION = sig
-  type question [@@deriving yojson]
-
-  val intract : Question.t -> question
-  val extract : question -> Question.t
-end
-
 type _ version = V2 : Belenios_v2.Question.question version
-
-let get_serializers (type a) (v : a version) :
-    (module SERIALIZABLE_QUESTION with type question = a) =
-  match v with V2 -> (module Belenios_v2.Question)
 
 let compare_version (type t) (x : t version) (type u) (y : u version) :
     (t, u) Type.eq option =
@@ -65,17 +54,15 @@ let version_of_int = function
   | v -> Printf.ksprintf invalid_arg "unsupported version: %d" v
 
 type versioned_template =
-  | Template : 'a version * 'a template -> versioned_template
+  | Template : 'a version * template -> versioned_template
 
 let versioned_template_of_yojson x =
   match get_version x with
-  | 2 -> Template (V2, Belenios_v2.Election.template_of_yojson x)
+  | 2 -> Template (V2, template_of_yojson x)
   | n ->
       Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
 
-let yojson_of_versioned_template (Template (V2, x)) =
-  let open Belenios_v2 in
-  yojson_of_template yojson_of_question x
+let yojson_of_versioned_template (Template (V2, x)) = yojson_of_template x
 
 let election_uuid_of_string_ballot x =
   let j = Json.of_string x in
@@ -101,8 +88,7 @@ let make_raw_election ~version template ~uuid ~group ~public_key =
 let has_nh_questions (Template (V2, e)) =
   Array.exists Belenios_v2.Question.is_nh_question e.questions
 
-let get_questions (Template (V2, e)) =
-  Array.map Belenios_v2.Question.extract e.questions
+let get_questions (Template (V2, e)) : Question.t array = e.questions
 
 let get_complexity (Template (V2, e)) =
   Belenios_v2.Election.get_complexity e.questions
@@ -110,7 +96,7 @@ let get_complexity (Template (V2, e)) =
 module type ELECTION = sig
   include ELECTION
 
-  val witness : question version
+  val witness : Question.t version
   val json : json
 end
 
@@ -124,8 +110,6 @@ let t_of_yojson x =
         let raw_election = Json.to_string x
       end in
       let module X = struct
-        type question = Belenios_v2.Question.question
-
         include Belenios_v2.Election.Make (R) ()
 
         let witness = V2

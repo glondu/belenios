@@ -26,8 +26,8 @@ open Belenios
 open Belenios_storage_api
 open Web_common
 
-let extract_metadata ~admin_id ~has_weights uuid (template : _ template)
-    metadata : Belenios_messages.metadata =
+let extract_metadata ~admin_id ~has_weights uuid (template : template) metadata
+    : Belenios_messages.metadata =
   let has_passwords =
     match metadata.auth_config with
     | Some [ { auth_system = "password"; _ } ] -> true

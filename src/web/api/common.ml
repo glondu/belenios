@@ -21,20 +21,17 @@
 
 open Types
 
-type draft = Draft : 'a Belenios.Election.version * 'a raw_draft -> draft
+type draft = Draft : 'a Belenios.Election.version * raw_draft -> draft
 
 let draft_of_yojson x =
-  let abstract = raw_draft_of_yojson Fun.id x in
+  let abstract = raw_draft_of_yojson x in
   let open Belenios.Election in
   match version_of_int abstract.version with
   | Version v ->
-      let open (val get_serializers v) in
-      let x = raw_draft_of_yojson question_of_yojson x in
+      let x = raw_draft_of_yojson x in
       Draft (v, x)
 
-let yojson_of_draft (Draft (v, x)) =
-  let open (val Belenios.Election.get_serializers v) in
-  yojson_of_raw_draft yojson_of_question x
+let yojson_of_draft (Draft (_, x)) = yojson_of_raw_draft x
 
 let remaining_credits (xs : credentials_credits) =
   xs

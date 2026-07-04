@@ -1,1 +1,1 @@
-include Belenios_core.ELECTION_SIG with type question := Question.question
+include Belenios_core.ELECTION_SIG

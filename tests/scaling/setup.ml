@@ -95,10 +95,7 @@ module Make (P : PARAMS) = struct
     |> Cohttp.Header.of_list
 
   let create_draft () =
-    let body =
-      !+(yojson_of_raw_draft Question.yojson_of_t) draft
-      |> Cohttp_lwt.Body.of_string
-    in
+    let body = !+yojson_of_raw_draft draft |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
         (Printf.ksprintf Uri.of_string "%s/elections" api_root)
