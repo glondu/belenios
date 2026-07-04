@@ -40,12 +40,20 @@ let get_complexity q =
   { nb_ciphertexts; nb_zkps }
 
 module Make (G : GROUP) = struct
+  module G = G
   open G
 
-  type nonrec answer = (G.t, G.Zq.t) answer
+  (** Serializers *)
 
-  let yojson_of_answer = [%yojson_of_group: answer]
-  let answer_of_yojson = [%group_of_yojson: answer]
+  let question_of_yojson = question_of_yojson
+  let yojson_of_question = yojson_of_question
+  let answer_of_yojson = [%group_of_yojson: _ answer]
+  let yojson_of_answer = [%yojson_of_group: _ answer]
+  let result_of_yojson = result_of_yojson
+  let yojson_of_result = yojson_of_result
+
+  (** Implementation *)
+
   let random () = Zq.random (Crypto_primitives.get_rng ())
   let ( / ) x y = x *~ invert y
   let dummy_ciphertext = { alpha = G.one; beta = G.one }

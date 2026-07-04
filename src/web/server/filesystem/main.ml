@@ -648,7 +648,7 @@ module MakeBackend
       Draft_concrete
         ( (module G),
           v,
-          !*([%group_of_yojson: _ raw_draft_election] t_of_yojson) x )
+          !*([%group_of_yojson: _ raw_draft_election] question_of_yojson) x )
       |> Lwt.return_some
     in
     match concrete with
@@ -679,7 +679,7 @@ module MakeBackend
         in
         let data =
           let open (val Election.get_serializers v) in
-          !+([%yojson_of_group: _ Types.raw_draft_election] yojson_of_t)
+          !+([%yojson_of_group: _ Types.raw_draft_election] yojson_of_question)
             concrete
         in
         let* () =

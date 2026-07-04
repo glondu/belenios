@@ -28,9 +28,10 @@ module type QUESTION_IMPL = sig
   val get_complexity : Q.question -> complexity
 
   module Make (G : GROUP) :
-    QUESTION
-      with type element := G.t
+    QUESTION_OPS
+      with module G = G
        and type question := Q.question
+       and type answer := (G.t, G.Zq.t) Q.answer
        and type result := Q.result
 end
 

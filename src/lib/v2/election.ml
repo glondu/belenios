@@ -103,7 +103,7 @@ module Parse (R : RAW_ELECTION) () = struct
     | _ -> invalid_arg "to_generirc_result: list expected"
 end
 
-module MakeElection (W : ELECTION_DATA with type question := Question_.t) =
+module MakeElection (W : ELECTION_DATA with type question := Question_.question) =
 struct
   type element = W.G.t
   type scalar = W.G.Zq.t

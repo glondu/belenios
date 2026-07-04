@@ -27,30 +27,31 @@ open Crypto_types
 open Election_types
 open Signatures_core
 
-module type QUESTION = sig
-  type question
+module type QUESTION_OPS = sig
+  module G : GROUP
+
+  type question [@@deriving yojson]
   type answer [@@deriving yojson]
-  type element
-  type result
+  type result [@@deriving yojson]
 
   val create_answer :
-    question -> public_key:element -> prefix:string -> int Shape.t -> answer
+    question -> public_key:G.t -> prefix:string -> int Shape.t -> answer
 
   val verify_answer :
-    question -> public_key:element -> prefix:string -> answer -> bool
+    question -> public_key:G.t -> prefix:string -> answer -> bool
 
-  val extract_ciphertexts : question -> answer -> element ciphertext Shape.t
+  val extract_ciphertexts : question -> answer -> G.t ciphertext Shape.t
 
   val process_ciphertexts :
     question ->
-    (Weight.t * element ciphertext Shape.t) list ->
-    element ciphertext Shape.t
+    (Weight.t * G.t ciphertext Shape.t) list ->
+    G.t ciphertext Shape.t
 
   val compute_result :
-    total_weight:Weight.t -> question -> element Shape.t -> result
+    total_weight:Weight.t -> question -> G.t Shape.t -> result
 
   val check_result :
-    total_weight:Weight.t -> question -> element Shape.t -> result -> bool
+    total_weight:Weight.t -> question -> G.t Shape.t -> result -> bool
 end
 
 module type ELECTION_BASE = sig
@@ -328,17 +329,19 @@ module type GROUP_SIG = sig
 end
 
 module type QUESTION_SIG = sig
-  type t [@@deriving yojson]
+  type question [@@deriving yojson]
+  type answer [@@deriving yojson]
+  type result [@@deriving yojson]
 
-  val is_nh_question : t -> bool
-  val get_complexity : t -> complexity
+  val is_nh_question : question -> bool
+  val get_complexity : question -> complexity
 
   module Make (G : GROUP) :
-    QUESTION
-      with type element := G.t
-       and type question := t
-       and type answer := json
-       and type result := json
+    QUESTION_OPS
+      with module G = G
+       and type question = question
+       and type answer = answer
+       and type result = result
 end
 
 module type MIXNET_SIG = sig

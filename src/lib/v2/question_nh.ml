@@ -33,12 +33,20 @@ let cast (Q x : Belenios_core.Question.t) : question option =
 let get_complexity _ = { nb_ciphertexts = 1; nb_zkps = 1 }
 
 module Make (G : GROUP) = struct
+  module G = G
   open G
 
-  type nonrec answer = (G.t, G.Zq.t) answer
+  (** Serializers *)
 
-  let answer_of_yojson = [%group_of_yojson: answer]
-  let yojson_of_answer = [%yojson_of_group: answer]
+  let question_of_yojson = question_of_yojson
+  let yojson_of_question = yojson_of_question
+  let answer_of_yojson = [%group_of_yojson: _ answer]
+  let yojson_of_answer = [%yojson_of_group: _ answer]
+  let result_of_yojson = result_of_yojson
+  let yojson_of_result = yojson_of_result
+
+  (** Implementation *)
+
   let random () = Zq.random (Crypto_primitives.get_rng ())
 
   let create_answer q ~public_key:y ~prefix m =
@@ -62,7 +70,7 @@ module Make (G : GROUP) = struct
     let response = Zq.(w - (r * challenge)) in
     let proof = { challenge; response } in
     let choices = { alpha; beta } in
-    ({ choices; proof } : answer)
+    ({ choices; proof } : _ answer)
 
   let verify_answer _ ~public_key:y ~prefix a =
     let { alpha; beta } = a.choices in

@@ -24,7 +24,8 @@ open Belenios_core
 
 type nonrec 'a ciphertext = 'a ciphertext = { alpha : 'a; beta : 'a }
 
-module Make (W : ELECTION_DATA with type question := Question_.t) = struct
+module Make (W : ELECTION_DATA with type question := Question_.question) =
+struct
   module G = W.G
   open G
 

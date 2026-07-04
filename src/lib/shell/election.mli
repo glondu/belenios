@@ -27,16 +27,16 @@ val get_version : json -> int
 val get_uuid : string -> uuid
 
 module type SERIALIZABLE_QUESTION = sig
-  type t [@@deriving yojson]
+  type question [@@deriving yojson]
 
-  val intract : Question.t -> t
-  val extract : t -> Question.t
+  val intract : Question.t -> question
+  val extract : question -> Question.t
 end
 
 type 'a version
 
 val get_serializers :
-  'a version -> (module SERIALIZABLE_QUESTION with type t = 'a)
+  'a version -> (module SERIALIZABLE_QUESTION with type question = 'a)
 
 val compare_version : 'a version -> 'b version -> ('a, 'b) Type.eq option
 

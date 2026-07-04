@@ -34,13 +34,13 @@ let draft_election_of_yojson of_yojson1 of_yojson2 x =
   | Version v ->
       let open (val get_serializers v) in
       let x =
-        raw_draft_election_of_yojson of_yojson1 of_yojson2 t_of_yojson x
+        raw_draft_election_of_yojson of_yojson1 of_yojson2 question_of_yojson x
       in
       Draft (v, x)
 
 let yojson_of_draft_election to_yojson1 to_yojson2 (Draft (v, x)) =
   let open (val Belenios.Election.get_serializers v) in
-  yojson_of_raw_draft_election to_yojson1 to_yojson2 yojson_of_t x
+  yojson_of_raw_draft_election to_yojson1 to_yojson2 yojson_of_question x
 
 type wrapped_draft_election =
   | W : ('a, 'b) group * ('a, 'b) draft_election -> wrapped_draft_election
@@ -52,7 +52,8 @@ let wrapped_draft_election_of_yojson (x : Json.t) : wrapped_draft_election =
   let (Version v) = Election.version_of_int version in
   let open (val Election.get_serializers v) in
   let x =
-    raw_draft_election_of_yojson !$G.of_string !$G.Zq.of_string t_of_yojson x
+    raw_draft_election_of_yojson !$G.of_string !$G.Zq.of_string
+      question_of_yojson x
   in
   W ((module G), Draft (v, x))
 
@@ -60,7 +61,7 @@ let yojson_of_wrapped_draft_election
     (W (w, Draft (v, x)) : wrapped_draft_election) : Json.t =
   let module G = (val w) in
   let open (val Election.get_serializers v) in
-  [%yojson_of_group: _ raw_draft_election] yojson_of_t x
+  [%yojson_of_group: _ raw_draft_election] yojson_of_question x
 
 let csv_of_string = split_lines >> List.map (String.split_on_char ',')
 let string_of_csv = List.map (String.concat ",") >> join_lines

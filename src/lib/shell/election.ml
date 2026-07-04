@@ -40,16 +40,16 @@ let get_uuid x =
   | _ -> failwith "Election.get_uuid: object expected"
 
 module type SERIALIZABLE_QUESTION = sig
-  type t [@@deriving yojson]
+  type question [@@deriving yojson]
 
-  val intract : Question.t -> t
-  val extract : t -> Question.t
+  val intract : Question.t -> question
+  val extract : question -> Question.t
 end
 
-type _ version = V2 : Belenios_v2.Question.t version
+type _ version = V2 : Belenios_v2.Question.question version
 
 let get_serializers (type a) (v : a version) :
-    (module SERIALIZABLE_QUESTION with type t = a) =
+    (module SERIALIZABLE_QUESTION with type question = a) =
   match v with V2 -> (module Belenios_v2.Question)
 
 let compare_version (type t) (x : t version) (type u) (y : u version) :
@@ -124,7 +124,7 @@ let t_of_yojson x =
         let raw_election = Json.to_string x
       end in
       let module X = struct
-        type question = Belenios_v2.Question.t
+        type question = Belenios_v2.Question.question
 
         include Belenios_v2.Election.Make (R) ()
 

@@ -38,13 +38,13 @@ let lookup_type (type a) (type_ : a question_type) =
   in
   loop types
 
-type t = Q : ('a question_impl, 'a) generic_question -> t
+type question = Q : ('a question_impl, 'a) generic_question -> question
 
-let extract (Q q : t) : Belenios_core.Question.t =
+let extract (Q q : question) : Belenios_core.Question.t =
   let open (val q.type_) in
   Q { q with type_ = (module Q) }
 
-let intract (Q q : Belenios_core.Question.t) : t =
+let intract (Q q : Belenios_core.Question.t) : question =
   let open (val q.type_) in
   match lookup_type q.type_ with
   | None -> Printf.ksprintf failwith "of_concrete: unsupported type %s" type_
@@ -52,44 +52,50 @@ let intract (Q q : Belenios_core.Question.t) : t =
       let module Impl = (val impl) in
       Q { q with type_ = (module Impl) }
 
-let t_of_yojson = Belenios_core.Question.t_of_yojson >> intract
-let yojson_of_t = extract >> Belenios_core.Question.yojson_of_t
+let question_of_yojson = Belenios_core.Question.t_of_yojson >> intract
+let yojson_of_question = extract >> Belenios_core.Question.yojson_of_t
 let is_nh_question = extract >> is_nh_question
 
-let get_complexity (Q q : t) =
+let get_complexity (Q q : question) =
   let open (val q.type_) in
   get_complexity q.value
 
-module Make (G : GROUP) = struct
-  let yojson_of_answer = Fun.id
-  let answer_of_yojson = Fun.id
+type answer = Json.t [@@deriving yojson]
+type result = Json.t [@@deriving yojson]
 
-  let create_answer (Q q : t) ~public_key ~prefix m =
+module Make (G : GROUP) = struct
+  module G = G
+
+  type nonrec question = question [@@deriving yojson]
+  type nonrec answer = answer [@@deriving yojson]
+  type nonrec result = result [@@deriving yojson]
+
+  let create_answer (Q q : question) ~public_key ~prefix m =
     let open (val q.type_) in
     let open Make (G) in
     create_answer q.value ~public_key ~prefix m |> yojson_of_answer
 
-  let verify_answer (Q q : t) ~public_key ~prefix a =
+  let verify_answer (Q q : question) ~public_key ~prefix a =
     let open (val q.type_) in
     let open Make (G) in
     a |> answer_of_yojson |> verify_answer q.value ~public_key ~prefix
 
-  let extract_ciphertexts (Q q : t) a =
+  let extract_ciphertexts (Q q : question) a =
     let open (val q.type_) in
     let open Make (G) in
     a |> answer_of_yojson |> extract_ciphertexts q.value
 
-  let process_ciphertexts (Q q : t) e =
+  let process_ciphertexts (Q q : question) e =
     let open (val q.type_) in
     let open Make (G) in
     process_ciphertexts q.value e
 
-  let compute_result ~total_weight (Q q : t) x =
+  let compute_result ~total_weight (Q q : question) x =
     let open (val q.type_) in
     let open Make (G) in
     compute_result ~total_weight q.value x |> Q.yojson_of_result
 
-  let check_result ~total_weight (Q q : t) x r =
+  let check_result ~total_weight (Q q : question) x r =
     let open (val q.type_) in
     let open Make (G) in
     r |> Q.result_of_yojson |> check_result ~total_weight q.value x
