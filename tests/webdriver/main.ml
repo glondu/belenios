@@ -203,6 +203,21 @@ let with_cmd cmd f =
       in
       Lwt.fail @@ Failure msg
 
+let rec try_scenario n f =
+  Printf.printf "Trying... (%d times left)\n%!" n;
+  let t1 = Unix.gettimeofday () in
+  Lwt.catch
+    (fun () ->
+      let* () = f () in
+      let t2 = Unix.gettimeofday () in
+      Printf.printf "Success in %f s\n%!" (t2 -. t1);
+      Lwt.return_unit)
+    (fun e ->
+      let t2 = Unix.gettimeofday () in
+      Printf.printf "Failure in %f s with %s\n%!" (t2 -. t1)
+        (Printexc.to_string e);
+      if n > 0 then try_scenario (n - 1) f else Lwt.reraise e)
+
 let rec main = function
   | "tmpdir" :: dir :: xs ->
       Printf.printf "Setting tmpdir to %s\n%!" dir;
@@ -220,10 +235,10 @@ let rec main = function
       let trustees = trustees_of_string trustees in
       let registrar = registrar_of_string registrar in
       let auth = auth_of_string auth in
-      let t1 = Unix.gettimeofday () in
-      let* () = scenario admin questions nvoters trustees registrar auth in
-      let t2 = Unix.gettimeofday () in
-      Printf.printf "End of scenario in %f s\n%!" (t2 -. t1);
+      let* () =
+        try_scenario 3 (fun () ->
+            scenario admin questions nvoters trustees registrar auth)
+      in
       main xs
   | [] -> Lwt.return_unit
   | _ -> Lwt.fail @@ Failure "bad syntax"
