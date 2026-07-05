@@ -282,8 +282,8 @@ let election_object uuid x =
     path =
       Printf.sprintf "elections/%s/objects/%s" (Uuid.to_string uuid)
         (Hash.to_hex x);
-    of_yojson = string_of_yojson;
-    to_yojson = yojson_of_string;
+    of_yojson = Fun.id;
+    to_yojson = Fun.id;
     to_yojson_post = yojson_of_unit;
   }
 

@@ -606,7 +606,7 @@ let make_result_div (election : Election.t) t ~result =
   let open (val !Belenios_js.I18n.gettext) in
   let open (val election) in
   let questions = template.questions in
-  let r = !*(election_result_of_yojson result_of_yojson) result in
+  let r = election_result_of_yojson result_of_yojson result in
   let nballots = t.num_tallied in
   let total_weight = t.total_weight in
   let div_total_weight =
@@ -622,7 +622,7 @@ let make_result_div (election : Election.t) t ~result =
   let raw_result =
     a_data ~mime_type:"application/json"
       ~filename:(Printf.sprintf "raw_result-%s.json" (Uuid.to_string uuid))
-      ~data:result
+      ~data:(Json.to_string result)
     @@ s_ "raw result"
   in
   [

@@ -128,14 +128,14 @@ module App (U : UI) = struct
         | Some h -> (
             let* x = Api.(get (election_object uuid h) `Nobody) in
             match x with
-            | Ok (x, _) -> cont @@ !*setup_data_of_yojson x
+            | Ok (x, _) -> cont @@ setup_data_of_yojson x
             | Error _ -> fail ())
       in
       let@ election cont =
         let h = setup.election in
         let* x = Api.(get (election_object uuid h) `Nobody) in
         match x with
-        | Ok (x, _) -> cont @@ !*Election.t_of_yojson x
+        | Ok (x, _) -> cont @@ Election.t_of_yojson x
         | Error _ -> fail ()
       in
       let@ credentials cont =
@@ -157,7 +157,7 @@ module App (U : UI) = struct
             let* x = Api.(get (election_object uuid h) `Nobody) in
             match x with
             | Ok (x, _) ->
-                cont @@ !*[%group_of_yojson: _ credentials_certificate] x
+                cont @@ [%group_of_yojson: _ credentials_certificate] x
             | Error _ -> fail ())
       in
       let@ () =
@@ -166,9 +166,9 @@ module App (U : UI) = struct
           certificate.message.uuid = uuid
           && certificate.message.voter_list_length
              = List.length
-                 (!*(public_credentials_of_yojson !$E.G.of_string) credentials)
+                 (public_credentials_of_yojson !$E.G.of_string credentials)
           && certificate.message.public_creds_hash
-             = Hash.hash_string credentials
+             = Hash.hash_yojson credentials
           && C.check certificate
         then cont ()
         else (

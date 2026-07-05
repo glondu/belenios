@@ -37,6 +37,6 @@ val get_election : uuid -> Election.t option Lwt.t
 val get_status : uuid -> election_status option Lwt.t
 val get_dates : uuid -> election_auto_dates option Lwt.t
 val get_audit_cache : uuid -> audit_cache option Lwt.t
-val get_result : uuid -> string option Lwt.t
+val get_result : uuid -> json option Lwt.t
 val get_sized_encrypted_tally : uuid -> hash sized_encrypted_tally option Lwt.t
 val get_ballots : uuid -> (hash * weight) list option Lwt.t

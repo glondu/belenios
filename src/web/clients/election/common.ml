@@ -71,7 +71,7 @@ type cache = {
   dates : election_auto_dates option;
   election : Election.t option;
   audit_cache : audit_cache option;
-  result : string option;
+  result : json option;
   sized_encrypted_tally : hash sized_encrypted_tally option;
   mutable ballots : ((hash * weight) list, unit) result option;
 }
@@ -106,7 +106,7 @@ let update_cache uuid =
         | Some t ->
             let& result = Api.(get (election_object uuid result) `Nobody) in
             let& t = Api.(get (election_object uuid t) `Nobody) in
-            let t = !*(sized_encrypted_tally_of_yojson hash_of_yojson) t in
+            let t = sized_encrypted_tally_of_yojson hash_of_yojson t in
             cont (Some result, Some t))
   in
   let it =
