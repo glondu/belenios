@@ -13,7 +13,11 @@ be given in an HTTP header:
 
     Authorization: Bearer $API_TOKEN
 
-An HTTP error 401 (Unauthorized) is returned when the token is
+For `send-message/*` endpoints, the header should be:
+
+    Authorization: Belenios-HMAC $HMAC
+
+An HTTP error 401 (Unauthorized) is returned when the header is
 invalid.
 
 The root of the API is at `/api/`. All endpoints below are relative to
@@ -39,15 +43,15 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 ### `GET`: unit -> bool (anybody)
 ### `PUT`: bool -> unit (server admin)
 
-## `send-message/internal` (anybody)
+## `send-message/internal`
 
 ### `POST`: message_payload -> json
 
-## `send-message/external` (anybody)
+## `send-message/external`
 
 ### `POST`: message_payload -> json
 
-## `send-message/default` (anybody)
+## `send-message/default`
 
 ### `POST`: message_payload -> json
 

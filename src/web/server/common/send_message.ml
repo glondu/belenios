@@ -71,14 +71,18 @@ let send ?internal (msg : message) =
     | Some true, _ -> cont ()
     | Some false, None -> Lwt.return_error ()
     | (None | Some false), Some (url, key) -> (
+        let ~payload, ~hmac = wrap_message ~key msg in
         let body =
-          msg |> wrap_message ~key
-          |> !+yojson_of_message_payload
-          |> Cohttp_lwt.Body.of_string
+          payload |> !+yojson_of_message_payload |> Cohttp_lwt.Body.of_string
         in
         let* response, x =
           let headers =
-            Cohttp.Header.init_with "content-type" "application/json"
+            Cohttp.Header.of_list
+              [
+                ("content-type", "application/json");
+                ( "authorization",
+                  Printf.sprintf "Belenios-HMAC %s" (Hash.to_hex hmac) );
+              ]
           in
           Cohttp_lwt_unix.Client.post ~headers ~body (Uri.of_string url)
         in

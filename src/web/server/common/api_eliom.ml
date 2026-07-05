@@ -134,6 +134,18 @@ module Make () = struct
             else unauthorized
         | _ -> method_not_allowed)
     | [ "send-message"; kind ] -> (
+        let@ hmac cont =
+          let x =
+            Ocsigen_request.header sp.Eliom_common.sp_request.request_info
+              (Ocsigen_header.Name.of_string "Authorization")
+          in
+          match x with
+          | None -> unauthorized
+          | Some x -> (
+              match String.drop_prefix ~prefix:"Belenios-HMAC " x with
+              | None -> unauthorized
+              | Some x -> cont @@ Hash.of_hex x)
+        in
         let@ internal =
          fun cont ->
           match kind with
@@ -146,7 +158,7 @@ module Make () = struct
         | `POST, Some key ->
             let@ x = body.run !*Belenios_messages.message_payload_of_yojson in
             let@ () = handle_generic_error in
-            Api_generic.post_send_message ?internal ~key x
+            Api_generic.post_send_message ?internal ~key ~hmac x
         | _ -> method_not_allowed)
     | [ "account" ] -> (
         let@ token = Option.unwrap unauthorized token in

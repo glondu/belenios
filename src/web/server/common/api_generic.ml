@@ -208,22 +208,20 @@ let msgcache = ref HMap.empty
 let filter_msgcache ~now cache =
   HMap.filter (fun _ timestamp -> now < timestamp +. 600.) cache
 
-let post_send_message ?internal ~key (m : Belenios_messages.message_payload) =
+let post_send_message ?internal ~key ~hmac
+    (m : Belenios_messages.message_payload) =
   let now = Unix.gettimeofday () in
   let cache = filter_msgcache ~now !msgcache in
   msgcache := cache;
   if now < m.timestamp +. 600. then
-    match m.hmac with
-    | Some hmac ->
-        if HMap.mem hmac cache then forbidden
-        else if Belenios_messages.check_message ~key m then
-          let* r = Send_message.send ?internal m.message in
-          match r with
-          | Ok hint ->
-              let cache = HMap.add hmac m.timestamp cache in
-              msgcache := cache;
-              `String hint |> Json.to_string |> return_json 200
-          | Error () -> service_unavailable
-        else forbidden
-    | None -> forbidden
+    if HMap.mem hmac cache then forbidden
+    else if Belenios_messages.check_message ~key ~hmac m then
+      let* r = Send_message.send ?internal m.message in
+      match r with
+      | Ok hint ->
+          let cache = HMap.add hmac m.timestamp cache in
+          msgcache := cache;
+          `String hint |> Json.to_string |> return_json 200
+      | Error () -> service_unavailable
+    else unauthorized
   else forbidden

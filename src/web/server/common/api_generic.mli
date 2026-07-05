@@ -73,5 +73,6 @@ val get_configuration_uris : unit -> configuration_uris
 val post_send_message :
   ?internal:bool ->
   key:string ->
+  hmac:hash ->
   Belenios_messages.message_payload ->
   result Lwt.t

@@ -46,11 +46,9 @@ let hmac ~key x =
 
 let wrap_message ~key (message : message) =
   let timestamp = Unix.gettimeofday () in
-  { timestamp; message; hmac = None }
-  |> !+yojson_of_message_payload
-  |> hmac ~key
-  |> fun x -> ({ timestamp; message; hmac = Some x } : message_payload)
+  let payload = { timestamp; message } in
+  payload |> !+yojson_of_message_payload |> hmac ~key |> fun hmac ->
+  (~payload, ~hmac)
 
-let check_message ~key (message : message_payload) =
-  { message with hmac = None } |> !+yojson_of_message_payload |> hmac ~key
-  |> fun x -> message.hmac = Some x
+let check_message ~key ~hmac:hmac' (message : message_payload) =
+  message |> !+yojson_of_message_payload |> hmac ~key |> fun x -> hmac' = x

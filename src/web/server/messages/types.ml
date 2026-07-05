@@ -70,9 +70,5 @@ type message =
   | `Credentials_seed of credentials_seed_message ]
 [@@deriving yojson]
 
-type message_payload = {
-  timestamp : float;
-  message : message;
-  hmac : hash option; [@yojson.option]
-}
+type message_payload = { timestamp : float; message : message }
 [@@deriving yojson]
