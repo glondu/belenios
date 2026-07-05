@@ -169,11 +169,12 @@ let election_logo uuid =
     to_yojson_post = yojson_of_unit;
   }
 
-let election_trustees uuid =
+let election_trustees uuid (type a b) (w : (a, b) group) =
+  let module G = (val w) in
   {
     path = Printf.sprintf "elections/%s/trustees" (Uuid.to_string uuid);
-    of_yojson = string_of_yojson;
-    to_yojson = yojson_of_string;
+    of_yojson = [%group_of_yojson: _ trustees];
+    to_yojson = [%yojson_of_group: _ trustees];
     to_yojson_post = yojson_of_unit;
   }
 

@@ -46,12 +46,12 @@ let do_election uuid (election : Election.t) seed =
   let module W = (val election) in
   let module G = W.G in
   let@ trustees cont =
-    let* x = Api.(get (election_trustees uuid) `Nobody) in
+    let* x = Api.(get (election_trustees uuid (module G)) `Nobody) in
     match x with
     | Error _ ->
         alert @@ s_ "Could not get trustee parameters for this election!";
         Lwt.return_unit
-    | Ok (x, _) -> cont @@ !*[%group_of_yojson: _ trustees] x
+    | Ok (x, _) -> cont x
   in
   let find_single =
     let module T = (val Trustees.get_by_version W.version) in

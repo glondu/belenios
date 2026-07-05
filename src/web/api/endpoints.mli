@@ -69,7 +69,9 @@ val trustee_election :
 val elections : (admin, summary_list, draft) t
 val election : uuid -> ([< nobody | admin ], Election.t, unit) t
 val election_logo : uuid -> ([< nobody | admin ], string, unit) t
-val election_trustees : uuid -> (nobody, string, unit) t
+
+val election_trustees :
+  uuid -> ('a, 'b) group -> (nobody, ('a, 'b) trustees, unit) t
 
 val election_status :
   uuid -> ([< nobody | admin ], election_status, admin_request) t
