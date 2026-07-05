@@ -77,10 +77,7 @@ struct
       try
         let x = !*oidc_userinfo_of_yojson info in
         let info : Belenios_web_api.user_info =
-          let login, address =
-            match x.email with Some x -> (x, Some x) | None -> (x.sub, None)
-          in
-          { login; address; name = x.name; timestamp = None }
+          { login = x.sub; address = x.email; name = x.name; timestamp = None }
         in
         return_some info
       with _ -> return_none
