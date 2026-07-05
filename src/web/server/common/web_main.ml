@@ -121,7 +121,7 @@ module Make () = struct
     | Element ("tos", attrs, []) ->
         let () =
           match List.assoc_opt "last-update" attrs with
-          | Some x -> Web_config.tos_last_update := float_of_string x
+          | Some x -> Web_config.tos_last_update := Int64.of_string x
           | None -> ()
         in
         tos := List.assoc_opt "uri" attrs

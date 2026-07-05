@@ -39,14 +39,14 @@ type auth_config = {
 [@@deriving yojson]
 
 type sealed = {
-  date_open : float option; [@yojson.option]
-  date_close : float option; [@yojson.option]
-  date_publish : float option; [@yojson.option]
+  date_open : int64 option; [@yojson.option]
+  date_close : int64 option; [@yojson.option]
+  date_publish : int64 option; [@yojson.option]
 }
 [@@deriving yojson]
 
 type sealing_op = [ `Seal of sealed | `Unseal ] [@@deriving yojson]
-type sealing_event = { date : float; op : sealing_op } [@@deriving yojson]
+type sealing_event = { date : int64; op : sealing_op } [@@deriving yojson]
 
 type metadata = {
   owners : int list;
@@ -63,7 +63,7 @@ type metadata = {
 }
 [@@deriving yojson]
 
-type extended_record = { username : string; date : float; credential : string }
+type extended_record = { username : string; date : int64; credential : string }
 [@@deriving yojson]
 
 type credential_mapping = {
@@ -140,7 +140,7 @@ type ('a, 'b) raw_draft_election = {
   mutable public_creds_received : bool;
   mutable public_creds_certificate : ('a, 'b) credentials_certificate option;
       [@yojson.option]
-  creation_date : float;
+  creation_date : int64;
   mutable administrator : string option; [@yojson.option]
   mutable credential_authority_visited : bool;
       [@default false] [@yojson_drop_default ( = )]
@@ -160,9 +160,9 @@ type account = {
   id : int;
   name : string;
   email : string option; [@yojson.option]
-  last_connected : float;
+  last_connected : int64;
   authentications : user list;
-  consent : float option; [@yojson.option]
+  consent : int64 option; [@yojson.option]
   capabilities : int option; [@yojson.option]
   language : string option; [@yojson.option]
   voters_limit : int option; [@yojson.option]
@@ -192,25 +192,25 @@ type password_record = {
 (** {1 Running elections} *)
 
 type election_dates = {
-  creation : float;
-  finalization : float option; [@yoson.option]
-  tally : float option; [@yoson.option]
-  archive : float option; [@yoson.option]
-  last_mail : float option; [@yoson.option]
-  auto_open : float option; [@yoson.option]
-  auto_close : float option; [@yoson.option]
-  publish : float option; [@yoson.option]
-  grace_period : float option; [@yoson.option]
+  creation : int64;
+  finalization : int64 option; [@yoson.option]
+  tally : int64 option; [@yoson.option]
+  archive : int64 option; [@yoson.option]
+  last_mail : int64 option; [@yoson.option]
+  auto_open : int64 option; [@yoson.option]
+  auto_close : int64 option; [@yoson.option]
+  publish : int64 option; [@yoson.option]
+  grace_period : int64 option; [@yoson.option]
 }
 [@@deriving yojson]
 
-type election_records = (string * float) list
+type election_records = (string * int64) list
 
 let yojson_of_election_records x : json =
-  `Assoc (List.map (fun (k, v) -> (k, yojson_of_float v)) x)
+  `Assoc (List.map (fun (k, v) -> (k, yojson_of_int64 v)) x)
 
 let election_records_of_yojson : json -> election_records = function
-  | `Assoc o -> List.map (fun (k, v) -> (k, float_of_yojson v)) o
+  | `Assoc o -> List.map (fun (k, v) -> (k, int64_of_yojson v)) o
   | x -> of_yojson_error "object expected" x
 
 type skipped_shufflers = string list [@@deriving yojson]

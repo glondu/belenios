@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
@@ -774,9 +775,7 @@ module MakeBackend
       Filesystem.read_file (spool_elections uuid hide_result_filename)
     in
     let e_date_publish =
-      Option.map
-        (String.trim >> !*datetime_of_yojson >> Datetime.to_unixfloat)
-        hide_result
+      Option.map (String.trim >> !*int64_of_yojson) hide_result
     in
     let* dates =
       match raw_dates with
@@ -798,13 +797,13 @@ module MakeBackend
           let d = !*Types.election_dates_of_yojson (String.trim d) in
           Lwt.return_some
             {
-              creation = Datetime.to_unixfloat d.creation;
-              finalization = Option.map Datetime.to_unixfloat d.finalization;
-              tally = Option.map Datetime.to_unixfloat d.tally;
-              archive = Option.map Datetime.to_unixfloat d.archive;
-              last_mail = Option.map Datetime.to_unixfloat d.last_mail;
-              auto_open = Option.map Datetime.to_unixfloat d.auto_open;
-              auto_close = Option.map Datetime.to_unixfloat d.auto_close;
+              creation = d.creation;
+              finalization = d.finalization;
+              tally = d.tally;
+              archive = d.archive;
+              last_mail = d.last_mail;
+              auto_open = d.auto_open;
+              auto_close = d.auto_close;
               publish = e_date_publish;
               grace_period = d.grace_period;
             }
@@ -825,19 +824,19 @@ module MakeBackend
       match d.publish with
       | None -> Filesystem.cleanup_file filename
       | Some t ->
-          let t = t |> Datetime.from_unixfloat |> !+yojson_of_datetime in
+          let t = t |> !+yojson_of_int64 in
           Filesystem.write_file filename (t ^ "\n")
     in
     let filename = spool_elections uuid raw_dates_filename in
     let dates : Types.election_dates =
       {
-        creation = Datetime.from_unixfloat d.creation;
-        finalization = Option.map Datetime.from_unixfloat d.finalization;
-        tally = Option.map Datetime.from_unixfloat d.tally;
-        archive = Option.map Datetime.from_unixfloat d.archive;
-        last_mail = Option.map Datetime.from_unixfloat d.last_mail;
-        auto_open = Option.map Datetime.from_unixfloat d.auto_open;
-        auto_close = Option.map Datetime.from_unixfloat d.auto_close;
+        creation = d.creation;
+        finalization = d.finalization;
+        tally = d.tally;
+        archive = d.archive;
+        last_mail = d.last_mail;
+        auto_open = d.auto_open;
+        auto_close = d.auto_close;
         grace_period = d.grace_period;
       }
     in
@@ -855,7 +854,7 @@ module MakeBackend
     fun x ->
       let s = Re.Pcre.exec ~rex x in
       let date =
-        Datetime.to_unixfloat @@ Datetime.wrap @@ Re.Pcre.get_substring s 1
+        Datetime.to_int64 @@ Datetime.wrap @@ Re.Pcre.get_substring s 1
       in
       let username = Re.Pcre.get_substring s 3 in
       (username, date)
@@ -874,7 +873,7 @@ module MakeBackend
 
   module ExtendedRecordsCacheTypes = struct
     type key = uuid
-    type value = (float * string) SMap.t
+    type value = (int64 * string) SMap.t
   end
 
   module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
@@ -887,8 +886,7 @@ module MakeBackend
     Lwt_list.fold_left_s
       (fun accu x ->
         let x = !*extended_record_of_yojson x in
-        Lwt.return
-        @@ SMap.add x.username (Datetime.to_unixfloat x.date, x.credential) accu)
+        Lwt.return @@ SMap.add x.username (x.date, x.credential) accu)
       SMap.empty x
 
   let dump_extended_records uuid rs =
@@ -896,7 +894,6 @@ module MakeBackend
     let extended_records =
       List.map
         (fun (username, (date, credential)) ->
-          let date = Datetime.from_unixfloat date in
           { username; date; credential } |> !+yojson_of_extended_record)
         rs
       |> join_lines
@@ -905,7 +902,7 @@ module MakeBackend
       rs
       |> List.map (fun (u, (d, _)) ->
           Printf.sprintf "%s %S"
-            (d |> Datetime.from_unixfloat |> !+yojson_of_datetime)
+            (d |> Datetime.from_int64 |> !+yojson_of_datetime)
             u)
       |> join_lines
     in
@@ -936,7 +933,6 @@ module MakeBackend
     extended_records_cache#add uuid rs;
     let* () =
       let date, credential = r in
-      let date = Datetime.from_unixfloat date in
       { username; date; credential }
       |> !+yojson_of_extended_record
       |> (fun x -> [ x ])
@@ -1728,7 +1724,7 @@ module Make (Config : CONFIG) : STORAGE = struct
 
   let process_election_for_data_policy (action, uuid, next_t) =
     let uuid_s = Uuid.to_string uuid in
-    let now = Unix.gettimeofday () in
+    let now = datetime_now () in
     let archive s uuid =
       let module S = (val s : BACKEND) in
       S.archive_election uuid

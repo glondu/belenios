@@ -52,7 +52,7 @@ let make_cookie_disclaimer configuration =
   let@ () = fun cont -> if !show_consent then cont () else div [] in
   let open (val !I18n.gettext) in
   let handler _ =
-    let now = Js.to_float (new%js Js.date_now)##valueOf /. 1000. in
+    let now = datetime_now () in
     let c = get_client_configuration () in
     set_client_configuration { c with consent = Some now };
     show_consent := false;

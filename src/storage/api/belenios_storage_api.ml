@@ -32,7 +32,7 @@ let get_account_file_serializers = File_serializers.get_account
 
 let default_election_dates =
   {
-    creation = 0.;
+    creation = 0L;
     finalization = None;
     tally = None;
     archive = None;

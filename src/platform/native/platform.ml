@@ -21,6 +21,8 @@
 
 open Lwt.Syntax
 
+let datetime_now () = Unix.gettimeofday () |> Int64.of_float
+
 module Debug = struct
   let debug x = prerr_endline x
 end

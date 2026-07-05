@@ -33,13 +33,13 @@ module Make () = struct
     match Ocsigen_cookie_map.Map_inner.find_opt "belenios-consent" cookies with
     | None -> true
     | Some x -> (
-        match float_of_string x with
+        match Int64.of_string x with
         | exception _ -> true
         | x -> x < !Web_config.tos_last_update)
 
   let set_consent_cookie () =
-    let now = Unix.gettimeofday () in
-    let exp = now +. (10. *. 365. *. 86400.) in
+    let now = Belenios.datetime_now () in
+    let exp = Int64.to_float now +. (10. *. 365. *. 86400.) in
     Eliom_state.set_cookie ~exp ~name:"belenios-consent"
-      ~value:(string_of_float now) ()
+      ~value:(Int64.to_string now) ()
 end

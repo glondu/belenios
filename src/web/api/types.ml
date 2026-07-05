@@ -125,7 +125,7 @@ let languages_of_yojson : json -> languages = function
 type configuration = {
   restricted_mode : bool;
   vendor : string;
-  tos_last_update : float;
+  tos_last_update : int64;
   uris : configuration_uris;
   belenios_version : string;
   belenios_build : string;
@@ -216,7 +216,7 @@ type state =
   | `Archived ]
 [@@deriving yojson]
 
-type summary = { uuid : uuid; name : string; date : float; state : state }
+type summary = { uuid : uuid; name : string; date : int64; state : state }
 [@@deriving yojson]
 
 type summary_list = summary list [@@deriving yojson]
@@ -336,21 +336,21 @@ type voters_request = [ `Import of uuid ] [@@deriving yojson]
 type election_status = {
   state : state;
   authentication : authentication option; [@yojson.option]
-  auto_delete_date : float;
-  auto_archive_date : float option; [@yojson.option]
+  auto_delete_date : int64;
+  auto_archive_date : int64 option; [@yojson.option]
   sealed : bool;
 }
 [@@deriving yojson]
 
 type election_auto_dates = {
-  open_ : float option; [@yojson.option] [@key "open"]
-  close : float option; [@yojson.option]
-  publish : float option; [@yojson.option]
-  grace_period : float option; [@yojson.option]
+  open_ : int64 option; [@yojson.option] [@key "open"]
+  close : int64 option; [@yojson.option]
+  publish : int64 option; [@yojson.option]
+  grace_period : int64 option; [@yojson.option]
 }
 [@@deriving yojson]
 
-type voting_record = { date : float; username : string } [@@deriving yojson]
+type voting_record = { date : int64; username : string } [@@deriving yojson]
 type records = voting_record list [@@deriving yojson]
 
 type admin_request =
@@ -406,14 +406,14 @@ let ballots_with_weights_of_yojson : json -> ballots_with_weights = function
 
 type billing_request = {
   admin_id : int;
-  date : float;
+  date : int64;
   uuid : uuid;
   nb_voters : int;
 }
 [@@deriving yojson]
 
 type client_configuration = {
-  consent : float option; [@yojson.option]
+  consent : int64 option; [@yojson.option]
   lang : string option; [@yojson.option]
 }
 [@@deriving yojson]
@@ -450,7 +450,7 @@ type user_info = {
   login : string;
   name : string option; [@yojson.option]
   address : string option; [@yojson.option]
-  timestamp : float option; [@yojson.option]
+  timestamp : int64 option; [@yojson.option]
 }
 [@@deriving yojson]
 

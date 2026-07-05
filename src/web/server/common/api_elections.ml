@@ -91,23 +91,23 @@ let get_election_status s =
     match status_state with
     | `Tallied ->
         let t = Option.value d.tally ~default:d.creation in
-        Some (t +. (86400. *. Defaults.days_to_archive))
+        Some (add_days t Defaults.days_to_archive)
     | _ -> None
   in
   let status_auto_delete_date =
     match status_state with
     | `Draft ->
         let t = d.creation in
-        t +. (86400. *. Defaults.days_to_delete)
+        add_days t Defaults.days_to_delete
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
         let t = Option.value d.finalization ~default:d.creation in
-        t +. (86400. *. Defaults.days_to_delete)
+        add_days t Defaults.days_to_delete
     | `Tallied ->
         let t = Option.value d.tally ~default:d.creation in
-        t +. (86400. *. Defaults.(days_to_archive +. days_to_delete))
+        add_days t Defaults.(days_to_archive + days_to_delete)
     | `Archived ->
         let t = Option.value d.archive ~default:d.creation in
-        t +. (86400. *. Defaults.days_to_delete)
+        add_days t Defaults.days_to_delete
   in
   Lwt.return
     {
@@ -408,15 +408,15 @@ let cast_ballot send_confirmation s (election : Election.t) ~ballot ~user
         let* dates = Web_persist.get_election_dates s in
         match (dates.auto_close, dates.grace_period, timestamp) with
         | Some close, Some grace, Some t when t <= close ->
-            let now = Unix.gettimeofday () in
-            Lwt.return (now -. t <= grace)
+            let now = datetime_now () in
+            Lwt.return (Int64.sub now t <= grace)
         | _ -> Lwt.return_false)
     | _ -> Lwt.return_false
   in
   let* () = if not voting_open then fail `ElectionClosed else Lwt.return_unit in
   let* r =
-    Web_persist.cast_ballot s ~ballot ~user:user_s ~weight
-      (Unix.gettimeofday ()) ~precast_data
+    Web_persist.cast_ballot s ~ballot ~user:user_s ~weight (datetime_now ())
+      ~precast_data
   in
   match r with
   | Ok (hash, revote) ->

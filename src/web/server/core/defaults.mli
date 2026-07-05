@@ -24,10 +24,10 @@ val contact : string
 val questions : Belenios.Question.t array
 val name : string
 val description : string
-val days_to_archive : float
-val days_to_delete : float
-val days_to_mail : float
-val days_between_mails : float
+val days_to_archive : int
+val days_to_delete : int
+val days_to_mail : int
+val days_between_mails : int
 val max_election_name_size : int
 val max_total_weight : int
 val supported_booth_versions : int list

@@ -33,22 +33,18 @@ let datetime_of_yojson = function
   | x -> of_yojson_error "string expected" x
 
 type election_dates = {
-  creation : datetime;
-  finalization : datetime option; [@yojson.option]
-  tally : datetime option; [@yojson.option]
-  archive : datetime option; [@yojson.option]
-  last_mail : datetime option; [@yojson.option]
-  auto_open : datetime option; [@yojson.option]
-  auto_close : datetime option; [@yojson.option]
-  grace_period : float option; [@yojson.option]
+  creation : int64;
+  finalization : int64 option; [@yojson.option]
+  tally : int64 option; [@yojson.option]
+  archive : int64 option; [@yojson.option]
+  last_mail : int64 option; [@yojson.option]
+  auto_open : int64 option; [@yojson.option]
+  auto_close : int64 option; [@yojson.option]
+  grace_period : int64 option; [@yojson.option]
 }
 [@@deriving yojson]
 
-type extended_record = {
-  username : string;
-  date : datetime;
-  credential : string;
-}
+type extended_record = { username : string; date : int64; credential : string }
 [@@deriving yojson]
 
 type ('a, 'b) raw_draft_election = {
@@ -63,7 +59,7 @@ type ('a, 'b) raw_draft_election = {
   mutable public_creds_received : bool;
   mutable public_creds_certificate : ('a, 'b) credentials_certificate option;
       [@yojson.option]
-  creation_date : datetime;
+  creation_date : int64;
   mutable administrator : string option; [@yojson.option]
   mutable credential_authority_visited : bool;
       [@default false] [@yojson_drop_default ( = )]
@@ -87,7 +83,7 @@ type deleted_election = {
   owners : int list;
   nb_voters : int;
   nb_ballots : int;
-  date : datetime;
+  date : int64;
   tallied : bool;
   authentication_method : authentication_method;
   credential_method : credential_method;
@@ -100,9 +96,9 @@ type account = {
   id : int;
   name : string;
   email : string option; [@yojson.option]
-  last_connected : datetime;
+  last_connected : int64;
   authentications : user list;
-  consent : datetime option; [@yojson.option]
+  consent : int64 option; [@yojson.option]
   capabilities : int option; [@yojson.option]
   language : string option; [@yojson.option]
   voters_limit : int option; [@yojson.option]

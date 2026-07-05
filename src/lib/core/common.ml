@@ -30,6 +30,8 @@ let ( ^^^ ) a b = a ^ " — " ^ b
 let ( let@ ) = ( @@ )
 let ( let& ) = Option.bind
 let ( // ) = Filename.concat
+let datetime_now = datetime_now
+let add_days t days = Int64.(add t (mul 86400L (of_int days)))
 
 let finally x cont =
   cont ();

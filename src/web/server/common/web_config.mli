@@ -36,7 +36,7 @@ val server_mail : string ref
 val return_path : string option ref
 val contact_uri : string option ref
 val tos : string ref
-val tos_last_update : float ref
+val tos_last_update : int64 ref
 val warning_file : string option ref
 val footer_file : string option ref
 val admin_home : string option ref

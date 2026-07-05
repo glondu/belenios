@@ -44,6 +44,7 @@ let format_period x =
   Buffer.contents b
 
 let countdown update_state fmt end_ =
+  let end_ = Int64.to_float end_ in
   let endf =
     let t = new%js Js.date_fromTimeValue (Js.float (end_ *. 1000.)) in
     Js.to_string t##toLocaleString
@@ -652,7 +653,7 @@ let home configuration ?credential uuid =
     | None -> Lwt.return @@ error "Could not get automatic dates!"
     | Some x -> cont x
   in
-  let now = Js.to_float (new%js Js.date_now)##valueOf /. 1000. in
+  let now = datetime_now () in
   let state = div [] in
   let middle = div [] in
   let rec update_state () =

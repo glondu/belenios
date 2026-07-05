@@ -98,14 +98,14 @@ struct
                   | None -> return_true
                   | Some a ->
                       let current_consent =
-                        match a.consent with None -> 0. | Some x -> x
+                        match a.consent with None -> 0L | Some x -> x
                       in
                       if
                         current_consent < !Web_config.tos_last_update
                         && Web_state.get_consent_cookie ()
                       then return_true
                       else
-                        let consent = Some (Unix.gettimeofday ()) in
+                        let consent = Some (datetime_now ()) in
                         let* () =
                           Lwt.catch
                             (fun () -> set { a with consent })

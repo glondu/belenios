@@ -55,7 +55,7 @@ let raw_draft_election_of_concrete x private_creds_downloaded =
     public_creds;
     public_creds_received;
     public_creds_certificate;
-    creation_date = Datetime.to_unixfloat creation_date;
+    creation_date;
     administrator;
     credential_authority_visited;
     voter_authentication_visited;
@@ -99,7 +99,7 @@ let raw_draft_election_to_concrete x =
       public_creds;
       public_creds_received;
       public_creds_certificate;
-      creation_date = Datetime.from_unixfloat creation_date;
+      creation_date;
       administrator;
       credential_authority_visited;
       voter_authentication_visited;
@@ -132,9 +132,9 @@ let account =
           id;
           name;
           email;
-          last_connected = Datetime.to_unixfloat last_connected;
+          last_connected;
           authentications;
-          consent = Option.map Datetime.to_unixfloat consent;
+          consent;
           capabilities;
           language;
           voters_limit;
@@ -163,9 +163,9 @@ let account =
             id;
             name;
             email;
-            last_connected = Datetime.from_unixfloat last_connected;
+            last_connected;
             authentications;
-            consent = Option.map Datetime.from_unixfloat consent;
+            consent;
             capabilities;
             language;
             voters_limit;

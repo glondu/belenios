@@ -6,4 +6,4 @@
   (language c)
   (names libsodium_stubs))
  (c_library_flags (-lsodium))
- (libraries lwt lwt.unix cryptokit zarith digestif.c))
+ (libraries unix lwt lwt.unix cryptokit zarith digestif.c))

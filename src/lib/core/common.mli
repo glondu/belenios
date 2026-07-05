@@ -30,6 +30,8 @@ val ( ^^^ ) : string -> string -> string
 val ( let@ ) : ('a -> 'b) -> 'a -> 'b
 val ( let& ) : 'a option -> ('a -> 'b option) -> 'b option
 val ( // ) : string -> string -> string
+val datetime_now : unit -> int64
+val add_days : int64 -> int -> int64
 val finally : 'a -> (unit -> unit) -> 'a
 val cast : ('a, 'b) Type.eq -> 'a -> 'b
 

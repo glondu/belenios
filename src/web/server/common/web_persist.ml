@@ -85,7 +85,7 @@ let seal_election s seal =
                 Some true )
             else (`Unseal, None)
           in
-          let date = Unix.gettimeofday () in
+          let date = datetime_now () in
           let* b = Storage.E.append_sealing s { date; op } in
           let* () = Storage.E.del s Audit_cache in
           if b then set Value { metadata with sealed }
@@ -230,7 +230,7 @@ let internal_release_tally ~force s set_state =
       let* () = Storage.E.del s Audit_cache in
       let* () = set_state `Tallied in
       let@ dates, set_dates = update_election_dates s in
-      let* () = set_dates { dates with tally = Some (Unix.gettimeofday ()) } in
+      let* () = set_dates { dates with tally = Some (datetime_now ()) } in
       let* () = Storage.E.set s State_state Value None in
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
@@ -264,7 +264,7 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
             return
               (`Archived, fun _ -> Lwt.fail_with "cannot get out of Archived"))
   in
-  let now = Unix.gettimeofday () in
+  let now = datetime_now () in
   let* dates = get_election_dates s in
   let past = function None -> false | Some t -> t < now in
   let@ () =

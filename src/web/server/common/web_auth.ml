@@ -56,7 +56,7 @@ let perform_admin_login a ~name ~address (user : user) =
         match Lopt.get_value a with
         | None -> Lwt.fail @@ Failure "anomaly in perform_login"
         | Some x ->
-            let last_connected = Unix.gettimeofday () in
+            let last_connected = datetime_now () in
             let email = match address with None -> x.email | x -> x in
             let x = { x with last_connected; email } in
             let* () =

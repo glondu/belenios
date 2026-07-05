@@ -55,7 +55,7 @@ type auth_system = {
 type timestamped_user = {
   user : user;
   name : string option;
-  timestamp : float option;
+  timestamp : int64 option;
 }
 
 type election_env = {

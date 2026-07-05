@@ -34,7 +34,7 @@ module Request_table =
     (F.Column.String)
 
 let create ~admin_id ~uuid ~nb_voters =
-  let date = Unix.gettimeofday () in
+  let date = datetime_now () in
   let r = { admin_id; date; uuid; nb_voters } |> !+yojson_of_billing_request in
   let rec find_id () =
     let id = generate_token 22 in

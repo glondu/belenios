@@ -158,7 +158,7 @@ let delete_live_election s uuid roots =
       owners = de_owners;
       nb_voters = de_nb_voters;
       nb_ballots = de_nb_ballots;
-      date = Datetime.from_unixfloat de_date;
+      date = de_date;
       tallied = roots.result <> None;
       authentication_method = de_authentication_method;
       credential_method = de_credential_method;
@@ -181,7 +181,7 @@ let archive_election s uuid =
   let* () = S.delete_sensitive_data uuid in
   let@ dates, set = S.update (Election (uuid, Dates)) in
   let&! dates = Lopt.get_value dates in
-  set Value { dates with archive = Some (Unix.gettimeofday ()) }
+  set Value { dates with archive = Some (datetime_now ()) }
 
 exception Validation_error of Belenios_web_api.validation_error
 
@@ -361,7 +361,7 @@ let validate_election_exn s uuid =
   let* () = S.del (Election (uuid, Private_creds)) in
   (* finish *)
   let* () = S.set (Election (uuid, State)) Value `Closed in
-  set_dates Value { dates with finalization = Some (Unix.gettimeofday ()) }
+  set_dates Value { dates with finalization = Some (datetime_now ()) }
 
 let validate_election s uuid =
   Lwt.try_bind

@@ -25,6 +25,9 @@ open Js_of_ocaml
 
 let belenios = Js.Unsafe.pure_js_expr "belenios"
 
+let datetime_now () =
+  Int64.of_float (Js.to_float (new%js Js.date_now)##valueOf /. 1000.)
+
 module Debug = struct
   [%%if js_of_ocaml_version < (6, 0)]
 

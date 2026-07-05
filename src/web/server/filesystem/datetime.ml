@@ -48,4 +48,6 @@ let wrap s =
 let compare = Calendar.Precise.compare
 let format ?(fmt = datetime_format) a = Printer.Precise_Calendar.sprint fmt a
 let to_unixfloat a = Calendar.Precise.to_unixfloat a |> Float.round
+let to_int64 a = to_unixfloat a |> Int64.of_float
 let from_unixfloat t = Calendar.Precise.from_unixfloat t
+let from_int64 t = from_unixfloat (Int64.to_float t)

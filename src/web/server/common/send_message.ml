@@ -145,7 +145,7 @@ let send ?internal (msg : message) =
   in
   let headers, _ = contents in
   let token = generate_token 6 in
-  let date = Unix.gettimeofday () |> Float.round |> Float.to_string in
+  let date = datetime_now () |> Int64.to_string in
   let message_id = Printf.sprintf "<%s%s@%s>" date token !Web_config.domain in
   headers#update_field "Message-ID" message_id;
   headers#update_field "Belenios-Domain" !Web_config.domain;

@@ -52,7 +52,7 @@ let create_account s ~name ~email (user : user) =
     | None -> Lwt.fail (Failure "impossible to create a new account")
     | Some x -> cont x
   in
-  let last_connected = Unix.gettimeofday () in
+  let last_connected = datetime_now () in
   let name =
     match name with
     | None ->

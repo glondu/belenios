@@ -79,13 +79,13 @@ let rec show main uuid =
   in
   let get_date k (_, get) =
     let y = get () in
-    if y = "" then None else Some (k.to_float y)
+    if y = "" then None else Some (k.to_float y |> Int64.of_float)
   in
   let* auto_dates =
     let* x = Api.(get (election_auto_dates uuid) `Nobody) in
     let@ dates, ifmatch = with_ok "automatic-dates" x in
     let make_input k d =
-      let value = Option.map k.of_float d in
+      let value = Option.map (Int64.to_float >> k.of_float) d in
       input ?value `Text
     in
     let auto_open = make_input date_kind dates.open_ in

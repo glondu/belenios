@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+val datetime_now : unit -> int64
+
 module Debug : sig
   val debug : string -> unit
 end

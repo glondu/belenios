@@ -26,5 +26,5 @@ val wrap : string -> t
 val unwrap : t -> string
 val compare : t -> t -> int
 val format : ?fmt:string -> t -> string
-val to_unixfloat : t -> float
-val from_unixfloat : float -> t
+val to_int64 : t -> int64
+val from_int64 : int64 -> t

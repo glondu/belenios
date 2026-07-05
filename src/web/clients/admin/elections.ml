@@ -44,8 +44,8 @@ let read_full file =
   t
 
 (* FIXME: get timezone offset from browser *)
-let datestring_of_float x =
-  let x = new%js Js.date_fromTimeValue (Js.float (x *. 1000.)) in
+let datestring_of_int64 x =
+  let x = new%js Js.date_fromTimeValue (Js.float (Int64.to_float x *. 1000.)) in
   let res = Js.to_string x##toISOString in
   String.sub res 0 (String.length res - 5)
 
@@ -988,7 +988,7 @@ let voters_content () =
     let data =
       List.map
         (fun (x : voting_record) ->
-          datestring_of_float x.date ^ " " ^ x.username)
+          datestring_of_int64 x.date ^ " " ^ x.username)
         records
     in
     let uuid = get_current_uuid () |> Uuid.to_string in
@@ -1077,11 +1077,11 @@ let dates_content () =
     let () =
       match get dates with
       | None -> ()
-      | Some x -> r##.value := Js.string (k.of_float x)
+      | Some x -> r##.value := Js.string (k.of_float @@ Int64.to_float x)
     in
     let sync () =
       let x = inp_get () in
-      let d = if x = "" then None else Some (k.to_float x) in
+      let d = if x = "" then None else Some (k.to_float x |> Int64.of_float) in
       let* dates = Cache.get Cache.e_dates in
       match dates with
       | Error msg ->
@@ -1965,7 +1965,7 @@ let open_close_content () =
   Lwt.return [ h2 [ txt curr ]; div [ but ] ]
 
 let pretty_timestamp x =
-  let x = new%js Js.date_fromTimeValue (Js.float (x *. 1000.)) in
+  let x = new%js Js.date_fromTimeValue (Js.float (Int64.to_float x *. 1000.)) in
   Js.to_string x##toLocaleString
 
 let status_content () =

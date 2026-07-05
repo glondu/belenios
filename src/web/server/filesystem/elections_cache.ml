@@ -142,7 +142,7 @@ module Make (I : INPUT) () = struct
     in
     let&* (W (_, Draft (_, se))) = se in
     let t = se.creation_date in
-    let next_t = t +. (86400. *. Defaults.days_to_delete) in
+    let next_t = add_days t Defaults.days_to_delete in
     Lwt.return_some (`Destroy, uuid, next_t)
 
   let extract_automatic_data_validated s uuid =
@@ -161,19 +161,19 @@ module Make (I : INPUT) () = struct
     match state with
     | `Draft ->
         let t = dates.creation in
-        let next_t = t +. (86400. *. Defaults.days_to_delete) in
+        let next_t = add_days t Defaults.days_to_delete in
         Lwt.return_some (`Destroy, uuid, next_t)
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
         let t = Option.value dates.finalization ~default:dates.creation in
-        let next_t = t +. (86400. *. Defaults.days_to_delete) in
+        let next_t = add_days t Defaults.days_to_delete in
         Lwt.return_some (`Delete, uuid, next_t)
     | `Tallied ->
         let t = Option.value dates.tally ~default:dates.creation in
-        let next_t = t +. (86400. *. Defaults.days_to_archive) in
+        let next_t = add_days t Defaults.days_to_archive in
         Lwt.return_some (`Archive, uuid, next_t)
     | `Archived ->
         let t = Option.value dates.archive ~default:dates.creation in
-        let next_t = t +. (86400. *. Defaults.days_to_delete) in
+        let next_t = add_days t Defaults.days_to_delete in
         Lwt.return_some (`Delete, uuid, next_t)
 
   let try_extract extract s uuid =
