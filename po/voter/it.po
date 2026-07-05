@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2026-04-29 17:09+0000\n"
+"PO-Revision-Date: 2026-07-06 13:31+0000\n"
 "Last-Translator: albanobattistella <albano_battistella@hotmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/voter/"
 "it/>\n"
@@ -13,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17.1-dev\n"
+"X-Generator: Weblate 2026.7.1.dev0\n"
 
 #: src/web/server/common/pages_common.ml:349
 msgid " (if you forgot it, for example)."
@@ -135,8 +134,8 @@ msgstr "Secondo il Giudizio Maggioritario, la classifica è:"
 msgid "Administer elections"
 msgstr "Per amministrare elezioni"
 
-#: src/web/clients/election/common.ml:62
 #. src/web/server/common/pages_common.ml:102
+#: src/web/clients/election/common.ml:62
 msgid "Administer this election"
 msgstr "Amministrare questa elezione"
 
@@ -172,9 +171,9 @@ msgstr "Dati di audit non disponibili."
 msgid "Audit data: "
 msgstr "Dati di audit: "
 
-#: src/web/server/common/pages_common.ml:511
 #. src/web/server/common/pages_common.ml:413
 #. src/web/server/common/pages_common.ml:321
+#: src/web/server/common/pages_common.ml:511
 msgid "Authenticate"
 msgstr "Autenticarsi"
 
@@ -269,14 +268,14 @@ msgstr "Autorità delle Credenziali"
 msgid "Credentials fingerprint"
 msgstr "Credenziali impronte digitali"
 
-#: src/web/server/common/mails_voter.ml:256
 #. src/web/server/common/mails_voter.ml:202
+#: src/web/server/common/mails_voter.ml:256
 msgid "Dear %s,"
 msgstr "Car* %s,"
 
-#: src/web/server/common/pages_common.ml:540
 #. src/web/server/common/pages_common.ml:356
 #. src/web/server/common/pages_common.ml:288
+#: src/web/server/common/pages_common.ml:540
 msgid "E-mail address:"
 msgstr "Indirizzo di posta elettronica:"
 
@@ -340,8 +339,8 @@ msgstr "Accesso non consentito"
 msgid "Get the source code"
 msgstr "Scaricare il codice sorgente"
 
-#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 #. src/web/common/pages_common.ml:271
+#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
 msgstr "Torna alle elezioni"
 
@@ -384,10 +383,10 @@ msgstr "Lingua:"
 msgid "Loading..."
 msgstr "Caricamento in corso..."
 
-#: src/web/server/common/pages_common.ml:510
 #. src/web/server/common/pages_common.ml:412
 #. src/web/server/common/pages_common.ml:320
 #. src/web/server/common/pages_common.ml:280
+#: src/web/server/common/pages_common.ml:510
 msgid "Log in"
 msgstr "Accedi"
 
@@ -465,9 +464,9 @@ msgstr "Si prega di votare utilizzando il vostro link personale:"
 msgid "Powered by "
 msgstr "Opera con "
 
-#: src/web/clients/election/advanced.ml:221
 #. src/web/server/common/pages_common.ml:233
 #. src/web/server/common/pages_common.ml:225
+#: src/web/clients/election/advanced.ml:221
 msgid "Proceed"
 msgstr "Procedere"
 
@@ -521,23 +520,23 @@ msgstr ""
 "Esistono diverse tecniche per decidere quale candidato eleggere quando non "
 "c'è un vincitore secondo Condorcet."
 
-#: src/web/clients/jslib/belenios_jslib.ml:276
 #. src/web/clients/jslib/belenios_jslib.ml:262
+#: src/web/clients/jslib/belenios_jslib.ml:276
 msgid "Smart ballot tracker"
 msgstr "Tracciatore intelligente delle schede elettorali"
 
 #: src/web/common/pages_common.ml:71
 msgid "Specification"
-msgstr ""
+msgstr "Specifiche"
 
 #: src/web/clients/election/home.ml:761
 msgid "Start"
 msgstr "Avviare"
 
-#: src/web/clients/election/advanced.ml:101
 #. src/web/clients/election/advanced.ml:62
 #. src/web/server/common/pages_common.ml:554
 #. src/web/server/common/pages_common.ml:470
+#: src/web/clients/election/advanced.ml:101
 msgid "Submit"
 msgstr "Inviare"
 
@@ -657,9 +656,9 @@ msgstr "Tipologia di domanda non supportata"
 msgid "Use the following code:"
 msgstr "Utilizzi il seguente codice per confermare il voto:"
 
-#: src/web/server/common/pages_common.ml:355
 #. src/web/server/common/pages_common.ml:287
 #. src/web/server/common/mails_voter.ml:135
+#: src/web/server/common/pages_common.ml:355
 msgid "Username:"
 msgstr "Nome utente:"
 
@@ -905,4 +904,3 @@ msgstr "il suo codice di voto non è valido"
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "il suo nome utente è errato"
-
