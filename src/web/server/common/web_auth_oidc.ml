@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt
 open Lwt.Syntax
 open Eliom_service
@@ -26,6 +27,27 @@ open Belenios
 open Belenios_storage_api
 open Belenios_web_api
 open Web_common
+
+type oidc_configuration = {
+  authorization_endpoint : string;
+  token_endpoint : string;
+  userinfo_endpoint : string;
+}
+[@@deriving yojson] [@@yojson.allow_extra_fields]
+
+type oidc_tokens = {
+  access_token : string;
+  token_type : string;
+  id_token : string;
+}
+[@@deriving yojson] [@@yojson.allow_extra_fields]
+
+type oidc_userinfo = {
+  sub : string;
+  name : string option; [@yojson.option]
+  email : string option; [@yojson.option]
+}
+[@@deriving yojson] [@@yojson.allow_extra_fields]
 
 module Make (Web_services : Web_services_sig.S) (Web_auth : Web_auth_sig.S) =
 struct

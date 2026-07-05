@@ -30,4 +30,4 @@
   web_auth_sig)
  (preprocessor_deps ../../../platform/config.mlh)
  (preprocess
-  (pps ppx_optcomp ppx_yojson_group)))
+  (pps ppx_optcomp ppx_yojson_conv ppx_yojson_group)))

@@ -461,26 +461,3 @@ type connect_context = {
   username : string option; [@yojson.option]
 }
 [@@deriving yojson]
-
-(** {1 OpenID Connect-related types} *)
-
-type oidc_configuration = {
-  authorization_endpoint : string;
-  token_endpoint : string;
-  userinfo_endpoint : string;
-}
-[@@deriving yojson]
-
-type oidc_tokens = {
-  access_token : string;
-  token_type : string;
-  id_token : string;
-}
-[@@deriving yojson]
-
-type oidc_userinfo = {
-  sub : string;
-  name : string option; [@yojson.option]
-  email : string option; [@yojson.option]
-}
-[@@deriving yojson]
