@@ -31,7 +31,6 @@ type 'a file = 'a Election_ops.file
 
 let () = Stdlib.Random.self_init ()
 let ( let&** ) x f = match x with None -> Lopt.none_lwt | Some x -> f x
-let archive_filename uuid = Printf.sprintf "%s.bel" (Uuid.to_string uuid)
 
 let some_string_or_value (type a b) (f : a file)
     (spec : (a, b) string_or_value_spec) (x : b) =
@@ -320,6 +319,7 @@ module MakeBackend
     | Concrete : string * kind * 'a serializers option -> 'a election_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
+  let archive_filename = "archive.bel"
   let public_creds_filename = "public_creds.json"
   let server_seed_filename = "server_seed.txt"
   let private_keys_filename = "private_keys.jsons"
@@ -1236,7 +1236,7 @@ module MakeBackend
           `Elections records_filename;
           `Elections skipped_shufflers_filename;
           `Elections shuffle_token_filename;
-          `Elections (archive_filename uuid);
+          `Elections archive_filename;
         ]
     in
     Elections_cache.clear ();
@@ -1360,7 +1360,7 @@ module MakeBackend
       | None -> raise Creation_not_requested
       | Some x -> (x.height + 100, x.pos)
     in
-    let filename = spool_elections uuid (archive_filename uuid) in
+    let filename = spool_elections uuid archive_filename in
     let*& map, roots, timestamp = build_roots ~size ~pos filename in
     let remove () = Hashtbl.remove indexes uuid in
     let timeout = Lwt_timeout.create 3600 remove in
@@ -1428,14 +1428,14 @@ module MakeBackend
       (fun () -> get_index ~creat:false uuid)
       (fun r ->
         let&** r = r in
-        let filename = spool_elections uuid (archive_filename uuid) in
+        let filename = spool_elections uuid archive_filename in
         gethash ~index:r.map ~filename x)
       (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
 
   let () = data_ops.get <- get_data
 
   let get_archive_header uuid () =
-    let filename = spool_elections uuid (archive_filename uuid) in
+    let filename = spool_elections uuid archive_filename in
     let@ ic = Lwt_io.with_file ~mode:Lwt_io.input filename in
     let* header = Reader.read_header ic in
     Lwt.return @@ Lopt.some_value !+Archive.yojson_of_header header
@@ -1493,7 +1493,7 @@ module MakeBackend
     let last_hash = match last_hash with None -> assert false | Some x -> x in
     let items = List.rev items in
     let* last_pos, records =
-      let filename = spool_elections uuid (archive_filename uuid) in
+      let filename = spool_elections uuid archive_filename in
       raw_append ~filename ~timestamp:index.timestamp pos items
     in
     let* () =
