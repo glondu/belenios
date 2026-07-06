@@ -251,7 +251,6 @@ let post_drafts account draft =
       public_creds = token;
       public_creds_received = false;
       public_creds_certificate = None;
-      creation_date = datetime_now ();
       administrator = None;
       credential_authority_visited = false;
       voter_authentication_visited = false;
@@ -260,11 +259,18 @@ let post_drafts account draft =
       private_creds_downloaded = false;
     }
   in
+  let dates =
+    {
+      Belenios_storage_api.default_election_dates with
+      creation = datetime_now ();
+    }
+  in
   let* uuid = Storage.new_election () in
   let&* uuid = uuid in
   let se = draft_of_api account uuid (Draft (v, se)) draft in
   let* () =
     let@ s = Storage.E.with_transaction uuid in
+    let* () = Storage.E.set s Dates Value dates in
     Web_persist.create_draft s (W ((module G), se))
   in
   Lwt.return_some uuid

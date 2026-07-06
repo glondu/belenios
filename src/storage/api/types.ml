@@ -140,7 +140,6 @@ type ('a, 'b) raw_draft_election = {
   mutable public_creds_received : bool;
   mutable public_creds_certificate : ('a, 'b) credentials_certificate option;
       [@yojson.option]
-  creation_date : int64;
   mutable administrator : string option; [@yojson.option]
   mutable credential_authority_visited : bool;
       [@default false] [@yojson_drop_default ( = )]

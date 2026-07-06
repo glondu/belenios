@@ -85,8 +85,8 @@ module Make (I : INPUT) () = struct
     let item : Belenios_web_api.summary = { uuid; state; date; name } in
     Lwt.return (metadata.owners, item)
 
-  let get_draft_election_summary uuid se =
-    let date = se.creation_date in
+  let get_draft_election_summary uuid se dates =
+    let date = dates.creation in
     let name = se.questions.name in
     let item : Belenios_web_api.summary =
       { uuid; date; name; state = `Draft }
@@ -98,7 +98,11 @@ module Make (I : INPUT) () = struct
     match Lopt.get_value draft with
     | None -> get_live_election_summary s uuid
     | Some (W (_, Draft (_, se))) ->
-        Lwt.return @@ get_draft_election_summary uuid se
+        let@ dates cont =
+          let* x = I.get s (Election (uuid, Dates)) in
+          match Lopt.get_value x with None -> assert false | Some x -> cont x
+        in
+        Lwt.return @@ get_draft_election_summary uuid se dates
 
   let umap_add user x map =
     let xs = match IMap.find_opt user map with None -> [] | Some xs -> xs in
@@ -135,13 +139,13 @@ module Make (I : INPUT) () = struct
     | Some xs -> Lwt.return xs
 
   let extract_automatic_data_draft s uuid =
-    let* se =
-      let* x = I.get s (Election (uuid, Draft)) in
+    let* dates =
+      let* x = I.get s (Election (uuid, Dates)) in
       let&* x = Lopt.get_value x in
       Lwt.return_some x
     in
-    let&* (W (_, Draft (_, se))) = se in
-    let t = se.creation_date in
+    let&* dates = dates in
+    let t = dates.creation in
     let next_t = add_days t Defaults.days_to_delete in
     Lwt.return_some (`Destroy, uuid, next_t)
 

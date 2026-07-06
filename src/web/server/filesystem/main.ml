@@ -698,20 +698,7 @@ module MakeBackend
     in
     let* dates =
       match raw_dates with
-      | None ->
-          let@ draft cont =
-            let* x = get (Election (uuid, Draft)) in
-            match Lopt.get_value x with
-            | None -> Lwt.return_none
-            | Some x -> cont x
-          in
-          let (W (_, Draft (_, se))) = draft in
-          Lwt.return_some
-            {
-              Belenios_storage_api.default_election_dates with
-              creation = se.creation_date;
-              publish = e_date_publish;
-            }
+      | None -> assert false
       | Some d ->
           let d = !*Types.election_dates_of_yojson (String.trim d) in
           Lwt.return_some
