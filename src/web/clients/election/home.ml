@@ -155,9 +155,13 @@ let make_audit_div (election : Election.t) cache =
       ~a:[ a_id id ]
       (List.map
          (fun (x : trustee_checksum) ->
+           let name =
+             match x.name with None -> em [ txt "(server)" ] | Some x -> txt x
+           in
            li
              [
-               Printf.ksprintf txt "%s " (Option.value ~default:"server" x.name);
+               name;
+               txt " ";
                code [ Printf.ksprintf txt "(%s)" (Hash.to_b64 x.checksum) ];
              ])
          xs)

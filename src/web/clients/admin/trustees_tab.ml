@@ -108,7 +108,7 @@ let recompute_main_zone_1 () =
         td
           ~a:[ a_class [ "emph" ] ]
           [ txt @@ s_ "The server is always one of the trustees" ];
-        td [ txt "server" ];
+        td [ em [ txt "(server)" ] ];
         td [];
       ]
   in
@@ -362,7 +362,7 @@ let recompute_main_zone_3 () =
         td
           ~a:[ a_class [ "emph" ] ]
           [ txt @@ s_ "The server is always one of the trustees" ];
-        td [ txt "server" ];
+        td [ em [ txt "(server)" ] ];
         td [];
       ]
   in
