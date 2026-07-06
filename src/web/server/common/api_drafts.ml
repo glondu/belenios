@@ -80,8 +80,8 @@ let authentication_of_auth_config = function
       Some (`Configured auth_instance)
   | _ -> None
 
-let get_authentication se =
-  authentication_of_auth_config se.metadata.auth_config
+let get_authentication metadata =
+  authentication_of_auth_config metadata.auth_config
 
 let auth_config_of_authentication = function
   | Some (`CAS server) ->
@@ -106,12 +106,12 @@ let auth_config_of_authentication = function
         ]
   | None -> None
 
-let api_of_draft (Draft (v, se)) =
+let api_of_draft (Draft (v, se)) metadata =
   let questions =
     {
       se.questions with
       credential_authority =
-        Some (Option.value se.metadata.cred_authority ~default:"");
+        Some (Option.value metadata.cred_authority ~default:"");
       administrator = Some (Option.value se.administrator ~default:"");
     }
   in
@@ -122,18 +122,18 @@ let api_of_draft (Draft (v, se)) =
            version = se.version;
            owners = se.owners;
            questions;
-           languages = Option.value se.metadata.languages ~default:[];
-           contact = se.metadata.contact;
-           booth = Option.value se.metadata.booth_version ~default:1;
-           authentication = get_authentication se;
+           languages = Option.value metadata.languages ~default:[];
+           contact = metadata.contact;
+           booth = Option.value metadata.booth_version ~default:1;
+           authentication = get_authentication metadata;
            group = se.group;
-           cred_authority_info = se.metadata.cred_authority_info;
+           cred_authority_info = metadata.cred_authority_info;
          } ))
 
 let assert_ msg b f = if b then f () else raise (Error msg)
 
-let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
-    =
+let draft_of_api a uuid (Draft (v, se) as fse) metadata
+    (Belenios_web_api.Draft (v', d)) =
   let version = se.version in
   let@ Equal =
    fun cont ->
@@ -149,7 +149,7 @@ let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
   let@ () = assert_ (`Invalid "owners") (List.mem a.id d.owners) in
   let e_cred_authority = d.questions.credential_authority in
   let () =
-    let old = se.metadata.cred_authority in
+    let old = metadata.cred_authority in
     if e_cred_authority <> old then
       if
         Web_persist.get_credentials_status uuid fse <> `None
@@ -158,7 +158,7 @@ let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
   in
   let e_cred_authority_info = d.cred_authority_info in
   let () =
-    let old = se.metadata.cred_authority_info in
+    let old = metadata.cred_authority_info in
     if e_cred_authority_info <> old && se.public_creds_received then
       raise (Error (`CannotChange "credential authority info"))
   in
@@ -183,9 +183,9 @@ let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
       | "RFC-3526-2048" | "Ed25519" -> ()
       | _ -> raise (Error (`Invalid "NH group"))
   in
-  let se_metadata =
+  let metadata =
     {
-      se.metadata with
+      metadata with
       contact = d.contact;
       languages = Some d.languages;
       booth_version = Some d.booth;
@@ -196,13 +196,12 @@ let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
   in
   {
     se with
-    metadata = se_metadata;
     owners = d.owners;
     questions = d.questions;
     administrator = d.questions.administrator;
     group = se_group;
   }
-  |> fun x -> Draft (v, x)
+  |> fun x -> (Draft (v, x), metadata)
 
 let post_drafts account draft =
   let@ () =
@@ -210,7 +209,7 @@ let post_drafts account draft =
   in
   let owners = [ account.id ] in
   let token = generate_token 22 in
-  let se_metadata =
+  let metadata =
     {
       owners;
       auth_config = None;
@@ -247,7 +246,6 @@ let post_drafts account draft =
       voters = [];
       questions = se_questions;
       trustees = `Basic { trustees = [] };
-      metadata = se_metadata;
       public_creds = token;
       public_creds_received = false;
       public_creds_certificate = None;
@@ -267,10 +265,11 @@ let post_drafts account draft =
   in
   let* uuid = Storage.new_election () in
   let&* uuid = uuid in
-  let se = draft_of_api account uuid (Draft (v, se)) draft in
+  let se, metadata = draft_of_api account uuid (Draft (v, se)) metadata draft in
   let* () =
     let@ s = Storage.E.with_transaction uuid in
     let* () = Storage.E.set s Dates Value dates in
+    let* () = Storage.E.set s Metadata Value metadata in
     Web_persist.create_draft s (W ((module G), se))
   in
   Lwt.return_some uuid
@@ -334,21 +333,22 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
   let se = { se with voters = se_voters } in
   set (Draft (v, se))
 
-let get_credentials_token (Draft (_, se)) =
-  if se.metadata.cred_authority = Some "server" then Lwt.return_none
+let get_credentials_token (Draft (_, se)) metadata =
+  if metadata.cred_authority = Some "server" then Lwt.return_none
   else Lwt.return_some @@ se.public_creds
 
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
 
-let generate_credentials_on_server account uuid (Draft (_, se) as draft) =
+let generate_credentials_on_server account uuid (Draft (_, se) as draft)
+    metadata =
   let nvoters = List.length se.voters in
   if nvoters > Accounts.max_voters account then
     Lwt.return (Stdlib.Error `TooManyVoters)
   else if nvoters = 0 then Lwt.return (Stdlib.Error `NoVoters)
   else if Web_persist.get_credentials_status uuid draft <> `None then
     Lwt.return (Stdlib.Error `Already)
-  else if se.metadata.cred_authority <> Some "server" then
+  else if metadata.cred_authority <> Some "server" then
     Lwt.return (Stdlib.Error `NoServer)
   else
     let () = Web_persist.generate_credentials_on_server_async uuid draft in
@@ -662,9 +662,9 @@ let reset_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing) =
   se.trustees_setup_step <- 1;
   set (Draft (v, se))
 
-let get_draft_status uuid (Draft (v, se)) =
+let get_draft_status uuid (Draft (v, se)) metadata =
   let* private_credentials_downloaded =
-    if se.metadata.cred_authority = Some "server" then
+    if metadata.cred_authority = Some "server" then
       Lwt.return_some se.private_creds_downloaded
     else Lwt.return_none
   in
@@ -677,9 +677,9 @@ let get_draft_status uuid (Draft (v, se)) =
   let has_weights = has_explicit_weights se.voters in
   let restricted_mode_error =
     if !Web_config.restricted_mode then
-      if se.metadata.cred_authority = Some "server" then Some `AutoCredentials
+      if metadata.cred_authority = Some "server" then Some `AutoCredentials
       else if
-        match se.metadata.auth_config with
+        match metadata.auth_config with
         | Some [ { auth_system = "import"; _ } ] -> false
         | _ -> true
       then Some `VoterAuthentication
@@ -922,7 +922,8 @@ let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
 
 let post_draft_status ~admin_id s uuid
     (((W (w, Draft (v, se)) as wse), set) :
-      wrapped_draft_election updatable_with_billing) = function
+      wrapped_draft_election updatable_with_billing)
+    ((metadata, set_metadata) : _ updatable) = function
   | `SetDownloaded ->
       let* () =
         if se.private_creds_downloaded then Lwt.return_unit
@@ -932,8 +933,11 @@ let post_draft_status ~admin_id s uuid
       in
       ok
   | `ValidateElection ->
-      let* status = get_draft_status uuid (Draft (v, se)) in
-      let* () = Web_persist.validate_election ~admin_id s (wse, set) status in
+      let* status = get_draft_status uuid (Draft (v, se)) metadata in
+      let* () =
+        Web_persist.validate_election ~admin_id s wse (metadata, set_metadata)
+          status
+      in
       ok
   | `SetCredentialAuthorityVisited ->
       let* () =
@@ -963,7 +967,7 @@ let post_draft_status ~admin_id s uuid
       in
       ok
   | `InitiateCredentialAuthorityProtocol -> (
-      match se.metadata.cred_authority_info with
+      match metadata.cred_authority_info with
       | Some info when not se.public_creds_received ->
           Lwt.async
             (initiate_credential_authority_protocol ~uuid ~info ~admin_id
@@ -975,12 +979,18 @@ let () =
   Billing.validate :=
     fun ~admin_id uuid ->
       let@ s = Storage.E.with_transaction uuid in
-      let@ se, set = Storage.E.update s Draft in
-      match Lopt.get_value se with
-      | None -> not_found
-      | Some se ->
-          let set ?billing:_ x = set Value x in
-          post_draft_status ~admin_id s uuid (se, set) `ValidateElection
+      let@ se cont =
+        let@ x, set = Storage.E.update s Draft in
+        let set ?billing:_ x = set Value x in
+        match Lopt.get_value x with None -> not_found | Some x -> cont (x, set)
+      in
+      let@ metadata cont =
+        let@ x, set = Storage.E.update s Metadata in
+        match Lopt.get_value x with
+        | None -> assert false
+        | Some x -> cont (x, fun x -> set Value x)
+      in
+      post_draft_status ~admin_id s uuid se metadata `ValidateElection
 
 let post_trustee_basic (type a b) (w : (a, b) group)
     (((Draft (_, se) as fse), set) : _ updatable_with_billing) ~token data =
@@ -1130,7 +1140,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
   set fse
 
 let dispatch_credentials ~token endpoint method_ body s uuid
-    ((wse, wset) : _ updatable_with_billing) =
+    ((wse, wset) : _ updatable_with_billing) metadata =
   let (W (w, se) : wrapped_draft_election) = wse in
   let module G = (val w) in
   let set ?billing x = wset ?billing (W (w, x)) in
@@ -1139,7 +1149,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
       let@ _ = with_administrator token se in
       match method_ with
       | `GET -> (
-          let* x = get_credentials_token se in
+          let* x = get_credentials_token se metadata in
           match x with
           | None -> not_found
           | Some x -> return_generic { mime = "text/plain"; content = String x }
@@ -1173,7 +1183,9 @@ let dispatch_credentials ~token endpoint method_ body s uuid
             match (who, x) with
             | `Administrator account, [] -> (
                 let@ () = handle_generic_error in
-                let* x = generate_credentials_on_server account uuid se in
+                let* x =
+                  generate_credentials_on_server account uuid se metadata
+                in
                 match x with
                 | Ok () -> ok
                 | Error e ->
@@ -1187,7 +1199,8 @@ let dispatch_credentials ~token endpoint method_ body s uuid
   | _ -> not_found
 
 let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
-    ((wse, wset) : _ updatable_with_billing) =
+    ((wse, wset) : _ updatable_with_billing)
+    ((metadata, set_metadata) : _ updatable) =
   let (W (w, se) : wrapped_draft_election) = wse in
   let module G = (val w) in
   let set ?billing x = wset ?billing (W (w, x)) in
@@ -1195,7 +1208,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
   | [] -> (
       let@ who = with_administrator_or_nobody token se in
       let get () =
-        let* x = api_of_draft se in
+        let* x = api_of_draft se metadata in
         Lwt.return @@ yojson_of_draft x
       in
       match (method_, who) with
@@ -1204,14 +1217,16 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_ifmatch ifmatch get in
           let@ draft = body.run !*draft_of_yojson in
           let@ () = handle_generic_error in
-          let se = draft_of_api account uuid se draft in
+          let se, metadata = draft_of_api account uuid se metadata draft in
           let* () = set se in
+          let* () = set_metadata metadata in
           ok
       | `POST, `Administrator a ->
           let@ () = handle_ifmatch ifmatch get in
           let@ x = body.run !*draft_request_of_yojson in
           let@ () = handle_generic_error in
-          post_draft_status ~admin_id:a.id s uuid (wse, wset) x
+          post_draft_status ~admin_id:a.id s uuid (wse, wset)
+            (metadata, set_metadata) x
       | _ -> method_not_allowed)
   | [ "voters" ] -> (
       let@ who = with_administrator_or_credential_authority token se in
@@ -1249,6 +1264,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       | _ -> method_not_allowed)
   | "credentials" :: endpoint ->
       dispatch_credentials ~token endpoint method_ body s uuid (wse, wset)
+        metadata
   | [ "trustee" ] -> (
       let@ trustee = with_trustee token se in
       let get () =
@@ -1377,7 +1393,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       match method_ with
       | `GET ->
           let@ () = handle_generic_error in
-          let* x = get_draft_status uuid se in
+          let* x = get_draft_status uuid se metadata in
           return_json 200 (!+yojson_of_draft_status x)
       | _ -> method_not_allowed)
   | _ -> not_found

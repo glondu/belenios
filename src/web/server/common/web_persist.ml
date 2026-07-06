@@ -59,11 +59,7 @@ let get_election_metadata s =
   let* x = Storage.E.get s Metadata in
   match Lopt.get_value x with
   | Some x -> Lwt.return x
-  | None -> (
-      let* x = Storage.E.get s Draft in
-      match Lopt.get_value x with
-      | Some (W (_, Draft (_, x))) -> Lwt.return x.metadata
-      | None -> Lwt.return empty_metadata)
+  | None -> Lwt.return empty_metadata
 
 let seal_election s seal =
   let@ x, set = Storage.E.update s Metadata in
@@ -682,8 +678,8 @@ let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
       Lwt.return_unit)
 
 let validate_election ~admin_id storage
-    ((W (w, Draft (v, se)), set) :
-      wrapped_draft_election updatable_with_billing) s =
+    (W (_, Draft (v, se)) : wrapped_draft_election)
+    ((metadata, set_metadata) : metadata updatable) s =
   let uuid = Storage.E.get_uuid storage in
   let open Belenios_web_api in
   let questions =
@@ -693,7 +689,7 @@ let validate_election ~admin_id storage
     in
     let credential_authority =
       match x.credential_authority with
-      | None -> se.metadata.cred_authority
+      | None -> metadata.cred_authority
       | x -> x
     in
     { x with administrator; credential_authority }
@@ -711,7 +707,7 @@ let validate_election ~admin_id storage
     | _ -> ()
   in
   let@ _check_cas_server (cont : unit -> _) =
-    match se.metadata.auth_config with
+    match metadata.auth_config with
     | Some [ { auth_system = "cas"; auth_config; _ } ] -> (
         match List.assoc_opt "server" auth_config with
         | None -> validation_error `BadAuthentication
@@ -749,15 +745,12 @@ let validate_election ~admin_id storage
   in
   (* billing *)
   let* () =
-    match (!Web_config.billing, se.metadata.billing_request) with
+    match (!Web_config.billing, metadata.billing_request) with
     | None, _ -> Lwt.return_unit
     | Some (url, callback), None ->
         let* id = Billing.create ~admin_id ~uuid ~nb_voters:s.num_voters in
-        let metadata = { se.metadata with billing_request = Some id } in
-        let se = { se with metadata } in
-        let* () =
-          set ~billing:true (W (w, Draft (v, se)) : wrapped_draft_election)
-        in
+        let metadata = { metadata with billing_request = Some id } in
+        let* () = set_metadata metadata in
         validation_error (`MissingBilling { url; id; callback })
     | Some (url, callback), Some id ->
         let* b = Billing.check ~url ~id in
@@ -766,7 +759,7 @@ let validate_election ~admin_id storage
   in
   (* send private credentials *)
   let* () =
-    match se.metadata.cred_authority_info with
+    match metadata.cred_authority_info with
     | None ->
         let* private_creds = Storage.E.get storage Private_creds in
         send_credentials storage ~admin_id (Draft (v, se)) private_creds

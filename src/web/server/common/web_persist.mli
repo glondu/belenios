@@ -71,7 +71,8 @@ val get_username_or_address : Storage.E.t -> [ `Username | `Address ] Lwt.t
 val validate_election :
   admin_id:int ->
   Storage.E.t ->
-  wrapped_draft_election updatable_with_billing ->
+  wrapped_draft_election ->
+  metadata updatable ->
   Belenios_web_api.draft_status ->
   unit Lwt.t
 

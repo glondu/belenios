@@ -27,10 +27,15 @@ open Web_common
 val authentication_of_auth_config :
   auth_config list option -> authentication option
 
-val api_of_draft : ('a, 'b) draft_election -> draft Lwt.t
+val api_of_draft : ('a, 'b) draft_election -> metadata -> draft Lwt.t
 
 val draft_of_api :
-  account -> uuid -> ('a, 'b) draft_election -> draft -> ('a, 'b) draft_election
+  account ->
+  uuid ->
+  ('a, 'b) draft_election ->
+  metadata ->
+  draft ->
+  ('a, 'b) draft_election * metadata
 
 val post_drafts : account -> draft -> uuid option Lwt.t
 val get_draft_voters : ('a, 'b) draft_election -> voter_list
@@ -45,6 +50,7 @@ val generate_credentials_on_server :
   account ->
   uuid ->
   ('a, 'b) draft_election ->
+  metadata ->
   (unit, generate_credentials_on_server_error) Stdlib.result Lwt.t
 
 val exn_of_generate_credentials_on_server_error :
@@ -90,7 +96,8 @@ val put_draft_trustees_mode :
   [ `Basic | `Threshold of int ] ->
   unit Lwt.t
 
-val get_draft_status : uuid -> ('a, 'b) draft_election -> draft_status Lwt.t
+val get_draft_status :
+  uuid -> ('a, 'b) draft_election -> metadata -> draft_status Lwt.t
 
 val merge_voters :
   draft_voter list ->
@@ -145,4 +152,5 @@ val dispatch_draft :
   Storage.E.t ->
   uuid ->
   wrapped_draft_election updatable_with_billing ->
+  metadata updatable ->
   result Lwt.t

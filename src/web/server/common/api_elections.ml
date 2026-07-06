@@ -701,13 +701,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
             let* () =
               match Lopt.get_value x with
               | Some x -> set Value { x with logo }
-              | None -> (
-                  let@ x, set = Storage.E.update s Draft in
-                  match Lopt.get_value x with
-                  | Some (W (w, Draft (v, x))) ->
-                      let metadata = { x.metadata with logo } in
-                      set Value (W (w, Draft (v, { x with metadata })))
-                  | None -> Lwt.return_unit)
+              | None -> assert false
             in
             ok
       in
@@ -838,14 +832,10 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | `GET -> handle_get get
       | `PUT ->
           let@ metadata cont =
-            let* draft = Storage.E.get s Draft in
-            match Lopt.get_value draft with
-            | Some (W (_, Draft (_, se))) -> cont se.metadata
-            | None ->
-                let* raw = Public_archive.get_election s in
-                let@ _ = Option.unwrap not_found (Lopt.get_string raw) in
-                let* metadata = Web_persist.get_election_metadata s in
-                cont metadata
+            let* x = Storage.E.get s Metadata in
+            match Lopt.get_value x with
+            | Some x -> cont x
+            | None -> assert false
           in
           let@ _ = with_administrator token metadata in
           let@ () =
@@ -863,31 +853,31 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       let@ s = Storage.E.with_transaction uuid in
       let@ se, set = Storage.E.update s Draft in
       let@ se = Option.unwrap not_found (Lopt.get_value se) in
-      let set ?(billing = false)
-          ((W (_, Draft (_, se)) : wrapped_draft_election) as x) =
+      let@ metadata cont =
+        let@ x, set = Storage.E.update s Metadata in
+        match Lopt.get_value x with
+        | Some x -> cont (x, fun x -> set Value x)
+        | None -> assert false
+      in
+      let set ?(billing = false) x =
         let* () =
-          match (billing, se.metadata.billing_request) with
+          let metadata, set_metadata = metadata in
+          match (billing, metadata.billing_request) with
           | true, _ | _, None -> Lwt.return_unit
           | false, Some id ->
-              se.metadata <- { se.metadata with billing_request = None };
+              let* () = set_metadata { metadata with billing_request = None } in
               Billing.remove ~id
         in
         set Value x
       in
       Api_drafts.dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
-        (se, set)
+        (se, set) metadata
   | [ uuid ] when method_ = `DELETE ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       let@ metadata cont =
-        let* draft = Storage.E.get s Draft in
-        match Lopt.get_value draft with
-        | Some (W (_, Draft (_, se))) -> cont se.metadata
-        | None ->
-            let* election = Public_archive.get_election s in
-            let@ _ = Option.unwrap not_found (Lopt.get_string election) in
-            let* metadata = Web_persist.get_election_metadata s in
-            cont metadata
+        let* x = Storage.E.get s Metadata in
+        match Lopt.get_value x with Some x -> cont x | None -> assert false
       in
       let@ _ = with_administrator token metadata in
       let@ () = handle_generic_error in

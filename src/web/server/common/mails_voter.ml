@@ -45,35 +45,36 @@ let extract_metadata ~admin_id ~has_weights uuid (template : template) metadata
 
 let get_metadata s ~admin_id =
   let uuid = Storage.E.get_uuid s in
+  let@ metadata cont =
+    let* x = Storage.E.get s Metadata in
+    match Lopt.get_value x with
+    | None ->
+        Printf.ksprintf failwith "Mails_voter.get_metadata(%s)"
+          (Uuid.to_string uuid)
+    | Some x -> cont x
+  in
   let* election = Public_archive.get_election s in
   match Lopt.get_value election with
-  | Some election -> (
+  | Some election ->
       let* has_weights =
         let* x = Storage.E.get s Voters_config in
         match Lopt.get_value x with
         | None -> Lwt.return_true
         | Some x -> Lwt.return x.has_explicit_weights
       in
-      let* metadata = Storage.E.get s Metadata in
-      match Lopt.get_value metadata with
-      | None ->
-          Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/running"
-            (Uuid.to_string uuid)
-      | Some metadata ->
-          let module W = (val election) in
-          Lwt.return
-          @@ extract_metadata ~admin_id ~has_weights W.uuid W.template metadata)
+      let module W = (val election) in
+      Lwt.return
+      @@ extract_metadata ~admin_id ~has_weights W.uuid W.template metadata
   | None -> (
       let* se = Storage.E.get s Draft in
       match Lopt.get_value se with
       | None ->
-          Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/draft"
+          Printf.ksprintf failwith "Mails_voter.get_draft(%s)"
             (Uuid.to_string uuid)
       | Some (W (_, Draft (_, se))) ->
           let has_weights = has_explicit_weights se.voters in
           Lwt.return
-          @@ extract_metadata ~admin_id ~has_weights uuid se.questions
-               se.metadata)
+          @@ extract_metadata ~admin_id ~has_weights uuid se.questions metadata)
 
 let contact_footer l contact =
   let open (val l : Belenios_ui.I18n.GETTEXT) in

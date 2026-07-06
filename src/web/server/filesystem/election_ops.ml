@@ -191,6 +191,10 @@ let validate_election_exn s uuid =
     let* x = S.get (Election (uuid, Draft)) in
     match Lopt.get_value x with None -> raise Not_found | Some x -> cont x
   in
+  let@ metadata cont =
+    let* x = S.get (Election (uuid, Metadata)) in
+    match Lopt.get_value x with None -> assert false | Some x -> cont x
+  in
   let (W (w, Draft (v, se))) = draft in
   let version = se.version in
   let questions =
@@ -200,7 +204,7 @@ let validate_election_exn s uuid =
     in
     let credential_authority =
       match x.credential_authority with
-      | None -> se.metadata.cred_authority
+      | None -> metadata.cred_authority
       | x -> x
     in
     { x with administrator; credential_authority }
@@ -286,7 +290,7 @@ let validate_election_exn s uuid =
   let y = K.combine_keys trustees in
   (* election parameters *)
   let metadata =
-    { se.metadata with trustees = Some trustee_names; owners = se.owners }
+    { metadata with trustees = Some trustee_names; owners = se.owners }
   in
   let template = Belenios.Election.Template (v, questions) in
   let raw_election =

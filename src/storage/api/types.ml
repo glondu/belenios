@@ -135,7 +135,6 @@ type ('a, 'b) raw_draft_election = {
   mutable voters : draft_voter list;
   mutable questions : template;
   mutable trustees : ('a, 'b) draft_trustees;
-  mutable metadata : metadata;
   public_creds : string;
   mutable public_creds_received : bool;
   mutable public_creds_certificate : ('a, 'b) credentials_certificate option;
