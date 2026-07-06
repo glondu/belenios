@@ -69,7 +69,7 @@ let decrypt uuid ~token =
   let module W = (val election) in
   let@ trustee cont =
     let* x = Api.(get (trustee_election uuid (module W.G)) (`Trustee token)) in
-    match x with Ok (x, _) -> cont x | Error _ -> fail ()
+    match x with Ok (`Tally x, _) -> cont x | _ -> fail ()
   in
   let@ encrypted_tally cont =
     let* x = Api.(get (election_encrypted_tally uuid) `Nobody) in

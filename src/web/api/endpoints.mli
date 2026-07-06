@@ -60,11 +60,8 @@ val draft_trustees :
 
 val draft_trustee : uuid -> string -> (admin, unit, unit) t
 
-val trustee_draft :
-  uuid -> ('a, 'b) group -> (trustee, ('a, 'b) trustee_status, json) t
-
 val trustee_election :
-  uuid -> ('a, 'b) group -> (trustee, ('a, 'b) tally_trustee, json) t
+  uuid -> ('a, 'b) group -> (trustee, ('a, 'b) trustee_status, json) t
 
 val elections : (admin, summary_list, draft) t
 val election : uuid -> ([< nobody | admin ], Election.t, unit) t

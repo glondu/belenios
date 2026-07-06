@@ -201,7 +201,7 @@ type ('a, 'b) trustee_status_threshold =
   | `Pedersen of ('a, 'b) pedersen ]
 [@@deriving yojson]
 
-type ('a, 'b) trustee_status =
+type ('a, 'b) trustee_status_draft =
   [ `Basic of trustee_status_basic
   | `Threshold of ('a, 'b) trustee_status_threshold ]
 [@@deriving yojson]
@@ -383,6 +383,12 @@ type ('a, 'b) tally_trustee_content = {
 [@@deriving yojson]
 
 type ('a, 'b) tally_trustee = ('a, 'b) tally_trustee_content option
+[@@deriving yojson]
+
+type ('a, 'b) trustee_status =
+  [ `Draft of ('a, 'b) trustee_status_draft
+  | `Shuffle
+  | `Tally of ('a, 'b) tally_trustee ]
 [@@deriving yojson]
 
 type external_trustee = { id : string; token : string } [@@deriving yojson]

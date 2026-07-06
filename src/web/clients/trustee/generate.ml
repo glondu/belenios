@@ -374,7 +374,7 @@ let actionable_threshold ~uuid ~token (type a b) (w : (a, b) group) ~url draft
         let* () = t in
         let* status = get_status ~url ~token in
         match status with
-        | Some (`Threshold s) -> loop s
+        | Some (`Draft (`Threshold s)) -> loop s
         | _ ->
             let@ () = show_in container in
             [ div [ txt @@ s_ "Inconsistent state. Please refresh the page." ] ]
@@ -391,15 +391,15 @@ let generate configuration uuid ~token =
   in
   let (Draft (_, draft')) = draft in
   let module G = (val Group.of_string ~version:draft'.version draft'.group) in
-  let url = Api.trustee_draft uuid (module G) in
+  let url = Api.trustee_election uuid (module G) in
   let* status = get_status ~url ~token in
   let* x =
     match status with
-    | Some (`Basic s) ->
+    | Some (`Draft (`Basic s)) ->
         let* a = actionable_basic ~uuid ~token ~url draft s in
         let h = h3 [ txt @@ s_ "Trustee key generation" ] in
         Lwt.return_some (a, h)
-    | Some (`Threshold s) ->
+    | Some (`Draft (`Threshold s)) ->
         let h, set_step =
           let h = h3 [] in
           let container = Tyxml_js.To_dom.of_h3 h in
@@ -415,7 +415,7 @@ let generate configuration uuid ~token =
           actionable_threshold ~uuid ~token (module G) ~url draft set_step s
         in
         Lwt.return_some (a, h)
-    | None -> Lwt.return_none
+    | _ -> Lwt.return_none
   in
   match x with
   | None -> error ()

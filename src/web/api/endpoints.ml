@@ -127,21 +127,12 @@ let draft_trustee uuid x =
     to_string_post = !+yojson_of_unit;
   }
 
-let trustee_draft uuid (type a b) (w : (a, b) group) =
-  let module G = (val w) in
-  {
-    path = Printf.sprintf "elections/%s/draft/trustee" (Uuid.to_string uuid);
-    of_string = !*[%group_of_yojson: _ trustee_status];
-    to_string = !+[%yojson_of_group: _ trustee_status];
-    to_string_post = Json.to_string;
-  }
-
 let trustee_election uuid (type a b) (w : (a, b) group) =
   let module G = (val w) in
   {
     path = Printf.sprintf "elections/%s/trustee" (Uuid.to_string uuid);
-    of_string = !*[%group_of_yojson: _ tally_trustee];
-    to_string = !+[%yojson_of_group: _ tally_trustee];
+    of_string = !*[%group_of_yojson: _ trustee_status];
+    to_string = !+[%yojson_of_group: _ trustee_status];
     to_string_post = Json.to_string;
   }
 

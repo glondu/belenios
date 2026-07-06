@@ -435,6 +435,51 @@ let cast_ballot send_confirmation s (election : Election.t) ~ballot ~user
 let state_module = ref None
 (* initialized in Web_main *)
 
+let handle_trustee ~token method_ body s (election : Election.t) =
+  let module W = (val election) in
+  let module G = W.G in
+  let* state = Web_persist.get_election_state s in
+  match state with
+  | `EncryptedTally -> (
+      match method_ with
+      | `GET ->
+          let@ trustee_id = with_tally_trustee token s in
+          let@ () = handle_generic_error in
+          let* private_key =
+            find_trustee_private_key s (module W.G) trustee_id
+          in
+          return_json 200
+            (!+[%yojson_of_group: _ trustee_status] (`Tally private_key))
+      | `POST -> (
+          let@ trustee_id = with_tally_trustee token s in
+          let@ () = handle_generic_error in
+          let@ partial_decryption = body.run Fun.id in
+          let* x =
+            post_partial_decryption s (module W) ~trustee_id ~partial_decryption
+          in
+          match x with
+          | Ok () -> ok
+          | Error `AlreadyDone -> conflict
+          | Error `Invalid -> bad_request)
+      | _ -> method_not_allowed)
+  | `Shuffling -> (
+      match method_ with
+      | `GET ->
+          return_json 200 (!+[%yojson_of_group: _ trustee_status] `Shuffle)
+      | `POST -> (
+          let@ token = Option.unwrap unauthorized token.token in
+          let@ () = handle_generic_error in
+          let@ shuffle = body.run Fun.id in
+          let* election = Public_archive.get_election s in
+          let@ election = Option.unwrap not_found (Lopt.get_value election) in
+          let* x = post_shuffle s election ~token ~shuffle in
+          match x with
+          | Ok () -> ok
+          | Error `Forbidden -> forbidden
+          | Error _ -> bad_request)
+      | _ -> method_not_allowed)
+  | _ -> precondition_failed
+
 let dispatch_election ~token ~ifmatch endpoint method_ body s
     (election : Election.t) (metadata : metadata) =
   let module W = (val election) in
@@ -524,50 +569,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
           let* x = get_partial_decryptions s (module W.G) metadata in
           return_json 200 (!+yojson_of_partial_decryptions x)
       | _ -> method_not_allowed)
-  | [ "trustee" ] -> (
-      let* state = Web_persist.get_election_state s in
-      match state with
-      | `EncryptedTally -> (
-          match method_ with
-          | `GET ->
-              let@ trustee_id = with_tally_trustee token s in
-              let@ () = handle_generic_error in
-              let* private_key =
-                find_trustee_private_key s (module W.G) trustee_id
-              in
-              return_json 200
-                (!+[%yojson_of_group: _ tally_trustee] private_key)
-          | `POST -> (
-              let@ trustee_id = with_tally_trustee token s in
-              let@ () = handle_generic_error in
-              let@ partial_decryption = body.run Fun.id in
-              let* x =
-                post_partial_decryption s
-                  (module W)
-                  ~trustee_id ~partial_decryption
-              in
-              match x with
-              | Ok () -> ok
-              | Error `AlreadyDone -> conflict
-              | Error `Invalid -> bad_request)
-          | _ -> method_not_allowed)
-      | `Shuffling -> (
-          match method_ with
-          | `POST -> (
-              let@ token = Option.unwrap unauthorized token.token in
-              let@ () = handle_generic_error in
-              let@ shuffle = body.run Fun.id in
-              let* election = Public_archive.get_election s in
-              let@ election =
-                Option.unwrap not_found (Lopt.get_value election)
-              in
-              let* x = post_shuffle s election ~token ~shuffle in
-              match x with
-              | Ok () -> ok
-              | Error `Forbidden -> forbidden
-              | Error _ -> bad_request)
-          | _ -> method_not_allowed)
-      | _ -> precondition_failed)
   | [ "nh-ciphertexts" ] -> (
       match method_ with
       | `GET ->
@@ -883,6 +884,17 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       let@ () = handle_generic_error in
       let* () = Storage.E.delete_election s in
       ok
+  | [ uuid; "trustee" ] -> (
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
+      let@ s = Storage.E.with_transaction uuid in
+      let* election = Public_archive.get_election s in
+      match Lopt.get_value election with
+      | None ->
+          let@ se, set = Storage.E.update s Draft in
+          let@ se = Option.unwrap not_found (Lopt.get_value se) in
+          let set ?billing:_ x = set Value x in
+          Api_drafts.handle_trustee ~token method_ body (se, set)
+      | Some election -> handle_trustee ~token method_ body s election)
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in

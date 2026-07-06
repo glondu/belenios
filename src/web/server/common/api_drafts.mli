@@ -142,6 +142,13 @@ val post_trustee_threshold :
 
 open Api_generic
 
+val handle_trustee :
+  token:token_user ->
+  [ `GET | `POST | `PUT | `DELETE ] ->
+  body ->
+  wrapped_draft_election updatable_with_billing ->
+  result Lwt.t
+
 val dispatch_draft :
   token:token_user ->
   ifmatch:string option ->

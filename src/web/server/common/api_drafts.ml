@@ -1181,6 +1181,82 @@ let dispatch_credentials ~token endpoint method_ body s uuid
       | _ -> method_not_allowed)
   | _ -> not_found
 
+let handle_trustee ~token method_ body ((wse, wset) : _ updatable_with_billing)
+    =
+  let (W (w, se) : wrapped_draft_election) = wse in
+  let set ?billing x = wset ?billing (W (w, x)) in
+  let module G = (val w) in
+  let@ trustee = with_trustee token se in
+  let get () =
+    let@ () =
+     fun cont ->
+      Lwt.return @@ [%yojson_of_group: _ trustee_status] @@ `Draft (cont ())
+    in
+    match trustee with
+    | `Basic b ->
+        let state =
+          match (b.parameters, b.kind) with
+          | None, External x -> `Init x.name
+          | _ -> `Done
+        in
+        `Basic state
+    | `Threshold (index, t, dtp) -> (
+        let@ () = fun cont -> `Threshold (cont ()) in
+        match dtp.threshold with
+        | None -> `Init
+        | Some threshold -> (
+            let (Draft (_, draft)) = se in
+            let names =
+              List.map
+                (fun (x : _ draft_threshold_trustee) -> x.name)
+                dtp.trustees
+              |> Array.of_list
+            in
+            let context =
+              {
+                algorithm = dtp.algorithm;
+                group = draft.group;
+                names;
+                threshold;
+              }
+            in
+            let pedersen_context = { context; index } in
+            match t.cert with
+            | None -> `WaitingForCertificate pedersen_context
+            | Some _ -> (
+                try
+                  let pedersen_certs =
+                    List.map
+                      (fun x ->
+                        match x.cert with None -> raise Exit | Some c -> c)
+                      dtp.trustees
+                    |> Array.of_list
+                  in
+                  `Pedersen
+                    {
+                      context = pedersen_context;
+                      step = Option.value ~default:0 t.step;
+                      certs = pedersen_certs;
+                      vinput = t.vinput;
+                      voutput = t.voutput;
+                    }
+                with Exit -> `WaitingForOtherCertificates)))
+  in
+  match method_ with
+  | `GET -> handle_get get
+  | `POST -> (
+      let@ data = body.run Fun.id in
+      let@ token = Option.unwrap unauthorized token.token in
+      let@ () = handle_generic_error in
+      match trustee with
+      | `Basic _ ->
+          let* () = post_trustee_basic w (se, set) ~token data in
+          ok
+      | `Threshold _ ->
+          let* () = post_trustee_threshold w (se, set) ~token data in
+          ok)
+  | _ -> method_not_allowed
+
 let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
     ((wse, wset) : _ updatable_with_billing)
     ((metadata, set_metadata) : _ updatable) =
@@ -1248,77 +1324,6 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
   | "credentials" :: endpoint ->
       dispatch_credentials ~token endpoint method_ body s uuid (wse, wset)
         metadata
-  | [ "trustee" ] -> (
-      let@ trustee = with_trustee token se in
-      let get () =
-        let@ () =
-         fun cont ->
-          Lwt.return @@ [%yojson_of_group: _ trustee_status] @@ cont ()
-        in
-        match trustee with
-        | `Basic b ->
-            let state =
-              match (b.parameters, b.kind) with
-              | None, External x -> `Init x.name
-              | _ -> `Done
-            in
-            `Basic state
-        | `Threshold (index, t, dtp) -> (
-            let@ () = fun cont -> `Threshold (cont ()) in
-            match dtp.threshold with
-            | None -> `Init
-            | Some threshold -> (
-                let (Draft (_, draft)) = se in
-                let names =
-                  List.map
-                    (fun (x : _ draft_threshold_trustee) -> x.name)
-                    dtp.trustees
-                  |> Array.of_list
-                in
-                let context =
-                  {
-                    algorithm = dtp.algorithm;
-                    group = draft.group;
-                    names;
-                    threshold;
-                  }
-                in
-                let pedersen_context = { context; index } in
-                match t.cert with
-                | None -> `WaitingForCertificate pedersen_context
-                | Some _ -> (
-                    try
-                      let pedersen_certs =
-                        List.map
-                          (fun x ->
-                            match x.cert with None -> raise Exit | Some c -> c)
-                          dtp.trustees
-                        |> Array.of_list
-                      in
-                      `Pedersen
-                        {
-                          context = pedersen_context;
-                          step = Option.value ~default:0 t.step;
-                          certs = pedersen_certs;
-                          vinput = t.vinput;
-                          voutput = t.voutput;
-                        }
-                    with Exit -> `WaitingForOtherCertificates)))
-      in
-      match method_ with
-      | `GET -> handle_get get
-      | `POST -> (
-          let@ data = body.run Fun.id in
-          let@ token = Option.unwrap unauthorized token.token in
-          let@ () = handle_generic_error in
-          match trustee with
-          | `Basic _ ->
-              let* () = post_trustee_basic w (se, set) ~token data in
-              ok
-          | `Threshold _ ->
-              let* () = post_trustee_threshold w (se, set) ~token data in
-              ok)
-      | _ -> method_not_allowed)
   | [ "trustees" ] -> (
       let@ who = with_administrator_or_nobody token metadata in
       let get is_admin () =
