@@ -2003,18 +2003,13 @@ let status_content () =
           in
           let download =
             let@ () = button @@ s_ "Download sealing log" in
-            let* x = Api.(get (election_sealing_log uuid) !user) in
-            match x with
-            | Ok (data, _) ->
-                let filename =
-                  Printf.sprintf "sealing-%s.log" (Uuid.to_string uuid)
-                in
-                let a = a_data ~filename ~mime_type:"text/plain" ~data "" in
-                (Tyxml_js.To_dom.of_a a)##click;
-                Lwt.return_unit
-            | Error _ ->
-                alert "Error while retreiving sealing log!";
-                Lwt.return_unit
+            let href = !/((Api.election_sealing_log uuid).path) in
+            let filename =
+              Printf.sprintf "sealing-%s.log" (Uuid.to_string uuid)
+            in
+            let a = a ~href ~a:[ a_download (Some filename) ] "" in
+            (Tyxml_js.To_dom.of_a a)##click;
+            Lwt.return_unit
           in
           [
             h2 [ txt @@ s_ "Sealing" ];
