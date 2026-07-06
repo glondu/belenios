@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
@@ -92,9 +91,6 @@ module MakeBackend
   let state_state_ops : (_, Belenios_storage_api.state_state) abstract_file_ops
       =
     make_uninitialized_ops "state_state_ops"
-
-  let dates_ops : (_, Belenios_storage_api.election_dates) abstract_file_ops =
-    make_uninitialized_ops "dates_ops"
 
   let archive_header_ops : (_, Archive.header) abstract_file_ops =
     make_uninitialized_ops "archive_header_ops"
@@ -283,6 +279,7 @@ module MakeBackend
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
   let draft_filename = "draft.json"
+  let dates_filename = "dates.json"
   let archive_filename = "archive.bel"
   let public_creds_filename = "public_creds.json"
   let server_seed_filename = "server_seed.txt"
@@ -295,7 +292,7 @@ module MakeBackend
     | State_state -> Abstract (state_state_ops, ())
     | Public_creds _ -> Concrete (public_creds_filename, Trim, None)
     | Private_creds -> Concrete ("private_creds.txt", Raw, None)
-    | Dates -> Abstract (dates_ops, ())
+    | Dates -> Concrete (dates_filename, Raw, None)
     | Metadata -> Concrete ("metadata.json", Trim, None)
     | Server_seed -> Concrete (server_seed_filename, Trim, None)
     | Private_keys _ -> Concrete (private_keys_filename, Raw, None)
@@ -683,76 +680,6 @@ module MakeBackend
     state_state_ops.get <- get_state_state;
     state_state_ops.set <- set_state_state
 
-  let raw_dates_filename = "dates.json"
-  let hide_result_filename = "hide_result"
-
-  let get_dates uuid () =
-    let* raw_dates =
-      Filesystem.read_file (spool_elections uuid raw_dates_filename)
-    in
-    let* hide_result =
-      Filesystem.read_file (spool_elections uuid hide_result_filename)
-    in
-    let e_date_publish =
-      Option.map (String.trim >> !*int64_of_yojson) hide_result
-    in
-    let* dates =
-      match raw_dates with
-      | None -> assert false
-      | Some d ->
-          let d = !*Types.election_dates_of_yojson (String.trim d) in
-          Lwt.return_some
-            {
-              creation = d.creation;
-              finalization = d.finalization;
-              tally = d.tally;
-              archive = d.archive;
-              last_mail = d.last_mail;
-              auto_open = d.auto_open;
-              auto_close = d.auto_close;
-              publish = e_date_publish;
-              grace_period = d.grace_period;
-            }
-    in
-    let&** dates = dates in
-    dates
-    |> Lopt.some_value !+Belenios_storage_api.yojson_of_election_dates
-    |> Lwt.return
-
-  let set_dates uuid () dates =
-    let@ d cont =
-      match Lopt.get_value dates with
-      | None -> assert false
-      | Some d -> cont (d : Belenios_storage_api.election_dates)
-    in
-    let* () =
-      let filename = spool_elections uuid hide_result_filename in
-      match d.publish with
-      | None -> Filesystem.cleanup_file filename
-      | Some t ->
-          let t = t |> !+yojson_of_int64 in
-          Filesystem.write_file filename (t ^ "\n")
-    in
-    let filename = spool_elections uuid raw_dates_filename in
-    let dates : Types.election_dates =
-      {
-        creation = d.creation;
-        finalization = d.finalization;
-        tally = d.tally;
-        archive = d.archive;
-        last_mail = d.last_mail;
-        auto_open = d.auto_open;
-        auto_close = d.auto_close;
-        grace_period = d.grace_period;
-      }
-    in
-    Filesystem.write_file filename
-      (!+Types.yojson_of_election_dates dates ^ "\n")
-
-  let () =
-    dates_ops.get <- get_dates;
-    dates_ops.set <- set_dates
-
   let records_filename = "records"
 
   let split_voting_record =
@@ -1137,8 +1064,7 @@ module MakeBackend
     let* () =
       cleanup_files uuid
         [
-          `Elections raw_dates_filename;
-          `Elections hide_result_filename;
+          `Elections dates_filename;
           `Elections records_filename;
           `Elections skipped_shufflers_filename;
           `Elections shuffle_token_filename;

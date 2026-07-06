@@ -31,18 +31,6 @@ let datetime_of_yojson = function
   | `String x -> Datetime.wrap x
   | x -> of_yojson_error "string expected" x
 
-type election_dates = {
-  creation : int64;
-  finalization : int64 option; [@yojson.option]
-  tally : int64 option; [@yojson.option]
-  archive : int64 option; [@yojson.option]
-  last_mail : int64 option; [@yojson.option]
-  auto_open : int64 option; [@yojson.option]
-  auto_close : int64 option; [@yojson.option]
-  grace_period : int64 option; [@yojson.option]
-}
-[@@deriving yojson]
-
 type extended_record = { username : string; date : int64; credential : string }
 [@@deriving yojson]
 
