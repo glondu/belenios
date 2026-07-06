@@ -66,13 +66,11 @@ let is_ready () =
     && status.num_voters > 0 && status.voter_authentication_visited
     && status.credential_authority_visited
     && status.credentials_ready = true
-    && draft.questions.credential_authority <> None
-    && (draft.questions.credential_authority <> Some "server"
+    && (draft.questions.credential_authority <> `Server
        || status.private_credentials_downloaded = Some true)
     && status.trustees_ready = true
     && status.trustees_setup_step > 1
-    && draft.questions.administrator <> Some ""
-    && draft.questions.administrator <> None
+    && draft.questions.administrator <> ""
   in
   Lwt.return b
 
@@ -1347,7 +1345,7 @@ let contact_content () =
   in
   (* The default set by the server is the name of the administrator;
    * no need to do it on our side. In case this changes, we default to "" *)
-  let admin = Option.value ~default:"" draft.questions.administrator in
+  let admin = draft.questions.administrator in
   let inpA, _ =
     let onchange r =
       let newA = Js.to_string r##.value in
@@ -1358,7 +1356,7 @@ let contact_content () =
            ( v,
              {
                draft with
-               questions = { draft.questions with administrator = Some newA };
+               questions = { draft.questions with administrator = newA };
              } ));
       Lwt.return_unit
     in
@@ -1398,7 +1396,7 @@ let change_credauth_name name =
        ( v,
          {
            draft with
-           questions = { draft.questions with credential_authority = Some name };
+           questions = { draft.questions with credential_authority = name };
          } ));
   let* () = Cache.sync_until_success () in
   let* () = send_draft_request `SetCredentialAuthorityVisited in
@@ -1425,7 +1423,7 @@ let credauth_changeable_content uuid draft currsel =
   let* server_part =
     let attr =
       let onclick () =
-        let* () = change_credauth_name "server" in
+        let* () = change_credauth_name `Server in
         currsel := `Server;
         refresh ();
         Lwt.return_unit
@@ -1481,7 +1479,7 @@ let credauth_changeable_content uuid draft currsel =
     let get_credauth_name = ref (fun () -> "") in
     let attr =
       let onclick () =
-        let* () = change_credauth_name @@ !get_credauth_name () in
+        let* () = change_credauth_name @@ `External (!get_credauth_name ()) in
         currsel := `Extern;
         refresh ();
         Lwt.return_unit
@@ -1536,7 +1534,7 @@ let credauth_changeable_content uuid draft currsel =
     in
     let update_credauth_name ~submit () =
       let* () =
-        if submit then change_credauth_name @@ !get_credauth_name ()
+        if submit then change_credauth_name @@ `External (!get_credauth_name ())
         else Lwt.return_unit
       in
       update_print_link ()
@@ -1624,9 +1622,8 @@ let credauth_changeable_content uuid draft currsel =
     in
     let* extern_name_div =
       let value =
-        match !currsel with
-        | `Extern ->
-            Option.value ~default:"" draft.questions.credential_authority
+        match (!currsel, draft.questions.credential_authority) with
+        | `Extern, `External x -> x
         | _ -> ""
       in
       let inp_ext, get_ext =
@@ -1725,7 +1722,7 @@ let credauth_content () =
   let* status = Cache.get_until_success Cache.status in
   let currsel =
     if not status.credential_authority_visited then `None
-    else if draft.questions.credential_authority = Some "server" then `Server
+    else if draft.questions.credential_authority = `Server then `Server
     else `Extern
   in
   let* content =

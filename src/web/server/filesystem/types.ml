@@ -49,7 +49,6 @@ type deleted_election = {
   date : int64;
   tallied : bool;
   authentication_method : authentication_method;
-  credential_method : credential_method;
   trustees : deleted_trustee list;
   has_weights : bool;
 }

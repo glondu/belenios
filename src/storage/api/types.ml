@@ -51,7 +51,6 @@ type sealing_event = { date : int64; op : sealing_op } [@@deriving yojson]
 type metadata = {
   owners : int list;
   auth_config : auth_config list option; [@yojson.option]
-  cred_authority : string option; [@yojson.option]
   cred_authority_info : cred_authority_info option; [@yojson.option]
   trustees : external_trustee option list option; [@yojson.option]
   languages : string list option; [@yojson.option]
@@ -139,7 +138,6 @@ type ('a, 'b) raw_draft_election = {
   mutable public_creds_received : bool;
   mutable public_creds_certificate : ('a, 'b) credentials_certificate option;
       [@yojson.option]
-  mutable administrator : string option; [@yojson.option]
   mutable credential_authority_visited : bool;
       [@default false] [@yojson_drop_default ( = )]
   mutable voter_authentication_visited : bool;

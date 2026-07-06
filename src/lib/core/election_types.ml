@@ -58,12 +58,15 @@ let yojson_of_private_credentials : private_credentials -> json =
 
 type lang_dir = [ `Ltr | `Rtl ] [@@deriving yojson]
 
+type credential_authority = [ `Server | `External of string ]
+[@@deriving yojson]
+
 type template = {
   description : string;
   name : string;
   questions : Question.t array;
-  administrator : string option; [@yojson.option]
-  credential_authority : string option; [@yojson.option]
+  administrator : string;
+  credential_authority : credential_authority;
   language : (string * lang_dir) option; [@yojson.option]
 }
 [@@deriving yojson]

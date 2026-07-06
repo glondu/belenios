@@ -72,8 +72,8 @@ module Make (P : PARAMS) = struct
       description = "This is a big election to test scaling capabilities.";
       name = "Scaling Test Election";
       questions;
-      administrator = Some "Election Initiator";
-      credential_authority = Some "Election Registrar";
+      administrator = "Election Initiator";
+      credential_authority = `External "Election Registrar";
       language = Some ("en", `Ltr);
     }
 

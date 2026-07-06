@@ -148,8 +148,8 @@ let rec show_root main =
             description = "";
             name = "";
             questions = [||];
-            administrator = Some a.name;
-            credential_authority = Some "server";
+            administrator = a.name;
+            credential_authority = `Server;
             language = None;
           }
         in

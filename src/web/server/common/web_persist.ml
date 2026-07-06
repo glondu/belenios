@@ -44,7 +44,6 @@ let empty_metadata =
   {
     owners = [];
     auth_config = None;
-    cred_authority = None;
     cred_authority_info = None;
     trustees = None;
     languages = None;
@@ -682,28 +681,17 @@ let validate_election ~admin_id storage
     ((metadata, set_metadata) : metadata updatable) s =
   let uuid = Storage.E.get_uuid storage in
   let open Belenios_web_api in
-  let questions =
-    let x = se.questions in
-    let administrator =
-      match x.administrator with None -> se.administrator | x -> x
-    in
-    let credential_authority =
-      match x.credential_authority with
-      | None -> metadata.cred_authority
-      | x -> x
-    in
-    { x with administrator; credential_authority }
-  in
+  let questions = se.questions in
   (* convenience tests *)
   let validation_error x = raise (Api_generic.Error (`ValidationError x)) in
   let () =
     if questions.name = "" then validation_error `NoTitle;
     if questions.questions = [||] then validation_error `NoQuestions;
     (match questions.administrator with
-    | None | Some "" -> validation_error `NoAdministrator
+    | "" -> validation_error `NoAdministrator
     | _ -> ());
     match questions.credential_authority with
-    | None | Some "" -> validation_error `NoCredentialAuthority
+    | `External "" -> validation_error `NoCredentialAuthority
     | _ -> ()
   in
   let@ _check_cas_server (cont : unit -> _) =

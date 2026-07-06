@@ -100,8 +100,7 @@ let make_audit_div (election : Election.t) cache =
     [
       tr
         [
-          td [ txt @@ s_ "Administrator" ];
-          td [ txt @@ Option.value template.administrator ~default:"N/A" ];
+          td [ txt @@ s_ "Administrator" ]; td [ txt @@ template.administrator ];
         ];
     ]
   in
@@ -214,12 +213,15 @@ let make_audit_div (election : Election.t) cache =
       checksums.trustees_threshold
   in
   let audit_credentials =
+    let credential_authority =
+      match template.credential_authority with
+      | `Server -> em [ txt "(server)" ]
+      | `External x -> txt x
+    in
     [
       tr
         [
-          td [ txt @@ s_ "Credentials authority" ];
-          td
-            [ txt @@ Option.value template.credential_authority ~default:"N/A" ];
+          td [ txt @@ s_ "Credentials authority" ]; td [ credential_authority ];
         ];
       tr
         ~a:[ a_id "credentials" ]

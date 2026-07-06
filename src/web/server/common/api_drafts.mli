@@ -50,7 +50,6 @@ val generate_credentials_on_server :
   account ->
   uuid ->
   ('a, 'b) draft_election ->
-  metadata ->
   (unit, generate_credentials_on_server_error) Stdlib.result Lwt.t
 
 val exn_of_generate_credentials_on_server_error :

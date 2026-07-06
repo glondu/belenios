@@ -80,13 +80,18 @@ let delete_live_election s uuid roots =
   let&? metadata = Metadata in
   let&? dates = Dates in
   let* () = S.delete_sensitive_data uuid in
+  let credential_authority =
+    match W.template.credential_authority with
+    | `Server -> `Server
+    | `External _ -> `External ""
+  in
   let de_template =
     {
       description = "";
       name = W.template.name;
       questions = Array.map Question.erase_question W.template.questions;
-      administrator = None;
-      credential_authority = None;
+      administrator = "";
+      credential_authority;
       language = None;
     }
   in
@@ -104,11 +109,6 @@ let delete_live_election s uuid roots =
         `CAS server
     | Some [ { auth_system = "email"; _ } ] -> `Email
     | _ -> `Unknown
-  in
-  let de_credential_method =
-    match metadata.cred_authority with
-    | Some "server" -> `Automatic
-    | _ -> `Manual
   in
   let* de_trustees =
     trustees
@@ -161,7 +161,6 @@ let delete_live_election s uuid roots =
       date = de_date;
       tallied = roots.result <> None;
       authentication_method = de_authentication_method;
-      credential_method = de_credential_method;
       trustees = de_trustees;
       has_weights = de_has_weights;
     }
@@ -197,18 +196,7 @@ let validate_election_exn s uuid =
   in
   let (W (w, Draft (v, se))) = draft in
   let version = se.version in
-  let questions =
-    let x = se.questions in
-    let administrator =
-      match x.administrator with None -> se.administrator | x -> x
-    in
-    let credential_authority =
-      match x.credential_authority with
-      | None -> metadata.cred_authority
-      | x -> x
-    in
-    { x with administrator; credential_authority }
-  in
+  let questions = se.questions in
   (* trustees *)
   let module G = (val w) in
   let trustees =

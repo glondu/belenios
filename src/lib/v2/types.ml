@@ -32,8 +32,8 @@ type 'a params = {
   public_key : 'a;
   questions : Question.t array;
   uuid : uuid;
-  administrator : string option; [@yojson.option]
-  credential_authority : string option; [@yojson.option]
+  administrator : string;
+  credential_authority : credential_authority;
   language : (string * lang_dir) option; [@yojson.option]
 }
 [@@deriving yojson]
