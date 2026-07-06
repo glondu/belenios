@@ -342,8 +342,8 @@ module MakeBackend
     | Account (Account id) ->
         Concrete
           ( Config.spool_dir // "accounts" // Printf.sprintf "%d.json" id,
-            Trim,
-            Some Converters.account )
+            Raw,
+            None )
     | Election (uuid, f) -> (
         match get_election_file_props uuid f with
         | Concrete (fname, kind, convert) ->

@@ -22,7 +22,6 @@
 
 open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios
-open Belenios_storage_api
 
 type datetime = Datetime.t
 
@@ -65,19 +64,5 @@ type deleted_election = {
   credential_method : credential_method;
   trustees : deleted_trustee list;
   has_weights : bool;
-}
-[@@deriving yojson]
-
-type account = {
-  id : int;
-  name : string;
-  email : string option; [@yojson.option]
-  last_connected : int64;
-  authentications : user list;
-  consent : int64 option; [@yojson.option]
-  capabilities : int option; [@yojson.option]
-  language : string option; [@yojson.option]
-  voters_limit : int option; [@yojson.option]
-  preferences : Belenios_web_api.preferences;
 }
 [@@deriving yojson]
