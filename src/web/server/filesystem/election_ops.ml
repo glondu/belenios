@@ -277,9 +277,7 @@ let validate_election_exn s uuid =
   in
   let y = K.combine_keys trustees in
   (* election parameters *)
-  let metadata =
-    { metadata with trustees = Some trustee_names; owners = se.owners }
-  in
+  let metadata = { metadata with trustees = Some trustee_names } in
   let template = Belenios.Election.Template (v, questions) in
   let raw_election =
     let public_key = G.to_string y in

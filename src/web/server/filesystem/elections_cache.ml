@@ -85,24 +85,28 @@ module Make (I : INPUT) () = struct
     let item : Belenios_web_api.summary = { uuid; state; date; name } in
     Lwt.return (metadata.owners, item)
 
-  let get_draft_election_summary uuid se dates =
+  let get_draft_election_summary uuid se metadata dates =
     let date = dates.creation in
     let name = se.questions.name in
     let item : Belenios_web_api.summary =
       { uuid; date; name; state = `Draft }
     in
-    (se.owners, item)
+    (metadata.owners, item)
 
   let get_election_summary s uuid =
     let* draft = I.get s (Election (uuid, Draft)) in
     match Lopt.get_value draft with
     | None -> get_live_election_summary s uuid
     | Some (W (_, Draft (_, se))) ->
+        let@ metadata cont =
+          let* x = I.get s (Election (uuid, Metadata)) in
+          match Lopt.get_value x with None -> assert false | Some x -> cont x
+        in
         let@ dates cont =
           let* x = I.get s (Election (uuid, Dates)) in
           match Lopt.get_value x with None -> assert false | Some x -> cont x
         in
-        Lwt.return @@ get_draft_election_summary uuid se dates
+        Lwt.return @@ get_draft_election_summary uuid se metadata dates
 
   let umap_add user x map =
     let xs = match IMap.find_opt user map with None -> [] | Some xs -> xs in

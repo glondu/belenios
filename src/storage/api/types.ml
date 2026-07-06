@@ -129,7 +129,6 @@ type ('a, 'b) draft_trustees =
 
 type ('a, 'b) raw_draft_election = {
   version : int;
-  owners : int list;
   mutable group : string;
   mutable voters : draft_voter list;
   mutable questions : template;

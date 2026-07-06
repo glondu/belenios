@@ -27,26 +27,27 @@ open Belenios_server_core
 open Web_common
 open Api_generic
 
-let with_administrator token (Draft (_, se)) f =
+let with_administrator token metadata f =
   match get_account_user token with
-  | Some (a, _) when Accounts.check a se.owners -> f a
+  | Some (a, _) when Accounts.check a metadata.owners -> f a
   | _ -> unauthorized
 
 let with_administrator_or_credential_authority (token : token_user)
-    (Draft (_, se)) f =
+    (Draft (_, se)) metadata f =
   let@ token = Option.unwrap unauthorized token.token in
   if token = se.public_creds then f `CredentialAuthority
   else
     match lookup_token token with
-    | Some (a, _) when Accounts.check a se.owners -> f (`Administrator a)
+    | Some (a, _) when Accounts.check a metadata.owners -> f (`Administrator a)
     | _ -> not_found
 
-let with_administrator_or_nobody (token : token_user) (Draft (_, se)) f =
+let with_administrator_or_nobody (token : token_user) metadata f =
   match token.token with
   | None -> f `Nobody
   | Some token -> (
       match lookup_token token with
-      | Some (a, _) when Accounts.check a se.owners -> f (`Administrator a)
+      | Some (a, _) when Accounts.check a metadata.owners ->
+          f (`Administrator a)
       | _ -> not_found)
 
 let with_trustee (token : token_user) (Draft (_, se)) f =
@@ -112,7 +113,7 @@ let api_of_draft (Draft (v, se)) metadata =
        ( v,
          {
            version = se.version;
-           owners = se.owners;
+           owners = metadata.owners;
            questions = se.questions;
            languages = Option.value metadata.languages ~default:[];
            contact = metadata.contact;
@@ -178,6 +179,7 @@ let draft_of_api a uuid (Draft (v, se) as fse) metadata
   let metadata =
     {
       metadata with
+      owners = d.owners;
       contact = d.contact;
       languages = Some d.languages;
       booth_version = Some d.booth;
@@ -185,8 +187,8 @@ let draft_of_api a uuid (Draft (v, se) as fse) metadata
       auth_config = auth_config_of_authentication d.authentication;
     }
   in
-  { se with owners = d.owners; questions = d.questions; group = se_group }
-  |> fun x -> (Draft (v, x), metadata)
+  { se with questions = d.questions; group = se_group } |> fun x ->
+  (Draft (v, x), metadata)
 
 let post_drafts account draft =
   let@ () =
@@ -225,7 +227,6 @@ let post_drafts account draft =
   let se : _ raw_draft_election =
     {
       version;
-      owners;
       group;
       voters = [];
       questions = se_questions;
@@ -1122,13 +1123,13 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
   set fse
 
 let dispatch_credentials ~token endpoint method_ body s uuid
-    ((wse, wset) : _ updatable_with_billing) =
+    ((wse, wset) : _ updatable_with_billing) metadata =
   let (W (w, se) : wrapped_draft_election) = wse in
   let module G = (val w) in
   let set ?billing x = wset ?billing (W (w, x)) in
   match endpoint with
   | [ "token" ] -> (
-      let@ _ = with_administrator token se in
+      let@ _ = with_administrator token metadata in
       match method_ with
       | `GET -> (
           let* x = get_credentials_token se in
@@ -1138,7 +1139,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
           )
       | _ -> method_not_allowed)
   | [ "private" ] -> (
-      let@ _ = with_administrator token se in
+      let@ _ = with_administrator token metadata in
       match method_ with
       | `GET ->
           let@ () = handle_get_option in
@@ -1156,7 +1157,9 @@ let dispatch_credentials ~token endpoint method_ body s uuid
                   Lwt.return_some
                   @@ yojson_of_public_credentials !&G.to_string x)
       | `POST -> (
-          let@ who = with_administrator_or_credential_authority token se in
+          let@ who =
+            with_administrator_or_credential_authority token se metadata
+          in
           if Web_persist.get_credentials_status uuid se <> `None then forbidden
           else
             let@ x =
@@ -1186,7 +1189,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
   let set ?billing x = wset ?billing (W (w, x)) in
   match endpoint with
   | [] -> (
-      let@ who = with_administrator_or_nobody token se in
+      let@ who = with_administrator_or_nobody token metadata in
       let get () =
         let* x = api_of_draft se metadata in
         Lwt.return @@ yojson_of_draft x
@@ -1209,7 +1212,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
             (metadata, set_metadata) x
       | _ -> method_not_allowed)
   | [ "voters" ] -> (
-      let@ who = with_administrator_or_credential_authority token se in
+      let@ who = with_administrator_or_credential_authority token se metadata in
       let get () =
         let x = get_draft_voters se in
         Lwt.return @@ yojson_of_voter_list x
@@ -1244,6 +1247,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       | _ -> method_not_allowed)
   | "credentials" :: endpoint ->
       dispatch_credentials ~token endpoint method_ body s uuid (wse, wset)
+        metadata
   | [ "trustee" ] -> (
       let@ trustee = with_trustee token se in
       let get () =
@@ -1316,7 +1320,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
               ok)
       | _ -> method_not_allowed)
   | [ "trustees" ] -> (
-      let@ who = with_administrator_or_nobody token se in
+      let@ who = with_administrator_or_nobody token metadata in
       let get is_admin () =
         let open Belenios_web_api in
         let x = get_draft_trustees ~is_admin se in
@@ -1360,7 +1364,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
                   Lwt.fail (Error (`GenericError msg))))
       | _ -> method_not_allowed)
   | [ "trustees"; trustee ] -> (
-      let@ _ = with_administrator token se in
+      let@ _ = with_administrator token metadata in
       match method_ with
       | `DELETE ->
           let@ () = handle_generic_error in
@@ -1368,7 +1372,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           if x then ok else not_found
       | _ -> method_not_allowed)
   | [ "status" ] -> (
-      let@ _ = with_administrator token se in
+      let@ _ = with_administrator token metadata in
       match method_ with
       | `GET ->
           let@ () = handle_generic_error in
