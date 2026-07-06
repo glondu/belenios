@@ -28,8 +28,7 @@ open Web_common
 open Api_generic
 
 let with_administrator token (metadata : metadata) f =
-  let@ token = Option.unwrap unauthorized token in
-  match lookup_token token with
+  match get_account_user token with
   | Some (a, _) when Accounts.check a metadata.owners -> f a
   | _ -> unauthorized
 
@@ -74,7 +73,7 @@ let find_trustee_private_key s (type a b) (w : (a, b) group) trustee_id =
       loop (trustee_id - 1) trustees
 
 let with_tally_trustee token s f =
-  let@ token = Option.unwrap unauthorized token in
+  let@ token = Option.unwrap unauthorized token.token in
   let* x = find_trustee_id s token in
   match x with Some trustee_id -> f trustee_id | None -> unauthorized
 
@@ -555,7 +554,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
       | `Shuffling -> (
           match method_ with
           | `POST -> (
-              let@ token = Option.unwrap unauthorized token in
+              let@ token = Option.unwrap unauthorized token.token in
               let@ () = handle_generic_error in
               let@ shuffle = body.run Fun.id in
               let* election = Public_archive.get_election s in
@@ -743,8 +742,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
 let dispatch ~token ~ifmatch endpoint method_ body =
   match endpoint with
   | [] -> (
-      let@ token = Option.unwrap unauthorized token in
-      let@ account, _ = Option.unwrap unauthorized (lookup_token token) in
+      let@ account, _ = Option.unwrap unauthorized (get_account_user token) in
       let get () =
         let* elections = Storage.get_elections_by_owner account.id in
         Lwt.return @@ yojson_of_summary_list elections

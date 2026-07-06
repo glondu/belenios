@@ -28,7 +28,7 @@ val check : url:string -> id:string -> bool Lwt.t
 val validate : (admin_id:int -> uuid -> result Lwt.t) ref
 
 val dispatch :
-  token:string option ->
+  token:token_user ->
   ifmatch:string option ->
   string list ->
   [ `GET | `POST | `PUT | `DELETE ] ->

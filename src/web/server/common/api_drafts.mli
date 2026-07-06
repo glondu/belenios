@@ -137,7 +137,7 @@ val post_trustee_threshold :
 open Api_generic
 
 val dispatch_draft :
-  token:string option ->
+  token:token_user ->
   ifmatch:string option ->
   string list ->
   [ `GET | `POST | `PUT | `DELETE ] ->

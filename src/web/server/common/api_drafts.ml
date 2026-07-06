@@ -28,29 +28,29 @@ open Web_common
 open Api_generic
 
 let with_administrator token (Draft (_, se)) f =
-  let@ token = Option.unwrap unauthorized token in
-  match lookup_token token with
+  match get_account_user token with
   | Some (a, _) when Accounts.check a se.owners -> f a
-  | _ -> not_found
+  | _ -> unauthorized
 
-let with_administrator_or_credential_authority token (Draft (_, se)) f =
-  let@ token = Option.unwrap unauthorized token in
+let with_administrator_or_credential_authority (token : token_user)
+    (Draft (_, se)) f =
+  let@ token = Option.unwrap unauthorized token.token in
   if token = se.public_creds then f `CredentialAuthority
   else
     match lookup_token token with
     | Some (a, _) when Accounts.check a se.owners -> f (`Administrator a)
     | _ -> not_found
 
-let with_administrator_or_nobody token (Draft (_, se)) f =
-  match token with
+let with_administrator_or_nobody (token : token_user) (Draft (_, se)) f =
+  match token.token with
   | None -> f `Nobody
   | Some token -> (
       match lookup_token token with
       | Some (a, _) when Accounts.check a se.owners -> f (`Administrator a)
       | _ -> not_found)
 
-let with_trustee token (Draft (_, se)) f =
-  let@ token = Option.unwrap unauthorized token in
+let with_trustee (token : token_user) (Draft (_, se)) f =
+  let@ token = Option.unwrap unauthorized token.token in
   match se.trustees with
   | `Basic b -> (
       match
@@ -1304,7 +1304,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       | `GET -> handle_get get
       | `POST -> (
           let@ data = body.run Fun.id in
-          let@ token = Option.unwrap unauthorized token in
+          let@ token = Option.unwrap unauthorized token.token in
           let@ () = handle_generic_error in
           match trustee with
           | `Basic _ ->

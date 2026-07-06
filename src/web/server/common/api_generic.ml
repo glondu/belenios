@@ -49,6 +49,21 @@ let lookup_token token =
 
 let invalidate_token token = tokens := SMap.remove token !tokens
 
+type token_user = {
+  token : string option;
+  user : (user * account * string) option;
+}
+
+let get_account_user { token; user } =
+  let@ () =
+   fun cont ->
+    match token with
+    | None -> cont ()
+    | Some token -> (
+        match lookup_token token with None -> cont () | Some _ as x -> x)
+  in
+  match user with None -> None | Some (u, a, _) -> Some (a, u)
+
 let () =
   let@ a = Accounts.add_update_hook in
   let f { expiration; account; user } =

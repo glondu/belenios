@@ -27,6 +27,13 @@ val new_token : account -> user -> auth_token Lwt.t
 val lookup_token : string -> (account * user) option
 val invalidate_token : string -> unit
 
+type token_user = {
+  token : string option;
+  user : (user * account * string) option;
+}
+
+val get_account_user : token_user -> (account * user) option
+
 exception Error of error
 
 type generic_content = String of string | Path of string

@@ -37,7 +37,7 @@ val select_shuffler :
   Storage.E.t -> ('a, 'b) group -> metadata -> string -> unit Lwt.t
 
 val dispatch :
-  token:string option ->
+  token:token_user ->
   ifmatch:string option ->
   string list ->
   [ `GET | `POST | `PUT | `DELETE ] ->

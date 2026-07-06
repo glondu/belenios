@@ -82,19 +82,23 @@ module Api_result = Eliom_mkreg.Make (struct
             |> return_response)
 end)
 
-module Make () = struct
+module Make (Web_state : Web_state_sig.S) = struct
   (* Forward references set in Web_main *)
   let get_result = ref (fun ~state:_ -> None)
   let get_dispatch = ref (fun _ -> None)
 
   let dispatch endpoint method_ _params body =
     let sp = Eliom_common.get_sp () in
-    let token =
-      let& x =
-        Ocsigen_request.header sp.Eliom_common.sp_request.request_info
-          (Ocsigen_header.Name.of_string "Authorization")
+    let* token =
+      let* user = Eliom_reference.get Web_state.site_user in
+      let token =
+        let& x =
+          Ocsigen_request.header sp.Eliom_common.sp_request.request_info
+            (Ocsigen_header.Name.of_string "Authorization")
+        in
+        String.drop_prefix ~prefix:"Bearer " x
       in
-      String.drop_prefix ~prefix:"Bearer " x
+      Lwt.return { token; user }
     in
     let ifmatch =
       Ocsigen_request.header sp.Eliom_common.sp_request.request_info
@@ -123,7 +127,7 @@ module Make () = struct
             let x = Storage.readonly.get () in
             return_yojson 200 (`Bool x)
         | `PUT ->
-            let@ token = Option.unwrap unauthorized token in
+            let@ token = Option.unwrap unauthorized token.token in
             if !Web_config.readonly_token_hash = Some (sha256_hex token) then
               let@ x = body.run Json.of_string in
               match x with
@@ -161,8 +165,9 @@ module Make () = struct
             Api_generic.post_send_message ?internal ~key ~hmac x
         | _ -> method_not_allowed)
     | [ "account" ] -> (
-        let@ token = Option.unwrap unauthorized token in
-        let@ account, user = Option.unwrap unauthorized (lookup_token token) in
+        let@ account, user =
+          Option.unwrap unauthorized (get_account_user token)
+        in
         let get () =
           let x = Api_generic.get_account account user in
           Lwt.return @@ yojson_of_api_account x
@@ -210,7 +215,7 @@ module Make () = struct
     | [ "login" ] -> (
         match method_ with
         | `DELETE ->
-            let@ token = Option.unwrap unauthorized token in
+            let@ token = Option.unwrap unauthorized token.token in
             invalidate_token token;
             ok
         | _ -> method_not_allowed)

@@ -324,7 +324,7 @@ module Make () = struct
       Pages_voter.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
   end
 
-  module Api = Api_eliom.Make ()
+  module Api = Api_eliom.Make (X.Web_state)
   module Web_captcha = Web_captcha.Make (X.Web_services)
 
   module Web_auth =
