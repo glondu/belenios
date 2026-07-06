@@ -22,10 +22,4 @@
 open Belenios
 open Belenios_storage_api
 
-val raw_draft_election_of_concrete :
-  ('a, 'b) Types.raw_draft_election -> bool -> ('a, 'b) raw_draft_election
-
-val raw_draft_election_to_concrete :
-  ('a, 'b) raw_draft_election -> ('a, 'b) Types.raw_draft_election * bool
-
 val account : account serializers

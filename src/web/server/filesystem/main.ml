@@ -81,22 +81,13 @@ module MakeBackend
   type ('key, 'a) abstract_file_ops = {
     mutable get : uuid -> 'key -> 'a lopt Lwt.t;
     mutable set : uuid -> 'key -> 'a lopt -> unit Lwt.t;
-    mutable del : uuid -> 'key -> unit Lwt.t;
   }
 
   let make_uninitialized_ops what =
     let e x = Lwt.fail @@ Not_implemented (Printf.sprintf "%s.%s" what x) in
-    {
-      get = (fun _ _ -> e "get");
-      set = (fun _ _ _ -> e "set");
-      del = (fun _ _ -> e "del");
-    }
+    { get = (fun _ _ -> e "get"); set = (fun _ _ _ -> e "set") }
 
   (** {1 Forward references} *)
-
-  let draft_ops :
-      (_, Belenios_storage_api.wrapped_draft_election) abstract_file_ops =
-    make_uninitialized_ops "draft_ops"
 
   let state_state_ops : (_, Belenios_storage_api.state_state) abstract_file_ops
       =
@@ -136,34 +127,6 @@ module MakeBackend
 
   let credential_users_ops : (_, string) abstract_file_ops =
     make_uninitialized_ops "credential_users_ops"
-
-  let get_group uuid : (module GROUP) option Lwt.t =
-    let* x = draft_ops.get uuid () in
-    match Lopt.get_value x with
-    | Some (W (w, _)) ->
-        let module G = (val w) in
-        Lwt.return_some (module G : GROUP)
-    | None -> (
-        let* x = roots_ops.get uuid () in
-        match Lopt.get_value x with
-        | None -> Lwt.return_none
-        | Some roots -> (
-            let x = roots.setup_data in
-            match x with
-            | None -> Lwt.return_none
-            | Some setup_data -> (
-                let* x = data_ops.get uuid setup_data in
-                match Lopt.get_value x with
-                | None -> Lwt.return_none
-                | Some setup_data -> (
-                    let setup_data = !*setup_data_of_yojson setup_data in
-                    let* x = data_ops.get uuid setup_data.election in
-                    match Lopt.get_value x with
-                    | None -> Lwt.return_none
-                    | Some election ->
-                        let election = !*Election.t_of_yojson election in
-                        let module W = (val election) in
-                        Lwt.return_some (module W.G : GROUP)))))
 
   module PasswordRecordsCacheTypes = struct
     type key = Admin of string
@@ -319,6 +282,7 @@ module MakeBackend
     | Concrete : string * kind * 'a serializers option -> 'a election_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
+  let draft_filename = "draft.json"
   let archive_filename = "archive.bel"
   let public_creds_filename = "public_creds.json"
   let server_seed_filename = "server_seed.txt"
@@ -326,7 +290,7 @@ module MakeBackend
 
   let get_election_file_props _uuid (type t) :
       t election_file -> t election_file_props = function
-    | Draft -> Abstract (draft_ops, ())
+    | Draft -> Concrete (draft_filename, Raw, None)
     | State -> Concrete ("state.json", Trim, None)
     | State_state -> Abstract (state_state_ops, ())
     | Public_creds _ -> Concrete (public_creds_filename, Trim, None)
@@ -446,6 +410,34 @@ module MakeBackend
     | Abstract (ops, uuid, key) -> ops.set uuid key data
     | Admin_password (file, key) -> set_password_record_admin file key data
 
+  let get_group uuid : (module GROUP) option Lwt.t =
+    let* x = get (Election (uuid, Draft)) in
+    match Lopt.get_value x with
+    | Some (W (w, _)) ->
+        let module G = (val w) in
+        Lwt.return_some (module G : GROUP)
+    | None -> (
+        let* x = roots_ops.get uuid () in
+        match Lopt.get_value x with
+        | None -> Lwt.return_none
+        | Some roots -> (
+            let x = roots.setup_data in
+            match x with
+            | None -> Lwt.return_none
+            | Some setup_data -> (
+                let* x = data_ops.get uuid setup_data in
+                match Lopt.get_value x with
+                | None -> Lwt.return_none
+                | Some setup_data -> (
+                    let setup_data = !*setup_data_of_yojson setup_data in
+                    let* x = data_ops.get uuid setup_data.election in
+                    match Lopt.get_value x with
+                    | None -> Lwt.return_none
+                    | Some election ->
+                        let election = !*Election.t_of_yojson election in
+                        let module W = (val election) in
+                        Lwt.return_some (module W.G : GROUP)))))
+
   module HashedFile = struct
     type t = File : 'a file -> t
 
@@ -496,7 +488,7 @@ module MakeBackend
   let del (type t) (f : t file) =
     match get_props f with
     | Concrete (f, _, _) -> Filesystem.cleanup_file f
-    | Abstract (ops, uuid, key) -> ops.del uuid key
+    | Abstract _ -> Lwt.fail @@ Not_implemented "del"
     | Admin_password _ -> Lwt.fail @@ Not_implemented "del"
 
   let rmdir dir =
@@ -618,79 +610,6 @@ module MakeBackend
 
   (** {1 Views} *)
 
-  let draft_filename = "draft.json"
-  let private_creds_downloaded_filename = "private_creds.downloaded"
-
-  type draft_concrete =
-    | Draft_concrete :
-        ('a, 'b) group * 'v Election.version * ('a, 'b) Types.raw_draft_election
-        -> draft_concrete
-
-  let get_draft uuid () =
-    let* se_private_creds_downloaded =
-      let* x =
-        Filesystem.read_file
-          (spool_elections uuid private_creds_downloaded_filename)
-      in
-      match x with None -> Lwt.return_false | Some _ -> Lwt.return_true
-    in
-    let* concrete =
-      let*& x = Filesystem.read_file (spool_elections uuid draft_filename) in
-      let x = String.trim x in
-      let abstract = !*(Types.raw_draft_election_of_yojson Fun.id Fun.id) x in
-      let version = abstract.version in
-      let module G = (val Group.of_string ~version abstract.group) in
-      let (Version v) = Election.version_of_int version in
-      Draft_concrete
-        ((module G), v, !*[%group_of_yojson: _ raw_draft_election] x)
-      |> Lwt.return_some
-    in
-    match concrete with
-    | None -> Lwt.return Lopt.none
-    | Some (Draft_concrete (w, v, concrete)) ->
-        let abstract =
-          Converters.raw_draft_election_of_concrete concrete
-            se_private_creds_downloaded
-        in
-        W (w, Draft (v, abstract))
-        |> Lopt.some_value !+yojson_of_wrapped_draft_election
-        |> Lwt.return
-
-  let set_draft uuid () (data : wrapped_draft_election lopt) =
-    match Lopt.get_value data with
-    | None -> assert false
-    | Some (W (w, Draft (_, abstract))) ->
-        let module G = (val w) in
-        let concrete, se_private_creds_downloaded =
-          Converters.raw_draft_election_to_concrete abstract
-        in
-        let* () =
-          let filename =
-            spool_elections uuid private_creds_downloaded_filename
-          in
-          if se_private_creds_downloaded then Filesystem.write_file filename ""
-          else Filesystem.cleanup_file filename
-        in
-        let data = !+[%yojson_of_group: _ Types.raw_draft_election] concrete in
-        let* () =
-          Filesystem.write_file
-            (spool_elections uuid draft_filename)
-            (data ^ "\n")
-        in
-        let () = Elections_cache.clear () in
-        Lwt.return_unit
-
-  let del_draft uuid () =
-    cleanup_files uuid
-      [
-        `Elections private_creds_downloaded_filename; `Elections draft_filename;
-      ]
-
-  let () =
-    draft_ops.get <- get_draft;
-    draft_ops.set <- set_draft;
-    draft_ops.del <- del_draft
-
   let skipped_shufflers_filename = "skipped_shufflers.json"
   let shuffle_token_filename = "shuffle_token.json"
 
@@ -781,7 +700,7 @@ module MakeBackend
       match raw_dates with
       | None ->
           let@ draft cont =
-            let* x = get_draft uuid () in
+            let* x = get (Election (uuid, Draft)) in
             match Lopt.get_value x with
             | None -> Lwt.return_none
             | Some x -> cont x

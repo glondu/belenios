@@ -47,30 +47,6 @@ type election_dates = {
 type extended_record = { username : string; date : int64; credential : string }
 [@@deriving yojson]
 
-type ('a, 'b) raw_draft_election = {
-  version : int;
-  owners : int list;
-  mutable group : string;
-  mutable voters : draft_voter list;
-  mutable questions : template;
-  mutable trustees : ('a, 'b) draft_trustees;
-  mutable metadata : metadata;
-  public_creds : string;
-  mutable public_creds_received : bool;
-  mutable public_creds_certificate : ('a, 'b) credentials_certificate option;
-      [@yojson.option]
-  creation_date : int64;
-  mutable administrator : string option; [@yojson.option]
-  mutable credential_authority_visited : bool;
-      [@default false] [@yojson_drop_default ( = )]
-  mutable voter_authentication_visited : bool;
-      [@default false] [@yojson_drop_default ( = )]
-  mutable trustees_setup_step : int; [@default 1] [@yojson_drop_default ( = )]
-  mutable pending_credentials : bool;
-      [@default false] [@yojson_drop_default ( = )]
-}
-[@@deriving yojson]
-
 type authentication_method = [ `CAS of string | `Email | `Unknown ]
 [@@deriving yojson]
 
