@@ -25,9 +25,9 @@ open Common
 
 type ('user, 'get, 'post) t = {
   path : string;
-  of_yojson : json -> 'get;
-  to_yojson : 'get -> json;
-  to_yojson_post : 'post -> json;
+  of_string : string -> 'get;
+  to_string : 'get -> string;
+  to_string_post : 'post -> string;
 }
 
 type nobody = [ `Nobody ]

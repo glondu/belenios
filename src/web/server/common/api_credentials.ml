@@ -175,7 +175,7 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
     let* r, x = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
     let* x = Cohttp_lwt.Body.to_string x in
     match Cohttp.Code.code_of_status r.status with
-    | 200 -> cont @@ !*(e.of_yojson) x
+    | 200 -> cont @@ e.of_string x
     | code ->
         let msg = Printf.sprintf "GET %s returned status %d" url code in
         Ocsigen_messages.errlog msg;

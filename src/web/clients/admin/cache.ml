@@ -107,7 +107,7 @@ let sync_one (Cache x) =
         let ifmatch = x.ifmatch in
         let put x =
           let* y = Api.put ~ifmatch x !user content in
-          Lwt.return (y, fun () -> sha256_b64 @@ !+(x.to_yojson) content)
+          Lwt.return (y, fun () -> sha256_b64 @@ x.to_string content)
         in
         let* y, ifmatch' =
           match x.endpoint with Plain x -> put x | WithUuid f -> put (f uuid)

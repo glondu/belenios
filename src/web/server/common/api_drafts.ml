@@ -330,7 +330,7 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
 
 let get_credentials_token (Draft (_, se)) =
   if se.metadata.cred_authority = Some "server" then Lwt.return_none
-  else Lwt.return_some @@ `String se.public_creds
+  else Lwt.return_some @@ se.public_creds
 
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
@@ -1132,7 +1132,12 @@ let dispatch_credentials ~token endpoint method_ body s uuid
   | [ "token" ] -> (
       let@ _ = with_administrator token se in
       match method_ with
-      | `GET -> handle_get_option (fun () -> get_credentials_token se)
+      | `GET -> (
+          let* x = get_credentials_token se in
+          match x with
+          | None -> not_found
+          | Some x -> return_generic { mime = "text/plain"; content = String x }
+          )
       | _ -> method_not_allowed)
   | [ "private" ] -> (
       let@ _ = with_administrator token se in

@@ -139,16 +139,16 @@ module Api = struct
     | `Credauth token -> Some token
     | `Trustee token -> Some token
 
-  let get e u = raw_get_with_token ~token:(get_token u) !*(e.of_yojson) e.path
+  let get e u = raw_get_with_token ~token:(get_token u) e.of_string e.path
 
   let put ~ifmatch e u x =
-    raw_put_with_token ~ifmatch ~token:(get_token u) (!+(e.to_yojson) x) e.path
+    raw_put_with_token ~ifmatch ~token:(get_token u) (e.to_string x) e.path
 
   let put_blob e u x = raw_put_blob_with_token ~token:(get_token u) x e.path
 
   let post ?lang ?ifmatch e u x =
-    raw_post_with_token ?lang ?ifmatch ~token:(get_token u)
-      (!+(e.to_yojson_post) x) e.path
+    raw_post_with_token ?lang ?ifmatch ~token:(get_token u) (e.to_string_post x)
+      e.path
 
   let delete ?ifmatch e u =
     raw_delete_with_token ?ifmatch ~token:(get_token u) e.path

@@ -118,7 +118,7 @@ let rec show main uuid =
   let make what e =
     let* x = Api.get e !user in
     let@ voters, _ = with_ok what x in
-    let t, _ = textarea (!+(e.to_yojson) voters) in
+    let t, _ = textarea (e.to_string voters) in
     Lwt.return [ t ]
   in
   let* voters = make "voters" (Api.election_voters uuid) in
