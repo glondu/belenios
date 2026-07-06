@@ -152,11 +152,6 @@ module Make () = struct
   let election_cast_confirm =
     create ~path:(Path [ "actions"; "confirm" ]) ~meth:(Get (string "state")) ()
 
-  let election_download_archive =
-    create ~path:(Path [ "elections" ])
-      ~meth:(Get (suffix (uuid "uuid" ** suffix_const "archive.zip")))
-      ()
-
   let dummy_post =
     create ~csrf_safe:true ~path:No_path
       ~meth:(Post (unit, string "state" ** string "username"))

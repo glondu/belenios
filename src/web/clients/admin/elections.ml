@@ -2099,10 +2099,10 @@ let status_content () =
         in
         let link =
           let uuid = Uuid.to_string uuid in
+          let href = !/(Printf.sprintf "elections/%s/archive.zip" uuid) in
           a
             ~a:[ a_download (Some (Printf.sprintf "archive-%s.zip" uuid)) ]
-            ~href:("elections/" ^ uuid ^ "/archive.zip")
-            "archive.zip"
+            ~href "archive.zip"
         in
         let but =
           button (s_ "Results page") (fun () -> Preview.goto_mainpage ())

@@ -52,13 +52,6 @@ struct
     let* user = Eliom_reference.get Web_state.site_user in
     match user with Some u -> f u | None -> forbidden ()
 
-  let with_metadata_check_owner s f =
-    let* user = Eliom_reference.get Web_state.site_user in
-    let* metadata = Web_persist.get_election_metadata s in
-    match user with
-    | Some (_, a, _) when Accounts.check a metadata.owners -> f metadata
-    | _ -> forbidden ()
-
   let () =
     Redirection.register ~service:privacy_notice_accept (fun () cont ->
         let () = Web_state.set_consent_cookie () in
@@ -183,24 +176,6 @@ struct
                 in
                 let title = s_ "Incorrect code" in
                 Pages_common.generic_page ~title msg () >>= Html.send ~code:403))
-
-  let () =
-    Any.register ~service:election_download_archive (fun (uuid, ()) () ->
-        let@ s = Storage.E.with_transaction uuid in
-        let@ _ = with_metadata_check_owner s in
-        let* l = get_preferred_gettext () in
-        let open (val l) in
-        Lwt.try_bind
-          (fun () -> Storage.E.get_unixfilename s Confidential_archive)
-          (fun archive_name ->
-            File.send ~content_type:"application/zip" archive_name)
-          (function
-            | Not_found ->
-                Pages_common.generic_page ~title:(s_ "Error")
-                  (s_ "The election is not archived!")
-                  ()
-                >>= Html.send
-            | e -> Lwt.reraise e))
 
   module HashedInt = struct
     type t = int
