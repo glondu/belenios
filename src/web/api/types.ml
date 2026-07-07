@@ -271,7 +271,6 @@ type draft_request =
   | `ValidateElection
   | `SetCredentialAuthorityVisited
   | `SetVoterAuthenticationVisited
-  | `SetTrusteesSetupStep of int
   | `InitiateCredentialAuthorityProtocol ]
 [@@deriving yojson]
 
@@ -329,7 +328,8 @@ type credentials_credit = {
 type credentials_credits = credentials_credit list [@@deriving yojson]
 
 type trustees_request =
-  [ `Add of json trustee
+  [ `SetStep of int
+  | `Add of json trustee
   | `Import of uuid
   | `SetBasic
   | `SetThreshold of int

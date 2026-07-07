@@ -943,15 +943,6 @@ let post_draft_status ~admin_id s uuid
         else Lwt.return_unit
       in
       ok
-  | `SetTrusteesSetupStep i ->
-      let* () =
-        if se.trustees.step <> i then (
-          se.trustees <- { se.trustees with step = i };
-          let* () = set wse in
-          Lwt.return_unit)
-        else Lwt.return_unit
-      in
-      ok
   | `InitiateCredentialAuthorityProtocol -> (
       match metadata.cred_authority_info with
       | Some info when not se.public_creds_received ->
@@ -1344,6 +1335,15 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ request = body.run !*trustees_request_of_yojson in
           let@ () = handle_generic_error in
           match request with
+          | `SetStep step ->
+              let* () =
+                let (Draft (v, se)) = se in
+                if step <> se.trustees.step then (
+                  se.trustees <- { se.trustees with step };
+                  set (Draft (v, se)))
+                else Lwt.return_unit
+              in
+              ok
           | `Add trustee ->
               let* () = post_draft_trustees w (se, set) trustee in
               ok

@@ -29,13 +29,18 @@ open Belenios_js.Common
 open Belenios_js.Session
 open Common
 
-let send_draft_request req =
+let send_trustees_request ?ifmatch w req =
   let uuid = get_current_uuid () in
-  let* x = Api.(post (draft uuid) !user req) in
-  if x.code <> 200 then
-    alert ("Draft request failed with error code " ^ string_of_int x.code);
-  Cache.invalidate Cache.status;
-  Lwt.return_unit
+  let* x = Api.(post ?ifmatch (draft_trustees uuid w) !user req) in
+  let b =
+    if x.code = 200 then (
+      Cache.invalidate Cache.status;
+      true)
+    else (
+      alert ("Trustees request failed with error code " ^ string_of_int x.code);
+      false)
+  in
+  Lwt.return b
 
 type trustees_mode = [ `Basic | `Threshold of int ]
 
@@ -159,16 +164,10 @@ let recompute_main_zone_1 () =
           let module G =
             (val Group.of_string ~version:draft.version draft.group)
           in
-          let* x =
-            Api.(post ?ifmatch (draft_trustees uuid (module G)) !user r)
-          in
+          let* b = send_trustees_request ?ifmatch (module G) r in
           let&&* d = document##getElementById (Js.string "popup") in
           d##.style##.display := Js.string "none";
-          match x.code with
-          | 200 -> !update_main_zone ()
-          | code ->
-              alert ("Add failed with code " ^ string_of_int code);
-              Lwt.return_unit)
+          if b then !update_main_zone () else Lwt.return_unit)
     in
     [
       div
@@ -216,7 +215,7 @@ let recompute_main_zone_1 () =
             if not confirm then false else true
           else true
         in
-        if ok then (
+        if ok then
           let@ () = Lwt.async in
           let with_thr = not with_thr in
           let mm = if with_thr then `SetThreshold 0 else `SetBasic in
@@ -225,14 +224,8 @@ let recompute_main_zone_1 () =
           let module G =
             (val Group.of_string ~version:draft.version draft.group)
           in
-          let* x =
-            Api.(post ?ifmatch (draft_trustees uuid (module G)) !user mm)
-          in
-          match x.code with
-          | 200 -> !update_main_zone ()
-          | _ ->
-              alert "Error";
-              Lwt.return_unit)
+          let* b = send_trustees_request ?ifmatch (module G) mm in
+          if b then !update_main_zone () else Lwt.return_unit
         else r##.checked := Js.bool with_thr
       in
       input ~a:attr ~onchange `Checkbox
@@ -260,14 +253,8 @@ let recompute_main_zone_1 () =
           let module G =
             (val Group.of_string ~version:draft.version draft.group)
           in
-          let* x =
-            Api.(post ?ifmatch (draft_trustees uuid (module G)) !user mm)
-          in
-          match x.code with
-          | 200 -> !update_main_zone ()
-          | _ ->
-              alert "Error";
-              Lwt.return_unit
+          let* b = send_trustees_request ?ifmatch (module G) mm in
+          if b then !update_main_zone () else Lwt.return_unit
         in
         input ~a:attr ~onchange ~value:(string_of_int v) `Number
       in
@@ -282,6 +269,8 @@ let recompute_main_zone_1 () =
       div [ inp; lab; inp_thval; lab_thval ]
     else div [ inp; lab ]
   in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+  let module G = (val Group.of_string ~version:draft.version draft.group) in
   let proc_but =
     let@ () = button (s_ "Proceed to key generation") in
     match !mode with
@@ -295,8 +284,8 @@ let recompute_main_zone_1 () =
           @@ s_ "Proceed to next step? This will freeze the list of trustees."
         in
         if confirm then
-          let* () = send_draft_request @@ `SetTrusteesSetupStep 2 in
-          !update_main_zone ()
+          let* b = send_trustees_request (module G) @@ `SetStep 2 in
+          if b then !update_main_zone () else Lwt.return_unit
         else Lwt.return_unit
   in
   let import_but =
@@ -305,16 +294,15 @@ let recompute_main_zone_1 () =
     let r = `Import from_uuid in
     let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
     let module G = (val Group.of_string ~version:draft.version draft.group) in
-    let* x = Api.(post (draft_trustees uuid (module G)) !user r) in
-    match x.code with
-    | 200 ->
-        let* () = send_draft_request @@ `SetTrusteesSetupStep 3 in
+    let* b = send_trustees_request (module G) r in
+    if b then
+      let* b = send_trustees_request (module G) @@ `SetStep 3 in
+      if b then (
         step := 3;
         Cache.invalidate_all ();
-        !update_main_zone ()
-    | code ->
-        Printf.ksprintf alert "Failed with error code %d" code;
-        !update_main_zone ()
+        !update_main_zone ())
+      else !update_main_zone ()
+    else !update_main_zone ()
   in
   Lwt.return
     [
@@ -331,16 +319,11 @@ let reset_but () =
   let open (val !Belenios_js.I18n.gettext) in
   let@ () = button @@ s_ "Reset and start from scratch" in
   let confir = confirm @@ s_ "Are you sure you want to restart from scratch?" in
-  if confir then (
-    let uuid = get_current_uuid () in
+  if confir then
     let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
     let module G = (val Group.of_string ~version:draft.version draft.group) in
-    let* x = Api.(post (draft_trustees uuid (module G)) !user `Reset) in
-    match x.code with
-    | 200 -> !update_main_zone ()
-    | code ->
-        Printf.ksprintf alert "Reset failed with code %d" code;
-        Lwt.return_unit)
+    let* b = send_trustees_request (module G) `Reset in
+    if b then !update_main_zone () else Lwt.return_unit
   else Lwt.return_unit
 
 (* FIXME: This step 3 is just a dumb, now, but in the future, it should be
@@ -465,13 +448,15 @@ let recompute_main_zone_2 () =
             server for privacy?"
     else true
   in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+  let module G = (val Group.of_string ~version:draft.version draft.group) in
   if not confir then (
-    let* () = send_draft_request @@ `SetTrusteesSetupStep 1 in
-    step := 1;
+    let* b = send_trustees_request (module G) @@ `SetStep 1 in
+    if b then step := 1;
     recompute_main_zone_1 ())
   else if all_ttee_done () then (
-    let* () = send_draft_request @@ `SetTrusteesSetupStep 3 in
-    step := 3;
+    let* b = send_trustees_request (module G) @@ `SetStep 3 in
+    if b then step := 3;
     recompute_main_zone_3 ())
   else
     let trustee_generate_link =
