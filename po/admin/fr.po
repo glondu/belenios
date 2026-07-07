@@ -501,11 +501,11 @@ msgstr "Autorités de déchiffrement"
 
 #: src/web/clients/admin/account.ml:170
 msgid "Default contact for new elections: "
-msgstr ""
+msgstr "Contact par défaut pour les nouvelles élections : "
 
 #: src/web/clients/admin/account.ml:178
 msgid "Default languages for new elections:"
-msgstr ""
+msgstr "Langue par défaut pour les nouvelles élections :"
 
 #: src/web/clients/admin/elections.ml:1866
 msgid "Default mode:"
@@ -651,7 +651,7 @@ msgstr "Erreur"
 
 #: src/web/clients/admin/account.ml:85
 msgid "Error in languages: %S is not available"
-msgstr ""
+msgstr "Erreur dans les langues : %S n'est pas disponible"
 
 #: src/web/clients/trustee/shuffle.ml:82 src/web/clients/trustee/decrypt.ml:64
 msgid "Error while loading election parameters!"
@@ -1188,7 +1188,7 @@ msgstr "L'aperçu s'ouvrira dans un nouvel onglet"
 
 #: src/web/clients/trustee/shuffle.ml:123
 msgid "Private key is missing!"
-msgstr ""
+msgstr "Il manque la clé privée !"
 
 #: src/web/clients/trustee/check.ml:142 src/web/clients/trustee/generate.ml:265
 #. src/web/server/common/pages_admin.ml:505
@@ -1753,7 +1753,7 @@ msgstr "Ce nom sera publié sur la page de résultats de l'élection."
 
 #: src/web/clients/trustee/check.ml:38
 msgid "This private key is valid but no name is associated with it!"
-msgstr ""
+msgstr "Cette clé privée est valide, mais aucun nom n'y est associé !"
 
 #: src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
@@ -1971,7 +1971,7 @@ msgstr "Vous pouvez vérifier sa présence dans l' "
 
 #: src/web/clients/trustee/trustee.ml:40
 msgid "You can check your private key."
-msgstr ""
+msgstr "Vous pouvez vérifier votre clé privée."
 
 #: src/web/server/common/pages_admin.ml:472
 msgid "You cannot change your e-mail address right now."
