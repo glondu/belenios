@@ -26,9 +26,19 @@ open Belenios
 open Belenios_js.Secondary_ui
 open Belenios_js.Session
 
-let fail () =
+let fallback ?uuid () =
   let open (val !Belenios_js.I18n.gettext) in
-  Lwt.return [ div [ txt @@ s_ "Error" ] ]
+  let href =
+    match uuid with
+    | None -> "#check"
+    | Some uuid -> Printf.sprintf "#check/%s" (Uuid.to_string uuid)
+  in
+  Lwt.return
+    [
+      div [ txt @@ s_ "There is nothing to do now." ];
+      div
+        [ a ~a:[ a_href href ] [ txt @@ s_ "You can check your private key." ] ];
+    ]
 
 module App (U : UI) = struct
   let component = "admin"
@@ -40,23 +50,28 @@ module App (U : UI) = struct
     | [ "check" ] -> Check.check ()
     | [ "check"; uuid ] -> Check.check ~uuid ()
     | [ uuid; token ] -> (
-        let uuid = Uuid.of_string uuid in
+        let@ uuid cont =
+          match Uuid.of_string uuid with
+          | exception _ ->
+              Lwt.return [ div [ txt @@ s_ "Invalid election ID!" ] ]
+          | x -> cont x
+        in
         let@ election cont =
           let* x = Api.(get (election uuid) `Nobody) in
-          match x with Error _ -> fail () | Ok (x, _) -> cont x
+          match x with Error _ -> fallback ~uuid () | Ok (x, _) -> cont x
         in
         let module W = (val election) in
         let url = Api.trustee_election uuid (module W.G) in
         let@ trustee_status cont =
           let* x = Api.(get url (`Trustee token)) in
-          match x with Error _ -> fail () | Ok (x, _) -> cont x
+          match x with Error _ -> fallback ~uuid () | Ok (x, _) -> cont x
         in
         match trustee_status with
         | `Draft x ->
             Generate.generate configuration uuid ~token ~url (module W) x
         | `Shuffle -> Shuffle.shuffle uuid ~token
         | `Tally x -> Decrypt.decrypt uuid ~token ~url (module W) x)
-    | _ -> fail ()
+    | _ -> fallback ()
 end
 
 module _ = Make (App) ()
