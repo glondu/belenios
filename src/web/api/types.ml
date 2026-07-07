@@ -242,9 +242,15 @@ type ('a, 'b) threshold_trustees = {
 }
 [@@deriving yojson]
 
-type ('a, 'b) draft_trustees =
+type ('a, 'b) draft_trustees_mode =
   [ `Basic of ('a, 'b) basic_trustees
   | `Threshold of ('a, 'b) threshold_trustees ]
+[@@deriving yojson]
+
+type ('a, 'b) draft_trustees = {
+  step : int;
+  mode : ('a, 'b) draft_trustees_mode;
+}
 [@@deriving yojson]
 
 type draft_status = {
@@ -256,7 +262,6 @@ type draft_status = {
   nh_and_weights_compatible : bool;
   credential_authority_visited : bool;
   voter_authentication_visited : bool;
-  trustees_setup_step : int;
   restricted_mode_error : restricted_mode_error option; [@yojson.option]
 }
 [@@deriving yojson]

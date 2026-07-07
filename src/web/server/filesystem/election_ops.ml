@@ -207,7 +207,7 @@ let validate_election_exn s uuid =
   let module K = Trustees.MakeCombinator (G) in
   let module KG = Trustees.MakeBasic (G) in
   let* trustee_names, trustees, private_keys =
-    match trustees with
+    match trustees.mode with
     | `Basic x -> (
         let ts = x.trustees in
         match ts with

@@ -135,7 +135,7 @@ let rec show_draft_trustees uuid container =
   let* x = Api.(get (draft_trustees uuid (module G)) !user) in
   let@ trustees, ifmatch = with_ok "trustees" x in
   let mode =
-    match trustees with
+    match trustees.mode with
     | `Basic _ -> "basic"
     | `Threshold t ->
         let threshold =
@@ -167,7 +167,7 @@ let rec show_draft_trustees uuid container =
     div [ t; txt " "; b ]
   in
   let (TWW (trustees, write)) =
-    match trustees with
+    match trustees.mode with
     | `Basic x -> TWW (x.trustees, [%yojson_of_group: _ basic_parameters])
     | `Threshold x -> TWW (x.trustees, [%yojson_of_group: _ pedersen_cert])
   in

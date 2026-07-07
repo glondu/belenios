@@ -59,8 +59,6 @@ let get_trustees () =
   let uuid = get_current_uuid () in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
   let module G = (val Group.of_string ~version:draft.version draft.group) in
-  let* status = Cache.get_until_success Cache.status in
-  step := status.trustees_setup_step;
   let* x = Api.(get (draft_trustees uuid (module G)) !user) in
   ifmatch_tt := get_ifmatch x;
   match x with
@@ -68,7 +66,8 @@ let get_trustees () =
       alert (string_of_error e);
       Lwt.return_unit
   | Ok (tt, _) -> (
-      match tt with
+      step := tt.step;
+      match tt.mode with
       | `Basic x ->
           all_trustee :=
             List.map (cast_bt_trustee !&G.to_string !&G.Zq.to_string) x.trustees;

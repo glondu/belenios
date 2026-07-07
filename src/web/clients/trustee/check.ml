@@ -96,7 +96,7 @@ let do_draft uuid (draft : raw_draft) private_key =
         Lwt.return_unit
     | Ok (x, _) -> cont x
   in
-  match trustees with
+  match trustees.mode with
   | `Basic x ->
       let trustees = x.trustees in
       let name =

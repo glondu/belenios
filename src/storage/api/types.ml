@@ -122,9 +122,15 @@ type ('a, 'b) draft_threshold_params = {
 }
 [@@deriving yojson]
 
-type ('a, 'b) draft_trustees =
+type ('a, 'b) draft_trustees_mode =
   [ `Basic of ('a, 'b) draft_basic_params
   | `Threshold of ('a, 'b) draft_threshold_params ]
+[@@deriving yojson]
+
+type ('a, 'b) draft_trustees = {
+  step : int;
+  mode : ('a, 'b) draft_trustees_mode;
+}
 [@@deriving yojson]
 
 type ('a, 'b) raw_draft_election = {
@@ -141,7 +147,6 @@ type ('a, 'b) raw_draft_election = {
       [@default false] [@yojson_drop_default ( = )]
   mutable voter_authentication_visited : bool;
       [@default false] [@yojson_drop_default ( = )]
-  mutable trustees_setup_step : int; [@default 1] [@yojson_drop_default ( = )]
   mutable pending_credentials : bool;
       [@default false] [@yojson_drop_default ( = )]
   mutable private_creds_downloaded : bool;

@@ -801,7 +801,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
               | Some (W (w, Draft (_, se))) ->
                   let module G = (val w) in
                   let@ trustees cont =
-                    match se.trustees with
+                    match se.trustees.mode with
                     | `Basic x -> (
                         let ts = x.trustees in
                         try

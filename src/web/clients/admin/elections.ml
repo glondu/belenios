@@ -69,7 +69,6 @@ let is_ready () =
     && (draft.questions.credential_authority <> `Server
        || status.private_credentials_downloaded = Some true)
     && status.trustees_ready = true
-    && status.trustees_setup_step > 1
     && draft.questions.administrator <> ""
   in
   Lwt.return b
@@ -225,9 +224,7 @@ let tabs x =
           if curr_tab = x then Lwt.return `Doing
           else
             let* status = Cache.get_until_success Cache.status in
-            if status.trustees_ready && status.trustees_setup_step > 1 then
-              Lwt.return `Done
-            else Lwt.return `Todo
+            if status.trustees_ready then Lwt.return `Done else Lwt.return `Todo
         else
           let* status = Cache.get_until_success Cache.e_status in
           match status.state with

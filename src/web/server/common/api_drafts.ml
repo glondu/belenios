@@ -52,7 +52,7 @@ let with_administrator_or_nobody (token : token_user) metadata f =
 
 let with_trustee (token : token_user) (Draft (_, se)) f =
   let@ token = Option.unwrap unauthorized token.token in
-  match se.trustees with
+  match se.trustees.mode with
   | `Basic b -> (
       match
         List.find_opt
@@ -230,13 +230,12 @@ let post_drafts account draft =
       group;
       voters = [];
       questions = se_questions;
-      trustees = `Basic { trustees = [] };
+      trustees = { step = 1; mode = `Basic { trustees = [] } };
       public_creds = token;
       public_creds_received = false;
       public_creds_certificate = None;
       credential_authority_visited = false;
       voter_authentication_visited = false;
-      trustees_setup_step = 1;
       pending_credentials = false;
       private_creds_downloaded = false;
     }
@@ -420,54 +419,61 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
   se.public_creds_certificate <- certificate;
   set (Draft (v, se))
 
-let get_draft_trustees ~is_admin (Draft (_, se)) =
-  match se.trustees with
-  | `Basic x ->
-      let trustees =
-        List.filter_map
-          (fun (t : _ draft_basic_trustee) ->
-            match t.kind with
-            | Server _ -> None
-            | External u ->
-                let trustee_state, trustee_key =
-                  match t.parameters with
-                  | None -> (Some 0, None)
-                  | Some tpk -> (Some 1, Some tpk)
-                in
-                let trustee_address, trustee_token, trustee_state =
-                  if is_admin then (Some u.id, Some u.token, trustee_state)
-                  else (None, None, None)
-                in
-                Some
-                  {
-                    address = trustee_address;
-                    name = Some u.name;
-                    token = trustee_token;
-                    state = trustee_state;
-                    key = trustee_key;
-                  })
-          x.trustees
-      in
-      `Basic ({ trustees } : _ basic_trustees)
-  | `Threshold x ->
-      let trustees =
-        List.map
-          (fun (t : _ draft_threshold_trustee) ->
-            let trustee_address, trustee_token, trustee_state =
-              if is_admin then
-                (Some t.id, Some t.token, Some (Option.value t.step ~default:0))
-              else (None, None, None)
-            in
-            {
-              address = trustee_address;
-              name = Some t.name;
-              token = trustee_token;
-              state = trustee_state;
-              key = t.cert;
-            })
-          x.trustees
-      in
-      `Threshold ({ threshold = x.threshold; trustees } : _ threshold_trustees)
+let get_draft_trustees ~is_admin (Draft (_, se)) :
+    _ Belenios_web_api.draft_trustees =
+  let mode =
+    match se.trustees.mode with
+    | `Basic x ->
+        let trustees =
+          List.filter_map
+            (fun (t : _ draft_basic_trustee) ->
+              match t.kind with
+              | Server _ -> None
+              | External u ->
+                  let trustee_state, trustee_key =
+                    match t.parameters with
+                    | None -> (Some 0, None)
+                    | Some tpk -> (Some 1, Some tpk)
+                  in
+                  let trustee_address, trustee_token, trustee_state =
+                    if is_admin then (Some u.id, Some u.token, trustee_state)
+                    else (None, None, None)
+                  in
+                  Some
+                    {
+                      address = trustee_address;
+                      name = Some u.name;
+                      token = trustee_token;
+                      state = trustee_state;
+                      key = trustee_key;
+                    })
+            x.trustees
+        in
+        `Basic ({ trustees } : _ basic_trustees)
+    | `Threshold x ->
+        let trustees =
+          List.map
+            (fun (t : _ draft_threshold_trustee) ->
+              let trustee_address, trustee_token, trustee_state =
+                if is_admin then
+                  ( Some t.id,
+                    Some t.token,
+                    Some (Option.value t.step ~default:0) )
+                else (None, None, None)
+              in
+              {
+                address = trustee_address;
+                name = Some t.name;
+                token = trustee_token;
+                state = trustee_state;
+                key = t.cert;
+              })
+            x.trustees
+        in
+        `Threshold
+          ({ threshold = x.threshold; trustees } : _ threshold_trustees)
+  in
+  { step = se.trustees.step; mode }
 
 let check_address address =
   if not @@ is_email address then raise (Error (`Invalid "e-mail address"))
@@ -501,7 +507,7 @@ let post_draft_trustees (type a b) (w : (a, b) group)
   let () = ensure_none "token" t.token in
   let () = ensure_none "state" t.state in
   let () = ensure_none "key" t.key in
-  match se.trustees with
+  match se.trustees.mode with
   | `Basic x ->
       let* ts =
         let ts = x.trustees in
@@ -564,7 +570,7 @@ let rec filter_out_first f = function
 
 let delete_draft_trustee ((Draft (v, se), set) : _ updatable_with_billing)
     trustee =
-  match se.trustees with
+  match se.trustees.mode with
   | `Basic x ->
       let ts = x.trustees in
       let touched, ts =
@@ -592,7 +598,7 @@ let delete_draft_trustee ((Draft (v, se), set) : _ updatable_with_billing)
       else Lwt.return_false
 
 let set_threshold ((Draft (v, se), set) : _ updatable_with_billing) threshold =
-  match se.trustees with
+  match se.trustees.mode with
   | `Basic _ -> Lwt.return @@ Stdlib.Error `NoTrustees
   | `Threshold x when x.trustees = [] -> Lwt.return @@ Stdlib.Error `NoTrustees
   | `Threshold x ->
@@ -601,14 +607,14 @@ let set_threshold ((Draft (v, se), set) : _ updatable_with_billing) threshold =
         if threshold = 0 then (None, None) else (Some threshold, Some 1)
       in
       if 0 <= threshold && threshold < List.length ts then (
-        List.iter (fun t -> t.step <- step) ts;
+        List.iter (fun (t : _ draft_threshold_trustee) -> t.step <- step) ts;
         x.threshold <- maybe_threshold;
         let* () = set (Draft (v, se)) in
         Lwt.return @@ Ok ())
       else Lwt.return @@ Stdlib.Error `OutOfBounds
 
 let get_draft_trustees_mode (Draft (_, se)) =
-  match se.trustees with
+  match se.trustees.mode with
   | `Basic _ -> `Basic
   | `Threshold x -> `Threshold (Option.value x.threshold ~default:0)
 
@@ -617,7 +623,7 @@ let put_draft_trustees_mode ((Draft (v, se), set) : _ updatable_with_billing)
   match (get_draft_trustees_mode (Draft (v, se)), mode) with
   | a, b when a = b -> Lwt.return_unit
   | _, `Basic ->
-      se.trustees <- `Basic { trustees = [] };
+      se.trustees <- { step = 1; mode = `Basic { trustees = [] } };
       set (Draft (v, se))
   | `Basic, `Threshold 0 ->
       let dtp =
@@ -629,7 +635,7 @@ let put_draft_trustees_mode ((Draft (v, se), set) : _ updatable_with_billing)
           error = None;
         }
       in
-      se.trustees <- `Threshold dtp;
+      se.trustees <- { step = 1; mode = `Threshold dtp };
       set (Draft (v, se))
   | `Threshold _, `Threshold threshold -> (
       let* x = set_threshold (Draft (v, se), set) threshold in
@@ -641,8 +647,7 @@ let put_draft_trustees_mode ((Draft (v, se), set) : _ updatable_with_billing)
   | _, _ -> Lwt.fail (Error (`GenericError "change not allowed"))
 
 let reset_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing) =
-  se.trustees <- `Basic { trustees = [] };
-  se.trustees_setup_step <- 1;
+  se.trustees <- { step = 1; mode = `Basic { trustees = [] } };
   set (Draft (v, se))
 
 let get_draft_status uuid (Draft (v, se)) metadata =
@@ -671,7 +676,7 @@ let get_draft_status uuid (Draft (v, se)) metadata =
       else if has_weights then Some `HasWeights
       else if se.group <> "Ed25519" then Some `BadGroup
       else
-        match se.trustees with
+        match se.trustees.mode with
         | `Basic _ -> Some `NoThreshold
         | `Threshold { trustees = _ :: _ :: _; _ } -> None
         | _ -> Some `NotEnoughTrustees
@@ -684,7 +689,7 @@ let get_draft_status uuid (Draft (v, se)) metadata =
       credentials_left;
       private_credentials_downloaded;
       trustees_ready =
-        (match se.trustees with
+        (match se.trustees.mode with
         | `Basic x ->
             List.for_all
               (fun (t : _ draft_basic_trustee) -> t.parameters <> None)
@@ -700,7 +705,6 @@ let get_draft_status uuid (Draft (v, se)) metadata =
          not (has_weights && has_nh));
       credential_authority_visited = se.credential_authority_visited;
       voter_authentication_visited = se.voter_authentication_visited;
-      trustees_setup_step = se.trustees_setup_step;
       restricted_mode_error;
     }
 
@@ -820,7 +824,7 @@ let import_trustees (type a b) (w : (a, b) group)
                   error = None;
                 }
               in
-              se.trustees <- `Threshold dtp;
+              se.trustees <- { se.trustees with mode = `Threshold dtp };
               let* () = set (Draft (v, se)) in
               Lwt.return @@ Ok `Threshold
           | Stdlib.Error _ as x -> Lwt.return x
@@ -864,7 +868,7 @@ let import_trustees (type a b) (w : (a, b) group)
                   in
                   Lwt.return { kind; parameters })
             in
-            se.trustees <- `Basic { trustees = ts };
+            se.trustees <- { se.trustees with mode = `Basic { trustees = ts } };
             let* () = set (Draft (v, se)) in
             Lwt.return @@ Ok `Basic)
 
@@ -942,8 +946,8 @@ let post_draft_status ~admin_id s uuid
       ok
   | `SetTrusteesSetupStep i ->
       let* () =
-        if se.trustees_setup_step <> i then (
-          se.trustees_setup_step <- i;
+        if se.trustees.step <> i then (
+          se.trustees <- { se.trustees with step = i };
           let* () = set wse in
           Lwt.return_unit)
         else Lwt.return_unit
@@ -979,7 +983,7 @@ let post_trustee_basic (type a b) (w : (a, b) group)
     (((Draft (_, se) as fse), set) : _ updatable_with_billing) ~token data =
   let module G = (val w) in
   let ts =
-    match se.trustees with
+    match se.trustees.mode with
     | `Basic x -> x.trustees
     | `Threshold _ -> failwith "Wrong trustee mode"
   in
@@ -1014,7 +1018,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
       (a, b) draft_election updatable_with_billing) ~token data =
   let module G = (val w) in
   let dtp =
-    match se.trustees with
+    match se.trustees.mode with
     | `Basic _ -> failwith "Wrong trustee mode"
     | `Threshold x -> x
   in
@@ -1087,11 +1091,12 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
         let certs = { context; certs = get_certs () } in
         let threshold = K.step2 certs in
         assert (dtp.threshold = Some threshold);
-        Array.iter (fun x -> x.step <- Some 3) ts
+        Array.iter (fun (x : _ draft_threshold_trustee) -> x.step <- Some 3) ts
       with e -> dtp.error <- Some (Printexc.to_string e)
   in
   let () =
-    if Array.for_all (fun x -> x.step = Some 4) ts then
+    if Array.for_all (fun (x : _ draft_threshold_trustee) -> x.step = Some 4) ts
+    then
       try
         let certs = get_certs () in
         let polynomials = get_polynomials () in
@@ -1099,11 +1104,12 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
         for j = 0 to Array.length ts - 1 do
           ts.(j).vinput <- Some vinputs.(j)
         done;
-        Array.iter (fun x -> x.step <- Some 5) ts
+        Array.iter (fun (x : _ draft_threshold_trustee) -> x.step <- Some 5) ts
       with e -> dtp.error <- Some (Printexc.to_string e)
   in
   let () =
-    if Array.for_all (fun x -> x.step = Some 6) ts then
+    if Array.for_all (fun (x : _ draft_threshold_trustee) -> x.step = Some 6) ts
+    then
       try
         let certs = get_certs () in
         let polynomials = get_polynomials () in
@@ -1117,7 +1123,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
         in
         let p = K.step6 { context; certs } polynomials voutputs in
         dtp.parameters <- Some p;
-        Array.iter (fun x -> x.step <- Some 7) ts
+        Array.iter (fun (x : _ draft_threshold_trustee) -> x.step <- Some 7) ts
       with e -> dtp.error <- Some (Printexc.to_string e)
   in
   set fse
