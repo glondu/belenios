@@ -85,10 +85,6 @@ the configuration file. A token is valid for 24 hours, or until
 ### `PUT`: draft -> unit (administrator)
 ### `POST`: draft_request -> unit (administrator)
 
-## `elections/$UUID/draft/election` (anybody)
-
-### `GET`: unit -> json
-
 ## `elections/$UUID/draft/voters`
 
 ### `GET`: unit -> voter_list (administrator or credential authority)
