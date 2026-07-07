@@ -57,10 +57,6 @@ let get_elections_by_owner x =
   let module X = (val get_backend ()) in
   X.get_elections_by_owner x
 
-let new_election () =
-  let module S = (val get_backend ()) in
-  S.new_election ()
-
 module E = struct
   module type TX = sig
     module S : ELECTION_TRANSACTION
@@ -79,6 +75,10 @@ module E = struct
       let tx = tx
     end in
     f (module T : TX)
+
+  let new_election () =
+    let module S = (val get_backend ()) in
+    S.E.new_election ()
 
   let get_unixfilename tx f =
     let module T = (val tx : TX) in

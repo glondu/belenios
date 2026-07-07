@@ -85,6 +85,7 @@ module type ELECTION_TRANSACTION = sig
   include BACKEND_GENERIC with type t := t and type 'a file := 'a election_file
   include BACKEND_ARCHIVE with type t := t
 
+  val new_election : unit -> uuid Lwt.t
   val get_uuid : t -> uuid
   val get_unixfilename : t -> 'a election_file -> string Lwt.t
   val archive_election : t -> unit Lwt.t
@@ -128,5 +129,4 @@ module type STORAGE = sig
 
   val get_user_id : user -> int option Lwt.t
   val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
-  val new_election : unit -> uuid option Lwt.t
 end

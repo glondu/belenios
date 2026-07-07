@@ -246,8 +246,7 @@ let post_drafts account draft =
       creation = datetime_now ();
     }
   in
-  let* uuid = Storage.new_election () in
-  let&* uuid = uuid in
+  let* uuid = Storage.E.new_election () in
   let se, metadata = draft_of_api account uuid (Draft (v, se)) metadata draft in
   let* () =
     let@ s = Storage.E.with_transaction uuid in

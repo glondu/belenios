@@ -47,7 +47,7 @@ module type BACKEND = sig
   type nonrec 'a file = 'a file
 
   val get_unixfilename : unit -> 'a file -> string Lwt.t
-  val new_election : unit -> uuid option Lwt.t
+  val new_election : unit -> uuid Lwt.t
 
   include BACKEND_GENERIC with type t := unit and type 'a file := 'a file
   include BACKEND_ARCHIVE with type t := uuid
@@ -495,17 +495,15 @@ module MakeBackend
 
   let new_election () =
     let length = Config.uuid_length in
-    let rec loop trials =
-      if trials > 0 then
-        let uuid = generate_token length in
-        Lwt.try_bind
-          (fun () ->
-            Lwt_unix.mkdir (Config.spool_dir // "elections" // uuid) 0o700)
-          (fun () -> Lwt.return_some @@ Uuid.of_string uuid)
-          (fun _ -> loop (trials - 1))
-      else Lwt.return_none
+    let rec loop () =
+      let uuid = generate_token length in
+      Lwt.try_bind
+        (fun () ->
+          Lwt_unix.mkdir (Config.spool_dir // "elections" // uuid) 0o700)
+        (fun () -> Lwt.return @@ Uuid.of_string uuid)
+        (fun _ -> loop ())
     in
-    loop 10
+    loop ()
 
   let copy_file src dst =
     let open Lwt_io in
@@ -1601,6 +1599,7 @@ module Make (Config : CONFIG) : STORAGE = struct
     type nonrec t = uuid * t
 
     let with_transaction uuid f = with_transaction (fun x -> f (uuid, x))
+    let new_election = new_election
     let get_unixfilename (uuid, x) f = get_unixfilename x (Election (uuid, f))
     let get (uuid, x) f = get x (Election (uuid, f))
     let set (uuid, x) f = set x (Election (uuid, f))
