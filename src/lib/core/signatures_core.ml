@@ -114,6 +114,7 @@ module type GROUP = sig
   val get_generator : int -> t
   (** [get_generator i] computes generator #[i] of the group. *)
 
+  val version : int
   val description : string
 end
 

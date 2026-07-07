@@ -111,6 +111,7 @@ module Make (B : LIBSODIUM_STUBS) = struct
     (Zq.hash ~dst 1 @@ prefix ^ map_and_concat_with_commas to_string xs).(0)
 
   let hash_to_int = G.hash_to_int
+  let version = G.version
   let description = G.description
   let selfcheck () = (g **~ Zq.(zero - one)) *~ g =~ one && g *~ invert g =~ one
 end

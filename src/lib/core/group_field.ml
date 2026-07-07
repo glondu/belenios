@@ -116,6 +116,7 @@ let make description ff_params =
         assert (Z.(compare h g) <> 0);
         h
 
+    let version = 2
     let description = description
   end in
   (module G : GROUP)

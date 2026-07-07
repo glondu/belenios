@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Version
 open Belenios_core
 
 let get_ff_params = function
@@ -57,11 +58,16 @@ let ed25519 () : (module GROUP) =
       (module G)
 
 let of_string x =
-  match get_ff_params x with
-  | params ->
-      let module G = (val Group_field.make x params : Group_field.GROUP) in
-      (module G : GROUP)
-  | exception Not_found -> (
-      match x with
-      | "Ed25519" -> ed25519 ()
-      | _ -> Printf.ksprintf failwith "unknown group: %s" x)
+  let group =
+    match get_ff_params x with
+    | params ->
+        let module G = (val Group_field.make x params : Group_field.GROUP) in
+        (module G : GROUP)
+    | exception Not_found -> (
+        match x with
+        | "Ed25519" -> ed25519 ()
+        | _ -> Printf.ksprintf failwith "unknown group: %s" x)
+  in
+  let module G = (val group) in
+  assert (G.version = version);
+  group

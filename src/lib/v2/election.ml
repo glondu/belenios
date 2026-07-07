@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Version
 module Question_ = Question
 open Belenios_core
 open Types
@@ -39,7 +40,7 @@ let make_raw_election (template : template) ~uuid ~group ~public_key =
   let public_key = G.of_string public_key in
   let params =
     {
-      version = 2;
+      version;
       description = template.description;
       name = template.name;
       questions = template.questions;

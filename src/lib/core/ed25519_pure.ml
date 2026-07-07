@@ -251,6 +251,7 @@ let hash_to_int p =
   let x = F.to_Z x and y = F.to_Z y in
   Z.(hash_to_int (shift_left x 256 + y))
 
+let version = 2
 let description = "Ed25519"
 let cofactor = Zq.of_int 8
 
