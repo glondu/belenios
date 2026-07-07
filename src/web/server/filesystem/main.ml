@@ -826,28 +826,6 @@ module MakeBackend
           let* x = credential_mappings_cache#find uuid in
           dump_credential_mappings uuid x)
 
-  let init_credential_mapping uuid (type a b) (w : (a, b) group) =
-    let module G = (val w) in
-    let* file = get (Election (uuid, Public_creds w)) in
-    match Lopt.get_value file with
-    | Some x ->
-        let public_credentials =
-          x |> List.map (fun (x : _ public_credential_with_id) -> x.credential)
-        in
-        let xs =
-          List.fold_left
-            (fun accu (x : _ public_credential) ->
-              let x = G.to_string x.credential in
-              if SMap.mem x accu then
-                failwith "trying to add duplicate credential"
-              else SMap.add x None accu)
-            SMap.empty public_credentials
-        in
-        credential_mappings_cache#add uuid xs;
-        let* () = dump_credential_mappings uuid xs in
-        Lwt.return public_credentials
-    | None -> Lwt.fail @@ Election_not_found (uuid, "init_credential_mapping")
-
   let find_credential_mapping uuid cred =
     let* xs = credential_mappings_cache#find uuid in
     Lwt.return @@ SMap.find_opt cred xs
@@ -1368,7 +1346,6 @@ module MakeBackend
       |> Filesystem.write_file (spool_elections uuid deleted_filename)
 
     let delete_draft_election = delete_draft_election
-    let init_credential_mapping = init_credential_mapping
   end
 
   let make set_ =
@@ -1404,10 +1381,6 @@ module MakeBackend
       let delete_election uuid =
         with_lock (Some uuid) (fun () ->
             Election_ops.delete_election (module Backend) uuid)
-
-      let validate_election uuid =
-        with_lock (Some uuid) (fun () ->
-            Election_ops.validate_election (module Backend) uuid)
 
       let append uuid ?last ops =
         with_lock (Some uuid) (fun () -> append uuid ?last ops)
@@ -1542,11 +1515,6 @@ module Make (Config : CONFIG) : STORAGE = struct
     let module T = (val tx : BACKEND) in
     T.delete_election u
 
-  let validate_election tx u =
-    let@ () = check_readonly in
-    let module T = (val tx : BACKEND) in
-    T.validate_election u
-
   let new_account_id tx =
     let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
@@ -1610,7 +1578,6 @@ module Make (Config : CONFIG) : STORAGE = struct
     let get_uuid (uuid, _) = uuid
     let archive_election (uuid, x) = archive_election x uuid
     let delete_election (uuid, x) = delete_election x uuid
-    let validate_election (uuid, x) = validate_election x uuid
   end
 
   module C : CREDENTIALS_TRANSACTION = struct

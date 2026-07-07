@@ -46,16 +46,8 @@ module type BACKEND = sig
   val delete_live_data : uuid -> unit Lwt.t
   val write_deleted_file : uuid -> deleted_election -> unit Lwt.t
   val delete_draft_election : uuid -> unit Lwt.t
-
-  val init_credential_mapping :
-    uuid -> ('a, 'b) group -> 'a public_credentials Lwt.t
 end
 
 val delete_live_election : (module BACKEND) -> uuid -> roots -> unit Lwt.t
 val delete_election : (module BACKEND) -> uuid -> unit Lwt.t
 val archive_election : (module BACKEND) -> uuid -> unit Lwt.t
-
-val validate_election :
-  (module BACKEND) ->
-  uuid ->
-  (unit, Belenios_web_api.validation_error) result Lwt.t

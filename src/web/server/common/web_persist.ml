@@ -676,14 +676,160 @@ let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
       Ocsigen_messages.errlog msg;
       Lwt.return_unit)
 
+let validation_error x = raise (Api_generic.Error (`ValidationError x))
+
+let validate_trustees (type a b) (w : (a, b) group)
+    (se : (a, b) raw_draft_election) =
+  let module G = (val w) in
+  let module T = (val Trustees.get_by_version se.version) in
+  let module K = T.MakeCombinator (G) in
+  let module KG = T.MakeBasic (G) in
+  let* trustee_names, trustees, private_keys =
+    match se.trustees.mode with
+    | `Basic x -> (
+        let ts = x.trustees in
+        match ts with
+        | [] ->
+            let seed = generate_token 44 in
+            let p = KG.make seed in
+            Lwt.return ([ None ], [ `Single p ], `KEY seed)
+        | _ :: _ ->
+            let seed =
+              List.fold_left
+                (fun accu (t : _ draft_basic_trustee) ->
+                  match t.kind with
+                  | External _ -> accu
+                  | Server u -> u.seed :: accu)
+                [] ts
+            in
+            let seed =
+              match seed with
+              | [ x ] -> `KEY x
+              | _ -> validation_error `NotSinglePrivateKey
+            in
+            Lwt.return
+              ( List.map
+                  (fun (x : _ draft_basic_trustee) ->
+                    match x.kind with
+                    | Server _ -> None
+                    | External u ->
+                        Some
+                          ({ id = u.id; token = u.token }
+                            : Belenios_web_api.external_trustee))
+                  ts,
+                List.map
+                  (fun (x : _ draft_basic_trustee) ->
+                    match x.parameters with
+                    | None -> validation_error `KeyEstablishmentNotFinished
+                    | Some x -> `Single x)
+                  ts,
+                seed ))
+    | `Threshold x -> (
+        let ts = x.trustees in
+        match x.parameters with
+        | None -> validation_error `KeyEstablishmentNotFinished
+        | Some tp ->
+            let trustees =
+              List.map
+                (fun (x : _ draft_threshold_trustee) ->
+                  Some
+                    ({ id = x.id; token = x.token }
+                      : Belenios_web_api.external_trustee))
+                ts
+            in
+            let private_keys =
+              List.map
+                (fun { voutput; _ } ->
+                  match voutput with
+                  | Some v -> v.private_key
+                  | None -> failwith "inconsistent state")
+                ts
+            in
+            let seed = generate_token 44 in
+            let server_public_key = KG.make seed in
+            Lwt.return
+              ( None :: trustees,
+                [ `Single server_public_key; `Pedersen tp ],
+                `KEYS (seed, private_keys) ))
+  in
+  let y = K.combine_keys trustees in
+  Lwt.return (y, trustee_names, trustees, private_keys)
+
+let init_credential_mapping s (type a b) (w : (a, b) group) =
+  let uuid = Storage.E.get_uuid s in
+  let module G = (val w) in
+  let* file = Storage.E.get s (Public_creds w) in
+  match Lopt.get_value file with
+  | Some x ->
+      let public_credentials =
+        x |> List.map (fun (x : _ public_credential_with_id) -> x.credential)
+      in
+      let xs =
+        List.fold_left
+          (fun accu (x : _ public_credential) ->
+            let x = G.to_string x.credential in
+            if SMap.mem x accu then
+              failwith "trying to add duplicate credential"
+            else SMap.add x None accu)
+          SMap.empty public_credentials
+      in
+      let* () =
+        SMap.bindings xs
+        |> Lwt_list.iter_s (fun (credential, ballot) ->
+            Storage.E.set s (Credential_mapping credential) Value
+              { credential; ballot })
+      in
+      Lwt.return public_credentials
+  | None -> Lwt.fail @@ Election_not_found (uuid, "init_credential_mapping")
+
+let initialize_events s (type a b) (w : (a, b) group)
+    (se : (a, b) raw_draft_election) raw_election (trustees : (a, b) trustees)
+    (public_creds : a public_credentials) =
+  let module G = (val w) in
+  let raw_trustees = !+[%yojson_of_group: _ trustees] trustees in
+  let raw_public_creds =
+    !+(yojson_of_public_credentials !&G.to_string) public_creds
+  in
+  let setup_election = Hash.hash_string raw_election in
+  let setup_trustees = Hash.hash_string raw_trustees in
+  let setup_credentials = Hash.hash_string raw_public_creds in
+  let raw_certificate, setup_credentials_certificate =
+    match se.public_creds_certificate with
+    | None -> ([], None)
+    | Some c ->
+        let raw = c |> !+[%yojson_of_group: _ credentials_certificate] in
+        ([ Data raw ], Some (Hash.hash_string raw))
+  in
+  let setup_data =
+    {
+      election = setup_election;
+      trustees = setup_trustees;
+      credentials = setup_credentials;
+      credentials_certificate = setup_credentials_certificate;
+    }
+  in
+  let setup_data_s = !+yojson_of_setup_data setup_data in
+  let* x =
+    [
+      [ Data raw_election; Data raw_trustees; Data raw_public_creds ];
+      raw_certificate;
+      [
+        Data setup_data_s; Event (`Setup, Some (Hash.hash_string setup_data_s));
+      ];
+    ]
+    |> List.flatten |> Storage.E.append s
+  in
+  match x with
+  | true -> Lwt.return_unit
+  | false -> failwith "race condition in validate_election"
+
 let validate_election ~admin_id storage
-    (W (_, Draft (v, se)) : wrapped_draft_election)
+    (W (w, Draft (v, se)) : wrapped_draft_election)
     ((metadata, set_metadata) : metadata updatable) s =
   let uuid = Storage.E.get_uuid storage in
   let open Belenios_web_api in
   let questions = se.questions in
   (* convenience tests *)
-  let validation_error x = raise (Api_generic.Error (`ValidationError x)) in
   let () =
     if questions.name = "" then validation_error `NoTitle;
     if questions.questions = [||] then validation_error `NoQuestions;
@@ -758,9 +904,48 @@ let validate_election ~admin_id storage
              ~metadata);
         Lwt.return_unit
   in
-  (* the validation itself *)
-  let* x = Storage.E.validate_election storage in
-  match x with Ok () -> Lwt.return_unit | Error e -> validation_error e
+  (* trustees *)
+  let module G = (val w) in
+  let* y, trustee_names, trustees, private_keys = validate_trustees w se in
+  (* election parameters *)
+  let metadata = { metadata with trustees = Some trustee_names } in
+  let template = Belenios.Election.Template (v, questions) in
+  let raw_election =
+    let public_key = G.to_string y in
+    Election.make_raw_election ~version:se.version template ~uuid
+      ~group:se.group ~public_key
+    |> Json.to_string
+  in
+  (* write election files to disk *)
+  let voters = se.voters |> List.map (fun (x : draft_voter) -> x.id) in
+  let* () = voters |> Storage.E.set storage Voters Value in
+  let* () = metadata |> Storage.E.set storage Metadata Value in
+  (* initialize credentials *)
+  let* public_creds = init_credential_mapping storage w in
+  (* initialize events *)
+  let* () = initialize_events storage w se raw_election trustees public_creds in
+  (* create file with private keys, if any *)
+  let* () =
+    match private_keys with
+    | `KEY x -> x |> Storage.E.set storage Server_seed Value
+    | `KEYS (x, y) ->
+        let* () = x |> Storage.E.set storage Server_seed Value in
+        y |> Storage.E.set storage (Private_keys w) Value
+  in
+  (* clean up draft *)
+  let* () = Storage.E.del storage Draft in
+  (* clean up private credentials, if any *)
+  let* () = Storage.E.del storage Private_creds in
+  (* finish *)
+  let* () = Storage.E.set storage State Value `Closed in
+  let@ dates, set_dates =
+   fun cont ->
+    let@ dates, set = Storage.E.update storage Dates in
+    match Lopt.get_value dates with
+    | None -> assert false
+    | Some dates -> cont (dates, set)
+  in
+  set_dates Value { dates with finalization = Some (datetime_now ()) }
 
 let create_draft s se = Storage.E.set s Draft Value se
 let transition_to_encrypted_tally set_state = set_state `EncryptedTally

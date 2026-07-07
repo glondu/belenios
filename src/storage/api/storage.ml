@@ -119,10 +119,6 @@ module E = struct
   let delete_election tx =
     let module T = (val tx : TX) in
     T.S.delete_election T.tx
-
-  let validate_election tx =
-    let module T = (val tx : TX) in
-    T.S.validate_election T.tx
 end
 
 module C = struct

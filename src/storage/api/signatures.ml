@@ -59,9 +59,6 @@ module type BACKEND_ELECTIONS = sig
 
   val archive_election : t -> unit Lwt.t
   val delete_election : t -> unit Lwt.t
-
-  val validate_election :
-    t -> (unit, Belenios_web_api.validation_error) result Lwt.t
 end
 
 module type BACKEND_ACCOUNTS = sig
@@ -90,9 +87,6 @@ module type ELECTION_TRANSACTION = sig
   val get_unixfilename : t -> 'a election_file -> string Lwt.t
   val archive_election : t -> unit Lwt.t
   val delete_election : t -> unit Lwt.t
-
-  val validate_election :
-    t -> (unit, Belenios_web_api.validation_error) result Lwt.t
 end
 
 module type CREDENTIALS_TRANSACTION = sig
