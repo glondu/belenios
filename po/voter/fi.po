@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (jos esimerkiksi unohdit sen)."
 
-#: src/web/common/pages_common.ml:244
+#: src/web/common/pages_common.ml:245
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Sinulle on lähetetty vahvistusviesti."
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:243
 msgid " anytime during the election."
 msgstr " milloin vain äänestyksen aikana."
 
-#: src/web/common/pages_common.ml:231
+#: src/web/common/pages_common.ml:232
 msgid " as user "
 msgstr " käyttäjänä "
 
@@ -43,11 +43,11 @@ msgstr " äänestyslippua on vastaanotettu ja "
 msgid " ballot(s) have been accepted."
 msgstr " äänestyslippua on vastaanotettu."
 
-#: src/web/clients/election/home.ml:401
+#: src/web/clients/election/home.ml:403
 msgid " for more information."
 msgstr " saadaksesi lisätietoa."
 
-#: src/web/common/pages_common.ml:233
+#: src/web/common/pages_common.ml:234
 msgid " has been accepted."
 msgstr " on vastaanotettu."
 
@@ -59,29 +59,29 @@ msgstr " on laskettu."
 msgid " in the following box: "
 msgstr " seuraavaan laatikkoob: "
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:252
 msgid " is rejected, because "
 msgstr " ei hyväksytty, koska "
 
-#: src/web/clients/election/home.ml:361 src/web/clients/election/home.ml:330
+#: src/web/clients/election/home.ml:363 src/web/clients/election/home.ml:332
 msgid "%d blank ballot(s)"
 msgstr "%d tyhjää äänestyslippua"
 
-#: src/web/clients/election/home.ml:425 src/web/clients/election/home.ml:337
+#: src/web/clients/election/home.ml:429 src/web/clients/election/home.ml:339
 msgid "%d invalid ballot(s)"
 msgstr "%d hylättyä äänestyslippua"
 
-#: src/web/clients/election/home.ml:205
+#: src/web/clients/election/home.ml:206
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
 msgstr ""
 "%d seuraavista %d luottamushenkilöstä [julkista avainta] tarvitaan "
 "vaalituloksen salauksen purkamiseen:"
 
-#: src/web/clients/election/home.ml:355 src/web/clients/election/home.ml:324
+#: src/web/clients/election/home.ml:357 src/web/clients/election/home.ml:326
 msgid "%d valid (non-blank) ballot(s)"
 msgstr "%d kelvollista (ei tyhjää) äänestyslippua"
 
-#: src/web/clients/election/home.ml:356 src/web/clients/election/home.ml:325
+#: src/web/clients/election/home.ml:358 src/web/clients/election/home.ml:327
 msgid "%d valid ballot(s)"
 msgstr "%d kelvollinen/kelvollista äänestyslippu(a)"
 
@@ -97,11 +97,11 @@ msgstr "), tai missä tahansa yhteensopivassa osastossa."
 msgid ", or "
 msgstr ", tai "
 
-#: src/web/clients/election/home.ml:389
+#: src/web/clients/election/home.ml:391
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr "Condorcet-voittaja on ehdokas, jota suositaan yli kaikkien muiden."
 
-#: src/web/clients/election/home.ml:433
+#: src/web/clients/election/home.ml:436
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "Äänestyslipuke hylätään, jos kahdelle ehdokkaalle on annettu sama "
@@ -115,7 +115,7 @@ msgstr "Myös salattujen äänestyslippujen erittely on saatavilla lähteistä."
 msgid "A verification code has been sent to %s."
 msgstr "Vahvistuskoodi on lähetetty kohteeseen %s."
 
-#: src/web/clients/election/home.ml:278
+#: src/web/clients/election/home.ml:279
 msgid "About this election"
 msgstr "Tietoja näistä vaaleista"
 
@@ -123,7 +123,7 @@ msgstr "Tietoja näistä vaaleista"
 msgid "Accepted ballots"
 msgstr "Hyväksytyt äänestyslipukkeet"
 
-#: src/web/clients/election/home.ml:343
+#: src/web/clients/election/home.ml:345
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "Enemmistön tuomion mukaan sijoitus on:"
 
@@ -144,7 +144,7 @@ msgstr "Ylläpitäjä"
 msgid "Advanced mode"
 msgstr "Edistyneet työkalut"
 
-#: src/web/clients/election/home.ml:176
+#: src/web/clients/election/home.ml:178
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 "Seuraavat luottamushenkilöt (varmistusavaimet) vaaditaan tuloksen "
@@ -160,7 +160,7 @@ msgstr ""
 msgid "Alternatively, you can follow the link:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:794
+#: src/web/clients/election/home.ml:800
 msgid "Audit data not available."
 msgstr "Tarkastusdataa ei ole saatavilla."
 
@@ -217,7 +217,7 @@ msgstr "Väärä turvakoodi!"
 msgid "Best regards,"
 msgstr "Ystävällisin terveisin,"
 
-#: src/web/clients/election/home.ml:493
+#: src/web/clients/election/home.ml:498
 msgid "Blank vote"
 msgstr "Tyhjä ääni"
 
@@ -257,11 +257,11 @@ msgstr ""
 msgid "Could not get server configuration!"
 msgstr ""
 
-#: src/web/clients/election/home.ml:219
+#: src/web/clients/election/home.ml:224
 msgid "Credentials authority"
 msgstr "Valtuutuskoodien hallinta"
 
-#: src/web/clients/election/home.ml:228
+#: src/web/clients/election/home.ml:229
 msgid "Credentials fingerprint"
 msgstr "Valtuutuskoodien sormenjälki"
 
@@ -288,7 +288,7 @@ msgstr "Vaalitalo"
 msgid "Election identifier"
 msgstr "Vaalitunnus"
 
-#: src/web/clients/jslib/belenios_jslib.ml:271
+#: src/web/clients/jslib/belenios_jslib.ml:273
 msgid "Election public URL"
 msgstr ""
 
@@ -312,7 +312,7 @@ msgstr "Virhe ladattaessa äänestyslippuja!"
 msgid "Expected fingerprint:"
 msgstr "Oletettu sormenjälki:"
 
-#: src/web/common/pages_common.ml:255
+#: src/web/common/pages_common.ml:256
 msgid "FAIL!"
 msgstr "VIRHE!"
 
@@ -320,11 +320,11 @@ msgstr "VIRHE!"
 msgid "File:"
 msgstr "Tiedosto:"
 
-#: src/web/clients/election/home.ml:268
+#: src/web/clients/election/home.ml:269
 msgid "Final fingerprint"
 msgstr "Lopullinen sormenjälki"
 
-#: src/web/clients/election/home.ml:256
+#: src/web/clients/election/home.ml:257
 msgid "Fingerprint of the encrypted tally"
 msgstr "Salatun laskentatuloksen sormenjälki"
 
@@ -337,7 +337,7 @@ msgid "Get the source code"
 msgstr "Hae lähdekoodi"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:271
+#. src/web/common/pages_common.ml:273
 msgid "Go back to election"
 msgstr "Palaa äänestykseen"
 
@@ -349,27 +349,27 @@ msgstr "Jos yllä oleva linkki ei toimi:"
 msgid "If you want to vote, you must "
 msgstr "Jos haluat äänestää, sinun täytyy "
 
-#: src/web/clients/election/home.ml:461
+#: src/web/clients/election/home.ml:464
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "Toteutustavassamme saman verran ääniä saaneet ehdokkaat valitaan tai "
 "pudotetaan alkuperäisten vaalilistojen mukaisessa järjestyksessä."
 
-#: src/web/clients/election/home.ml:567
+#: src/web/clients/election/home.ml:572
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr ""
 "Se sisältää kaikki jätetyt äänestysliput selkeästi, satunnaisessa "
 "järjestyksessä."
 
-#: src/web/clients/election/home.ml:548
+#: src/web/clients/election/home.ml:553
 msgid "It is up to you to apply your favorite counting method."
 msgstr "On sinun tehtäväsi soveltaa suosikkilaskentatapaasi."
 
-#: src/web/clients/election/home.ml:698
+#: src/web/clients/election/home.ml:704
 msgid "It will open at %s (time left: %s)."
 msgstr "Se avautuu %s (%s kuluttua)."
 
-#: src/web/clients/election/home.ml:564
+#: src/web/clients/election/home.ml:569
 msgid "JSON result"
 msgstr "JSON-tulos"
 
@@ -392,11 +392,11 @@ msgstr "Kirjaudu"
 msgid "Log in with %s"
 msgstr "Kirjaudu %s:lla"
 
-#: src/web/clients/election/home.ml:472
+#: src/web/clients/election/home.ml:475
 msgid "Look at the raw events for more details."
 msgstr "Raaka-aineistosta voi katsoa lisätietoja."
 
-#: src/web/clients/election/home.ml:456
+#: src/web/clients/election/home.ml:459
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "STV-vaalitavasta on monia muunnelmia, esimerkiksi liittyen tasatilanteiden "
@@ -410,11 +410,11 @@ msgstr "Ehkä evästeet on estetty."
 msgid "Not found"
 msgstr "Ei löytynyt"
 
-#: src/web/clients/election/home.ml:636
+#: src/web/clients/election/home.ml:642
 msgid "Number of accepted ballots: "
 msgstr "Hyväksyttyjen äänestyslippujen likumäärä: "
 
-#: src/web/clients/election/home.ml:113
+#: src/web/clients/election/home.ml:112
 msgid "Number of voters"
 msgstr "Äänestäjien lukumäärä"
 
@@ -459,7 +459,7 @@ msgstr "Ole hyvä ja äänestä tästä henkilökohtaisen linkkisi kautta:"
 msgid "Powered by "
 msgstr "Voimanlähteenä "
 
-#: src/web/clients/election/advanced.ml:221
+#: src/web/clients/election/advanced.ml:222
 #. src/web/server/common/pages_common.ml:233
 #. src/web/server/common/pages_common.ml:225
 msgid "Proceed"
@@ -473,7 +473,7 @@ msgstr "Käsitellään äänestyslippua"
 msgid "Public page of the election:"
 msgstr "Vaalien julkinen sivu:"
 
-#: src/web/clients/election/home.ml:443
+#: src/web/clients/election/home.ml:446
 msgid "Raw events"
 msgstr "Raa'at tapahtumat"
 
@@ -481,7 +481,7 @@ msgstr "Raa'at tapahtumat"
 msgid "Redirection"
 msgstr "Uudelleenohjaus"
 
-#: src/web/clients/election/home.ml:676
+#: src/web/clients/election/home.ml:682
 msgid "Refresh status"
 msgstr ""
 
@@ -493,15 +493,15 @@ msgstr "Rajoitettu tila"
 msgid "Results will be published on the election page"
 msgstr "Tulokset julkaistaan vaalisivulla"
 
-#: src/web/clients/election/home.ml:130
+#: src/web/clients/election/home.ml:129
 msgid "Sealing log fingerprint"
 msgstr "Sinetöintilokin sormenjälki"
 
-#: src/web/clients/election/home.ml:788
+#: src/web/clients/election/home.ml:794
 msgid "See accepted ballots"
 msgstr "Katso hyväksytyt äänestysliput"
 
-#: src/web/clients/jslib/belenios_jslib.ml:336
+#: src/web/clients/jslib/belenios_jslib.ml:341
 msgid "Session expired"
 msgstr ""
 
@@ -509,14 +509,14 @@ msgstr ""
 msgid "Set"
 msgstr "Aseta"
 
-#: src/web/clients/election/home.ml:394
+#: src/web/clients/election/home.ml:396
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 "On olemassa useita tekniikoita päättää, kumpi ehdokas valitaan, kun "
 "Condorcet-voittajaa ei ole."
 
-#: src/web/clients/jslib/belenios_jslib.ml:276
-#. src/web/clients/jslib/belenios_jslib.ml:262
+#: src/web/clients/jslib/belenios_jslib.ml:278
+#. src/web/clients/jslib/belenios_jslib.ml:264
 msgid "Smart ballot tracker"
 msgstr ""
 
@@ -524,7 +524,7 @@ msgstr ""
 msgid "Specification"
 msgstr ""
 
-#: src/web/clients/election/home.ml:761
+#: src/web/clients/election/home.ml:767
 msgid "Start"
 msgstr "Aloita"
 
@@ -543,7 +543,7 @@ msgstr "Lähetä kopioimalla/liittämällä"
 msgid "Submit by file"
 msgstr "Lähetä tiedostotse"
 
-#: src/web/clients/election/home.ml:468
+#: src/web/clients/election/home.ml:471
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 "Tällaiset ehdokkaat merkitään \"TieWin\", kun heidät valitaan, ja \"TieLose\""
@@ -553,27 +553,27 @@ msgstr ""
 msgid "Terms of service"
 msgstr "Palveluehdot"
 
-#: src/web/common/pages_common.ml:247
+#: src/web/common/pages_common.ml:248
 msgid "Thank you for voting!"
 msgstr "Kiitos äänestämisestä!"
 
-#: src/web/clients/election/home.ml:406
+#: src/web/clients/election/home.ml:408
 msgid "The Schulze winners are:"
 msgstr "Schulzen voittajat ovat:"
 
-#: src/web/clients/election/home.ml:477
+#: src/web/clients/election/home.ml:480
 msgid "The Single Transferable Vote winners are:"
 msgstr "Yhden siirrettävän äänen voittajat ovat:"
 
-#: src/web/clients/election/home.ml:685
+#: src/web/clients/election/home.ml:691
 msgid "The election is being prepared. Please come back later."
 msgstr "Äänestystä valmistellaan. Voit palata myöhemmin uudelleen."
 
-#: src/web/clients/election/home.ml:732 src/web/clients/election/home.ml:726
+#: src/web/clients/election/home.ml:738 src/web/clients/election/home.ml:732
 msgid "The election is closed and being tallied."
 msgstr "Äänestys on suljettu ja sen tuloksia lasketaan."
 
-#: src/web/clients/election/home.ml:717
+#: src/web/clients/election/home.ml:723
 msgid "The election will close at %s (time left: %s)."
 msgstr "Äänestys sulkeutuu %s (%s kuluttua)."
 
@@ -585,11 +585,11 @@ msgstr "Sormenjäljet ovat erilaisia!"
 msgid "The fingerprints match!"
 msgstr "Sormenjäljet täsmäävät!"
 
-#: src/web/clients/election/home.ml:559
+#: src/web/clients/election/home.ml:564
 msgid "The raw results can be viewed in the "
 msgstr "Raakatuloksia voi tarkastella täällä "
 
-#: src/web/clients/election/home.ml:453
+#: src/web/clients/election/home.ml:456
 msgid "There has been at least one tie."
 msgstr "Laskennassa löydettiin ainakin yksi tasatilanne."
 
@@ -605,23 +605,23 @@ msgstr ""
 "Äänestystä ei ole olemassa. Näin voi käydä, jos äänestystä ei ole vielä "
 "avattu tai se on poistettu."
 
-#: src/web/clients/election/home.ml:736
+#: src/web/clients/election/home.ml:742
 msgid "This election has been tallied."
 msgstr "Tämän äänestyksen tulokset on laskettu."
 
-#: src/web/clients/election/home.ml:737
+#: src/web/clients/election/home.ml:743
 msgid "This election is archived."
 msgstr "Tämä äänestys on arkistoitu."
 
-#: src/web/clients/election/home.ml:706
+#: src/web/clients/election/home.ml:712
 msgid "This election is currently closed."
 msgstr "Tämä äänestys on juuri nyt suljettu."
 
-#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:208
+#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
 msgstr "Tämä äänestyslippu korvaa kaikki edelliset annetut äänestysliput."
 
-#: src/web/clients/election/home.ml:379 src/web/clients/election/home.ml:317
+#: src/web/clients/election/home.ml:381 src/web/clients/election/home.ml:319
 msgid "Tie:"
 msgstr "Tasatilanne:"
 
@@ -633,15 +633,15 @@ msgstr "Äänestääksesi tarvitset erillisessä sähköpostissa saamasi salasan
 msgid "To get more information, please contact:"
 msgstr "Saadaksesi lisätietoa, ole yhteydessä:"
 
-#: src/web/clients/election/home.ml:616
+#: src/web/clients/election/home.ml:622
 msgid "Total weight of accepted ballots:"
 msgstr "Hyväksyttyjen äänestyslippujen kokonaispaino:"
 
-#: src/web/clients/election/home.ml:243
+#: src/web/clients/election/home.ml:244
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "Vaalivirkailijat sekoittivat äänestysliput seuraavassa järjestyksessä:"
 
-#: src/web/clients/election/home.ml:603
+#: src/web/clients/election/home.ml:608
 msgid "Unsupported question type"
 msgstr "Kysymystyyppiä ei tueta"
 
@@ -655,11 +655,11 @@ msgstr "Käytä seuraavaa koodia:"
 msgid "Username:"
 msgstr "Käyttäjätunnus:"
 
-#: src/web/clients/election/home.ml:118
+#: src/web/clients/election/home.ml:117
 msgid "Voter list fingerprint"
 msgstr "Äänestäjälistan sormenjälki"
 
-#: src/web/clients/election/home.ml:141
+#: src/web/clients/election/home.ml:140
 msgid "Voters' total weight"
 msgstr "Äänestäjien kokonaispaino"
 
@@ -679,7 +679,7 @@ msgstr ""
 "Varoitus: tämä sähköposti sisältää henkilökohtaista ja luottamuksellista "
 "sisältöä. Älä välitä viestiä eteenpäin."
 
-#: src/web/clients/election/home.ml:398
+#: src/web/clients/election/home.ml:400
 msgid "We use here the Schulze method and we refer voters to "
 msgstr "Käytämme Schulzen menetelmää. Äänestäjät voivat tutustua siihen "
 
@@ -687,7 +687,7 @@ msgstr "Käytämme Schulzen menetelmää. Äänestäjät voivat tutustua siihen 
 msgid "Wish to help with translations?"
 msgstr "Haluatko auttaa kääntämisessä?"
 
-#: src/web/clients/election/advanced.ml:212
+#: src/web/clients/election/advanced.ml:213
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 "Olet lähettämässä äänestyslipun, jonka älykäs äänestyslipun tunniste on %s."
@@ -720,11 +720,11 @@ msgstr "Voit "
 msgid "You can also "
 msgstr "Voit myös "
 
-#: src/web/clients/election/home.ml:638
+#: src/web/clients/election/home.ml:644
 msgid "You can also download the "
 msgstr "Voit myös ladata "
 
-#: src/web/common/pages_common.ml:240
+#: src/web/common/pages_common.ml:241
 msgid "You can check its presence in the "
 msgstr "Voit tarkistaa, onko se läsnä "
 
@@ -744,7 +744,7 @@ msgstr "Et voi tunnistautua juuri nyt."
 msgid "You cannot log in now. Please try later."
 msgstr "Et voi kirjautua sisään juuri nyt. Yritä myöhemmin uudelleen."
 
-#: src/web/common/pages_common.ml:261
+#: src/web/common/pages_common.ml:262
 msgid "Your ballot for "
 msgstr "Äänestyslippusi äänestyksessä "
 
@@ -765,7 +765,7 @@ msgstr ""
 msgid "Your smart ballot tracker is"
 msgstr "Älykäs äänestyslipun tunnisteesi on"
 
-#: src/web/common/pages_common.ml:237
+#: src/web/common/pages_common.ml:238
 msgid "Your smart ballot tracker is "
 msgstr "Älykäs äänestyslipun tunnisteesi on "
 
@@ -781,11 +781,11 @@ msgstr "Valintasi äänestyksessä %s"
 msgid "Your vote was not recorded!"
 msgstr "Äänestyslippuasi ei kirjattu!"
 
-#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:217
+#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:218
 msgid "Your weight is %s."
 msgstr "Äänestyslippusi paino on %s."
 
-#: src/web/common/pages_common.ml:228
+#: src/web/common/pages_common.ml:229
 msgid "ballot box"
 msgstr "vaaliuurna"
 
@@ -813,7 +813,7 @@ msgstr "asetukset"
 msgid "public data"
 msgstr "julkinen tietoaineisto"
 
-#: src/web/clients/election/home.ml:626
+#: src/web/clients/election/home.ml:632
 msgid "raw result"
 msgstr "raakatulos"
 
@@ -833,7 +833,7 @@ msgstr "aloita alusta"
 msgid "terms of service"
 msgstr "käyttöehdot"
 
-#: src/web/clients/election/home.ml:400
+#: src/web/clients/election/home.ml:402
 msgid "the Wikipedia page"
 msgstr "Wikipedia-sivulla"
 

@@ -20,15 +20,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (daca ati uitat-o, de exemplu)."
 
-#: src/web/common/pages_common.ml:244
+#: src/web/common/pages_common.ml:245
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Un e-mail de confirmare v-a fost trimis."
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:243
 msgid " anytime during the election."
 msgstr " în orice moment pe durata alegerii."
 
-#: src/web/common/pages_common.ml:231
+#: src/web/common/pages_common.ml:232
 msgid " as user "
 msgstr ""
 
@@ -44,11 +44,11 @@ msgstr " buletin(e) de vot au fost acceptat(e), și "
 msgid " ballot(s) have been accepted."
 msgstr " buletin(e) de vot au fost acceptat(e)."
 
-#: src/web/clients/election/home.ml:401
+#: src/web/clients/election/home.ml:403
 msgid " for more information."
 msgstr ""
 
-#: src/web/common/pages_common.ml:233
+#: src/web/common/pages_common.ml:234
 msgid " has been accepted."
 msgstr " a fost acceptat."
 
@@ -60,27 +60,27 @@ msgstr " au fost contorizate."
 msgid " in the following box: "
 msgstr ""
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:252
 msgid " is rejected, because "
 msgstr " este resprins, deoarece "
 
-#: src/web/clients/election/home.ml:361 src/web/clients/election/home.ml:330
+#: src/web/clients/election/home.ml:363 src/web/clients/election/home.ml:332
 msgid "%d blank ballot(s)"
 msgstr ""
 
-#: src/web/clients/election/home.ml:425 src/web/clients/election/home.ml:337
+#: src/web/clients/election/home.ml:429 src/web/clients/election/home.ml:339
 msgid "%d invalid ballot(s)"
 msgstr ""
 
-#: src/web/clients/election/home.ml:205
+#: src/web/clients/election/home.ml:206
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:355 src/web/clients/election/home.ml:324
+#: src/web/clients/election/home.ml:357 src/web/clients/election/home.ml:326
 msgid "%d valid (non-blank) ballot(s)"
 msgstr ""
 
-#: src/web/clients/election/home.ml:356 src/web/clients/election/home.ml:325
+#: src/web/clients/election/home.ml:358 src/web/clients/election/home.ml:327
 msgid "%d valid ballot(s)"
 msgstr ""
 
@@ -96,11 +96,11 @@ msgstr ""
 msgid ", or "
 msgstr ", sau "
 
-#: src/web/clients/election/home.ml:389
+#: src/web/clients/election/home.ml:391
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 
-#: src/web/clients/election/home.ml:433
+#: src/web/clients/election/home.ml:436
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 
@@ -112,7 +112,7 @@ msgstr ""
 msgid "A verification code has been sent to %s."
 msgstr ""
 
-#: src/web/clients/election/home.ml:278
+#: src/web/clients/election/home.ml:279
 msgid "About this election"
 msgstr ""
 
@@ -120,7 +120,7 @@ msgstr ""
 msgid "Accepted ballots"
 msgstr "Buletinele de vot acceptate"
 
-#: src/web/clients/election/home.ml:343
+#: src/web/clients/election/home.ml:345
 msgid "According to Majority Judgment, the ranking is:"
 msgstr ""
 
@@ -141,7 +141,7 @@ msgstr ""
 msgid "Advanced mode"
 msgstr "Mod avansat"
 
-#: src/web/clients/election/home.ml:176
+#: src/web/clients/election/home.ml:178
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 
@@ -153,7 +153,7 @@ msgstr ""
 msgid "Alternatively, you can follow the link:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:794
+#: src/web/clients/election/home.ml:800
 msgid "Audit data not available."
 msgstr ""
 
@@ -209,7 +209,7 @@ msgstr ""
 msgid "Best regards,"
 msgstr ""
 
-#: src/web/clients/election/home.ml:493
+#: src/web/clients/election/home.ml:498
 msgid "Blank vote"
 msgstr "Vot alb"
 
@@ -249,11 +249,11 @@ msgstr ""
 msgid "Could not get server configuration!"
 msgstr ""
 
-#: src/web/clients/election/home.ml:219
+#: src/web/clients/election/home.ml:224
 msgid "Credentials authority"
 msgstr ""
 
-#: src/web/clients/election/home.ml:228
+#: src/web/clients/election/home.ml:229
 msgid "Credentials fingerprint"
 msgstr ""
 
@@ -280,7 +280,7 @@ msgstr ""
 msgid "Election identifier"
 msgstr ""
 
-#: src/web/clients/jslib/belenios_jslib.ml:271
+#: src/web/clients/jslib/belenios_jslib.ml:273
 msgid "Election public URL"
 msgstr ""
 
@@ -304,7 +304,7 @@ msgstr ""
 msgid "Expected fingerprint:"
 msgstr ""
 
-#: src/web/common/pages_common.ml:255
+#: src/web/common/pages_common.ml:256
 msgid "FAIL!"
 msgstr "EȘEC!"
 
@@ -312,11 +312,11 @@ msgstr "EȘEC!"
 msgid "File:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:268
+#: src/web/clients/election/home.ml:269
 msgid "Final fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:256
+#: src/web/clients/election/home.ml:257
 msgid "Fingerprint of the encrypted tally"
 msgstr ""
 
@@ -329,7 +329,7 @@ msgid "Get the source code"
 msgstr "Obține codul sursă"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:271
+#. src/web/common/pages_common.ml:273
 msgid "Go back to election"
 msgstr "Întoarcere la pagina de start a alegerii"
 
@@ -341,23 +341,23 @@ msgstr ""
 msgid "If you want to vote, you must "
 msgstr "Daca vreti sa votati, trebuie sa "
 
-#: src/web/clients/election/home.ml:461
+#: src/web/clients/election/home.ml:464
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 
-#: src/web/clients/election/home.ml:567
+#: src/web/clients/election/home.ml:572
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr ""
 
-#: src/web/clients/election/home.ml:548
+#: src/web/clients/election/home.ml:553
 msgid "It is up to you to apply your favorite counting method."
 msgstr ""
 
-#: src/web/clients/election/home.ml:698
+#: src/web/clients/election/home.ml:704
 msgid "It will open at %s (time left: %s)."
 msgstr ""
 
-#: src/web/clients/election/home.ml:564
+#: src/web/clients/election/home.ml:569
 msgid "JSON result"
 msgstr "rezultat JSON"
 
@@ -380,11 +380,11 @@ msgstr "Conexiune"
 msgid "Log in with %s"
 msgstr ""
 
-#: src/web/clients/election/home.ml:472
+#: src/web/clients/election/home.ml:475
 msgid "Look at the raw events for more details."
 msgstr ""
 
-#: src/web/clients/election/home.ml:456
+#: src/web/clients/election/home.ml:459
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 
@@ -396,11 +396,11 @@ msgstr ""
 msgid "Not found"
 msgstr "Inexistent"
 
-#: src/web/clients/election/home.ml:636
+#: src/web/clients/election/home.ml:642
 msgid "Number of accepted ballots: "
 msgstr "Numărul buletinelor de vot acceptate: "
 
-#: src/web/clients/election/home.ml:113
+#: src/web/clients/election/home.ml:112
 msgid "Number of voters"
 msgstr ""
 
@@ -444,7 +444,7 @@ msgstr ""
 msgid "Powered by "
 msgstr "Realizat de "
 
-#: src/web/clients/election/advanced.ml:221
+#: src/web/clients/election/advanced.ml:222
 #. src/web/server/common/pages_common.ml:233
 #. src/web/server/common/pages_common.ml:225
 msgid "Proceed"
@@ -458,7 +458,7 @@ msgstr ""
 msgid "Public page of the election:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:443
+#: src/web/clients/election/home.ml:446
 msgid "Raw events"
 msgstr ""
 
@@ -466,7 +466,7 @@ msgstr ""
 msgid "Redirection"
 msgstr ""
 
-#: src/web/clients/election/home.ml:676
+#: src/web/clients/election/home.ml:682
 msgid "Refresh status"
 msgstr ""
 
@@ -478,15 +478,15 @@ msgstr ""
 msgid "Results will be published on the election page"
 msgstr "Rezultatele vor fi publicate pe pagina alegerii"
 
-#: src/web/clients/election/home.ml:130
+#: src/web/clients/election/home.ml:129
 msgid "Sealing log fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:788
+#: src/web/clients/election/home.ml:794
 msgid "See accepted ballots"
 msgstr "Consultă buletinele de vot acceptate"
 
-#: src/web/clients/jslib/belenios_jslib.ml:336
+#: src/web/clients/jslib/belenios_jslib.ml:341
 msgid "Session expired"
 msgstr ""
 
@@ -494,12 +494,12 @@ msgstr ""
 msgid "Set"
 msgstr ""
 
-#: src/web/clients/election/home.ml:394
+#: src/web/clients/election/home.ml:396
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 
-#: src/web/clients/jslib/belenios_jslib.ml:276
-#. src/web/clients/jslib/belenios_jslib.ml:262
+#: src/web/clients/jslib/belenios_jslib.ml:278
+#. src/web/clients/jslib/belenios_jslib.ml:264
 msgid "Smart ballot tracker"
 msgstr ""
 
@@ -507,7 +507,7 @@ msgstr ""
 msgid "Specification"
 msgstr ""
 
-#: src/web/clients/election/home.ml:761
+#: src/web/clients/election/home.ml:767
 msgid "Start"
 msgstr "Incepeti"
 
@@ -526,7 +526,7 @@ msgstr ""
 msgid "Submit by file"
 msgstr ""
 
-#: src/web/clients/election/home.ml:468
+#: src/web/clients/election/home.ml:471
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 
@@ -534,27 +534,27 @@ msgstr ""
 msgid "Terms of service"
 msgstr ""
 
-#: src/web/common/pages_common.ml:247
+#: src/web/common/pages_common.ml:248
 msgid "Thank you for voting!"
 msgstr "Vă mulțumim pentru participare!"
 
-#: src/web/clients/election/home.ml:406
+#: src/web/clients/election/home.ml:408
 msgid "The Schulze winners are:"
 msgstr "Castigatorii, dupa metoda Schulze, sunt:"
 
-#: src/web/clients/election/home.ml:477
+#: src/web/clients/election/home.ml:480
 msgid "The Single Transferable Vote winners are:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:685
+#: src/web/clients/election/home.ml:691
 msgid "The election is being prepared. Please come back later."
 msgstr ""
 
-#: src/web/clients/election/home.ml:732 src/web/clients/election/home.ml:726
+#: src/web/clients/election/home.ml:738 src/web/clients/election/home.ml:732
 msgid "The election is closed and being tallied."
 msgstr "Alegerea este închisă și în curs de contorizare."
 
-#: src/web/clients/election/home.ml:717
+#: src/web/clients/election/home.ml:723
 msgid "The election will close at %s (time left: %s)."
 msgstr ""
 
@@ -566,11 +566,11 @@ msgstr ""
 msgid "The fingerprints match!"
 msgstr ""
 
-#: src/web/clients/election/home.ml:559
+#: src/web/clients/election/home.ml:564
 msgid "The raw results can be viewed in the "
 msgstr "Rezultatele brute pot fi consultate in "
 
-#: src/web/clients/election/home.ml:453
+#: src/web/clients/election/home.ml:456
 msgid "There has been at least one tie."
 msgstr ""
 
@@ -584,23 +584,23 @@ msgstr ""
 "Aceasta alegere nu exista. Asta se poate intampla pentru alegeri care nu au "
 "inceput inca sau au fost sterse."
 
-#: src/web/clients/election/home.ml:736
+#: src/web/clients/election/home.ml:742
 msgid "This election has been tallied."
 msgstr "Această alegere a fost contorizata."
 
-#: src/web/clients/election/home.ml:737
+#: src/web/clients/election/home.ml:743
 msgid "This election is archived."
 msgstr "Această alegere este arhivată."
 
-#: src/web/clients/election/home.ml:706
+#: src/web/clients/election/home.ml:712
 msgid "This election is currently closed."
 msgstr "Această alegere este în prezent închisă."
 
-#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:208
+#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
 msgstr "Acest vot înlocuiește orice vot precedent."
 
-#: src/web/clients/election/home.ml:379 src/web/clients/election/home.ml:317
+#: src/web/clients/election/home.ml:381 src/web/clients/election/home.ml:319
 msgid "Tie:"
 msgstr "Egalitate:"
 
@@ -612,15 +612,15 @@ msgstr "Pentru a depune votul vostru, vă trebuie o parolă, ce va fi trimisă �
 msgid "To get more information, please contact:"
 msgstr "Pentru mai multe informatii, va rugam sa contactati:"
 
-#: src/web/clients/election/home.ml:616
+#: src/web/clients/election/home.ml:622
 msgid "Total weight of accepted ballots:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:243
+#: src/web/clients/election/home.ml:244
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:603
+#: src/web/clients/election/home.ml:608
 msgid "Unsupported question type"
 msgstr ""
 
@@ -634,11 +634,11 @@ msgstr ""
 msgid "Username:"
 msgstr "Nume utilizator:"
 
-#: src/web/clients/election/home.ml:118
+#: src/web/clients/election/home.ml:117
 msgid "Voter list fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:141
+#: src/web/clients/election/home.ml:140
 msgid "Voters' total weight"
 msgstr ""
 
@@ -654,7 +654,7 @@ msgstr ""
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 
-#: src/web/clients/election/home.ml:398
+#: src/web/clients/election/home.ml:400
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 
@@ -662,7 +662,7 @@ msgstr ""
 msgid "Wish to help with translations?"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:212
+#: src/web/clients/election/advanced.ml:213
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
@@ -694,11 +694,11 @@ msgstr "Puteti "
 msgid "You can also "
 msgstr "Puteti de asemenea "
 
-#: src/web/clients/election/home.ml:638
+#: src/web/clients/election/home.ml:644
 msgid "You can also download the "
 msgstr "De asemenea, puteți descărca "
 
-#: src/web/common/pages_common.ml:240
+#: src/web/common/pages_common.ml:241
 msgid "You can check its presence in the "
 msgstr "Puteți verifica prezența sa în "
 
@@ -718,7 +718,7 @@ msgstr ""
 msgid "You cannot log in now. Please try later."
 msgstr ""
 
-#: src/web/common/pages_common.ml:261
+#: src/web/common/pages_common.ml:262
 msgid "Your ballot for "
 msgstr "Buletinul de vot pentru "
 
@@ -738,7 +738,7 @@ msgstr ""
 msgid "Your smart ballot tracker is"
 msgstr "Numărul vostru de identificare este"
 
-#: src/web/common/pages_common.ml:237
+#: src/web/common/pages_common.ml:238
 msgid "Your smart ballot tracker is "
 msgstr "Numărul vostru de identificare este "
 
@@ -754,11 +754,11 @@ msgstr "Votul vostru pentru alegerea %s"
 msgid "Your vote was not recorded!"
 msgstr "Votul dvoastra nu a fost inregistrat !"
 
-#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:217
+#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:218
 msgid "Your weight is %s."
 msgstr ""
 
-#: src/web/common/pages_common.ml:228
+#: src/web/common/pages_common.ml:229
 msgid "ballot box"
 msgstr "urna de vot"
 
@@ -786,7 +786,7 @@ msgstr "parametrii"
 msgid "public data"
 msgstr ""
 
-#: src/web/clients/election/home.ml:626
+#: src/web/clients/election/home.ml:632
 msgid "raw result"
 msgstr ""
 
@@ -806,7 +806,7 @@ msgstr "incepeti de la inceput"
 msgid "terms of service"
 msgstr ""
 
-#: src/web/clients/election/home.ml:400
+#: src/web/clients/election/home.ml:402
 msgid "the Wikipedia page"
 msgstr ""
 
