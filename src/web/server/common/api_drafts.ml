@@ -481,7 +481,7 @@ let generate_server_trustee (type a b) (w : (a, b) group)
   let module G = (val w) in
   let module Trustees = (val Trustees.get_by_version se.version) in
   let module KG = Trustees.MakeBasic (G) in
-  let seed = generate_token 22 in
+  let seed = generate_token 44 in
   let parameters = Some (KG.make seed) in
   Lwt.return { kind = Server { seed }; parameters }
 
@@ -847,7 +847,7 @@ let import_trustees (type a b) (w : (a, b) group)
                   let* kind, parameters =
                     match id with
                     | None ->
-                        let seed = generate_token 22 in
+                        let seed = generate_token 44 in
                         let parameters = KG.make seed in
                         Lwt.return (Server { seed }, Some parameters)
                     | Some id ->

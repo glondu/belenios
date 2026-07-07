@@ -28,7 +28,7 @@ open Api_generic
 let process_request_new (r : credentials_new_request) (Draft (_, draft))
     voter_list () =
   let algorithm = default_algorithm in
-  let seed = generate_token 22 in
+  let seed = generate_token 44 in
   let module G =
     (val Belenios.Group.of_string ~version:draft.version draft.group)
   in

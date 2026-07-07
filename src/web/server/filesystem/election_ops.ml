@@ -212,7 +212,7 @@ let validate_election_exn s uuid =
         let ts = x.trustees in
         match ts with
         | [] ->
-            let seed = generate_token 22 in
+            let seed = generate_token 44 in
             let p = KG.make seed in
             Lwt.return ([ None ], [ `Single p ], `KEY seed)
         | _ :: _ ->
@@ -268,7 +268,7 @@ let validate_election_exn s uuid =
                   | None -> failwith "inconsistent state")
                 ts
             in
-            let seed = generate_token 22 in
+            let seed = generate_token 44 in
             let server_public_key = KG.make seed in
             Lwt.return
               ( None :: trustees,

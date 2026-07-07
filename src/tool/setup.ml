@@ -57,7 +57,7 @@ module Tkeygen : CMDLINER_MODULE = struct
     let module G = (val Group.of_string ~version group) in
     let module Trustees = (val Trustees.get_by_version version) in
     let module KG = Trustees.MakeBasic (G) in
-    let seed = generate_token 22 in
+    let seed = generate_token 44 in
     let parameters = KG.make ?name seed in
     let id =
       String.sub
