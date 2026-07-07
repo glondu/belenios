@@ -415,8 +415,7 @@ let trustee_generate_link kind =
     let uuid = get_current_uuid () in
     let* prefix = Cache.get_prefix () in
     let href =
-      Printf.sprintf "%strustee#generate/%s/%s" prefix (Uuid.to_string uuid)
-        token
+      Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string uuid) token
     in
     let* subject, body = generate_mail [ lang ] href in
     Lwt.return
@@ -441,7 +440,7 @@ let trustee_decrypt_link ~token ~recipient =
   let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
   let href =
-    Printf.sprintf "%strustee#decrypt/%s/%s" prefix (Uuid.to_string uuid) token
+    Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string uuid) token
   in
   let* subject, body = Mails.mail_trustee_tally [ lang ] href in
   Lwt.return
@@ -680,7 +679,7 @@ let trustee_shuffle_link ~token ~recipient =
   let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
   let href =
-    Printf.sprintf "%strustee#shuffle/%s/%s" prefix (Uuid.to_string uuid) token
+    Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string uuid) token
   in
   let* subject, body = Mails.mail_shuffle [ lang ] href in
   Lwt.return

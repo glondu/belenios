@@ -37,11 +37,10 @@ type keypair = {
   filename : uuid -> string;
 }
 
-let generate_basic (Draft (_, draft)) ~name () =
-  let version = draft.version in
-  let group = draft.group in
-  let module G = (val Group.of_string ~version group : GROUP) in
-  let module Trustees = (val Trustees.get_by_version version) in
+let generate_basic (type a b) (election : (a, b) Election.u) ~name () =
+  let module W = (val election) in
+  let module G = W.G in
+  let module Trustees = (val Trustees.get_by_version W.version) in
   let module KG = Trustees.MakeBasic (G) in
   let seed = generate_token 22 in
   let public_key' = KG.make ~name seed in
@@ -58,11 +57,10 @@ let generate_basic (Draft (_, draft)) ~name () =
   Lwt.return
     { private_key = seed; public_key; fingerprint; mime_type; filename }
 
-let generate_threshold (Draft (_, draft)) context () =
-  let version = draft.version in
-  let group = draft.group in
-  let module G = (val Group.of_string ~version group : GROUP) in
-  let module Trustees = (val Trustees.get_by_version version) in
+let generate_threshold (type a b) (election : (a, b) Election.u) context () =
+  let module W = (val election) in
+  let module G = W.G in
+  let module Trustees = (val Trustees.get_by_version W.version) in
   let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
   let module T = Trustees.MakePedersen (C) in
@@ -80,12 +78,13 @@ let generate_threshold (Draft (_, draft)) context () =
   in
   Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
 
-let threshold_step (Draft (_, draft)) (type a b) (w : (a, b) group)
+let threshold_step (type a b) (election : (a, b) Election.u)
     (pedersen : (a, b) pedersen) ~private_key =
-  let module G = (val w) in
+  let module W = (val election) in
+  let module G = W.G in
   let context = pedersen.context.context in
   let certs = { context; certs = pedersen.certs } in
-  let module Trustees = (val Trustees.get_by_version draft.version) in
+  let module Trustees = (val Trustees.get_by_version W.version) in
   let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
   let module T = Trustees.MakePedersen (C) in
@@ -233,8 +232,8 @@ let error () =
   let open (val !Belenios_js.I18n.gettext) in
   Lwt.return [ txt @@ s_ "Error" ]
 
-let compute_threshold_step ~token ~url draft private_key_ref (type a b)
-    (w : (a, b) group) (pedersen : (a, b) pedersen) =
+let compute_threshold_step ~token ~url private_key_ref (type a b)
+    (election : (a, b) Election.u) (pedersen : (a, b) pedersen) =
   let open (val !Belenios_js.I18n.gettext) in
   match pedersen.step with
   | 3 | 5 ->
@@ -244,7 +243,7 @@ let compute_threshold_step ~token ~url draft private_key_ref (type a b)
       let handle_private_key private_key =
         Dom.removeChild container input_private_key_div;
         private_key_ref := Some private_key;
-        let* data = threshold_step draft w pedersen ~private_key in
+        let* data = threshold_step election pedersen ~private_key in
         let* x = Api.(post url (`Trustee token) data) in
         let msg, continue =
           match x.code with
@@ -304,9 +303,10 @@ let compute_threshold_step ~token ~url draft private_key_ref (type a b)
       let* contents = error () in
       Lwt.return (contents, None)
 
-let actionable_basic ~uuid ~token ~url draft = function
+let actionable_basic ~uuid ~token ~url election = function
   | `Init name ->
-      generate_key ~uuid ~token ~url (generate_basic draft ~name) (fun _ -> [])
+      generate_key ~uuid ~token ~url (generate_basic election ~name) (fun _ ->
+          [])
   | `Done ->
       let open (val !Belenios_js.I18n.gettext) in
       Lwt.return
@@ -318,8 +318,8 @@ let get_status ~url ~token =
   | Error _ -> Lwt.return_none
   | Ok (x, _) -> Lwt.return_some x
 
-let actionable_threshold ~uuid ~token (type a b) (w : (a, b) group) ~url draft
-    set_step s =
+let actionable_threshold ~uuid ~token (type a b) ~url
+    (election : (a, b) Election.u) set_step s =
   let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   let private_key = ref None in
@@ -348,7 +348,7 @@ let actionable_threshold ~uuid ~token (type a b) (w : (a, b) group) ~url draft
         in
         let* contents =
           generate_key ~uuid ~token ~url
-            (generate_threshold draft context)
+            (generate_threshold election context)
             continue
         in
         Lwt.return (1, contents, Some t)
@@ -357,7 +357,7 @@ let actionable_threshold ~uuid ~token (type a b) (w : (a, b) group) ~url draft
         Lwt.return (1, contents, t)
     | `Pedersen (p : (a, b) pedersen) ->
         let* contents, t =
-          compute_threshold_step ~token ~url draft private_key w p
+          compute_threshold_step ~token ~url private_key election p
         in
         Lwt.return (p.step, contents, t)
   in
@@ -383,23 +383,17 @@ let actionable_threshold ~uuid ~token (type a b) (w : (a, b) group) ~url draft
   Lwt.async (fun () -> loop s);
   Lwt.return [ Tyxml_js.Of_dom.of_div container ]
 
-let generate configuration uuid ~token =
+let generate configuration uuid ~token (type a b) ~url
+    (election : (a, b) Election.u) status =
   let open (val !Belenios_js.I18n.gettext) in
-  let@ draft cont =
-    let* x = Api.(get (draft uuid) `Nobody) in
-    match x with Error _ -> error () | Ok (x, _) -> cont x
-  in
-  let (Draft (_, draft')) = draft in
-  let module G = (val Group.of_string ~version:draft'.version draft'.group) in
-  let url = Api.trustee_election uuid (module G) in
-  let* status = get_status ~url ~token in
+  let module W = (val election) in
   let* x =
     match status with
-    | Some (`Draft (`Basic s)) ->
-        let* a = actionable_basic ~uuid ~token ~url draft s in
+    | `Basic s ->
+        let* a = actionable_basic ~uuid ~token ~url election s in
         let h = h3 [ txt @@ s_ "Trustee key generation" ] in
         Lwt.return_some (a, h)
-    | Some (`Draft (`Threshold s)) ->
+    | `Threshold s ->
         let h, set_step =
           let h = h3 [] in
           let container = Tyxml_js.To_dom.of_h3 h in
@@ -411,9 +405,7 @@ let generate configuration uuid ~token =
                 @@ s_ "Collaborative key generation"
                 ^^^ step )
         in
-        let* a =
-          actionable_threshold ~uuid ~token (module G) ~url draft set_step s
-        in
+        let* a = actionable_threshold ~uuid ~token ~url election set_step s in
         Lwt.return_some (a, h)
     | _ -> Lwt.return_none
   in

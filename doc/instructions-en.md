@@ -93,7 +93,7 @@ of the resulting page has one of the following forms (where PREFIX and
 UUID are as defined above, and TOKEN is a random-looking character
 string):
 
-- `PREFIX/trustee#generate/UUID/TOKEN`
+- `PREFIX/trustee#UUID/TOKEN`
 
 Moreover, it is expected that the trustee saves:
 
@@ -137,7 +137,7 @@ starts by a shuffle phase. For this, it is expected from the trustee that
 they:
 
 - check that the URL of the page has the following form:
-  `PREFIX/trustee#shuffle/UUID/TOKEN`;
+  `PREFIX/trustee#UUID/TOKEN`;
 - save the fingerprint of the ballot box after their shuffle: `fingerprint
   of your shuffle`;
 - check immediately thereafter that this fingerprint is present on the
@@ -147,7 +147,7 @@ In all cases, the tally then proceeds with a phase where the trustee uses
 their private key to decrypt the result. It is expected that the trustee:
 
 - check that the URL of the page has the following form:
-  `PREFIX/trustee#decrypt/UUID/TOKEN`;
+  `PREFIX/trustee#UUID/TOKEN`;
 - check (only for alternative voting) the fingerprint of their shuffle
   `fingerprint of your shuffle` as saved in the previous step is present
   on the page of the election, next to their name. If this is not the case,

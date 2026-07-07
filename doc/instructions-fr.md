@@ -98,7 +98,7 @@ lien, et s'assurer que l'URL de la page qu'elle obtient a une des
 formes suivantes (où PREFIXE et UUID sont comme définis ci-dessus, et
 JETON est une chaîne de caractères d'apparence aléatoire) :
 
-- `PREFIXE/trustee#generate/UUID/JETON`
+- `PREFIXE/trustee#UUID/JETON`
 
 De plus, il est attendu que l'autorité de déchiffrement sauvegarde :
 
@@ -143,7 +143,7 @@ dépouillement commence par une phase de mélange.  Pour cette étape, il
 est attendu que l'autorité de déchiffrement :
 
 - vérifie que l'URL de la page a la forme suivante:
-  `PREFIXE/trustee#shuffle/UUID/JETON`
+  `PREFIXE/trustee#UUID/JETON`
 - sauvegarde l'empreinte de l'urne mélangée : `empreinte de votre mélange`;
 - et vérifie immédiatement sa présence sur la page d'accueil de
   l'élection  (pour s'assurer que son mélange n'a pas été ignoré).
@@ -154,7 +154,7 @@ l'ouverture de l'urne. Il est attendu que l'autorité de
 déchiffrement :
 
 - vérifie que l'URL de la page a la forme suivante:
-  `PREFIXE/trustee#decrypt/UUID/JETON`
+  `PREFIXE/trustee#UUID/JETON`
 - vérifie que  (seulement dans le mode vote alternatif) l'empreinte de
   l'urne mélangée à l'étape précédente : `empreinte de votre mélange`
   apparait sur la page d'accueil de l'élection, à côté du nom de

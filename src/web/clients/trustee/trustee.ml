@@ -19,10 +19,16 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
 open Belenios
 open Belenios_js.Secondary_ui
+open Belenios_js.Session
+
+let fail () =
+  let open (val !Belenios_js.I18n.gettext) in
+  Lwt.return [ div [ txt @@ s_ "Error" ] ]
 
 module App (U : UI) = struct
   let component = "admin"
@@ -31,13 +37,26 @@ module App (U : UI) = struct
     let open (val !Belenios_js.I18n.gettext) in
     U.set_title @@ s_ "Trustee management";
     match path with
-    | [ "generate"; uuid; token ] ->
-        Generate.generate configuration (Uuid.of_string uuid) ~token
-    | [ "decrypt"; uuid; token ] -> Decrypt.decrypt (Uuid.of_string uuid) ~token
-    | [ "shuffle"; uuid; token ] -> Shuffle.shuffle (Uuid.of_string uuid) ~token
     | [ "check" ] -> Check.check ()
     | [ "check"; uuid ] -> Check.check ~uuid ()
-    | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]
+    | [ uuid; token ] -> (
+        let uuid = Uuid.of_string uuid in
+        let@ election cont =
+          let* x = Api.(get (election uuid) `Nobody) in
+          match x with Error _ -> fail () | Ok (x, _) -> cont x
+        in
+        let module W = (val election) in
+        let url = Api.trustee_election uuid (module W.G) in
+        let@ trustee_status cont =
+          let* x = Api.(get url (`Trustee token)) in
+          match x with Error _ -> fail () | Ok (x, _) -> cont x
+        in
+        match trustee_status with
+        | `Draft x ->
+            Generate.generate configuration uuid ~token ~url (module W) x
+        | `Shuffle -> Shuffle.shuffle uuid ~token
+        | `Tally x -> Decrypt.decrypt uuid ~token ~url (module W) x)
+    | _ -> fail ()
 end
 
 module _ = Make (App) ()
