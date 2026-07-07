@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt
 open Lwt.Syntax
 open Belenios
 open Belenios_web_api
@@ -113,9 +112,9 @@ let append_to_shuffles s (type a b) (election : (a, b) Election.u) owner
         ]
     in
     match x with
-    | true -> return_some shuffle_h
+    | true -> Lwt.return_some shuffle_h
     | false -> Lwt.fail @@ Failure "race condition in append_to_shuffles"
-  else return_none
+  else Lwt.return_none
 
 let make_result_transaction yojson_of_result result =
   let payload = !+(yojson_of_election_result yojson_of_result) result in
@@ -286,7 +285,8 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
   in
   assert (new_state <> `Archived);
   let* () =
-    if update && new_state <> state then set_state new_state else return_unit
+    if update && new_state <> state then set_state new_state
+    else Lwt.return_unit
   in
   return (new_state, set_state)
 
@@ -372,7 +372,7 @@ let add_ballot s (election : Election.t) last ballot =
   match x with
   | true ->
       let () = Public_archive.clear_ballot_cache (Storage.E.get_uuid s) in
-      return hash
+      Lwt.return hash
   | false -> Lwt.fail @@ Failure "race condition in add_ballot"
 
 let get_credential_weight s credential =
@@ -436,7 +436,7 @@ let get_credential_record s credential =
   let&* { ballot = cr_ballot; _ } = Lopt.get_value credential_mapping in
   let* cr_username = get_credential_user s credential in
   let* cr_weight = get_credential_weight s credential in
-  return_some { cr_ballot; cr_weight; cr_username }
+  Lwt.return_some { cr_ballot; cr_weight; cr_username }
 
 type precast_data = {
   credential : string;
@@ -488,7 +488,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
   let get_user_record user =
     let* x = Storage.E.get s (Extended_record user) in
     let&* { credential; _ } = Lopt.get_value x in
-    return_some credential
+    Lwt.return_some credential
   in
   let@ x cont =
     let { credential; credential_record = cr } = precast_data in
@@ -520,7 +520,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
     | Some _ -> cont @@ Error `ExpiredBallot
   in
   match x with
-  | Error _ as x -> return x
+  | Error _ as x -> Lwt.return x
   | Ok (credential, old) ->
       let@ hash, revote =
        fun cont ->
@@ -529,7 +529,8 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
             let* h = add_ballot s election last ballot in
             cont (h, false)
         | Some _ ->
-            if !Web_config.deny_revote then return @@ Error `RevoteNotAllowed
+            if !Web_config.deny_revote then
+              Lwt.return @@ Error `RevoteNotAllowed
             else
               let* h = add_ballot s election last ballot in
               cont (h, true)
@@ -543,7 +544,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
         { username = user; date; credential }
         |> Storage.E.set s (Extended_record user) Value
       in
-      return (Ok (hash, revote))
+      Lwt.return (Ok (hash, revote))
 
 let cast_ballot s ~ballot ~user ~weight date ~precast_data =
   let@ election =
@@ -600,19 +601,19 @@ let compute_audit_cache s =
         | None -> Lwt.return_none
         | Some x -> Lwt.return_some @@ Hash.hash_string x
       in
-      return_some { voters_hash; checksums; threshold = None; sealing_log }
+      Lwt.return_some { voters_hash; checksums; threshold = None; sealing_log }
 
 let get_audit_cache s =
   let* cache = Storage.E.get s Audit_cache in
   match Lopt.get_value cache with
-  | Some x -> return_some x
+  | Some x -> Lwt.return_some x
   | None -> (
       let* cache = compute_audit_cache s in
       match cache with
-      | None -> return_none
+      | None -> Lwt.return_none
       | Some cache ->
           let* () = Storage.E.set s Audit_cache Value cache in
-          return_some cache)
+          Lwt.return_some cache)
 
 let send_credentials s ~admin_id (Draft (_, se)) private_creds =
   let@ private_creds cont =
