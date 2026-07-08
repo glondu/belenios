@@ -23,7 +23,6 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
-open Belenios_web_api
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
@@ -84,54 +83,6 @@ let do_election uuid (election : Election.t) seed =
     trustees
   |> show_result
 
-let do_draft uuid (draft : raw_draft) private_key =
-  let open (val !Belenios_js.I18n.gettext) in
-  let version = draft.version in
-  let module G = (val Group.of_string ~version draft.group) in
-  let@ trustees cont =
-    let* x = Api.(get (draft_trustees uuid (module G)) `Nobody) in
-    match x with
-    | Error _ ->
-        alert @@ s_ "Could not get trustee parameters for this election!";
-        Lwt.return_unit
-    | Ok (x, _) -> cont x
-  in
-  match trustees.mode with
-  | `Basic x ->
-      let trustees = x.trustees in
-      let name =
-        let@ private_key cont =
-          try
-            match Json.of_string private_key with
-            | `String x -> cont (G.Zq.of_string x)
-            | _ -> raise Exit
-          with _ -> None
-        in
-        List.find_map
-          (fun (x : _ basic_parameters trustee) ->
-            let& y = x.key in
-            let { public_key = y; _ } : _ raw_trustee_public_key =
-              y.verification_key.message.message
-            in
-            if G.(compare (g **~ private_key) y) = 0 then Some x.name else None)
-          trustees
-      in
-      show_result (Some name)
-  | `Threshold x ->
-      let module Trustees = (val Trustees.get_by_version version) in
-      let module PKI = Pki.Make (G) in
-      let sk = PKI.derive_sk private_key in
-      let vk = G.(g **~ sk) in
-      let trustees = x.trustees in
-      let name =
-        List.find_map
-          (fun x ->
-            let& { message = y; _ } = x.key in
-            if G.compare vk y.verification = 0 then Some x.name else None)
-          trustees
-      in
-      show_result (Some name)
-
 let check ?uuid () =
   let open (val !Belenios_js.I18n.gettext) in
   let* body =
@@ -163,15 +114,11 @@ let check ?uuid () =
               let* election = Api.(get (election uuid) `Nobody) in
               match election with
               | Ok (election, _) -> do_election uuid election private_key
-              | Error _ -> (
-                  let* draft = Api.(get (draft uuid) `Nobody) in
-                  match draft with
-                  | Error _ ->
-                      Printf.ksprintf alert
-                        (f_ "There is no election with ID %s on this server!")
-                        (Uuid.to_string uuid);
-                      Lwt.return_unit
-                  | Ok (Draft (_, draft), _) -> do_draft uuid draft private_key)
+              | Error _ ->
+                  Printf.ksprintf alert
+                    (f_ "There is no election with ID %s on this server!")
+                    (Uuid.to_string uuid);
+                  Lwt.return_unit
             in
             let private_key_input = make_private_key_input handle_private_key in
             Lwt.return [ private_key_input ])
