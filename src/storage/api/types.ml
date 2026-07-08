@@ -52,7 +52,7 @@ type metadata = {
   owners : int list;
   auth_config : auth_config list option; [@yojson.option]
   cred_authority_info : cred_authority_info option; [@yojson.option]
-  trustees : external_trustee option list option; [@yojson.option]
+  trustees : uuid option; [@yojson.option]
   languages : string list option; [@yojson.option]
   contact : string option; [@yojson.option]
   booth_version : int option; [@yojson.option]
@@ -135,7 +135,6 @@ type ('a, 'b) raw_draft_election = {
   mutable group : string;
   mutable voters : draft_voter list;
   mutable questions : template;
-  mutable trustees : ('a, 'b) draft_trustees;
   public_creds : string;
   mutable public_creds_received : bool;
   mutable public_creds_certificate : ('a, 'b) credentials_certificate option;

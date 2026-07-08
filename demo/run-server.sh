@@ -50,6 +50,7 @@ mkdir -p \
 if ! [ -d $BELENIOS_VARDIR/spool ]; then
     mkdir -p $BELENIOS_VARDIR/spool/accounts
     mkdir -p $BELENIOS_VARDIR/spool/elections
+    mkdir -p $BELENIOS_VARDIR/spool/trustees
     mkdir -p $BELENIOS_VARDIR/spool/credentials
     echo 2 > $BELENIOS_VARDIR/spool/version
 fi

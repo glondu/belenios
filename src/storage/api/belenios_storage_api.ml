@@ -27,6 +27,7 @@ include Extra
 include Types
 
 let get_election_file_serializers = File_serializers.get_election
+let get_trustees_file_serializers = File_serializers.get_trustees
 let get_credentials_file_serializers = File_serializers.get_credentials
 let get_account_file_serializers = File_serializers.get_account
 

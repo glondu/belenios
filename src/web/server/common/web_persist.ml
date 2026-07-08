@@ -132,20 +132,30 @@ let internal_release_tally ~force s set_state =
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
-  let* metadata = get_election_metadata s in
-  let trustees_with_ids =
-    Option.value metadata.trustees ~default:[]
-    |> List.mapi (fun i x -> (i + 1, x))
+  let* trustees =
+    let* x = Public_archive.get_trustees s (module G) in
+    match Lopt.get_value x with
+    | None -> assert false
+    | Some xs -> Lwt.return xs
+  in
+  let trustees_ids =
+    trustees
+    |> List.map (function
+      | `Single _ -> [ () ]
+      | `Pedersen (p : _ threshold_parameters) ->
+          p.certs |> Array.map (fun _ -> ()) |> Array.to_list)
+    |> List.flatten
+    |> List.mapi (fun i _ -> i + 1)
   in
   let* pds = Public_archive.get_partial_decryptions s (module W.G) in
   let@ () =
    fun cont ->
     if force then cont ()
     else if
-      (* check whether all trustees have done their job *)
+      (* check whether all external trustees have done their job *)
       List.for_all
-        (fun (i, x) -> x = None || List.exists (fun x -> x.owner = i) pds)
-        trustees_with_ids
+        (fun i -> List.exists (fun x -> x.owner = i) pds)
+        (List.tl trustees_ids)
     then cont ()
     else Lwt.return_false
   in
@@ -163,48 +173,34 @@ let internal_release_tally ~force s set_state =
         let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
         Lwt.return { x with encrypted_tally = tally }
   in
-  let* trustees =
-    let* x = Public_archive.get_trustees s (module W.G) in
-    match Lopt.get_value x with None -> assert false | Some x -> Lwt.return x
+  let* server_pd, transactions =
+    let owner = 1 in
+    let* x = Storage.E.get s Server_seed in
+    match Lopt.get_value x with
+    | Some seed ->
+        let module P = Pki.Make (G) in
+        let module T = (val Trustees.get_by_version G.spec.version) in
+        let module KG = T.MakeBasic (G) in
+        let sk = P.derive_sk seed in
+        let pdk = KG.derive seed in
+        let pd = W.E.compute_factor tally ~sk ~pdk in
+        let owned = { owner; payload = pd } in
+        let pd = !+[%yojson_of_group: _ partial_decryption] pd in
+        let payload =
+          { owner; payload = Hash.hash_string pd }
+          |> !+(yojson_of_owned yojson_of_hash)
+        in
+        let transaction =
+          [
+            Data pd;
+            Data payload;
+            Event (`PartialDecryption, Some (Hash.hash_string payload));
+          ]
+        in
+        Lwt.return (owned, transaction)
+    | _ -> assert false
   in
-  let* pds, transactions =
-    let pds = List.rev pds in
-    let decrypt owner =
-      let* x = Storage.E.get s Server_seed in
-      match Lopt.get_value x with
-      | Some seed ->
-          let module P = Pki.Make (W.G) in
-          let module T = (val Trustees.get_by_version W.version) in
-          let module KG = T.MakeBasic (W.G) in
-          let sk = P.derive_sk seed in
-          let pdk = KG.derive seed in
-          let pd = W.E.compute_factor tally ~sk ~pdk in
-          let owned = { owner; payload = pd } in
-          let pd = !+[%yojson_of_group: _ partial_decryption] pd in
-          let payload =
-            { owner; payload = Hash.hash_string pd }
-            |> !+(yojson_of_owned yojson_of_hash)
-          in
-          let transaction =
-            [
-              Data pd;
-              Data payload;
-              Event (`PartialDecryption, Some (Hash.hash_string payload));
-            ]
-          in
-          Lwt.return (owned, transaction)
-      | _ -> assert false
-    in
-    Lwt_list.fold_left_s
-      (fun ((pds, transactions) as accu) (i, t) ->
-        if t = None then
-          if List.exists (fun x -> x.owner = i) pds then Lwt.return accu
-          else
-            let* pd, transaction = decrypt i in
-            Lwt.return (pd :: pds, transaction :: transactions)
-        else Lwt.return accu)
-      (pds, []) trustees_with_ids
-  in
+  let pds = pds @ [ server_pd ] in
   match W.E.compute_result sized pds trustees with
   | Ok result ->
       let result_transaction =
@@ -213,8 +209,7 @@ let internal_release_tally ~force s set_state =
       let@ () =
        fun cont ->
         let* x =
-          List.rev (result_transaction :: transactions)
-          |> List.flatten |> Storage.E.append s ~last
+          transactions @ result_transaction |> Storage.E.append s ~last
         in
         match x with
         | true -> cont ()
@@ -679,58 +674,26 @@ let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
 
 let validation_error x = raise (Api_generic.Error (`ValidationError x))
 
-let validate_trustees (type a b) (w : (a, b) group)
-    (se : (a, b) raw_draft_election) =
+let validate_trustees (type a b) (w : (a, b) group) (metadata : metadata) =
   let module G = (val w) in
-  let module T = (val Trustees.get_by_version se.version) in
+  let@ trustees cont =
+    match metadata.trustees with
+    | None -> validation_error `KeyEstablishmentNotFinished
+    | Some uuid -> (
+        let@ s = Storage.T.with_transaction uuid in
+        let* x = Storage.T.get s (Trustees G.spec) in
+        match Lopt.get_value x with
+        | None -> validation_error `KeyEstablishmentNotFinished
+        | Some x -> cont x)
+  in
+  let module T = (val Trustees.get_by_version G.spec.version) in
   let module K = T.MakeCombinator (G) in
   let module KG = T.MakeBasic (G) in
   let server_seed = generate_token 44 in
   let server_public_key = KG.make server_seed in
-  let* trustee_names, trustees, private_keys =
-    match se.trustees.mode with
-    | `Basic x ->
-        let ts = x.trustees in
-        Lwt.return
-          ( None
-            :: List.map
-                 (fun ({ address; token; _ } : _ draft_basic_trustee) ->
-                   Some ({ address; token } : Belenios_web_api.external_trustee))
-                 ts,
-            `Single server_public_key
-            :: List.map
-                 (fun (x : _ draft_basic_trustee) ->
-                   match x.parameters with
-                   | None -> validation_error `KeyEstablishmentNotFinished
-                   | Some x -> `Single x)
-                 ts,
-            None )
-    | `Threshold x -> (
-        let ts = x.trustees in
-        match x.parameters with
-        | None -> validation_error `KeyEstablishmentNotFinished
-        | Some tp ->
-            let trustees =
-              List.map
-                (fun ({ address; token; _ } : _ draft_threshold_trustee) ->
-                  Some ({ address; token } : Belenios_web_api.external_trustee))
-                ts
-            in
-            let private_keys =
-              List.map
-                (fun { voutput; _ } ->
-                  match voutput with
-                  | Some v -> v.private_key
-                  | None -> failwith "inconsistent state")
-                ts
-            in
-            Lwt.return
-              ( None :: trustees,
-                [ `Single server_public_key; `Pedersen tp ],
-                Some private_keys ))
-  in
+  let trustees = `Single server_public_key :: trustees in
   let y = K.combine_keys trustees in
-  Lwt.return (y, trustee_names, trustees, server_seed, private_keys)
+  Lwt.return (y, trustees, server_seed)
 
 let init_credential_mapping s (type a b) (w : (a, b) group) =
   let uuid = Storage.E.get_uuid s in
@@ -883,11 +846,8 @@ let validate_election ~admin_id storage
   in
   (* trustees *)
   let module G = (val w) in
-  let* y, trustee_names, trustees, server_seed, private_keys =
-    validate_trustees w se
-  in
+  let* y, trustees, server_seed = validate_trustees w metadata in
   (* election parameters *)
-  let metadata = { metadata with trustees = Some trustee_names } in
   let template = Belenios.Election.Template (v, questions) in
   let raw_election =
     let public_key = G.to_string y in
@@ -905,11 +865,6 @@ let validate_election ~admin_id storage
   let* () = initialize_events storage w se raw_election trustees public_creds in
   (* create file with private keys *)
   let* () = Storage.E.set storage Server_seed Value server_seed in
-  let* () =
-    match private_keys with
-    | None -> Lwt.return_unit
-    | Some x -> Storage.E.set storage (Private_keys G.spec) Value x
-  in
   (* clean up draft *)
   let* () = Storage.E.del storage Draft in
   (* clean up private credentials, if any *)

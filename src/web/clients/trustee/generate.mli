@@ -22,13 +22,10 @@
 open Js_of_ocaml_tyxml.Tyxml_js
 open Belenios
 open Belenios_web_api
-open Belenios_js.Session
 
 val generate :
-  configuration ->
   uuid ->
   token:string ->
-  url:(Api.trustee, ('a, 'b) trustee_status, json) Api.t ->
-  ('a, 'b) Election.u ->
+  ('a, 'b) group ->
   ('a, 'b) trustee_status_draft ->
   Html_types.div_content_fun Html.elt list Lwt.t

@@ -29,9 +29,8 @@ open Belenios_js.Common
 open Belenios_js.Session
 open Common
 
-let send_trustees_request ?ifmatch w req =
-  let uuid = get_current_uuid () in
-  let* x = Api.(post ?ifmatch (draft_trustees uuid w) !user req) in
+let send_trustees_request ?ifmatch uuid w req =
+  let* x = Api.(post ?ifmatch (trustees_draft uuid w) !user req) in
   let b =
     if x.code = 200 then (
       Cache.invalidate Cache.status;
@@ -54,11 +53,14 @@ let cast_tt_trustee a b =
   >> !*(trustee_of_yojson Fun.id)
 
 let get_trustees () =
-  let uuid = get_current_uuid () in
+  let@ uuid cont =
+    let* status = Cache.get_until_success Cache.e_status in
+    match status.trustees with None -> Lwt.return_none | Some x -> cont x
+  in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let { version; group; _ } = draft in
+  let { version; group; _ } : raw_draft = draft in
   let module G = (val Group.make { version; group }) in
-  let* x = Api.(get (draft_trustees uuid (module G)) !user) in
+  let* x = Api.(get (trustees_draft uuid (module G)) !user) in
   let ifmatch = get_ifmatch x in
   match x with
   | Error e ->
@@ -82,15 +84,19 @@ let get_trustees () =
 
 let recompute_main_zone_1 ifmatch mode all_trustee =
   let open (val !Belenios_js.I18n.gettext) in
-  let uuid = get_current_uuid () in
+  let@ uuid cont =
+    let* status = Cache.get_until_success Cache.e_status in
+    match status.trustees with
+    | None -> Lwt.return [ txt "no trustees" ]
+    | Some x -> cont x
+  in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+  let { version; group; _ } : raw_draft = draft in
+  let module G = (val Group.make { version; group }) in
   let erase_trustee_elt t =
     let onclick () =
-      let* x = Api.(delete (draft_trustee uuid t) !user) in
-      match x.code with
-      | 200 -> !update_main_zone ()
-      | code ->
-          alert ("Deletion failed with code " ^ string_of_int code);
-          Lwt.return_unit
+      let* b = send_trustees_request uuid (module G) (`RemoveTrustee t) in
+      if b then !update_main_zone () else Lwt.return_unit
     in
     div ~a:[ a_class [ "del_sym" ]; a_onclick_lwt onclick ] []
   in
@@ -147,11 +153,11 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
           let t : addable_trustee =
             { address = inp1_get (); name = inp2_get () }
           in
-          let r = `Add t in
+          let r = `AddTrustee t in
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
           let { version; group; _ } : raw_draft = draft in
           let module G = (val Group.make { version; group }) in
-          let* b = send_trustees_request ?ifmatch (module G) r in
+          let* b = send_trustees_request ?ifmatch uuid (module G) r in
           let&&* d = document##getElementById (Js.string "popup") in
           d##.style##.display := Js.string "none";
           if b then !update_main_zone () else Lwt.return_unit)
@@ -209,7 +215,7 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
           let { version; group; _ } : raw_draft = draft in
           let module G = (val Group.make { version; group }) in
-          let* b = send_trustees_request ?ifmatch (module G) mm in
+          let* b = send_trustees_request ?ifmatch uuid (module G) mm in
           if b then !update_main_zone () else Lwt.return_unit
         else r##.checked := Js.bool with_thr
       in
@@ -236,7 +242,7 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
           let { version; group; _ } : raw_draft = draft in
           let module G = (val Group.make { version; group }) in
-          let* b = send_trustees_request ?ifmatch (module G) mm in
+          let* b = send_trustees_request ?ifmatch uuid (module G) mm in
           if b then !update_main_zone () else Lwt.return_unit
         in
         input ~a:attr ~onchange ~value:(string_of_int v) `Number
@@ -252,9 +258,6 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
       div [ inp; lab; inp_thval; lab_thval ]
     else div [ inp; lab ]
   in
-  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let { version; group; _ } : raw_draft = draft in
-  let module G = (val Group.make { version; group }) in
   let proc_but =
     let@ () = button (s_ "Proceed to key generation") in
     match mode with
@@ -268,25 +271,9 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
           @@ s_ "Proceed to next step? This will freeze the list of trustees."
         in
         if confirm then
-          let* b = send_trustees_request (module G) @@ `SetStep 2 in
+          let* b = send_trustees_request uuid (module G) @@ `SetStep 2 in
           if b then !update_main_zone () else Lwt.return_unit
         else Lwt.return_unit
-  in
-  let import_but =
-    let@ () = button @@ s_ "Import trustees from another election" in
-    let@ from_uuid = popup_choose_elec uuid in
-    let r = `Import from_uuid in
-    let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-    let { version; group; _ } : raw_draft = draft in
-    let module G = (val Group.make { version; group }) in
-    let* b = send_trustees_request (module G) r in
-    if b then
-      let* b = send_trustees_request (module G) @@ `SetStep 3 in
-      if b then (
-        Cache.invalidate_all ();
-        !update_main_zone ())
-      else !update_main_zone ()
-    else !update_main_zone ()
   in
   Lwt.return
     [
@@ -295,26 +282,81 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
       add_symbol;
       thresh;
       div ~a:[ a_id "trustee_proc_but" ] [ proc_but ];
-      h2 [ txt @@ s_ "Import trustees from another election" ];
-      div [ import_but ];
     ]
 
-let reset_but () =
+let reset_but uuid w =
   let open (val !Belenios_js.I18n.gettext) in
   let@ () = button @@ s_ "Reset and start from scratch" in
   let confir = confirm @@ s_ "Are you sure you want to restart from scratch?" in
   if confir then
-    let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-    let { version; group; _ } : raw_draft = draft in
-    let module G = (val Group.make { version; group }) in
-    let* b = send_trustees_request (module G) `Reset in
+    let* b = send_trustees_request uuid w `Reset in
     if b then !update_main_zone () else Lwt.return_unit
   else Lwt.return_unit
+
+let validate_but uuid w =
+  let open (val !Belenios_js.I18n.gettext) in
+  let@ () = button ~a:[ a_id "validate_board" ] @@ s_ "Validate board" in
+  let confir =
+    confirm
+    @@ s_
+         "Are you sure you want to validate the board? Changes will no longer \
+          be possible."
+  in
+  if confir then
+    let* b = send_trustees_request uuid w `Validate in
+    if b then !update_main_zone () else Lwt.return_unit
+  else Lwt.return_unit
+
+let new_board_but () =
+  let open (val !Belenios_js.I18n.gettext) in
+  let@ () = button ~a:[ a_id "new_board" ] @@ s_ "Create a new board" in
+  let election_uuid = get_current_uuid () in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+  let { version; group; _ } : raw_draft = draft in
+  let* x = Api.(post trustees_ !user { version; group }) in
+  match x.code with
+  | 200 -> (
+      let trustees_uuid = Uuid.of_string x.content in
+      let* x =
+        Api.(post (draft election_uuid) !user)
+          (`SetTrustees (Some trustees_uuid))
+      in
+      match x.code with
+      | 200 ->
+          Cache.invalidate Cache.e_status;
+          !update_main_zone ()
+      | code ->
+          let msg =
+            Printf.sprintf (f_ "Setting board failed with code %d!") code
+          in
+          alert msg;
+          Lwt.return_unit)
+  | code ->
+      let msg =
+        Printf.sprintf (f_ "Creating board failed with code %d!") code
+      in
+      alert msg;
+      Lwt.return_unit
 
 (* FIXME: This step 3 is just a dumb, now, but in the future, it should be
  * a page to check that the trustees have their secret key *)
 let recompute_main_zone_3 all_trustee =
   let open (val !Belenios_js.I18n.gettext) in
+  let* reset =
+    let@ uuid cont =
+      let* status = Cache.get_until_success Cache.e_status in
+      match status.trustees with None -> Lwt.return_nil | Some x -> cont x
+    in
+    let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+    let { version; group; _ } : raw_draft = draft in
+    let module G = (val Group.make { version; group }) in
+    let* x = Api.(get (trustees uuid (module G)) `Nobody) in
+    match x with
+    | Error _ ->
+        Lwt.return
+          [ reset_but uuid (module G); txt " "; validate_but uuid (module G) ]
+    | Ok _ -> Lwt.return [ new_board_but () ]
+  in
   let header_row =
     tr
       [
@@ -345,7 +387,7 @@ let recompute_main_zone_3 all_trustee =
     [
       h2 [ txt @@ s_ "Trustee setup - Done" ];
       tablex [ tbody (header_row :: rows_of_ttees) ];
-      div [ reset_but () ];
+      div reset;
     ]
 
 (* trustee status is just an int. Conversion to a meaningful status
@@ -378,7 +420,10 @@ let trustee_generate_link kind =
   in
   fun ~token ~recipient ->
     let open (val !Belenios_js.I18n.gettext) in
-    let uuid = get_current_uuid () in
+    let@ uuid cont =
+      let* status = Cache.get_until_success Cache.e_status in
+      match status.trustees with None -> assert false | Some x -> cont x
+    in
     let* prefix = Cache.get_prefix () in
     let href =
       Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string uuid) token
@@ -401,12 +446,12 @@ let all_ttee_done mode all_trustee =
   let dd = if mode = `Basic then Some 1 else Some 7 in
   List.for_all (fun (t : _ trustee) -> t.state = dd) all_trustee
 
-let trustee_decrypt_link ~token ~recipient =
+let trustee_decrypt_link ~trustees ~election ~token ~recipient =
   let open (val !Belenios_js.I18n.gettext) in
-  let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
   let href =
-    Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string uuid) token
+    Printf.sprintf "%strustee#%s/%s/%s" prefix (Uuid.to_string trustees) token
+      (Uuid.to_string election)
   in
   let* subject, body = Mails.mail_trustee_tally [ lang ] href in
   Lwt.return
@@ -432,14 +477,20 @@ let recompute_main_zone_2 ifmatch_tt mode all_trustee =
             server for privacy?"
     else true
   in
+  let@ uuid cont =
+    let* status = Cache.get_until_success Cache.e_status in
+    match status.trustees with
+    | None -> Lwt.return [ txt "no trustees" ]
+    | Some x -> cont x
+  in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
   let { version; group; _ } : raw_draft = draft in
   let module G = (val Group.make { version; group }) in
   if not confir then
-    let* _ = send_trustees_request (module G) @@ `SetStep 1 in
+    let* _ = send_trustees_request uuid (module G) @@ `SetStep 1 in
     recompute_main_zone_1 ifmatch_tt mode all_trustee
   else if all_ttee_done mode all_trustee then
-    let* _ = send_trustees_request (module G) @@ `SetStep 3 in
+    let* _ = send_trustees_request uuid (module G) @@ `SetStep 3 in
     recompute_main_zone_3 all_trustee
   else
     let trustee_generate_link =
@@ -496,7 +547,7 @@ let recompute_main_zone_2 ifmatch_tt mode all_trustee =
           ];
         tablex [ tbody (header_row :: rows_of_ttees) ];
         div [ refresh_but ];
-        div [ reset_but () ];
+        div [ reset_but uuid (module G) ];
       ]
 
 (* This function will be used with `FinishShuffling and `ReleaseTally *)
@@ -514,7 +565,7 @@ let trustee_request req =
       alert ("Failed with code " ^ string_of_int code);
       Lwt.return_unit
 
-let part_dec = ref None
+let part_dec = ref (None : partial_decryptions option)
 
 let all_pd () =
   match !part_dec with
@@ -550,6 +601,11 @@ let get_trustees_pd () =
 
 let main_zone_tallying () =
   let open (val !Belenios_js.I18n.gettext) in
+  let election = get_current_uuid () in
+  let@ trustees cont =
+    let* status = Cache.get_until_success Cache.e_status in
+    match status.trustees with None -> Lwt.return [] | Some x -> cont x
+  in
   let* content =
     match !part_dec with
     | None -> Lwt.return @@ div [ txt @@ s_ "Failed to connect; please reload" ]
@@ -570,7 +626,8 @@ let main_zone_tallying () =
               if t.address = "server" then Lwt.return_none
               else
                 let* link =
-                  trustee_decrypt_link ~token:t.token ~recipient:t.address
+                  trustee_decrypt_link ~trustees ~election ~token:t.token
+                    ~recipient:t.address
                 in
                 Lwt.return_some
                 @@ tr
@@ -808,7 +865,14 @@ let recompute_main_zone () =
     if is_draft () then
       let* x = get_trustees () in
       match x with
-      | None -> Lwt.return ([], false)
+      | None ->
+          let content =
+            [
+              div [ txt @@ s_ "There is no electoral board at the moment." ];
+              div [ new_board_but () ];
+            ]
+          in
+          Lwt.return (content, false)
       | Some (ifmatch_tt, step, mode, all_trustee) -> (
           let@ () =
            fun cont ->

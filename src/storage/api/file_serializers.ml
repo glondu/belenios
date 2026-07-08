@@ -43,19 +43,6 @@ let get_election (type t) : t election_file -> t serializers = function
   | Metadata ->
       { of_string = !*metadata_of_yojson; to_string = !+yojson_of_metadata }
   | Server_seed -> { of_string = Fun.id; to_string = Fun.id }
-  | Private_keys w ->
-      let module G = (val Group.coerce w) in
-      {
-        of_string =
-          (fun xs ->
-            xs |> split_lines
-            |> List.map !*[%group_of_yojson: _ sent_partial_decryption_key]);
-        to_string =
-          (fun xs ->
-            xs
-            |> List.map !+[%yojson_of_group: _ sent_partial_decryption_key]
-            |> join_lines);
-      }
   | Audit_cache ->
       {
         of_string = !*audit_cache_of_yojson;
@@ -118,6 +105,38 @@ let get_election (type t) : t election_file -> t serializers = function
   | Credential_weight _ ->
       { of_string = Weight.of_string; to_string = Weight.to_string }
   | Credential_user _ -> { of_string = Fun.id; to_string = Fun.id }
+
+let get_trustees (type t) : t trustees_file -> t serializers = function
+  | Trustees_metadata ->
+      {
+        of_string = !*Belenios_web_api.trustees_metadata_of_yojson;
+        to_string = !+Belenios_web_api.yojson_of_trustees_metadata;
+      }
+  | Trustees w ->
+      let module G = (val Group.coerce w) in
+      {
+        of_string = !*[%group_of_yojson: _ trustees];
+        to_string = !+[%yojson_of_group: _ trustees];
+      }
+  | Trustees_draft w ->
+      let module G = (val Group.coerce w) in
+      {
+        of_string = !*[%group_of_yojson: _ draft_trustees];
+        to_string = !+[%yojson_of_group: _ draft_trustees];
+      }
+  | Trustees_private_keys w ->
+      let module G = (val Group.coerce w) in
+      {
+        of_string =
+          (fun xs ->
+            xs |> split_lines
+            |> List.map !*[%group_of_yojson: _ sent_partial_decryption_key]);
+        to_string =
+          (fun xs ->
+            xs
+            |> List.map !+[%yojson_of_group: _ sent_partial_decryption_key]
+            |> join_lines);
+      }
 
 let get_credentials (type t) : t credentials_file -> t serializers = function
   | Credentials_params ->

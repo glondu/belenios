@@ -108,31 +108,55 @@ let draft_credentials_token uuid =
     to_string_post = !+yojson_of_unit;
   }
 
-let draft_trustees uuid (type a b) (w : (a, b) group) =
+let trustees_ =
+  {
+    path = "trustees";
+    of_string = !*unit_of_yojson;
+    to_string = !+yojson_of_unit;
+    to_string_post = !+yojson_of_group_specification;
+  }
+
+let trustees uuid (type a b) (w : (a, b) group) =
   let module G = (val w) in
   {
-    path = Printf.sprintf "elections/%s/draft/trustees" (Uuid.to_string uuid);
+    path = Printf.sprintf "trustees/%s" (Uuid.to_string uuid);
+    of_string = !*[%group_of_yojson: _ trustees];
+    to_string = !+[%yojson_of_group: _ trustees];
+    to_string_post = !+yojson_of_unit;
+  }
+
+let trustees_group uuid =
+  {
+    path = Printf.sprintf "trustees/%s/group" (Uuid.to_string uuid);
+    of_string = !*group_specification_of_yojson;
+    to_string = !+yojson_of_group_specification;
+    to_string_post = !+yojson_of_unit;
+  }
+
+let trustees_draft uuid (type a b) (w : (a, b) group) =
+  let module G = (val w) in
+  {
+    path = Printf.sprintf "trustees/%s/draft" (Uuid.to_string uuid);
     of_string = !*[%group_of_yojson: _ draft_trustees];
     to_string = !+[%yojson_of_group: _ draft_trustees];
     to_string_post = !+yojson_of_trustees_request;
   }
 
-let draft_trustee uuid x =
+let trustees_trustee uuid (type a b) (w : (a, b) group) =
+  let module G = (val w) in
   {
-    path =
-      Printf.sprintf "elections/%s/draft/trustees/%s" (Uuid.to_string uuid)
-        (Uri.pct_encode x);
-    of_string = !*unit_of_yojson;
-    to_string = !+yojson_of_unit;
-    to_string_post = !+yojson_of_unit;
+    path = Printf.sprintf "trustees/%s/trustee" (Uuid.to_string uuid);
+    of_string = !*[%group_of_yojson: _ trustees_trustee_status];
+    to_string = !+[%yojson_of_group: _ trustees_trustee_status];
+    to_string_post = Json.to_string;
   }
 
-let trustee_election uuid (type a b) (w : (a, b) group) =
+let election_trustee uuid (type a b) (w : (a, b) group) =
   let module G = (val w) in
   {
     path = Printf.sprintf "elections/%s/trustee" (Uuid.to_string uuid);
-    of_string = !*[%group_of_yojson: _ trustee_status];
-    to_string = !+[%yojson_of_group: _ trustee_status];
+    of_string = !*[%group_of_yojson: _ election_trustee_status];
+    to_string = !+[%yojson_of_group: _ election_trustee_status];
     to_string_post = Json.to_string;
   }
 

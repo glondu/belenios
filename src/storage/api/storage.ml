@@ -121,6 +121,46 @@ module E = struct
     T.S.delete_election T.tx
 end
 
+module T = struct
+  module type TX = sig
+    module S : TRUSTEES_TRANSACTION
+
+    val tx : S.t
+  end
+
+  type t = (module TX)
+
+  let with_transaction uuid f =
+    let module S = (val get_backend ()) in
+    let@ tx = S.T.with_transaction uuid in
+    let module T = struct
+      module S = S.T
+
+      let tx = tx
+    end in
+    f (module T : TX)
+
+  let get tx f =
+    let module T = (val tx : TX) in
+    T.S.get T.tx f
+
+  let set tx f k x =
+    let module T = (val tx : TX) in
+    T.S.set T.tx f k x
+
+  let del tx f =
+    let module T = (val tx : TX) in
+    T.S.del T.tx f
+
+  let update tx f set =
+    let module T = (val tx : TX) in
+    T.S.update T.tx f set
+
+  let new_trustees () =
+    let module S = (val get_backend ()) in
+    S.T.new_trustees ()
+end
+
 module C = struct
   module type TX = sig
     module S : CREDENTIALS_TRANSACTION

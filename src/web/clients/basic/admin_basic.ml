@@ -50,7 +50,6 @@ let regexps =
         | Some uuid, Some "voters" -> `Draft (Uuid.of_string uuid, `Voters)
         | Some uuid, Some "credentials" ->
             `Draft (Uuid.of_string uuid, `Credentials)
-        | Some uuid, Some "trustees" -> `Draft (Uuid.of_string uuid, `Trustees)
         | Some uuid, Some "status" -> `Draft (Uuid.of_string uuid, `Status)
         | _ -> `Error );
     ( Regexp.regexp "^#drafts/([0-9A-Za-z]+)/credentials@([0-9A-Za-z]+)$",

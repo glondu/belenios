@@ -43,34 +43,60 @@ let fallback ?uuid () =
 module App (U : UI) = struct
   let component = "admin"
 
-  let router configuration path =
+  let router _configuration path =
     let open (val !Belenios_js.I18n.gettext) in
     U.set_title @@ s_ "Trustee management";
     match path with
     | [ "check" ] -> Check.check ()
     | [ "check"; uuid ] -> Check.check ~uuid ()
-    | [ uuid; token ] -> (
+    | uuid :: token :: path -> (
         let@ uuid cont =
           match Uuid.of_string uuid with
           | exception _ ->
-              Lwt.return [ div [ txt @@ s_ "Invalid election ID!" ] ]
+              Lwt.return [ div [ txt @@ s_ "Invalid trustees ID!" ] ]
           | x -> cont x
         in
-        let@ election cont =
-          let* x = Api.(get (election uuid) `Nobody) in
-          match x with Error _ -> fallback ~uuid () | Ok (x, _) -> cont x
-        in
-        let module W = (val election) in
-        let url = Api.trustee_election uuid (module W.G) in
-        let@ trustee_status cont =
-          let* x = Api.(get url (`Trustee token)) in
-          match x with Error _ -> fallback ~uuid () | Ok (x, _) -> cont x
-        in
-        match trustee_status with
-        | `Draft x ->
-            Generate.generate configuration uuid ~token ~url (module W) x
-        | `Shuffle -> Shuffle.shuffle uuid ~token
-        | `Tally x -> Decrypt.decrypt uuid ~token ~url (module W) x)
+        match path with
+        | [] -> (
+            let@ group cont =
+              let* x = Api.(get (trustees_group uuid) `Nobody) in
+              match x with Error _ -> fallback () | Ok (x, _) -> cont x
+            in
+            let module G = (val Group.make group) in
+            let@ trustee_status cont =
+              let* x =
+                Api.(get (trustees_trustee uuid (module G)) (`Trustee token))
+              in
+              match x with Error _ -> fallback () | Ok (x, _) -> cont x
+            in
+            match trustee_status with
+            | `Draft x -> Generate.generate uuid ~token (module G) x
+            | `Ready -> fallback ())
+        | [ election_uuid ] -> (
+            let@ election_uuid cont =
+              match Uuid.of_string election_uuid with
+              | exception _ ->
+                  Lwt.return [ div [ txt @@ s_ "Invalid election ID!" ] ]
+              | x -> cont x
+            in
+            let@ election cont =
+              let* x = Api.(get (election election_uuid) `Nobody) in
+              match x with
+              | Error _ -> fallback ~uuid:election_uuid ()
+              | Ok (x, _) -> cont x
+            in
+            let module W = (val election) in
+            let url = Api.election_trustee election_uuid (module W.G) in
+            let@ trustee_status cont =
+              let* x = Api.(get url (`Trustee token)) in
+              match x with
+              | Error _ -> fallback ~uuid:election_uuid ()
+              | Ok (x, _) -> cont x
+            in
+            match trustee_status with
+            | `Shuffle -> Shuffle.shuffle uuid ~token
+            | `Tally x -> Decrypt.decrypt ~token (module W) x)
+        | _ -> fallback ())
     | _ -> fallback ()
 end
 

@@ -52,16 +52,22 @@ val draft_public_credentials :
 
 val draft_private_credentials : uuid -> (admin, private_credentials, unit) t
 val draft_credentials_token : uuid -> (admin, string, unit) t
+val trustees_ : (admin, unit, group_specification) t
+val trustees : uuid -> ('a, 'b) group -> (nobody, ('a, 'b) trustees, unit) t
+val trustees_group : uuid -> (nobody, group_specification, unit) t
 
-val draft_trustees :
+val trustees_draft :
   uuid ->
   ('a, 'b) group ->
   ([< nobody | admin ], ('a, 'b) draft_trustees, trustees_request) t
 
-val draft_trustee : uuid -> string -> (admin, unit, unit) t
+val trustees_trustee :
+  uuid ->
+  ('a, 'b) group ->
+  ([< trustee ], ('a, 'b) trustees_trustee_status, json) t
 
-val trustee_election :
-  uuid -> ('a, 'b) group -> (trustee, ('a, 'b) trustee_status, json) t
+val election_trustee :
+  uuid -> ('a, 'b) group -> (trustee, ('a, 'b) election_trustee_status, json) t
 
 val elections : (admin, summary_list, draft) t
 val election : uuid -> ([< nobody | admin ], Election.t, unit) t

@@ -124,93 +124,6 @@ let rec show_draft_credentials : 'a 'b. uuid -> ('a, 'b) group -> _ -> _ =
       let t, _ = textarea (!+(yojson_of_public_credentials !&G.to_string) x) in
       Lwt.return [ t ]
 
-type trustee_with_writer =
-  | TWW : 'a trustee list * ('a -> json) -> trustee_with_writer
-
-let rec show_draft_trustees uuid container =
-  let@ () = show_in container in
-  let* draft = Api.(get (draft uuid) !user) in
-  let@ Draft (_, draft), _ = with_ok "draft" draft in
-  let { version; group; _ } : raw_draft = draft in
-  let module G = (val Group.make { version; group }) in
-  let* x = Api.(get (draft_trustees uuid (module G)) !user) in
-  let@ trustees, ifmatch = with_ok "trustees" x in
-  let mode =
-    match trustees.mode with
-    | `Basic _ -> "basic"
-    | `Threshold t ->
-        let threshold =
-          match t.threshold with
-          | None -> "not set"
-          | Some i -> Printf.sprintf "%d out of %d" i (List.length t.trustees)
-        in
-        Printf.sprintf "threshold (%s)" threshold
-  in
-  let mode = div [ txt "Mode:"; txt " "; txt mode ] in
-  let mode_set =
-    let t, tget = textarea ~rows:1 ~cols:60 "" in
-    let b =
-      let@ () = button "Set mode" in
-      let@ request cont =
-        match Json.of_string (tget ()) with
-        | `String "Basic" -> cont `SetBasic
-        | `List [ `String "Threshold"; `Int i ] -> cont (`SetThreshold i)
-        | _ ->
-            alert "Unrecognized mode";
-            Lwt.return_unit
-      in
-      let* x =
-        Api.(post ~ifmatch (draft_trustees uuid (module G)) !user request)
-      in
-      let@ () = show_in container in
-      generic_proceed x (fun () -> show_draft_trustees uuid container)
-    in
-    div [ t; txt " "; b ]
-  in
-  let (TWW (trustees, write)) =
-    match trustees.mode with
-    | `Basic x -> TWW (x.trustees, [%yojson_of_group: _ basic_parameters])
-    | `Threshold x -> TWW (x.trustees, [%yojson_of_group: _ pedersen_cert])
-  in
-  let all_trustees =
-    List.map
-      (fun (t : _ trustee) ->
-        let trustee_address = Option.value ~default:"@" t.address in
-        let content =
-          let b =
-            let@ () = button "Delete" in
-            let* x = Api.(delete (draft_trustee uuid trustee_address) !user) in
-            let@ () = show_in container in
-            generic_proceed x (fun () -> show_draft_trustees uuid container)
-          in
-          [ txt (!+(yojson_of_trustee write) t); txt " "; b ]
-        in
-        li content)
-      trustees
-  in
-  let all_trustees = ul all_trustees in
-  let t2, t2get = textarea "" in
-  let b =
-    let@ () = button "Add trustee" in
-    let r = `Add (!*addable_trustee_of_yojson (t2get ())) in
-    let* x = Api.(post ~ifmatch (draft_trustees uuid (module G)) !user r) in
-    let@ () = show_in container in
-    generic_proceed x (fun () -> show_draft_trustees uuid container)
-  in
-  let import =
-    let i, iget = input `Text in
-    let b =
-      let@ () = button "Import trustees" in
-      let r = `Import (Uuid.of_string (iget ())) in
-      let* x = Api.(post ~ifmatch (draft_trustees uuid (module G)) !user r) in
-      let@ () = show_in container in
-      generic_proceed x (fun () -> show_draft_trustees uuid container)
-    in
-    div [ i; b ]
-  in
-  Lwt.return
-    [ mode; mode_set; div [ all_trustees ]; div [ t2 ]; div [ b ]; import ]
-
 let rec show_draft_status uuid container =
   let@ () = show_in container in
   let* x = Api.(get (draft_status uuid) !user) in
@@ -259,7 +172,6 @@ let show_draft show_all uuid draft title container tab =
       let { version; group; _ } : raw_draft = draft in
       let module G = (val Group.make { version; group }) in
       show_draft_credentials uuid (module G) container
-  | `Trustees -> show_draft_trustees uuid container
   | `Status -> show_draft_status uuid container
 
 let a_draft_tab uuid tab =

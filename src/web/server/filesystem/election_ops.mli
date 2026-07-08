@@ -25,6 +25,7 @@ open Types
 
 type 'a file =
   | Election of uuid * 'a election_file
+  | Trustees of uuid * 'a trustees_file
   | Credentials of uuid * 'a credentials_file
   | Account of 'a account_file
 

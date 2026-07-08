@@ -63,32 +63,6 @@ val submit_public_credentials :
   'a public_credentials_with_id ->
   unit Lwt.t
 
-val get_draft_trustees :
-  is_admin:bool ->
-  ('a, 'b) draft_election ->
-  ('a, 'b) Belenios_web_api.draft_trustees
-
-val post_draft_trustees :
-  ('a, 'b) draft_election updatable_with_billing ->
-  addable_trustee ->
-  unit Lwt.t
-
-val delete_draft_trustee :
-  ('a, 'b) draft_election updatable_with_billing -> string -> bool Lwt.t
-
-val set_threshold :
-  ('a, 'b) draft_election updatable_with_billing ->
-  int ->
-  (unit, [ `NoTrustees | `OutOfBounds ]) Stdlib.result Lwt.t
-
-val get_draft_trustees_mode :
-  ('a, 'b) draft_election -> [ `Basic | `Threshold of int ]
-
-val put_draft_trustees_mode :
-  ('a, 'b) draft_election updatable_with_billing ->
-  [ `Basic | `Threshold of int ] ->
-  unit Lwt.t
-
 val get_draft_status :
   uuid -> ('a, 'b) draft_election -> metadata -> draft_status Lwt.t
 
@@ -109,39 +83,7 @@ val import_voters :
   Stdlib.result
   Lwt.t
 
-val import_trustees :
-  ('a, 'b) group ->
-  ('a, 'b) draft_election updatable_with_billing ->
-  Storage.E.t ->
-  metadata ->
-  ( [> `Basic | `Threshold ],
-    [> `Inconsistent | `Invalid | `MissingPrivateKeys | `None | `Unsupported ]
-  )
-  Stdlib.result
-  Lwt.t
-
-val post_trustee_basic :
-  ('a, 'b) group ->
-  ('a, 'b) draft_election updatable_with_billing ->
-  token:string ->
-  string ->
-  unit Lwt.t
-
-val post_trustee_threshold :
-  ('a, 'b) group ->
-  ('a, 'b) draft_election updatable_with_billing ->
-  token:string ->
-  string ->
-  unit Lwt.t
-
 open Api_generic
-
-val handle_trustee :
-  token:token_user ->
-  [ `GET | `POST | `PUT | `DELETE ] ->
-  body ->
-  wrapped_draft_election updatable_with_billing ->
-  result Lwt.t
 
 val dispatch_draft :
   token:token_user ->

@@ -23,5 +23,6 @@ open Belenios_core
 open File_types
 
 val get_election : 'a election_file -> 'a serializers
+val get_trustees : 'a trustees_file -> 'a serializers
 val get_credentials : 'a credentials_file -> 'a serializers
 val get_account : 'a account_file -> 'a serializers

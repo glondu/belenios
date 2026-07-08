@@ -89,6 +89,16 @@ module type ELECTION_TRANSACTION = sig
   val delete_election : t -> unit Lwt.t
 end
 
+module type TRUSTEES_TRANSACTION = sig
+  type t
+
+  val with_transaction : uuid -> (t -> 'a Lwt.t) -> 'a Lwt.t
+
+  include BACKEND_GENERIC with type t := t and type 'a file := 'a trustees_file
+
+  val new_trustees : unit -> uuid Lwt.t
+end
+
 module type CREDENTIALS_TRANSACTION = sig
   type t
 
@@ -118,6 +128,7 @@ module type STORAGE = sig
   val readonly : bool smart_ref
 
   module E : ELECTION_TRANSACTION
+  module T : TRUSTEES_TRANSACTION
   module C : CREDENTIALS_TRANSACTION
   module A : ACCOUNT_TRANSACTION
 

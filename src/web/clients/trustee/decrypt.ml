@@ -57,14 +57,16 @@ let compute_partial_decryption (type a b) (election : (a, b) Election.u) trustee
   W.E.compute_factor encrypted_tally ~sk ~pdk
   |> [%yojson_of_group: _ partial_decryption] |> Lwt.return
 
-let decrypt uuid ~token (type a b) ~url (election : (a, b) Election.u)
+let decrypt ~token (type a b) (election : (a, b) Election.u)
     (trustee : (a, b) tally_trustee) =
   let open (val !Belenios_js.I18n.gettext) in
+  let module W = (val election) in
+  let module G = W.G in
   let fail () =
     Lwt.return [ div [ txt @@ s_ "Error while loading election parameters!" ] ]
   in
   let@ encrypted_tally cont =
-    let* x = Api.(get (election_encrypted_tally uuid) `Nobody) in
+    let* x = Api.(get (election_encrypted_tally W.uuid) `Nobody) in
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let container = Dom_html.createDiv document in
@@ -72,7 +74,12 @@ let decrypt uuid ~token (type a b) ~url (election : (a, b) Election.u)
   let partial_decryption = ref `Null in
   let submit =
     let@ () = button ~a:[ a_id "submit_data"; a_disabled () ] @@ s_ "Submit" in
-    let* x = Api.(post url (`Trustee token) !partial_decryption) in
+    let* x =
+      Api.(
+        post
+          (election_trustee W.uuid (module G))
+          (`Trustee token) !partial_decryption)
+    in
     let msg =
       match x.code with
       | 200 -> s_ "Your partial decryption has been received and checked!"

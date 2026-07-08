@@ -104,15 +104,6 @@ the configuration file. A token is valid for 24 hours, or until
 
 ### `GET`: unit -> private_credentials
 
-## `elections/$UUID/draft/trustees`
-
-### `GET`: unit -> draft_trustees (administrator or nobody)
-### `POST`: trustees_request -> unit (administrator)
-
-## `elections/$UUID/draft/trustees/$ADDRESS` (administrator)
-
-### `DELETE`: unit -> unit
-
 ## `elections/$UUID/draft/status` (administrator)
 
 ### `GET`: unit -> draft_status
@@ -159,7 +150,7 @@ the configuration file. A token is valid for 24 hours, or until
 
 ## `elections/$UUID/trustee` (trustee)
 
-### `GET`: unit -> trustee_status
+### `GET`: unit -> election_trustee_status
 ### `POST`: json -> unit
 
 ## `elections/$UUID/nh-ciphertexts` (anybody)
@@ -207,6 +198,28 @@ the configuration file. A token is valid for 24 hours, or until
 ## `elections/$UUID/archive.zip`
 
 ### `GET`: unit -> archive.zip (administrator)
+
+## `trustees` (administrator)
+
+### `POST`: group_specification -> uuid
+
+## `trustees/$UUID` (anybody)
+
+### `GET`: unit -> trustees
+
+## `trustees/$UUID/group` (anybody)
+
+### `GET`: unit -> group_specification
+
+## `trustees/$UUID/draft` (administrator)
+
+### `GET`: unit -> draft_trustees
+### `POST`: trustees_request -> unit
+
+## `trustees/$UUID/trustee` (trustee)
+
+### `GET`: unit -> trustees_trustee_status
+### `POST`: json -> unit
 
 ## `cast-result/$STATE`
 

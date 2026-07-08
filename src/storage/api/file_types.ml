@@ -31,9 +31,6 @@ type _ election_file =
   | Dates : election_dates election_file
   | Metadata : metadata election_file
   | Server_seed : string election_file
-  | Private_keys :
-      ('a, 'b) spec
-      -> ('a, 'b) sent_partial_decryption_key list election_file
   | Audit_cache : audit_cache election_file
   | Archive_header : Archive.header election_file
   | Last_event : last_event election_file
@@ -61,6 +58,14 @@ type _ credentials_file =
       ('a, 'b) spec
       -> ('a, 'b) credentials_records credentials_file
   | Credentials_credits : Belenios_web_api.credentials_credits credentials_file
+
+type _ trustees_file =
+  | Trustees_metadata : Belenios_web_api.trustees_metadata trustees_file
+  | Trustees : ('a, 'b) spec -> ('a, 'b) trustees trustees_file
+  | Trustees_draft : ('a, 'b) spec -> ('a, 'b) draft_trustees trustees_file
+  | Trustees_private_keys :
+      ('a, 'b) spec
+      -> ('a, 'b) sent_partial_decryption_key list trustees_file
 
 type admin_password_kind = Username of string | Address of string
 

@@ -1,7 +1,6 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2023 Inria                                           *)
 (*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
@@ -20,14 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Js_of_ocaml
-open Belenios
-open Belenios_web_api
+open Api_generic
 
-val show :
-  #Dom_html.element Js.t ->
-  uuid ->
-  [< `Credentials | `Draft | `Status | `Voters ] ->
-  [> `Draft of draft * Dom_html.headingElement Js.t * Dom_html.divElement Js.t ]
-  ref ->
-  unit Lwt.t
+val dispatch :
+  token:token_user ->
+  ifmatch:string option ->
+  string list ->
+  [ `GET | `POST | `PUT | `DELETE ] ->
+  body ->
+  result Lwt.t

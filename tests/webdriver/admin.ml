@@ -284,6 +284,7 @@ module Make (Config : CONFIG) = struct
   let set_trustees session { mode; trustees } =
     Printf.printf "    Setting trustees...\n%!";
     let* () = session#click_on ~selector:"#tab_trustees" in
+    let* () = session#click_on ~selector:"#new_board" in
     let* () =
       match mode with
       | Basic -> Lwt.return_unit
@@ -392,6 +393,7 @@ module Make (Config : CONFIG) = struct
         | Some (`String x) ->
             let private_key = decode_data_uri x in
             (* TODO: check fingerprint *)
+            let* () = session#scrollIntoView "submit_public_key" in
             let* () = session#click_on ~selector:"#submit_public_key" in
             Lwt.return private_key
         | _ -> assert false)
@@ -495,6 +497,14 @@ module Make (Config : CONFIG) = struct
           let* () = Lwt_list.iter_s (setup_threshold_trustee 2) ts in
           let* () = Lwt_list.iter_s (setup_threshold_trustee 3) ts in
           Lwt.return private_keys
+    in
+    let* () =
+      let@ session = with_admin ~id () in
+      Printf.printf "    Validating board...\n%!";
+      let* () = session#click_on ~selector:"#tab_trustees" in
+      let* () = session#click_on ~selector:"#validate_board" in
+      let* () = session#accept in
+      logout session
     in
     let* registrar =
       let@ session = with_admin ~id () in

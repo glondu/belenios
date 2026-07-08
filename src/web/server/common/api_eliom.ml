@@ -197,6 +197,8 @@ module Make (Web_state : Web_state_sig.S) = struct
                 return_json 200
                   (!+Belenios_web_api.yojson_of_cast_result result))
         | _ -> method_not_allowed)
+    | "trustees" :: endpoint ->
+        Api_trustees.dispatch ~token ~ifmatch endpoint method_ body
     | "credentials" :: endpoint ->
         Api_credentials.dispatch endpoint method_ body
     | "billing" :: endpoint ->

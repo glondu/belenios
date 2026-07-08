@@ -269,6 +269,7 @@ type draft_status = {
 
 type draft_request =
   [ `SetDownloaded
+  | `SetTrustees of uuid option
   | `ValidateElection
   | `SetCredentialAuthorityVisited
   | `SetVoterAuthenticationVisited
@@ -330,10 +331,11 @@ type credentials_credits = credentials_credit list [@@deriving yojson]
 
 type trustees_request =
   [ `SetStep of int
-  | `Add of addable_trustee
-  | `Import of uuid
+  | `AddTrustee of addable_trustee
+  | `RemoveTrustee of string
   | `SetBasic
   | `SetThreshold of int
+  | `Validate
   | `Reset ]
 [@@deriving yojson]
 
@@ -341,6 +343,7 @@ type voters_request = [ `Import of uuid ] [@@deriving yojson]
 
 type election_status = {
   state : state;
+  trustees : uuid option; [@yojson.option]
   authentication : authentication option; [@yojson.option]
   auto_delete_date : int64;
   auto_archive_date : int64 option; [@yojson.option]
@@ -391,13 +394,23 @@ type ('a, 'b) tally_trustee_content = {
 type ('a, 'b) tally_trustee = ('a, 'b) tally_trustee_content option
 [@@deriving yojson]
 
-type ('a, 'b) trustee_status =
-  [ `Draft of ('a, 'b) trustee_status_draft
-  | `Shuffle
-  | `Tally of ('a, 'b) tally_trustee ]
+type ('a, 'b) trustees_trustee_status =
+  [ `Draft of ('a, 'b) trustee_status_draft | `Ready ]
+[@@deriving yojson]
+
+type ('a, 'b) election_trustee_status =
+  [ `Shuffle | `Tally of ('a, 'b) tally_trustee ]
 [@@deriving yojson]
 
 type external_trustee = { address : string; token : string } [@@deriving yojson]
+
+type trustees_metadata = {
+  version : int;
+  group : string;
+  owners : int list;
+  trustees : external_trustee list option; [@yojson.option]
+}
+[@@deriving yojson]
 
 type shuffler = {
   trustee : (external_trustee * bool) option; [@yojson.option]

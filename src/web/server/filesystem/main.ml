@@ -37,6 +37,7 @@ let some_string_or_value (type a b) (f : a file)
     match f with
     | Account x -> get_account_file_serializers x
     | Election (_, x) -> get_election_file_serializers x
+    | Trustees (_, x) -> get_trustees_file_serializers x
     | Credentials (_, x) -> get_credentials_file_serializers x
   in
   match spec with
@@ -48,6 +49,7 @@ module type BACKEND = sig
 
   val get_unixfilename : unit -> 'a file -> string Lwt.t
   val new_election : unit -> uuid Lwt.t
+  val new_trustees : unit -> uuid Lwt.t
 
   include BACKEND_GENERIC with type t := unit and type 'a file := 'a file
   include BACKEND_ARCHIVE with type t := uuid
@@ -62,7 +64,13 @@ module type BACKEND0 = sig
   val list_elections : unit -> uuid list Lwt.t
 end
 
-type lock_file = Elections | Election of uuid | Credentials of uuid | Accounts
+type lock_file =
+  | Elections
+  | Election of uuid
+  | Trustees
+  | Trustees_uuid of uuid
+  | Credentials of uuid
+  | Accounts
 
 module type S = sig
   val mutexes : lock_file Indexed_mutex.t
@@ -249,6 +257,9 @@ module MakeBackend
   let spool_elections uuid x =
     Config.spool_dir // "elections" // Uuid.to_string uuid // x
 
+  let spool_trustees uuid x =
+    Config.spool_dir // "trustees" // Uuid.to_string uuid // x
+
   let spool_credentials uuid x =
     Config.spool_dir // "credentials" // Uuid.to_string uuid // x
 
@@ -276,9 +287,9 @@ module MakeBackend
                | Some x -> x :: accu))
          [] xs
 
-  type _ election_file_props =
-    | Concrete : string * kind * 'a serializers option -> 'a election_file_props
-    | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
+  type _ raw_file_props =
+    | Concrete : string * kind * 'a serializers option -> 'a raw_file_props
+    | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a raw_file_props
 
   let draft_filename = "draft.json"
   let dates_filename = "dates.json"
@@ -288,7 +299,7 @@ module MakeBackend
   let private_keys_filename = "private_keys.jsons"
 
   let get_election_file_props _uuid (type t) :
-      t election_file -> t election_file_props = function
+      t election_file -> t raw_file_props = function
     | Draft -> Concrete (draft_filename, Raw, None)
     | State -> Concrete ("state.json", Trim, None)
     | State_state -> Abstract (state_state_ops, ())
@@ -297,7 +308,6 @@ module MakeBackend
     | Dates -> Concrete (dates_filename, Raw, None)
     | Metadata -> Concrete ("metadata.json", Trim, None)
     | Server_seed -> Concrete (server_seed_filename, Trim, None)
-    | Private_keys _ -> Concrete (private_keys_filename, Raw, None)
     | Audit_cache -> Concrete ("audit_cache.json", Trim, None)
     | Archive_header -> Abstract (archive_header_ops, ())
     | Last_event -> Concrete ("last_event.json", Trim, None)
@@ -314,8 +324,15 @@ module MakeBackend
     | Credential_weight key -> Abstract (credential_weights_ops, key)
     | Credential_user key -> Abstract (credential_users_ops, key)
 
+  let get_trustees_file_props _uuid (type t) :
+      t trustees_file -> t raw_file_props = function
+    | Trustees_metadata -> Concrete ("metadata.json", Raw, None)
+    | Trustees _ -> Concrete ("trustees.json", Raw, None)
+    | Trustees_draft _ -> Concrete ("draft.json", Raw, None)
+    | Trustees_private_keys _ -> Concrete ("private_keys.jsons", Raw, None)
+
   let get_credentials_file_props _uuid (type t) :
-      t credentials_file -> t election_file_props = function
+      t credentials_file -> t raw_file_props = function
     | Credentials_params -> Concrete ("credentials_params.json", Raw, None)
     | Credentials_metadata -> Concrete ("credentials_metadata.json", Raw, None)
     | Credentials_seed -> Concrete ("credentials_seed.json", Raw, None)
@@ -347,6 +364,11 @@ module MakeBackend
         match get_election_file_props uuid f with
         | Concrete (fname, kind, convert) ->
             Concrete (spool_elections uuid fname, kind, convert)
+        | Abstract (ops, key) -> Abstract (ops, uuid, key))
+    | Trustees (uuid, f) -> (
+        match get_trustees_file_props uuid f with
+        | Concrete (fname, kind, convert) ->
+            Concrete (spool_trustees uuid fname, kind, convert)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
     | Credentials (uuid, f) -> (
         match get_credentials_file_props uuid f with
@@ -495,17 +517,19 @@ module MakeBackend
     let* _ = Lwt_process.exec command in
     Lwt.return_unit
 
-  let new_election () =
+  let new_uuid_in_dir dir =
     let length = Config.uuid_length in
     let rec loop () =
       let uuid = generate_token length in
       Lwt.try_bind
-        (fun () ->
-          Lwt_unix.mkdir (Config.spool_dir // "elections" // uuid) 0o700)
+        (fun () -> Lwt_unix.mkdir (dir // uuid) 0o700)
         (fun () -> Lwt.return @@ Uuid.of_string uuid)
         (fun _ -> loop ())
     in
     loop ()
+
+  let new_election () = new_uuid_in_dir (Config.spool_dir // "elections")
+  let new_trustees () = new_uuid_in_dir (Config.spool_dir // "trustees")
 
   let copy_file src dst =
     let open Lwt_io in
@@ -1360,6 +1384,7 @@ module MakeBackend
         match (x : _ file) with
         | Election (uuid, _) -> Election uuid
         | Credentials (uuid, _) -> Credentials uuid
+        | Trustees (uuid, _) -> Trustees_uuid uuid
         | Account _ -> Accounts
       in
       with_lock lock_file f
@@ -1377,6 +1402,7 @@ module MakeBackend
       let list_accounts () = with_lock Accounts list_accounts
       let list_elections () = with_lock Elections list_elections
       let new_election () = with_lock Elections new_election
+      let new_trustees () = with_lock Trustees new_trustees
       let new_account_id () = with_lock Accounts new_account_id
 
       let archive_election uuid =
@@ -1510,6 +1536,12 @@ module Make (Config : CONFIG) : STORAGE = struct
     let module T = (val tx : BACKEND) in
     T.new_election ()
 
+  let new_trustees () =
+    let@ () = check_readonly in
+    let@ tx = with_transaction in
+    let module T = (val tx : BACKEND) in
+    T.new_trustees ()
+
   let archive_election tx u =
     let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
@@ -1583,6 +1615,17 @@ module Make (Config : CONFIG) : STORAGE = struct
     let get_uuid (uuid, _) = uuid
     let archive_election (uuid, x) = archive_election x uuid
     let delete_election (uuid, x) = delete_election x uuid
+  end
+
+  module T : TRUSTEES_TRANSACTION = struct
+    type nonrec t = uuid * t
+
+    let with_transaction uuid f = with_transaction (fun x -> f (uuid, x))
+    let new_trustees = new_trustees
+    let get (uuid, x) f = get x (Trustees (uuid, f))
+    let set (uuid, x) f = set x (Trustees (uuid, f))
+    let del (uuid, x) f = del x (Trustees (uuid, f))
+    let update (uuid, x) f = update x (Trustees (uuid, f))
   end
 
   module C : CREDENTIALS_TRANSACTION = struct
