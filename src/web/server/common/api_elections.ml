@@ -161,11 +161,11 @@ let get_partial_decryptions s w (metadata : metadata) =
              |> List.filter_map (fun (trustee, index) ->
                  match trustee with
                  | None -> None
-                 | Some (t : external_trustee) ->
+                 | Some ({ address; token } : external_trustee) ->
                      Some
                        ({
-                          address = t.id;
-                          token = t.token;
+                          address;
+                          token;
                           done_ = List.exists (fun x -> x.owner = index) pds;
                         }
                          : trustee_pd));
@@ -216,7 +216,7 @@ let get_shuffles s (metadata : metadata) =
                         List.exists
                           (fun x ->
                             match trustee with
-                            | Some t when t.id = x -> true
+                            | Some t when t.address = x -> true
                             | _ -> false)
                           skipped
                       then Some None
@@ -245,7 +245,7 @@ let get_trustee_names s w =
   | None -> failwith __FUNCTION__
   | Some trustees -> Lwt.return (extract_names trustees)
 
-let get_trustee_by_id s w (metadata : metadata) id =
+let get_trustee_by_address s w (metadata : metadata) address =
   match metadata.trustees with
   | None -> Lwt.return_none
   | Some xs ->
@@ -255,7 +255,8 @@ let get_trustee_by_id s w (metadata : metadata) id =
             match x with
             | None -> find xs
             | Some (x : external_trustee) ->
-                if x.id = id then Lwt.return_some (x, index, name) else find xs)
+                if x.address = address then Lwt.return_some (x, index, name)
+                else find xs)
       in
       let* names = get_trustee_names s w in
       find (List.combine xs names)
@@ -265,7 +266,7 @@ let skip_shuffler s trustee =
   let current, set =
     let ok : Belenios_storage_api.shuffle_token option -> _ = function
       | None -> true
-      | Some t when t.trustee.id = trustee -> true
+      | Some t when t.trustee.address = trustee -> true
       | _ -> false
     in
     match Lopt.get_value x with
@@ -280,7 +281,7 @@ let skip_shuffler s trustee =
 let select_shuffler s w metadata trustee =
   let@ trustee, trustee_id, name =
    fun cont ->
-    let* x = get_trustee_by_id s w metadata trustee in
+    let* x = get_trustee_by_address s w metadata trustee in
     match x with None -> failwith __FUNCTION__ | Some x -> cont x
   in
   let@ x, set = Storage.E.update s State_state in

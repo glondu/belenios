@@ -56,10 +56,7 @@ let with_trustee (token : token_user) (Draft (_, se)) f =
   | `Basic b -> (
       match
         List.find_opt
-          (fun (x : _ draft_basic_trustee) ->
-            match x.kind with
-            | Server _ -> false
-            | External x -> x.token = token)
+          (fun (x : _ draft_basic_trustee) -> x.token = token)
           b.trustees
       with
       | Some x -> f (`Basic x)
@@ -426,26 +423,16 @@ let get_draft_trustees ~is_admin (Draft (_, se)) :
         let trustees =
           List.filter_map
             (fun (t : _ draft_basic_trustee) ->
-              match t.kind with
-              | Server _ -> None
-              | External u ->
-                  let trustee_state, trustee_key =
-                    match t.parameters with
-                    | None -> (Some 0, None)
-                    | Some tpk -> (Some 1, Some tpk)
-                  in
-                  let trustee_address, trustee_token, trustee_state =
-                    if is_admin then (Some u.id, Some u.token, trustee_state)
-                    else (None, None, None)
-                  in
-                  Some
-                    {
-                      address = trustee_address;
-                      name = Some u.name;
-                      token = trustee_token;
-                      state = trustee_state;
-                      key = trustee_key;
-                    })
+              let state, key =
+                match t.parameters with
+                | None -> (Some 0, None)
+                | Some tpk -> (Some 1, Some tpk)
+              in
+              let address, token, state =
+                if is_admin then (Some t.address, Some t.token, state)
+                else (None, None, None)
+              in
+              Some { address; name = t.name; token; state; key })
             x.trustees
         in
         `Basic ({ trustees } : _ basic_trustees)
@@ -453,20 +440,14 @@ let get_draft_trustees ~is_admin (Draft (_, se)) :
         let trustees =
           List.map
             (fun (t : _ draft_threshold_trustee) ->
-              let trustee_address, trustee_token, trustee_state =
+              let address, token, state =
                 if is_admin then
-                  ( Some t.id,
+                  ( Some t.address,
                     Some t.token,
                     Some (Option.value t.step ~default:0) )
                 else (None, None, None)
               in
-              {
-                address = trustee_address;
-                name = Some t.name;
-                token = trustee_token;
-                state = trustee_state;
-                key = t.cert;
-              })
+              { address; name = t.name; token; state; key = t.cert })
             x.trustees
         in
         `Threshold
@@ -477,78 +458,38 @@ let get_draft_trustees ~is_admin (Draft (_, se)) :
 let check_address address =
   if not @@ is_email address then raise (Error (`Invalid "e-mail address"))
 
-let ensure_none label x =
-  if x <> None then
-    raise (Error (`GenericError (Printf.sprintf "%s must not be set" label)))
-
-let generate_server_trustee (type a b) (w : (a, b) group)
-    (Draft (_, se) : (a, b) draft_election) : (a, b) draft_basic_trustee Lwt.t =
-  let module G = (val w) in
-  let module Trustees = (val Trustees.get_by_version se.version) in
-  let module KG = Trustees.MakeBasic (G) in
-  let seed = generate_token 44 in
-  let parameters = Some (KG.make seed) in
-  Lwt.return { kind = Server { seed }; parameters }
-
-let post_draft_trustees (type a b) (w : (a, b) group)
-    ((Draft (v, se), set) : (a, b) draft_election updatable_with_billing)
-    (t : _ trustee) =
-  let address =
-    match t.address with
-    | Some x ->
-        check_address x;
-        x
-    | None -> raise (Error (`Missing "address"))
-  in
-  let name =
-    match t.name with Some x -> x | None -> raise (Error (`Missing "name"))
-  in
-  let () = ensure_none "token" t.token in
-  let () = ensure_none "state" t.state in
-  let () = ensure_none "key" t.key in
+let post_draft_trustees
+    ((Draft (v, se), set) : _ draft_election updatable_with_billing)
+    ({ name; address } : addable_trustee) =
+  check_address address;
   match se.trustees.mode with
   | `Basic x ->
-      let* ts =
-        let ts = x.trustees in
-        if
-          List.exists
-            (fun (x : _ draft_basic_trustee) ->
-              match x.kind with Server _ -> true | External _ -> false)
-            ts
-        then Lwt.return ts
-        else
-          let* server = generate_server_trustee w (Draft (v, se)) in
-          Lwt.return (ts @ [ server ])
-      in
+      let ts = x.trustees in
       let () =
         if
           List.exists
-            (fun (x : _ draft_basic_trustee) ->
-              match x.kind with
-              | Server _ -> false
-              | External x -> x.id = address)
+            (fun (x : _ draft_basic_trustee) -> x.address = address)
             ts
         then raise (Error (`GenericError "address already used"))
       in
       let token = generate_token 22 in
-      let t =
-        { kind = External { id = address; name; token }; parameters = None }
-      in
-      x.trustees <- ts @ [ t ];
+      x.trustees <- ts @ [ { name; address; token; parameters = None } ];
       set (Draft (v, se))
   | `Threshold x ->
       let ts = x.trustees in
       let () =
         if
-          List.exists (fun (x : _ draft_threshold_trustee) -> x.id = address) ts
+          List.exists
+            (fun (x : _ draft_threshold_trustee) -> x.address = address)
+            ts
         then raise (Error (`GenericError "address already used"))
       in
-      let stt_token = generate_token 22 in
+      let token = generate_token 22 in
       let t =
         {
-          id = address;
+          address;
           name;
-          token = stt_token;
+          token;
           step = None;
           cert = None;
           polynomial = None;
@@ -574,8 +515,7 @@ let delete_draft_trustee ((Draft (v, se), set) : _ updatable_with_billing)
       let ts = x.trustees in
       let touched, ts =
         filter_out_first
-          (fun (x : _ draft_basic_trustee) ->
-            match x.kind with Server _ -> false | External x -> x.id = trustee)
+          (fun (x : _ draft_basic_trustee) -> x.address = trustee)
           ts
       in
       if touched then (
@@ -587,7 +527,7 @@ let delete_draft_trustee ((Draft (v, se), set) : _ updatable_with_billing)
       let ts = x.trustees in
       let touched, ts =
         filter_out_first
-          (fun (x : _ draft_threshold_trustee) -> x.id = trustee)
+          (fun (x : _ draft_threshold_trustee) -> x.address = trustee)
           ts
       in
       if touched then (
@@ -763,10 +703,7 @@ let import_trustees (type a b) (w : (a, b) group)
   let module G = (val w) in
   match metadata.trustees with
   | None -> Lwt.return @@ Stdlib.Error `None
-  | Some trustees -> (
-      let ids =
-        List.map (Option.map (fun (x : external_trustee) -> x.id)) trustees
-      in
+  | Some metadata_trustees -> (
       let@ trustees cont =
         let* x = Public_archive.get_trustees from (module G) in
         match Lopt.get_value x with
@@ -777,24 +714,23 @@ let import_trustees (type a b) (w : (a, b) group)
       let module K = Trustees.MakeCombinator (G) in
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
-        let import_pedersen (t : (a, b) threshold_parameters) ids =
+        let import_pedersen (t : (a, b) threshold_parameters) ts =
           let* privs = Storage.E.get from (Private_keys (module G)) in
           let* x =
             match Lopt.get_value privs with
             | Some privs ->
                 let rec loop ts certs pubs privs accu =
                   match (ts, certs, pubs, privs) with
-                  | ( Some id :: ts,
+                  | ( Some ({ address; token } : external_trustee) :: ts,
                       cert :: certs,
                       (public_key : _ threshold_verification_key) :: pubs,
                       private_key :: privs ) ->
                       let stt_name = public_key.message.message.name in
-                      let stt_token = generate_token 22 in
                       let stt_voutput = { public_key; private_key } in
                       let stt =
                         {
-                          id;
-                          token = stt_token;
+                          address;
+                          token;
                           voutput = Some stt_voutput;
                           step = Some 7;
                           cert = Some cert;
@@ -807,7 +743,7 @@ let import_trustees (type a b) (w : (a, b) group)
                   | [], [], [], [] -> Lwt.return @@ Ok (List.rev accu)
                   | _ -> Lwt.return @@ Stdlib.Error `Inconsistent
                 in
-                loop ids (Array.to_list t.certs)
+                loop ts (Array.to_list t.certs)
                   (Array.to_list t.verification_keys)
                   privs []
             | None -> Lwt.return @@ Stdlib.Error `MissingPrivateKeys
@@ -829,10 +765,10 @@ let import_trustees (type a b) (w : (a, b) group)
           | Stdlib.Error _ as x -> Lwt.return x
         in
         match trustees with
-        | [ `Pedersen t ] -> import_pedersen t ids
+        | [ `Pedersen t ] -> import_pedersen t metadata_trustees
         | [ `Single x; `Pedersen t ]
           when x.verification_key.message.message.name = None ->
-            import_pedersen t (List.tl ids)
+            import_pedersen t (List.tl metadata_trustees)
         | ts ->
             let@ ts cont =
               try
@@ -843,29 +779,22 @@ let import_trustees (type a b) (w : (a, b) group)
                 |> cont
               with Exit -> Lwt.return @@ Stdlib.Error `Unsupported
             in
-            let* ts =
+            let ts =
               let module KG = Trustees.MakeBasic (G) in
-              List.combine ids ts
-              |> Lwt_list.map_p (fun (id, (parameters : _ basic_parameters)) ->
-                  let* kind, parameters =
-                    match id with
-                    | None ->
-                        let seed = generate_token 44 in
-                        let parameters = KG.make seed in
-                        Lwt.return (Server { seed }, Some parameters)
-                    | Some id ->
-                        let token = generate_token 22 in
-                        let name =
-                          match
-                            parameters.verification_key.message.message.name
-                          with
-                          | None -> failwith __FUNCTION__
-                          | Some x -> x
-                        in
-                        Lwt.return
-                          (External { id; token; name }, Some parameters)
-                  in
-                  Lwt.return { kind; parameters })
+              List.combine metadata_trustees ts
+              |> List.filter_map (fun (t, (parameters : _ basic_parameters)) ->
+                  match t with
+                  | None -> None
+                  | Some ({ address; token } : external_trustee) ->
+                      let name =
+                        match
+                          parameters.verification_key.message.message.name
+                        with
+                        | None -> failwith __FUNCTION__
+                        | Some x -> x
+                      in
+                      Some
+                        { name; address; token; parameters = Some parameters })
             in
             se.trustees <- { se.trustees with mode = `Basic { trustees = ts } };
             let* () = set (Draft (v, se)) in
@@ -977,14 +906,9 @@ let post_trustee_basic (type a b) (w : (a, b) group)
     | `Basic x -> x.trustees
     | `Threshold _ -> failwith "Wrong trustee mode"
   in
-  let t, name =
+  let t =
     match
-      List.find_map
-        (fun (x : _ draft_basic_trustee) ->
-          match x.kind with
-          | Server _ -> None
-          | External y -> if token = y.token then Some (x, y.name) else None)
-        ts
+      List.find_opt (fun (x : _ draft_basic_trustee) -> x.token = token) ts
     with
     | Some t -> t
     | None -> failwith "Invalid token"
@@ -995,7 +919,7 @@ let post_trustee_basic (type a b) (w : (a, b) group)
       let parameters = !*[%group_of_yojson: _ basic_parameters] data in
       let module K = Trustees.MakeCombinator (G) in
       if
-        parameters.verification_key.message.message.name = Some name
+        parameters.verification_key.message.message.name = Some t.name
         && K.check [ `Single parameters ]
       then (
         t.parameters <- Some parameters;
@@ -1191,9 +1115,7 @@ let handle_trustee ~token method_ body ((wse, wset) : _ updatable_with_billing)
     match trustee with
     | `Basic b ->
         let state =
-          match (b.parameters, b.kind) with
-          | None, External x -> `Init x.name
-          | _ -> `Done
+          match b.parameters with None -> `Init b.name | Some _ -> `Done
         in
         `Basic state
     | `Threshold (index, t, dtp) -> (
@@ -1345,7 +1267,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
               in
               ok
           | `Add trustee ->
-              let* () = post_draft_trustees w (se, set) trustee in
+              let* () = post_draft_trustees (se, set) trustee in
               ok
           | `SetBasic ->
               let* () = put_draft_trustees_mode (se, set) `Basic in

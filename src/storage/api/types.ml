@@ -85,26 +85,23 @@ type election_state =
 
 type draft_voter = { mutable id : voter } [@@deriving yojson]
 
-type ('a, 'b) draft_basic_trustee_kind =
-  | Server of { seed : string }
-  | External of { id : string; token : string; name : string }
-[@@deriving yojson]
-
 type ('a, 'b) draft_basic_trustee = {
-  kind : ('a, 'b) draft_basic_trustee_kind;
+  address : string;
+  name : string;
+  token : string;
   mutable parameters : ('a, 'b) basic_parameters option; [@yojson.option]
 }
 [@@deriving yojson]
 
 type ('a, 'b) draft_threshold_trustee = {
-  id : string;
+  address : string;
+  name : string;
   token : string;
   mutable step : int option; [@yojson.option]
   mutable cert : ('a, 'b) pedersen_cert option; [@yojson.option]
   mutable polynomial : ('a, 'b) polynomial option; [@yojson.option]
   mutable vinput : ('a, 'b) vinput option; [@yojson.option]
   mutable voutput : ('a, 'b) voutput option; [@yojson.option]
-  name : string;
 }
 [@@deriving yojson]
 

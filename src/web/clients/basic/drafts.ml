@@ -191,7 +191,7 @@ let rec show_draft_trustees uuid container =
   let t2, t2get = textarea "" in
   let b =
     let@ () = button "Add trustee" in
-    let r = `Add (!*(trustee_of_yojson Fun.id) (t2get ())) in
+    let r = `Add (!*addable_trustee_of_yojson (t2get ())) in
     let* x = Api.(post ~ifmatch (draft_trustees uuid (module G)) !user r) in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_trustees uuid container)

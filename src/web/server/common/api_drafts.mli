@@ -63,20 +63,14 @@ val submit_public_credentials :
   'a public_credentials_with_id ->
   unit Lwt.t
 
-val generate_server_trustee :
-  ('a, 'b) group ->
-  ('a, 'b) draft_election ->
-  ('a, 'b) draft_basic_trustee Lwt.t
-
 val get_draft_trustees :
   is_admin:bool ->
   ('a, 'b) draft_election ->
   ('a, 'b) Belenios_web_api.draft_trustees
 
 val post_draft_trustees :
-  ('a, 'b) group ->
   ('a, 'b) draft_election updatable_with_billing ->
-  json trustee ->
+  addable_trustee ->
   unit Lwt.t
 
 val delete_draft_trustee :

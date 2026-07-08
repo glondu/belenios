@@ -116,7 +116,7 @@ let do_draft uuid (draft : raw_draft) private_key =
             if G.(compare (g **~ private_key) y) = 0 then Some x.name else None)
           trustees
       in
-      show_result name
+      show_result (Some name)
   | `Threshold x ->
       let module Trustees = (val Trustees.get_by_version version) in
       let module PKI = Pki.Make (G) in
@@ -130,7 +130,7 @@ let do_draft uuid (draft : raw_draft) private_key =
             if G.compare vk y.verification = 0 then Some x.name else None)
           trustees
       in
-      show_result name
+      show_result (Some name)
 
 let check ?uuid () =
   let open (val !Belenios_js.I18n.gettext) in

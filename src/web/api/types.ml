@@ -221,10 +221,11 @@ type summary = { uuid : uuid; name : string; date : int64; state : state }
 
 type summary_list = summary list [@@deriving yojson]
 type string_list = string list [@@deriving yojson]
+type addable_trustee = { name : string; address : string } [@@deriving yojson]
 
 type 'a trustee = {
+  name : string;
   address : string option; [@yojson.option]
-  name : string option; [@yojson.option]
   token : string option; [@yojson.option]
   state : int option; [@yojson.option]
   key : 'a option; [@yojson.option]
@@ -329,7 +330,7 @@ type credentials_credits = credentials_credit list [@@deriving yojson]
 
 type trustees_request =
   [ `SetStep of int
-  | `Add of json trustee
+  | `Add of addable_trustee
   | `Import of uuid
   | `SetBasic
   | `SetThreshold of int
@@ -396,7 +397,7 @@ type ('a, 'b) trustee_status =
   | `Tally of ('a, 'b) tally_trustee ]
 [@@deriving yojson]
 
-type external_trustee = { id : string; token : string } [@@deriving yojson]
+type external_trustee = { address : string; token : string } [@@deriving yojson]
 
 type shuffler = {
   trustee : (external_trustee * bool) option; [@yojson.option]

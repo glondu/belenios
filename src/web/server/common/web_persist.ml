@@ -134,7 +134,7 @@ let internal_release_tally ~force s set_state =
   in
   let* metadata = get_election_metadata s in
   let trustees_with_ids =
-    Option.value metadata.trustees ~default:[ None ]
+    Option.value metadata.trustees ~default:[]
     |> List.mapi (fun i x -> (i + 1, x))
   in
   let* pds = Public_archive.get_partial_decryptions s (module W.G) in
@@ -685,46 +685,26 @@ let validate_trustees (type a b) (w : (a, b) group)
   let module T = (val Trustees.get_by_version se.version) in
   let module K = T.MakeCombinator (G) in
   let module KG = T.MakeBasic (G) in
+  let server_seed = generate_token 44 in
+  let server_public_key = KG.make server_seed in
   let* trustee_names, trustees, private_keys =
     match se.trustees.mode with
-    | `Basic x -> (
+    | `Basic x ->
         let ts = x.trustees in
-        match ts with
-        | [] ->
-            let seed = generate_token 44 in
-            let p = KG.make seed in
-            Lwt.return ([ None ], [ `Single p ], `KEY seed)
-        | _ :: _ ->
-            let seed =
-              List.fold_left
-                (fun accu (t : _ draft_basic_trustee) ->
-                  match t.kind with
-                  | External _ -> accu
-                  | Server u -> u.seed :: accu)
-                [] ts
-            in
-            let seed =
-              match seed with
-              | [ x ] -> `KEY x
-              | _ -> validation_error `NotSinglePrivateKey
-            in
-            Lwt.return
-              ( List.map
-                  (fun (x : _ draft_basic_trustee) ->
-                    match x.kind with
-                    | Server _ -> None
-                    | External u ->
-                        Some
-                          ({ id = u.id; token = u.token }
-                            : Belenios_web_api.external_trustee))
-                  ts,
-                List.map
-                  (fun (x : _ draft_basic_trustee) ->
-                    match x.parameters with
-                    | None -> validation_error `KeyEstablishmentNotFinished
-                    | Some x -> `Single x)
-                  ts,
-                seed ))
+        Lwt.return
+          ( None
+            :: List.map
+                 (fun ({ address; token; _ } : _ draft_basic_trustee) ->
+                   Some ({ address; token } : Belenios_web_api.external_trustee))
+                 ts,
+            `Single server_public_key
+            :: List.map
+                 (fun (x : _ draft_basic_trustee) ->
+                   match x.parameters with
+                   | None -> validation_error `KeyEstablishmentNotFinished
+                   | Some x -> `Single x)
+                 ts,
+            None )
     | `Threshold x -> (
         let ts = x.trustees in
         match x.parameters with
@@ -732,10 +712,8 @@ let validate_trustees (type a b) (w : (a, b) group)
         | Some tp ->
             let trustees =
               List.map
-                (fun (x : _ draft_threshold_trustee) ->
-                  Some
-                    ({ id = x.id; token = x.token }
-                      : Belenios_web_api.external_trustee))
+                (fun ({ address; token; _ } : _ draft_threshold_trustee) ->
+                  Some ({ address; token } : Belenios_web_api.external_trustee))
                 ts
             in
             let private_keys =
@@ -746,15 +724,13 @@ let validate_trustees (type a b) (w : (a, b) group)
                   | None -> failwith "inconsistent state")
                 ts
             in
-            let seed = generate_token 44 in
-            let server_public_key = KG.make seed in
             Lwt.return
               ( None :: trustees,
                 [ `Single server_public_key; `Pedersen tp ],
-                `KEYS (seed, private_keys) ))
+                Some private_keys ))
   in
   let y = K.combine_keys trustees in
-  Lwt.return (y, trustee_names, trustees, private_keys)
+  Lwt.return (y, trustee_names, trustees, server_seed, private_keys)
 
 let init_credential_mapping s (type a b) (w : (a, b) group) =
   let uuid = Storage.E.get_uuid s in
@@ -907,7 +883,9 @@ let validate_election ~admin_id storage
   in
   (* trustees *)
   let module G = (val w) in
-  let* y, trustee_names, trustees, private_keys = validate_trustees w se in
+  let* y, trustee_names, trustees, server_seed, private_keys =
+    validate_trustees w se
+  in
   (* election parameters *)
   let metadata = { metadata with trustees = Some trustee_names } in
   let template = Belenios.Election.Template (v, questions) in
@@ -925,13 +903,12 @@ let validate_election ~admin_id storage
   let* public_creds = init_credential_mapping storage w in
   (* initialize events *)
   let* () = initialize_events storage w se raw_election trustees public_creds in
-  (* create file with private keys, if any *)
+  (* create file with private keys *)
+  let* () = Storage.E.set storage Server_seed Value server_seed in
   let* () =
     match private_keys with
-    | `KEY x -> x |> Storage.E.set storage Server_seed Value
-    | `KEYS (x, y) ->
-        let* () = x |> Storage.E.set storage Server_seed Value in
-        y |> Storage.E.set storage (Private_keys w) Value
+    | None -> Lwt.return_unit
+    | Some x -> Storage.E.set storage (Private_keys w) Value x
   in
   (* clean up draft *)
   let* () = Storage.E.del storage Draft in

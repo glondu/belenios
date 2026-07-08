@@ -121,11 +121,10 @@ let recompute_main_zone_1 () =
     :: List.map
          (fun (t : _ trustee) ->
            let address = Option.value ~default:"N/A" t.address in
-           let name = Option.value ~default:"N/A" t.name in
            tr
              [
                td [ txt address ];
-               td [ txt name ];
+               td [ txt t.name ];
                td ~a:[ a_class [ "clickable" ] ] [ erase_trustee_elt address ];
              ])
          !all_trustee
@@ -149,14 +148,8 @@ let recompute_main_zone_1 () =
     in
     let add_but =
       button (s_ "Add a trustee") (fun () ->
-          let t : _ trustee =
-            {
-              address = Some (inp1_get ());
-              name = Some (inp2_get ());
-              token = None;
-              state = None;
-              key = None;
-            }
+          let t : addable_trustee =
+            { address = inp1_get (); name = inp2_get () }
           in
           let r = `Add t in
           let ifmatch = !ifmatch_tt in
@@ -353,8 +346,7 @@ let recompute_main_zone_3 () =
     :: List.map
          (fun (t : _ trustee) ->
            let address = Option.value ~default:"N/A" t.address in
-           let name = Option.value ~default:"N/A" t.name in
-           tr [ td [ txt address ]; td [ txt name ]; td [] ])
+           tr [ td [ txt address ]; td [ txt t.name ]; td [] ])
          !all_trustee
   in
   Lwt.return
@@ -486,7 +478,7 @@ let recompute_main_zone_2 () =
           tr
             [
               td [ txt @@ Option.value ~default:"N/A" t.address ];
-              td [ txt @@ Option.value ~default:"N/A" t.name ];
+              td [ txt t.name ];
               td [ link ];
               td [ txt @@ string_of_state t.state ];
               td [];
@@ -711,7 +703,7 @@ let main_zone_shuffling () =
               | Some (trustee, true) ->
                   let* link =
                     trustee_shuffle_link ~token:trustee.token
-                      ~recipient:trustee.id
+                      ~recipient:trustee.address
                   in
                   Lwt.return [ link ]
               | Some (trustee, false) ->
@@ -724,7 +716,9 @@ let main_zone_shuffling () =
                     button ~a:attr lab (fun () ->
                         let* x =
                           Api.(
-                            post (election_shuffle uuid trustee.id) !user req)
+                            post
+                              (election_shuffle uuid trustee.address)
+                              !user req)
                         in
                         match x.code with
                         | 200 -> !update_main_zone ()
@@ -754,7 +748,7 @@ let main_zone_shuffling () =
               | Some (trustee, _) ->
                   tr
                     [
-                      td [ txt trustee.id ];
+                      td [ txt trustee.address ];
                       td b;
                       td
                         [
