@@ -62,9 +62,11 @@ module type BACKEND0 = sig
   val list_elections : unit -> uuid list Lwt.t
 end
 
+type lock_file = Elections | Election of uuid | Credentials of uuid | Accounts
+
 module type S = sig
-  val mutexes : uuid option Indexed_mutex.t
-  val make : uuid option Mutex_set.t -> (module BACKEND0)
+  val mutexes : lock_file Indexed_mutex.t
+  val make : lock_file Mutex_set.t -> (module BACKEND0)
 end
 
 module MakeBackend
@@ -749,10 +751,10 @@ module MakeBackend
 
   let extended_records_deferrer =
     Indexed_defer.create mutexes (function
-      | None -> Lwt.return_unit
-      | Some uuid ->
+      | Election uuid ->
           let* x = extended_records_cache#find uuid in
-          dump_extended_records uuid x)
+          dump_extended_records uuid x
+      | _ -> Lwt.return_unit)
 
   let find_extended_record uuid username =
     let* rs = extended_records_cache#find uuid in
@@ -769,7 +771,7 @@ module MakeBackend
       |> (fun x -> [ x ])
       |> append_to_file (spool_elections uuid extended_records_filename)
     in
-    Indexed_defer.defer extended_records_deferrer (Some uuid);
+    Indexed_defer.defer extended_records_deferrer (Election uuid);
     Lwt.return_unit
 
   let () =
@@ -821,10 +823,10 @@ module MakeBackend
 
   let credential_mappings_deferrer =
     Indexed_defer.create mutexes (function
-      | None -> Lwt.return_unit
-      | Some uuid ->
+      | Election uuid ->
           let* x = credential_mappings_cache#find uuid in
-          dump_credential_mappings uuid x)
+          dump_credential_mappings uuid x
+      | _ -> Lwt.return_unit)
 
   let find_credential_mapping uuid cred =
     let* xs = credential_mappings_cache#find uuid in
@@ -840,7 +842,7 @@ module MakeBackend
       |> (fun x -> [ x ])
       |> append_to_file (spool_elections uuid credential_mappings_filename)
     in
-    Indexed_defer.defer credential_mappings_deferrer (Some uuid);
+    Indexed_defer.defer credential_mappings_deferrer (Election uuid);
     Lwt.return_unit
 
   let () =
@@ -1354,10 +1356,13 @@ module MakeBackend
       f ()
     in
     let with_lock_file x f =
-      let uuid =
-        match (x : _ file) with Election (uuid, _) -> Some uuid | _ -> None
+      let lock_file : lock_file =
+        match (x : _ file) with
+        | Election (uuid, _) -> Election uuid
+        | Credentials (uuid, _) -> Credentials uuid
+        | Account _ -> Accounts
       in
-      with_lock uuid f
+      with_lock lock_file f
     in
     let module X = struct
       type nonrec 'a file = 'a file
@@ -1369,24 +1374,24 @@ module MakeBackend
       let set () f s x = with_lock_file f (fun () -> set f s x)
       let del () f = with_lock_file f (fun () -> del f)
       let update () f g = with_lock_file f (fun () -> update f g)
-      let list_accounts () = with_lock None list_accounts
-      let list_elections () = with_lock None list_elections
-      let new_election () = with_lock None new_election
-      let new_account_id () = with_lock None new_account_id
+      let list_accounts () = with_lock Accounts list_accounts
+      let list_elections () = with_lock Elections list_elections
+      let new_election () = with_lock Elections new_election
+      let new_account_id () = with_lock Accounts new_account_id
 
       let archive_election uuid =
-        with_lock (Some uuid) (fun () ->
+        with_lock (Election uuid) (fun () ->
             Election_ops.archive_election (module Backend) uuid)
 
       let delete_election uuid =
-        with_lock (Some uuid) (fun () ->
+        with_lock (Election uuid) (fun () ->
             Election_ops.delete_election (module Backend) uuid)
 
       let append uuid ?last ops =
-        with_lock (Some uuid) (fun () -> append uuid ?last ops)
+        with_lock (Election uuid) (fun () -> append uuid ?last ops)
 
       let append_sealing uuid event =
-        with_lock (Some uuid) (fun () -> append_sealing uuid event)
+        with_lock (Election uuid) (fun () -> append_sealing uuid event)
     end in
     (module X : BACKEND0)
 end
