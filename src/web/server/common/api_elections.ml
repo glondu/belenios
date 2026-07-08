@@ -481,57 +481,11 @@ let handle_trustee ~token method_ body s (election : Election.t) =
       | _ -> method_not_allowed)
   | _ -> precondition_failed
 
-let dispatch_election ~token ~ifmatch endpoint method_ body s
-    (election : Election.t) (metadata : metadata) =
+let dispatch_election ~token endpoint method_ body s (election : Election.t)
+    (metadata : metadata) =
   let module W = (val election) in
   let module G = W.G in
   match endpoint with
-  | [] -> (
-      let get () =
-        let* x = get_election_status s in
-        Lwt.return @@ yojson_of_election_status x
-      in
-      match method_ with
-      | `GET -> handle_get get
-      | `POST -> (
-          let@ () = handle_ifmatch ifmatch get in
-          let@ _ = with_administrator token metadata in
-          let@ request = body.run !*admin_request_of_yojson in
-          match request with
-          | (`Open | `Close) as x ->
-              let@ () =
-               fun cont ->
-                if metadata.sealed = Some true then forbidden else cont ()
-              in
-              let doit =
-                match x with
-                | `Open -> Web_persist.open_election
-                | `Close -> Web_persist.close_election
-              in
-              let* b = doit s in
-              if b then ok else forbidden
-          | (`ComputeEncryptedTally | `FinishShuffling) as x ->
-              let@ () = handle_generic_error in
-              let doit =
-                match x with
-                | `ComputeEncryptedTally -> Web_persist.compute_encrypted_tally
-                | `FinishShuffling -> Web_persist.finish_shuffling
-              in
-              let* b = doit s in
-              if b then ok else forbidden
-          | `ReleaseTally ->
-              let@ () = handle_generic_error in
-              let* () = Web_persist.release_tally s in
-              ok
-          | `Archive ->
-              let@ () = handle_generic_error in
-              let* () = Storage.E.archive_election s in
-              ok
-          | `Seal seal ->
-              let@ () = handle_generic_error in
-              let* () = Web_persist.seal_election s seal in
-              ok)
-      | _ -> method_not_allowed)
   | [ "audit-cache" ] -> (
       match method_ with
       | `GET ->
@@ -754,6 +708,63 @@ let dispatch ~token ~ifmatch endpoint method_ body =
           | Some uuid -> return_json 200 (!+yojson_of_uuid uuid)
           | None -> forbidden)
       | _ -> method_not_allowed)
+  | [ uuid ] -> (
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
+      let@ s = Storage.E.with_transaction uuid in
+      let@ metadata cont =
+        let* x = Storage.E.get s Metadata in
+        match Lopt.get_value x with Some x -> cont x | None -> assert false
+      in
+      let get () =
+        let* x = get_election_status s in
+        Lwt.return @@ yojson_of_election_status x
+      in
+      let@ () = handle_generic_error in
+      match method_ with
+      | `GET -> handle_get get
+      | `POST -> (
+          let@ () = handle_ifmatch ifmatch get in
+          let@ _ = with_administrator token metadata in
+          let@ request = body.run !*admin_request_of_yojson in
+          match request with
+          | (`Open | `Close) as x ->
+              let@ () =
+               fun cont ->
+                if metadata.sealed = Some true then forbidden else cont ()
+              in
+              let doit =
+                match x with
+                | `Open -> Web_persist.open_election
+                | `Close -> Web_persist.close_election
+              in
+              let* b = doit s in
+              if b then ok else forbidden
+          | (`ComputeEncryptedTally | `FinishShuffling) as x ->
+              let@ () = handle_generic_error in
+              let doit =
+                match x with
+                | `ComputeEncryptedTally -> Web_persist.compute_encrypted_tally
+                | `FinishShuffling -> Web_persist.finish_shuffling
+              in
+              let* b = doit s in
+              if b then ok else forbidden
+          | `ReleaseTally ->
+              let@ () = handle_generic_error in
+              let* () = Web_persist.release_tally s in
+              ok
+          | `Archive ->
+              let@ () = handle_generic_error in
+              let* () = Storage.E.archive_election s in
+              ok
+          | `Seal seal ->
+              let@ () = handle_generic_error in
+              let* () = Web_persist.seal_election s seal in
+              ok)
+      | `DELETE ->
+          let@ _ = with_administrator token metadata in
+          let* () = Storage.E.delete_election s in
+          ok
+      | _ -> method_not_allowed)
   | [ uuid; "election" ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
@@ -873,17 +884,6 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       in
       Api_drafts.dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
         (se, set) metadata
-  | [ uuid ] when method_ = `DELETE ->
-      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
-      let@ s = Storage.E.with_transaction uuid in
-      let@ metadata cont =
-        let* x = Storage.E.get s Metadata in
-        match Lopt.get_value x with Some x -> cont x | None -> assert false
-      in
-      let@ _ = with_administrator token metadata in
-      let@ () = handle_generic_error in
-      let* () = Storage.E.delete_election s in
-      ok
   | [ uuid; "trustee" ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
@@ -901,5 +901,4 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       let* election = Public_archive.get_election s in
       let@ election = Option.unwrap not_found @@ Lopt.get_value election in
       let* metadata = Web_persist.get_election_metadata s in
-      dispatch_election ~token ~ifmatch endpoint method_ body s election
-        metadata
+      dispatch_election ~token endpoint method_ body s election metadata
