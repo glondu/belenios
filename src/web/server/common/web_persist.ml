@@ -1039,8 +1039,8 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
   | Some _ -> ()
   | None ->
       let voters = List.map (fun (v : draft_voter) -> v.id) se.voters in
-      let module G = (val Belenios.Group.of_string ~version:se.version se.group)
-      in
+      let { version; group; _ } : _ raw_draft_election = se in
+      let module G = (val Belenios.Group.make { version; group }) in
       let module Cred =
         Credential.Make
           (G)

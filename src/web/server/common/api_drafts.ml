@@ -160,7 +160,7 @@ let draft_of_api a uuid (Draft (v, se) as fse) metadata
         raise (Error (`CannotChange "group"))
       else
         try
-          let module G = (val Group.of_string ~version se_group) in
+          let module G = (val Group.make { version; group = se_group }) in
           ()
         with _ -> raise (Error (`Invalid "group"))
   in
@@ -219,7 +219,7 @@ let post_drafts account draft =
   in
   let version = Defaults.version in
   let group = !Web_config.default_group in
-  let module G = (val Group.of_string ~version group) in
+  let module G = (val Group.make { version; group }) in
   let (Version v) = Belenios.Election.version_of_int version in
   let se : _ raw_draft_election =
     {

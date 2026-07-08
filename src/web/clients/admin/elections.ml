@@ -1412,7 +1412,8 @@ let change_cred_authority_info cred_authority_info =
 
 (** The page content, when the user can still choose between both options *)
 let credauth_changeable_content uuid draft currsel =
-  let module G = (val Group.of_string ~version:draft.version draft.group) in
+  let { version; group; _ } : raw_draft = draft in
+  let module G = (val Group.make { version; group }) in
   let open (val !Belenios_js.I18n.gettext) in
   let currsel = ref currsel in
   let refresh_hooks = ref [] in

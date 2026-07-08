@@ -770,9 +770,8 @@ let dispatch ~token ~ifmatch endpoint method_ body =
           | Some se -> (
               let get () =
                 let (W (_, Draft (v, se))) = se in
-                let version = se.version in
-                let group = se.group in
-                let module G = (val Group.of_string ~version group : GROUP) in
+                let { version; group; _ } : _ raw_draft_election = se in
+                let module G = (val Group.make { version; group }) in
                 let public_key = G.to_string G.g in
                 Election.make_raw_election ~version
                   (Template (v, se.questions))

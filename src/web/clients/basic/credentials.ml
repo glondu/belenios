@@ -60,10 +60,8 @@ let show main uuid =
             let container = div [] |> Tyxml_js.To_dom.of_div in
             let b =
               let@ () = button "Generate credentials" in
-              let version = draft.version in
-              let module G =
-                (val Belenios.Group.of_string ~version draft.group : GROUP)
-              in
+              let { version; group; _ } = draft in
+              let module G = (val Belenios.Group.make { version; group }) in
               let module CMap = Map.Make (G) in
               let module Cred =
                 Credential.Make

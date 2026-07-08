@@ -207,7 +207,8 @@ let generate configuration uuid ~token =
     let@ () = button ~a:[ a_id "generate" ] @@ s_ "Generate" in
     Dom.removeChild container generate_div;
     let (Draft (_, draft)) = draft in
-    let module G = (val Group.of_string ~version:draft.version draft.group) in
+    let { version; group; _ } : raw_draft = draft in
+    let module G = (val Group.make { version; group }) in
     let* c = do_generate (module G) uuid ~voters in
     Dom.appendChild container @@ Tyxml_js.To_dom.of_div
     @@ make_submit_credentials_div (module G) ~uuid ~token ~voters c;

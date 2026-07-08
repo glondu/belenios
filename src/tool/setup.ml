@@ -54,7 +54,7 @@ module Tkeygen : CMDLINER_MODULE = struct
   let main group version name =
     let@ () = wrap_main in
     let group = get_mandatory_opt "--group" group in
-    let module G = (val Group.of_string ~version group) in
+    let module G = (val Group.make { version; group }) in
     let module Trustees = (val Trustees.get_by_version version) in
     let module KG = Trustees.MakeBasic (G) in
     let seed = generate_token 44 in
@@ -121,7 +121,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
       if 1 <= index && index <= Array.length context.names then index
       else failcmd "index is invalid"
     in
-    let module G = (val Group.of_string ~version group : GROUP) in
+    let module G = (val Group.make { version; group }) in
     let module Trustees = (val Trustees.get_by_version version) in
     let module P = Pki.Make (G) in
     let module C = Pki.MakeChannels (P) in
@@ -327,7 +327,7 @@ module Credgen : CMDLINER_MODULE = struct
       | None, None, Some c -> Lwt.return @@ `Derive c
       | _, _, _ -> failcmd "--count, --file and --derive are mutually exclusive"
     in
-    let module G = (val Group.of_string ~version group : GROUP) in
+    let module G = (val Group.make { version; group }) in
     let module Cred =
       Credential.Make
         (G)
@@ -450,7 +450,7 @@ module SubCredgen : CMDLINER_MODULE = struct
     let group = get_mandatory_opt "--group" group in
     let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.of_string in
     let count = get_mandatory_opt "--count" count in
-    let module G = (val Group.of_string ~version group : GROUP) in
+    let module G = (val Group.make { version; group }) in
     let module Cred =
       Credential.Make
         (G)
@@ -550,7 +550,7 @@ module Mkelection : CMDLINER_MODULE = struct
     let group = get_mandatory_opt "--group" group in
     let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.of_string in
     let* trustees = dir // "trustees.json" |> string_of_file in
-    let module G = (val Group.of_string ~version group) in
+    let module G = (val Group.make { version; group }) in
     let module Trustees = (val Trustees.get_by_version version) in
     let module K = Trustees.MakeCombinator (G) in
     let template =

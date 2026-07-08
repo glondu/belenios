@@ -25,6 +25,8 @@ open Common_types
 
 (** {2 Basic cryptographic datastructures} *)
 
+type group_specification = { version : int; group : string } [@@deriving yojson]
+
 type 'a ciphertext = { alpha : 'a; beta : 'a } [@@deriving yojson]
 (** An ElGamal ciphertext. *)
 

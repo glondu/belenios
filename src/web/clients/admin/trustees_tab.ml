@@ -63,7 +63,8 @@ let cast_tt_trustee a b =
 let get_trustees () =
   let uuid = get_current_uuid () in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let module G = (val Group.of_string ~version:draft.version draft.group) in
+  let { version; group; _ } = draft in
+  let module G = (val Group.make { version; group }) in
   let* x = Api.(get (draft_trustees uuid (module G)) !user) in
   ifmatch_tt := get_ifmatch x;
   match x with
@@ -154,9 +155,8 @@ let recompute_main_zone_1 () =
           let r = `Add t in
           let ifmatch = !ifmatch_tt in
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-          let module G =
-            (val Group.of_string ~version:draft.version draft.group)
-          in
+          let { version; group; _ } : raw_draft = draft in
+          let module G = (val Group.make { version; group }) in
           let* b = send_trustees_request ?ifmatch (module G) r in
           let&&* d = document##getElementById (Js.string "popup") in
           d##.style##.display := Js.string "none";
@@ -214,9 +214,8 @@ let recompute_main_zone_1 () =
           let mm = if with_thr then `SetThreshold 0 else `SetBasic in
           let ifmatch = !ifmatch_tt in
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-          let module G =
-            (val Group.of_string ~version:draft.version draft.group)
-          in
+          let { version; group; _ } : raw_draft = draft in
+          let module G = (val Group.make { version; group }) in
           let* b = send_trustees_request ?ifmatch (module G) mm in
           if b then !update_main_zone () else Lwt.return_unit
         else r##.checked := Js.bool with_thr
@@ -243,9 +242,8 @@ let recompute_main_zone_1 () =
           let ifmatch = !ifmatch_tt in
           let@ () = Lwt.async in
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-          let module G =
-            (val Group.of_string ~version:draft.version draft.group)
-          in
+          let { version; group; _ } : raw_draft = draft in
+          let module G = (val Group.make { version; group }) in
           let* b = send_trustees_request ?ifmatch (module G) mm in
           if b then !update_main_zone () else Lwt.return_unit
         in
@@ -263,7 +261,8 @@ let recompute_main_zone_1 () =
     else div [ inp; lab ]
   in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let module G = (val Group.of_string ~version:draft.version draft.group) in
+  let { version; group; _ } : raw_draft = draft in
+  let module G = (val Group.make { version; group }) in
   let proc_but =
     let@ () = button (s_ "Proceed to key generation") in
     match !mode with
@@ -286,7 +285,8 @@ let recompute_main_zone_1 () =
     let@ from_uuid = popup_choose_elec uuid in
     let r = `Import from_uuid in
     let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-    let module G = (val Group.of_string ~version:draft.version draft.group) in
+    let { version; group; _ } : raw_draft = draft in
+    let module G = (val Group.make { version; group }) in
     let* b = send_trustees_request (module G) r in
     if b then
       let* b = send_trustees_request (module G) @@ `SetStep 3 in
@@ -314,7 +314,8 @@ let reset_but () =
   let confir = confirm @@ s_ "Are you sure you want to restart from scratch?" in
   if confir then
     let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-    let module G = (val Group.of_string ~version:draft.version draft.group) in
+    let { version; group; _ } : raw_draft = draft in
+    let module G = (val Group.make { version; group }) in
     let* b = send_trustees_request (module G) `Reset in
     if b then !update_main_zone () else Lwt.return_unit
   else Lwt.return_unit
@@ -441,7 +442,8 @@ let recompute_main_zone_2 () =
     else true
   in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let module G = (val Group.of_string ~version:draft.version draft.group) in
+  let { version; group; _ } : raw_draft = draft in
+  let module G = (val Group.make { version; group }) in
   if not confir then (
     let* b = send_trustees_request (module G) @@ `SetStep 1 in
     if b then step := 1;

@@ -21,4 +21,4 @@
 
 open Belenios_core
 
-val of_string : version:int -> string -> (module GROUP)
+val make : group_specification -> (module GROUP)

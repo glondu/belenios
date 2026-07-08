@@ -254,7 +254,7 @@ let local_save () =
     let () =
       let open (val !Belenios_js.I18n.gettext) in
       let version = draft.version in
-      let group = lazy (Group.of_string ~version draft_group) in
+      let group = lazy (Group.make { version; group = draft_group }) in
       Array.iteri
         (fun i q ->
           match Question.check_question group q with

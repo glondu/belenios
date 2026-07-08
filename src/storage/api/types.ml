@@ -246,8 +246,8 @@ type wrapped_credentials_params =
 
 let wrapped_credentials_params_of_yojson : json -> wrapped_credentials_params =
  fun x ->
-  let x' = credentials_params_of_yojson Fun.id Fun.id x in
-  let module G = (val Group.of_string ~version:x'.version x'.group) in
+  let { version; group; _ } = credentials_params_of_yojson Fun.id Fun.id x in
+  let module G = (val Group.make { version; group }) in
   let x = [%group_of_yojson: _ credentials_params] x in
   W ((module G), x)
 

@@ -131,7 +131,8 @@ let rec show_draft_trustees uuid container =
   let@ () = show_in container in
   let* draft = Api.(get (draft uuid) !user) in
   let@ Draft (_, draft), _ = with_ok "draft" draft in
-  let module G = (val Group.of_string ~version:draft.version draft.group) in
+  let { version; group; _ } : raw_draft = draft in
+  let module G = (val Group.make { version; group }) in
   let* x = Api.(get (draft_trustees uuid (module G)) !user) in
   let@ trustees, ifmatch = with_ok "trustees" x in
   let mode =
@@ -255,7 +256,8 @@ let show_draft show_all uuid draft title container tab =
   | `Voters -> show_draft_voters uuid draft container
   | `Credentials ->
       let (Draft (_, draft)) = draft in
-      let module G = (val Group.of_string ~version:draft.version draft.group) in
+      let { version; group; _ } : raw_draft = draft in
+      let module G = (val Group.make { version; group }) in
       show_draft_credentials uuid (module G) container
   | `Trustees -> show_draft_trustees uuid container
   | `Status -> show_draft_status uuid container

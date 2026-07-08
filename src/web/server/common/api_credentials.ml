@@ -29,9 +29,8 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
     voter_list () =
   let algorithm = default_algorithm in
   let seed = generate_token 44 in
-  let module G =
-    (val Belenios.Group.of_string ~version:draft.version draft.group)
-  in
+  let { version; group; _ } = draft in
+  let module G = (val Belenios.Group.make { version; group }) in
   let module P = Pki.Make (G) in
   let decryption_key = P.derive_dk seed in
   let encryption_key = G.(g **~ decryption_key) in

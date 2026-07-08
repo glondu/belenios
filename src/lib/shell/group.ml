@@ -19,7 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let of_string ~version =
-  match version with
-  | 2 -> Belenios_v2.Group.of_string
-  | n -> Printf.ksprintf failwith "Group.of_string: unsupported version: %d" n
+open Belenios_core
+
+let make (x : group_specification) =
+  match x.version with
+  | 2 -> Belenios_v2.Group.of_string x.group
+  | n -> Printf.ksprintf failwith "Group.make: unsupported version: %d" n

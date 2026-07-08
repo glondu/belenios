@@ -42,9 +42,10 @@ type wrapped_draft_election =
   | W : ('a, 'b) group * ('a, 'b) draft_election -> wrapped_draft_election
 
 let wrapped_draft_election_of_yojson (x : Json.t) : wrapped_draft_election =
-  let abstract = raw_draft_election_of_yojson Fun.id Fun.id x in
-  let version = abstract.version in
-  let module G = (val Group.of_string ~version abstract.group) in
+  let { version; group; _ } : _ raw_draft_election =
+    raw_draft_election_of_yojson Fun.id Fun.id x
+  in
+  let module G = (val Group.make { version; group }) in
   let (Version v) = Election.version_of_int version in
   let x = [%group_of_yojson: _ raw_draft_election] x in
   W ((module G), Draft (v, x))

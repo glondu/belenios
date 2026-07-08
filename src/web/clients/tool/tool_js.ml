@@ -135,9 +135,8 @@ module Tests = struct
     Hash_to_field.hash_to_field ~dst "" n
 
   let bench_group () =
-    let group =
-      get_select "bench_group_group" |> Belenios.Group.of_string ~version:1
-    in
+    let group = get_select "bench_group_group" in
+    let group = Belenios.Group.make { version = 1; group } in
     let module G = (val group) in
     let n = get_input "bench_group_nb" |> int_of_string in
     let xs = gen G.Zq.q n |> Array.map (fun x -> G.Zq.coerce x.(0)) in
@@ -172,7 +171,7 @@ module Credgen = struct
     let version = get_textarea "version" |> int_of_string in
     let uuid = get_textarea "election_uuid" |> Uuid.of_string in
     let group = get_textarea "election_group" in
-    let module G = (val Belenios.Group.of_string ~version group : GROUP) in
+    let module G = (val Belenios.Group.make { version; group }) in
     let module Cred =
       Credential.Make
         (G)
@@ -196,7 +195,7 @@ module Credgen = struct
     let version = get_textarea "version" |> int_of_string in
     let uuid = get_textarea "election_uuid" |> Uuid.of_string in
     let group = get_textarea "election_group" in
-    let module G = (val Belenios.Group.of_string ~version group : GROUP) in
+    let module G = (val Belenios.Group.make { version; group }) in
     let module Cred =
       Credential.Make
         (G)
