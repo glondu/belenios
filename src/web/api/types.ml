@@ -270,6 +270,7 @@ type draft_status = {
 type draft_request =
   [ `SetDownloaded
   | `SetTrustees of uuid option
+  | `ImportTrustees of uuid
   | `ValidateElection
   | `SetCredentialAuthorityVisited
   | `SetVoterAuthenticationVisited

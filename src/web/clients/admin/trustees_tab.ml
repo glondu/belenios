@@ -843,6 +843,22 @@ let main_zone_shuffling () =
   in
   Lwt.return [ h2 [ txt @@ s_ "Tallying: shuffling step" ]; content ]
 
+let import_but () =
+  let open (val !Belenios_js.I18n.gettext) in
+  let@ () = button @@ s_ "Use board from another election" in
+  let to_uuid = get_current_uuid () in
+  let@ from_uuid = popup_choose_elec to_uuid in
+  let* x = Api.(post (draft to_uuid) !user) @@ `ImportTrustees from_uuid in
+  match x.code with
+  | 200 ->
+      Cache.invalidate_all ();
+      !update_main_zone ()
+  | code ->
+      let open (val !Belenios_js.I18n.gettext) in
+      let msg = Printf.sprintf (f_ "Failed with error %d!") code in
+      alert msg;
+      Lwt.return_unit
+
 let recompute_main_zone () =
   let open (val !Belenios_js.I18n.gettext) in
   let checkpriv () =
@@ -869,7 +885,7 @@ let recompute_main_zone () =
           let content =
             [
               div [ txt @@ s_ "There is no electoral board at the moment." ];
-              div [ new_board_but () ];
+              div [ new_board_but (); txt " "; import_but () ];
             ]
           in
           Lwt.return (content, false)

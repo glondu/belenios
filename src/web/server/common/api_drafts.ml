@@ -547,6 +547,16 @@ let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
       Ocsigen_messages.errlog msg;
       Lwt.return_unit)
 
+let set_trustees (se : _ raw_draft_election) uuid
+    ((metadata, set_metadata) : metadata updatable) =
+  let@ s = Storage.T.with_transaction uuid in
+  let* x = Storage.T.get s Trustees_metadata in
+  match Lopt.get_value x with
+  | Some m when m.version = se.version && m.group = se.group ->
+      let* () = set_metadata { metadata with trustees = Some uuid } in
+      ok
+  | _ -> forbidden
+
 let post_draft_status ~admin_id s uuid
     (((W (w, Draft (v, se)) as wse), set) :
       wrapped_draft_election updatable_with_billing)
@@ -559,9 +569,19 @@ let post_draft_status ~admin_id s uuid
           set (W (w, Draft (v, se))))
       in
       ok
-  | `SetTrustees trustees ->
-      let* () = set_metadata { metadata with trustees } in
-      ok
+  | `SetTrustees trustees -> (
+      match trustees with
+      | None ->
+          let* () = set_metadata { metadata with trustees } in
+          ok
+      | Some uuid -> set_trustees se uuid (metadata, set_metadata))
+  | `ImportTrustees from -> (
+      let@ s = Storage.E.with_transaction from in
+      let* x = Storage.E.get s Metadata in
+      match Lopt.get_value x with
+      | Some { trustees = Some uuid; _ } ->
+          set_trustees se uuid (metadata, set_metadata)
+      | _ -> forbidden)
   | `ValidateElection ->
       let* status = get_draft_status uuid (Draft (v, se)) metadata in
       let* () =
