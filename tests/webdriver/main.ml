@@ -27,6 +27,7 @@ let getenv_int ~default x =
 
 module Config = struct
   let headless = Sys.getenv_opt "BELENIOS_HEADLESS" <> None
+  let retries = getenv_int ~default:0 "BELENIOS_SCENARIO_RETRIES"
   let width = getenv_int ~default:1000 "BELENIOS_WINDOW_WIDTH"
   let height = getenv_int ~default:1000 "BELENIOS_WINDOW_HEIGHT"
   let webdriver = "http://127.0.0.1:4444"
@@ -236,7 +237,7 @@ let rec main = function
       let registrar = registrar_of_string registrar in
       let auth = auth_of_string auth in
       let* () =
-        try_scenario 3 (fun () ->
+        try_scenario Config.retries (fun () ->
             scenario admin questions nvoters trustees registrar auth)
       in
       main xs

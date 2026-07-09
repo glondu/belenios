@@ -55,6 +55,7 @@ scenarios:
     - source ~/env.sh
     # Run the OCaml automated test scenarios
     - BELENIOS_HEADLESS=1
+      BELENIOS_SCENARIO_RETRIES=3
       BELENIOS_WINDOW_WIDTH=800
       BELENIOS_WINDOW_HEIGHT=600
       PATH=$PWD/_run/usr/bin:$PATH
