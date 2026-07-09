@@ -48,6 +48,13 @@ end
 
 type question_error = [ `No_encoding | `Vector_size | `Int_size | `Min_max ]
 
+type ('a, 'b) spec = {
+  version : int;
+  group : string;
+  element : 'a Type.Id.t;
+  scalar : 'b Type.Id.t;
+}
+
 (** A group suitable for discrete logarithm-based cryptography. *)
 module type GROUP = sig
   (** The following interface is redundant: it is assumed, but not checked, that
@@ -114,8 +121,7 @@ module type GROUP = sig
   val get_generator : int -> t
   (** [get_generator i] computes generator #[i] of the group. *)
 
-  val version : int
-  val description : string
+  val spec : (t, Zq.t) spec
 end
 
 type ('a, 'b) group = (module GROUP with type t = 'a and type Zq.t = 'b)

@@ -251,8 +251,14 @@ let hash_to_int p =
   let x = F.to_Z x and y = F.to_Z y in
   Z.(hash_to_int (shift_left x 256 + y))
 
-let version = 2
-let description = "Ed25519"
+let spec : _ Signatures_core.spec =
+  {
+    version = 2;
+    group = "Ed25519";
+    element = Type.Id.make ();
+    scalar = Type.Id.make ();
+  }
+
 let cofactor = Zq.of_int 8
 
 let get_generator i =

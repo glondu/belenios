@@ -735,7 +735,7 @@ let validate_trustees (type a b) (w : (a, b) group)
 let init_credential_mapping s (type a b) (w : (a, b) group) =
   let uuid = Storage.E.get_uuid s in
   let module G = (val w) in
-  let* file = Storage.E.get s (Public_creds w) in
+  let* file = Storage.E.get s (Public_creds G.spec) in
   match Lopt.get_value file with
   | Some x ->
       let public_credentials =
@@ -908,7 +908,7 @@ let validate_election ~admin_id storage
   let* () =
     match private_keys with
     | None -> Lwt.return_unit
-    | Some x -> Storage.E.set storage (Private_keys w) Value x
+    | Some x -> Storage.E.set storage (Private_keys G.spec) Value x
   in
   (* clean up draft *)
   let* () = Storage.E.del storage Draft in
@@ -1018,7 +1018,8 @@ let set_election_automatic_dates s d =
   set { dates with auto_open; auto_close; publish; grace_period }
 
 let get_draft_public_credentials s (type a b) (w : (a, b) group) =
-  let* x = Storage.E.get s (Public_creds w) in
+  let module G = (val w) in
+  let* x = Storage.E.get s (Public_creds G.spec) in
   let&* x = Lopt.get_value x in
   x
   |> List.map (fun (x : _ public_credential_with_id) -> x.credential)
@@ -1065,7 +1066,7 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           | Some (W (w, Draft (v, se))) ->
               let* () = private_creds |> Storage.E.set s Private_creds Value in
               let* () =
-                Storage.E.set s (Public_creds (module G)) Value public_with_ids
+                Storage.E.set s (Public_creds G.spec) Value public_with_ids
               in
               se.public_creds_received <- true;
               se.pending_credentials <- true;

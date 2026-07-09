@@ -53,7 +53,8 @@ let find_trustee_id s token =
   | _ -> Lwt.return_none
 
 let find_trustee_private_key s (type a b) (w : (a, b) group) trustee_id =
-  let* keys = Storage.E.get s (Private_keys w) in
+  let module G = (val w) in
+  let* keys = Storage.E.get s (Private_keys G.spec) in
   let&* keys = Lopt.get_value keys in
   (* there is one Pedersen trustee *)
   let* trustees = Public_archive.get_trustees s w in

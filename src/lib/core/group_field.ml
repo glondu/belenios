@@ -26,6 +26,9 @@ open Common
 
 (** Finite field arithmetic *)
 
+let element = Type.Id.make ()
+let scalar = Type.Id.make ()
+
 module type GROUP = GROUP with type t = Z.t
 
 let make description ff_params =
@@ -116,7 +119,6 @@ let make description ff_params =
         assert (Z.(compare h g) <> 0);
         h
 
-    let version = 2
-    let description = description
+    let spec : _ spec = { version = 2; group = description; element; scalar }
   end in
   (module G : GROUP)

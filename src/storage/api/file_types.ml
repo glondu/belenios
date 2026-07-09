@@ -32,13 +32,13 @@ type _ election_file =
   | Metadata : metadata election_file
   | Server_seed : string election_file
   | Private_keys :
-      ('a, 'b) group
+      ('a, 'b) spec
       -> ('a, 'b) sent_partial_decryption_key list election_file
   | Audit_cache : audit_cache election_file
   | Archive_header : Archive.header election_file
   | Last_event : last_event election_file
   | Draft : wrapped_draft_election election_file
-  | Public_creds : ('a, 'b) group -> 'a public_credentials_with_id election_file
+  | Public_creds : ('a, 'b) spec -> 'a public_credentials_with_id election_file
   | Private_creds : private_credentials election_file
   | Sealing_log : string election_file
   | Records : election_records election_file
@@ -58,7 +58,7 @@ type _ credentials_file =
   | Credentials_metadata : Belenios_web_api.message_metadata credentials_file
   | Credentials_seed : credentials_seed credentials_file
   | Credentials_records :
-      ('a, 'b) group
+      ('a, 'b) spec
       -> ('a, 'b) credentials_records credentials_file
   | Credentials_credits : Belenios_web_api.credentials_credits credentials_file
 

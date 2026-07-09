@@ -44,7 +44,7 @@ let get_election (type t) : t election_file -> t serializers = function
       { of_string = !*metadata_of_yojson; to_string = !+yojson_of_metadata }
   | Server_seed -> { of_string = Fun.id; to_string = Fun.id }
   | Private_keys w ->
-      let module G = (val w) in
+      let module G = (val Group.coerce w) in
       {
         of_string =
           (fun xs ->
@@ -74,7 +74,7 @@ let get_election (type t) : t election_file -> t serializers = function
         to_string = !+yojson_of_wrapped_draft_election;
       }
   | Public_creds w ->
-      let module G = (val w) in
+      let module G = (val Group.coerce w) in
       {
         of_string = !*(public_credentials_with_id_of_yojson !$G.of_string);
         to_string = !+(yojson_of_public_credentials_with_id !&G.to_string);
@@ -136,7 +136,7 @@ let get_credentials (type t) : t credentials_file -> t serializers = function
         to_string = !+yojson_of_credentials_seed;
       }
   | Credentials_records w ->
-      let module G = (val w) in
+      let module G = (val Group.coerce w) in
       {
         of_string = !*[%group_of_yojson: _ credentials_records];
         to_string = !+[%yojson_of_group: _ credentials_records];

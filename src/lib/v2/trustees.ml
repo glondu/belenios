@@ -163,7 +163,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
     }
 
   let check_pedersen (t : _ threshold_parameters) =
-    let group = G.description in
+    let group = G.spec.group in
     let names =
       Array.map
         (fun (x : _ threshold_verification_key) -> x.message.message.name)

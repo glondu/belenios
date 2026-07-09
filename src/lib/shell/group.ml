@@ -25,3 +25,13 @@ let make (x : group_specification) =
   match x.version with
   | 2 -> Belenios_v2.Group.of_string x.group
   | n -> Printf.ksprintf failwith "Group.make: unsupported version: %d" n
+
+let coerce (type a b) (x : (a, b) spec) : (a, b) group =
+  let { version; group; element; scalar } = x in
+  let module G = (val make { version; group }) in
+  match Type.Id.provably_equal element G.spec.element with
+  | None -> assert false
+  | Some Equal -> (
+      match Type.Id.provably_equal scalar G.spec.scalar with
+      | None -> assert false
+      | Some Equal -> (module G))

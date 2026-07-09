@@ -939,7 +939,7 @@ module MakeBackend
     let module G = (val w) in
     let@ public_creds =
      fun cont ->
-      let* x = get (Election (uuid, Public_creds (module G))) in
+      let* x = get (Election (uuid, Public_creds G.spec)) in
       match Lopt.get_value x with
       | None ->
           (* public credentials mapping is no longer available, use

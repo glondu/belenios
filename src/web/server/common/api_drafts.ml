@@ -410,7 +410,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
         (i + 1, SSet.add cred_s creds))
       (0, SSet.empty) credentials
   in
-  let* () = Storage.E.set s (Public_creds (module G)) Value credentials in
+  let* () = Storage.E.set s (Public_creds G.spec) Value credentials in
   se.public_creds_received <- true;
   se.public_creds_certificate <- certificate;
   set (Draft (v, se))
@@ -715,7 +715,7 @@ let import_trustees (type a b) (w : (a, b) group)
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen (t : (a, b) threshold_parameters) ts =
-          let* privs = Storage.E.get from (Private_keys (module G)) in
+          let* privs = Storage.E.get from (Private_keys G.spec) in
           let* x =
             match Lopt.get_value privs with
             | Some privs ->

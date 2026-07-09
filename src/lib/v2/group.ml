@@ -69,5 +69,5 @@ let of_string x =
         | _ -> Printf.ksprintf failwith "unknown group: %s" x)
   in
   let module G = (val group) in
-  assert (G.version = version);
+  assert (G.spec.version = version);
   group

@@ -22,3 +22,4 @@
 open Belenios_core
 
 val make : group_specification -> (module GROUP)
+val coerce : ('a, 'b) spec -> ('a, 'b) group

@@ -110,9 +110,8 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
           { seed; token = r.token } |> Storage.C.set s Credentials_seed Value
         in
         let* () =
-          Storage.C.set s
-            (Credentials_records (module G))
-            Value { algorithm; records }
+          Storage.C.set s (Credentials_records G.spec) Value
+            { algorithm; records }
         in
         cont ())
       (fun e ->
@@ -396,8 +395,9 @@ let process_request : credentials_request -> _ = function
         match Lopt.get_value p with Some p -> cont p | None -> not_found
       in
       let (W (w, _)) = params in
+      let module G = (val w) in
       let@ credentials_records cont =
-        let* x = Storage.C.get s (Credentials_records w) in
+        let* x = Storage.C.get s (Credentials_records G.spec) in
         match Lopt.get_value x with Some x -> cont x | None -> not_found
       in
       let { algorithm; records } = credentials_records in
@@ -447,8 +447,9 @@ let process_request : credentials_request -> _ = function
       in
       if check_seed ~params ~seed:r.seed then (
         let (W (w, params)) = params in
+        let module G = (val w) in
         let@ credentials_records cont =
-          let* x = Storage.C.get s (Credentials_records w) in
+          let* x = Storage.C.get s (Credentials_records G.spec) in
           match Lopt.get_value x with Some x -> cont x | None -> not_found
         in
         let@ metadata cont =
