@@ -42,13 +42,6 @@ let send_trustees_request ?ifmatch w req =
   in
   Lwt.return b
 
-type trustees_mode = [ `Basic | `Threshold of int ]
-
-let all_trustee = ref ([] : json trustee list)
-let ifmatch_tt = ref (Some "")
-let mode = ref (`Basic : trustees_mode)
-let step = ref 0
-
 (* Forward decl of update functions *)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
@@ -66,26 +59,28 @@ let get_trustees () =
   let { version; group; _ } = draft in
   let module G = (val Group.make { version; group }) in
   let* x = Api.(get (draft_trustees uuid (module G)) !user) in
-  ifmatch_tt := get_ifmatch x;
+  let ifmatch = get_ifmatch x in
   match x with
   | Error e ->
       alert (string_of_error e);
-      Lwt.return_unit
+      Lwt.return_none
   | Ok (tt, _) -> (
-      step := tt.step;
+      let step = tt.step in
       match tt.mode with
       | `Basic x ->
-          all_trustee :=
-            List.map (cast_bt_trustee !&G.to_string !&G.Zq.to_string) x.trustees;
-          mode := `Basic;
-          Lwt.return_unit
+          let all_trustee =
+            List.map (cast_bt_trustee !&G.to_string !&G.Zq.to_string) x.trustees
+          in
+          let mode = `Basic in
+          Lwt.return_some (ifmatch, step, mode, all_trustee)
       | `Threshold x ->
-          all_trustee :=
-            List.map (cast_tt_trustee !&G.to_string !&G.Zq.to_string) x.trustees;
-          mode := `Threshold (Option.value ~default:0 x.threshold);
-          Lwt.return_unit)
+          let all_trustee =
+            List.map (cast_tt_trustee !&G.to_string !&G.Zq.to_string) x.trustees
+          in
+          let mode = `Threshold (Option.value ~default:0 x.threshold) in
+          Lwt.return_some (ifmatch, step, mode, all_trustee))
 
-let recompute_main_zone_1 () =
+let recompute_main_zone_1 ifmatch mode all_trustee =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = get_current_uuid () in
   let erase_trustee_elt t =
@@ -128,7 +123,7 @@ let recompute_main_zone_1 () =
                td [ txt t.name ];
                td ~a:[ a_class [ "clickable" ] ] [ erase_trustee_elt address ];
              ])
-         !all_trustee
+         all_trustee
   in
   let add_form =
     let lab1 =
@@ -153,7 +148,6 @@ let recompute_main_zone_1 () =
             { address = inp1_get (); name = inp2_get () }
           in
           let r = `Add t in
-          let ifmatch = !ifmatch_tt in
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
           let { version; group; _ } : raw_draft = draft in
           let module G = (val Group.make { version; group }) in
@@ -193,14 +187,14 @@ let recompute_main_zone_1 () =
       ]
   in
   let thresh =
-    let with_thr = !mode <> `Basic in
+    let with_thr = mode <> `Basic in
     let attr = [ a_id "thresh"; a_class [ "clickable" ] ] in
     let attr = if with_thr then a_checked () :: attr else attr in
     let inp, _ =
       let onchange r =
         (* FIXME: the API should allow to change the mode without resetting the trustee list *)
         let ok =
-          if !all_trustee <> [] then
+          if all_trustee <> [] then
             let confirm =
               confirm
               @@ s_ "Warning, this will delete the current list of trustees"
@@ -212,7 +206,6 @@ let recompute_main_zone_1 () =
           let@ () = Lwt.async in
           let with_thr = not with_thr in
           let mm = if with_thr then `SetThreshold 0 else `SetBasic in
-          let ifmatch = !ifmatch_tt in
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
           let { version; group; _ } : raw_draft = draft in
           let module G = (val Group.make { version; group }) in
@@ -226,7 +219,7 @@ let recompute_main_zone_1 () =
       label ~a:[ a_label_for "thresh" ] [ txt @@ s_ "Threshold mode" ]
     in
     if with_thr then
-      let nth = List.length !all_trustee in
+      let nth = List.length all_trustee in
       let attr =
         [
           a_input_max (`Number (nth - 1));
@@ -234,12 +227,11 @@ let recompute_main_zone_1 () =
           a_id "thresh_val";
         ]
       in
-      let v = match !mode with `Basic -> assert false | `Threshold i -> i in
+      let v = match mode with `Basic -> assert false | `Threshold i -> i in
       let inp_thval, _ =
         let onchange r =
           let vv = int_of_string (Js.to_string r##.value) in
           let mm = `SetThreshold vv in
-          let ifmatch = !ifmatch_tt in
           let@ () = Lwt.async in
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
           let { version; group; _ } : raw_draft = draft in
@@ -265,7 +257,7 @@ let recompute_main_zone_1 () =
   let module G = (val Group.make { version; group }) in
   let proc_but =
     let@ () = button (s_ "Proceed to key generation") in
-    match !mode with
+    match mode with
     | `Threshold 0 ->
         alert "Threshold has not been set";
         Lwt.return_unit
@@ -291,7 +283,6 @@ let recompute_main_zone_1 () =
     if b then
       let* b = send_trustees_request (module G) @@ `SetStep 3 in
       if b then (
-        step := 3;
         Cache.invalidate_all ();
         !update_main_zone ())
       else !update_main_zone ()
@@ -322,7 +313,7 @@ let reset_but () =
 
 (* FIXME: This step 3 is just a dumb, now, but in the future, it should be
  * a page to check that the trustees have their secret key *)
-let recompute_main_zone_3 () =
+let recompute_main_zone_3 all_trustee =
   let open (val !Belenios_js.I18n.gettext) in
   let header_row =
     tr
@@ -348,7 +339,7 @@ let recompute_main_zone_3 () =
          (fun (t : _ trustee) ->
            let address = Option.value ~default:"N/A" t.address in
            tr [ td [ txt address ]; td [ txt t.name ]; td [] ])
-         !all_trustee
+         all_trustee
   in
   Lwt.return
     [
@@ -360,9 +351,9 @@ let recompute_main_zone_3 () =
 (* trustee status is just an int. Conversion to a meaningful status
  * depends on the mode (threshold or not)
  *)
-let string_of_state st =
+let string_of_state mode st =
   let open (val !Belenios_js.I18n.gettext) in
-  match !mode with
+  match mode with
   | `Basic -> (
       match st with
       | None -> s_ "none"
@@ -406,9 +397,9 @@ let trustee_generate_link kind =
              ~recipient ~subject ~body (s_ "Send an e-mail");
          ]
 
-let all_ttee_done () =
-  let dd = if !mode = `Basic then Some 1 else Some 7 in
-  List.for_all (fun (t : _ trustee) -> t.state = dd) !all_trustee
+let all_ttee_done mode all_trustee =
+  let dd = if mode = `Basic then Some 1 else Some 7 in
+  List.for_all (fun (t : _ trustee) -> t.state = dd) all_trustee
 
 let trustee_decrypt_link ~token ~recipient =
   let open (val !Belenios_js.I18n.gettext) in
@@ -431,10 +422,10 @@ let trustee_decrypt_link ~token ~recipient =
            ~recipient ~subject ~body (s_ "Send an e-mail");
        ]
 
-let recompute_main_zone_2 () =
+let recompute_main_zone_2 ifmatch_tt mode all_trustee =
   let open (val !Belenios_js.I18n.gettext) in
   let confir =
-    if !all_trustee = [] then
+    if all_trustee = [] then
       confirm
       @@ s_
            "No external trustee were set. Do you confirm that you trust the \
@@ -444,18 +435,16 @@ let recompute_main_zone_2 () =
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
   let { version; group; _ } : raw_draft = draft in
   let module G = (val Group.make { version; group }) in
-  if not confir then (
-    let* b = send_trustees_request (module G) @@ `SetStep 1 in
-    if b then step := 1;
-    recompute_main_zone_1 ())
-  else if all_ttee_done () then (
-    let* b = send_trustees_request (module G) @@ `SetStep 3 in
-    if b then step := 3;
-    recompute_main_zone_3 ())
+  if not confir then
+    let* _ = send_trustees_request (module G) @@ `SetStep 1 in
+    recompute_main_zone_1 ifmatch_tt mode all_trustee
+  else if all_ttee_done mode all_trustee then
+    let* _ = send_trustees_request (module G) @@ `SetStep 3 in
+    recompute_main_zone_3 all_trustee
   else
     let trustee_generate_link =
       let kind =
-        match !mode with `Basic -> `Basic | `Threshold _ -> `Threshold
+        match mode with `Basic -> `Basic | `Threshold _ -> `Threshold
       in
       trustee_generate_link kind
     in
@@ -482,11 +471,11 @@ let recompute_main_zone_2 () =
               td [ txt @@ Option.value ~default:"N/A" t.address ];
               td [ txt t.name ];
               td [ link ];
-              td [ txt @@ string_of_state t.state ];
+              td [ txt @@ string_of_state mode t.state ];
               td [];
             ]
           |> Lwt.return)
-        !all_trustee
+        all_trustee
     in
     let refresh_but =
       button (s_ "Refresh status") (fun () -> !update_main_zone ())
@@ -816,20 +805,23 @@ let recompute_main_zone () =
     ]
   in
   let* content, show_checkpriv =
-    if is_draft () then (
-      let* () = get_trustees () in
-      let@ () =
-       fun cont ->
-        let* r = cont () in
-        Lwt.return (r, !step >= 3 && !all_trustee <> [])
-      in
-      match !step with
-      | 1 -> recompute_main_zone_1 ()
-      | 2 -> recompute_main_zone_2 ()
-      | 3 -> recompute_main_zone_3 ()
-      | _ ->
-          alert "Should not get there; aborting.";
-          assert false)
+    if is_draft () then
+      let* x = get_trustees () in
+      match x with
+      | None -> Lwt.return ([], false)
+      | Some (ifmatch_tt, step, mode, all_trustee) -> (
+          let@ () =
+           fun cont ->
+            let* r = cont () in
+            Lwt.return (r, step >= 3 && all_trustee <> [])
+          in
+          match step with
+          | 1 -> recompute_main_zone_1 ifmatch_tt mode all_trustee
+          | 2 -> recompute_main_zone_2 ifmatch_tt mode all_trustee
+          | 3 -> recompute_main_zone_3 all_trustee
+          | _ ->
+              alert "Should not get there; aborting.";
+              assert false)
     else
       let* status = Cache.get_until_success Cache.e_status in
       match status.state with
