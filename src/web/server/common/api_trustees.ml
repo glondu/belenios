@@ -608,7 +608,7 @@ let dispatch_trustees ~token ~ifmatch endpoint method_ body s
               let context = { context; index } in
               match t.cert with
               | None -> `WaitingForCertificate context
-              | Some _ -> (
+              | Some cert -> (
                   try
                     let certs =
                       ts
@@ -623,7 +623,8 @@ let dispatch_trustees ~token ~ifmatch endpoint method_ body s
                         vinput = t.vinput;
                         voutput = t.voutput;
                       }
-                  with Exit -> `WaitingForOtherCertificates)))
+                  with Exit ->
+                    `WaitingForOtherCertificates cert.message.verification)))
       | `POST ->
           let@ dt cont =
             match dt with None -> precondition_failed | Some x -> cont x

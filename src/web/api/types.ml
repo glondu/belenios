@@ -198,7 +198,7 @@ type ('a, 'b) trustee_status_basic = [ `Init of string | `Done of 'a ]
 type ('a, 'b) trustee_status_threshold =
   [ `Init
   | `WaitingForCertificate of full_context
-  | `WaitingForOtherCertificates
+  | `WaitingForOtherCertificates of 'a
   | `Pedersen of ('a, 'b) pedersen ]
 [@@deriving yojson]
 

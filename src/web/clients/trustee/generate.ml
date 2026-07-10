@@ -346,7 +346,7 @@ let actionable_threshold ~uuid ~token (type a b) ~url (w : (a, b) group)
           generate_key ~uuid ~token ~url (generate_threshold w context) continue
         in
         Lwt.return (1, contents, Some t)
-    | `WaitingForOtherCertificates ->
+    | `WaitingForOtherCertificates _ ->
         let contents, t = wait_for_other_trustees () in
         Lwt.return (1, contents, t)
     | `Pedersen (p : (a, b) pedersen) ->
