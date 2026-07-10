@@ -97,6 +97,8 @@ module type TRUSTEES_TRANSACTION = sig
   include BACKEND_GENERIC with type t := t and type 'a file := 'a trustees_file
 
   val new_trustees : unit -> uuid Lwt.t
+  val add_election : t -> uuid -> unit Lwt.t
+  val get_elections : t -> uuid list Lwt.t
 end
 
 module type CREDENTIALS_TRANSACTION = sig

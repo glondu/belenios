@@ -396,7 +396,7 @@ type ('a, 'b) tally_trustee = ('a, 'b) tally_trustee_content option
 [@@deriving yojson]
 
 type ('a, 'b) trustees_trustee_status =
-  [ `Draft of ('a, 'b) trustee_status_draft | `Ready ]
+  [ `Draft of ('a, 'b) trustee_status_draft | `Ready of uuid list ]
 [@@deriving yojson]
 
 type ('a, 'b) election_trustee_status =

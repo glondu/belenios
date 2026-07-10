@@ -50,6 +50,8 @@ module type BACKEND = sig
   val get_unixfilename : unit -> 'a file -> string Lwt.t
   val new_election : unit -> uuid Lwt.t
   val new_trustees : unit -> uuid Lwt.t
+  val add_election_to_trustees : trustees:uuid -> election:uuid -> unit Lwt.t
+  val get_trustees_elections : uuid -> uuid list Lwt.t
 
   include BACKEND_GENERIC with type t := unit and type 'a file := 'a file
   include BACKEND_ARCHIVE with type t := uuid
@@ -529,7 +531,27 @@ module MakeBackend
     loop ()
 
   let new_election () = new_uuid_in_dir (Config.spool_dir // "elections")
-  let new_trustees () = new_uuid_in_dir (Config.spool_dir // "trustees")
+
+  let new_trustees () =
+    let dir = Config.spool_dir // "trustees" in
+    let* uuid = new_uuid_in_dir dir in
+    let* () = Lwt_unix.mkdir (spool_trustees uuid "elections") 0o700 in
+    Lwt.return uuid
+
+  let add_election_to_trustees ~trustees ~election =
+    let election = Uuid.to_string election in
+    let target = Printf.sprintf "../../../elections/%s" election in
+    Lwt_unix.symlink target (spool_trustees trustees "elections" // election)
+
+  let get_trustees_elections uuid =
+    let* xs =
+      Lwt_unix.files_of_directory (spool_trustees uuid "elections")
+      |> Lwt_stream.to_list
+    in
+    xs
+    |> List.filter_map (fun x ->
+        match Uuid.of_string x with uuid -> Some uuid | exception _ -> None)
+    |> Lwt.return
 
   let copy_file src dst =
     let open Lwt_io in
@@ -1403,6 +1425,14 @@ module MakeBackend
       let list_elections () = with_lock Elections list_elections
       let new_election () = with_lock Elections new_election
       let new_trustees () = with_lock Trustees new_trustees
+
+      let add_election_to_trustees ~trustees ~election =
+        with_lock (Trustees_uuid trustees) (fun () ->
+            add_election_to_trustees ~trustees ~election)
+
+      let get_trustees_elections uuid =
+        with_lock (Trustees_uuid uuid) (fun () -> get_trustees_elections uuid)
+
       let new_account_id () = with_lock Accounts new_account_id
 
       let archive_election uuid =
@@ -1626,6 +1656,14 @@ module Make (Config : CONFIG) : STORAGE = struct
     let set (uuid, x) f = set x (Trustees (uuid, f))
     let del (uuid, x) f = del x (Trustees (uuid, f))
     let update (uuid, x) f = update x (Trustees (uuid, f))
+
+    let add_election (trustees, x) election =
+      let module B = (val x : BACKEND) in
+      B.add_election_to_trustees ~trustees ~election
+
+    let get_elections (uuid, x) =
+      let module B = (val x : BACKEND) in
+      B.get_trustees_elections uuid
   end
 
   module C : CREDENTIALS_TRANSACTION = struct

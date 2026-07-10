@@ -71,7 +71,7 @@ module App (U : UI) = struct
             in
             match trustee_status with
             | `Draft x -> Generate.generate uuid ~token (module G) x
-            | `Ready -> fallback ())
+            | `Ready _ -> fallback ())
         | [ election_uuid ] -> (
             let@ election_uuid cont =
               match Uuid.of_string election_uuid with

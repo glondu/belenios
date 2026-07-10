@@ -159,6 +159,14 @@ module T = struct
   let new_trustees () =
     let module S = (val get_backend ()) in
     S.T.new_trustees ()
+
+  let add_election tx uuid =
+    let module T = (val tx : TX) in
+    T.S.add_election T.tx uuid
+
+  let get_elections tx =
+    let module T = (val tx : TX) in
+    T.S.get_elections T.tx
 end
 
 module C = struct

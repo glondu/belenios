@@ -573,7 +573,11 @@ let dispatch_trustees ~token ~ifmatch endpoint method_ body s
             return_yojson 200 @@ [%yojson_of_group: _ trustees_trustee_status] x
           in
           let@ dt cont =
-            match dt with None -> Lwt.return `Ready | Some (dt, _) -> cont dt
+            match dt with
+            | None ->
+                let* uuids = Storage.T.get_elections s in
+                Lwt.return @@ `Ready uuids
+            | Some (dt, _) -> cont dt
           in
           let@ () = fun cont -> Lwt.return @@ `Draft (cont ()) in
           match dt.mode with
