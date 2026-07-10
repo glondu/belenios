@@ -192,7 +192,8 @@ type ('a, 'b) pedersen = {
 }
 [@@deriving yojson]
 
-type trustee_status_basic = [ `Init of string | `Done ] [@@deriving yojson]
+type ('a, 'b) trustee_status_basic = [ `Init of string | `Done of 'a ]
+[@@deriving yojson]
 
 type ('a, 'b) trustee_status_threshold =
   [ `Init
@@ -202,7 +203,7 @@ type ('a, 'b) trustee_status_threshold =
 [@@deriving yojson]
 
 type ('a, 'b) trustee_status_draft =
-  [ `Basic of trustee_status_basic
+  [ `Basic of ('a, 'b) trustee_status_basic
   | `Threshold of ('a, 'b) trustee_status_threshold ]
 [@@deriving yojson]
 

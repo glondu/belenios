@@ -303,7 +303,7 @@ let compute_threshold_step ~token ~url private_key_ref (type a b)
 let actionable_basic ~uuid ~token ~url w = function
   | `Init name ->
       generate_key ~uuid ~token ~url (generate_basic w ~name) (fun _ -> [])
-  | `Done ->
+  | `Done _ ->
       let open (val !Belenios_js.I18n.gettext) in
       Lwt.return
         [ div [ txt @@ s_ "Your public key has already been registered!" ] ]

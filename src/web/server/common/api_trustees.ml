@@ -584,7 +584,9 @@ let dispatch_trustees ~token ~ifmatch endpoint method_ body s
           | `Basic p -> (
               let@ () = fun cont -> `Basic (cont ()) in
               let t = List.nth p.trustees (index - 1) in
-              match t.parameters with None -> `Init t.name | Some _ -> `Done)
+              match t.parameters with
+              | None -> `Init t.name
+              | Some p -> `Done p.cert.message.verification)
           | `Threshold p -> (
               let@ () = fun cont -> `Threshold (cont ()) in
               let@ threshold cont =
