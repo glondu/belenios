@@ -43,25 +43,34 @@ let with_administrator_or_nobody (token : token_user)
           f (`Administrator a)
       | _ -> not_found)
 
-let with_trustee (token : token_user) (trustees : _ draft_trustees_mode) f =
+let with_trustee s w (token : token_user) (metadata : trustees_metadata) f =
   let@ token = Option.unwrap unauthorized token.token in
-  match trustees with
-  | `Basic b -> (
+  match metadata.trustees with
+  | None -> (
+      let@ dt, set = Storage.T.update s (Trustees_draft w) in
+      let set x = set Value x in
+      match Lopt.get_value dt with
+      | None -> unauthorized
+      | Some dt -> (
+          let i =
+            match dt.mode with
+            | `Basic p ->
+                List.find_index
+                  (fun (t : _ draft_basic_trustee) -> t.token = token)
+                  p.trustees
+            | `Threshold p ->
+                List.find_index
+                  (fun (t : _ draft_threshold_trustee) -> t.token = token)
+                  p.trustees
+          in
+          match i with
+          | Some i -> f (token, i + 1, Some (dt, set))
+          | None -> unauthorized))
+  | Some ts -> (
       match
-        List.find_opt
-          (fun (x : _ draft_basic_trustee) -> x.token = token)
-          b.trustees
+        List.find_index (fun (t : external_trustee) -> t.token = token) ts
       with
-      | Some x -> f (`Basic x)
-      | None -> unauthorized)
-  | `Threshold t -> (
-      match
-        List.findi
-          (fun i (x : _ draft_threshold_trustee) ->
-            if x.token = token then Some (i, x) else None)
-          t.trustees
-      with
-      | Some (i, x) -> f (`Threshold (i + 1, x, t))
+      | Some i -> f (token, i + 1, None)
       | None -> unauthorized)
 
 let get_draft_trustees ~is_admin (trustees : _ draft_trustees) :
@@ -236,13 +245,10 @@ let delete_draft_trustee ((dt, set) : _ draft_trustees updatable) trustee =
       else Lwt.return_false
 
 let post_trustee_basic (type a b) (w : (a, b) group)
-    ((dt, set) : _ draft_trustees updatable) ~token data =
+    ((dt, set) : _ draft_trustees updatable) ~token (p : _ draft_basic_params)
+    data =
   let module G = (val w) in
-  let ts =
-    match dt.mode with
-    | `Basic x -> x.trustees
-    | `Threshold _ -> failwith "Wrong trustee mode"
-  in
+  let ts = p.trustees in
   let t =
     match
       List.find_opt (fun (x : _ draft_basic_trustee) -> x.token = token) ts
@@ -253,7 +259,7 @@ let post_trustee_basic (type a b) (w : (a, b) group)
   match t.parameters with
   | None ->
       let module T = (val Trustees.get_by_version G.spec.version) in
-      let parameters = !*[%group_of_yojson: _ basic_parameters] data in
+      let parameters = [%group_of_yojson: _ basic_parameters] data in
       let module K = T.MakeCombinator (G) in
       if
         parameters.verification_key.message.message.name = Some t.name
@@ -265,13 +271,9 @@ let post_trustee_basic (type a b) (w : (a, b) group)
   | _ -> raise @@ Error `PublicKeyExists
 
 let post_trustee_threshold (type a b) (w : (a, b) group)
-    ((dt, set) : (a, b) draft_trustees updatable) ~token data =
+    ((dt, set) : (a, b) draft_trustees updatable) ~token
+    (dtp : _ draft_threshold_params) data =
   let module G = (val w) in
-  let dtp =
-    match dt.mode with
-    | `Basic _ -> failwith "Wrong trustee mode"
-    | `Threshold x -> x
-  in
   let ts = Array.of_list dtp.trustees in
   let threshold =
     match dtp.threshold with Some t -> t | None -> failwith "No threshold set"
@@ -312,14 +314,14 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
   let () =
     match t.step with
     | Some 1 ->
-        let cert = !*[%group_of_yojson: _ pedersen_cert] data in
+        let cert = [%group_of_yojson: _ pedersen_cert] data in
         if K.step1_check full_context cert then (
           t.cert <- Some cert;
           t.step <- Some 2)
         else failwith "Invalid certificate"
     | Some 3 ->
         let certs = get_certs () in
-        let polynomial = !*[%group_of_yojson: _ polynomial] data in
+        let polynomial = [%group_of_yojson: _ polynomial] data in
         if K.step3_check { context; certs } i polynomial then (
           t.polynomial <- Some polynomial;
           t.step <- Some 4)
@@ -327,7 +329,7 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
     | Some 5 ->
         let certs = get_certs () in
         let polynomials = get_polynomials () in
-        let voutput = !*[%group_of_yojson: _ voutput] data in
+        let voutput = [%group_of_yojson: _ voutput] data in
         if K.step5_check { context; certs } i polynomials voutput then (
           t.voutput <- Some voutput;
           t.step <- Some 6)
@@ -377,6 +379,11 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
       with e -> dtp.error <- Some (Printexc.to_string e)
   in
   set dt
+
+let post_trustee w ((dt, set) : _ draft_trustees updatable) ~token data =
+  match dt.mode with
+  | `Basic p -> post_trustee_basic w (dt, set) ~token p data
+  | `Threshold p -> post_trustee_threshold w (dt, set) ~token p data
 
 let validation_error x = raise (Api_generic.Error (`ValidationError x))
 
@@ -557,82 +564,68 @@ let dispatch_trustees ~token ~ifmatch endpoint method_ body s
               ok)
       | _ -> method_not_allowed)
   | [ "trustee" ] -> (
-      let@ dt, set =
-       fun cont ->
-        let@ dt, set = Storage.T.update s (Trustees_draft G.spec) in
-        match Lopt.get_value dt with
-        | None ->
-            return_yojson 200
-            @@ [%yojson_of_group: _ trustees_trustee_status] `Ready
-        | Some dt -> cont (dt, fun x -> set Value x)
-      in
-      let@ trustee = with_trustee token dt.mode in
-      let get () =
-        let@ () =
-         fun cont ->
-          Lwt.return @@ [%yojson_of_group: _ trustees_trustee_status]
-          @@ `Draft (cont ())
-        in
-        match trustee with
-        | `Basic b ->
-            let state =
-              match b.parameters with None -> `Init b.name | Some _ -> `Done
-            in
-            `Basic state
-        | `Threshold (index, t, dtp) -> (
-            let@ () = fun cont -> `Threshold (cont ()) in
-            match dtp.threshold with
-            | None -> `Init
-            | Some threshold -> (
-                let names =
-                  List.map
-                    (fun (x : _ draft_threshold_trustee) -> x.name)
-                    dtp.trustees
-                  |> Array.of_list
-                in
-                let context =
-                  {
-                    algorithm = dtp.algorithm;
-                    group = G.spec.group;
-                    names;
-                    threshold;
-                  }
-                in
-                let pedersen_context = { context; index } in
-                match t.cert with
-                | None -> `WaitingForCertificate pedersen_context
-                | Some _ -> (
-                    try
-                      let pedersen_certs =
-                        List.map
-                          (fun x ->
-                            match x.cert with None -> raise Exit | Some c -> c)
-                          dtp.trustees
-                        |> Array.of_list
-                      in
-                      `Pedersen
-                        {
-                          context = pedersen_context;
-                          step = Option.value ~default:0 t.step;
-                          certs = pedersen_certs;
-                          vinput = t.vinput;
-                          voutput = t.voutput;
-                        }
-                    with Exit -> `WaitingForOtherCertificates)))
-      in
+      let@ token, index, dt = with_trustee s G.spec token metadata in
       match method_ with
-      | `GET -> handle_get get
-      | `POST -> (
-          let@ data = body.run Fun.id in
-          let@ token = Option.unwrap unauthorized token.token in
+      | `GET -> (
+          let@ () =
+           fun cont ->
+            let* x = cont () in
+            return_yojson 200 @@ [%yojson_of_group: _ trustees_trustee_status] x
+          in
+          let@ dt cont =
+            match dt with None -> Lwt.return `Ready | Some (dt, _) -> cont dt
+          in
+          let@ () = fun cont -> Lwt.return @@ `Draft (cont ()) in
+          match dt.mode with
+          | `Basic p -> (
+              let@ () = fun cont -> `Basic (cont ()) in
+              let t = List.nth p.trustees (index - 1) in
+              match t.parameters with None -> `Init t.name | Some _ -> `Done)
+          | `Threshold p -> (
+              let@ () = fun cont -> `Threshold (cont ()) in
+              let@ threshold cont =
+                match p.threshold with None -> `Init | Some x -> cont x
+              in
+              let ts = Array.of_list p.trustees in
+              let t = ts.(index - 1) in
+              let names =
+                ts |> Array.map (fun (x : _ draft_threshold_trustee) -> x.name)
+              in
+              let context =
+                {
+                  algorithm = p.algorithm;
+                  group = G.spec.group;
+                  names;
+                  threshold;
+                }
+              in
+              let context = { context; index } in
+              match t.cert with
+              | None -> `WaitingForCertificate context
+              | Some _ -> (
+                  try
+                    let certs =
+                      ts
+                      |> Array.map (fun (x : _ draft_threshold_trustee) ->
+                          match x.cert with None -> raise Exit | Some c -> c)
+                    in
+                    `Pedersen
+                      {
+                        context;
+                        step = Option.value ~default:0 t.step;
+                        certs;
+                        vinput = t.vinput;
+                        voutput = t.voutput;
+                      }
+                  with Exit -> `WaitingForOtherCertificates)))
+      | `POST ->
+          let@ dt cont =
+            match dt with None -> precondition_failed | Some x -> cont x
+          in
           let@ () = handle_generic_error in
-          match trustee with
-          | `Basic _ ->
-              let* () = post_trustee_basic w (dt, set) ~token data in
-              ok
-          | `Threshold _ ->
-              let* () = post_trustee_threshold w (dt, set) ~token data in
-              ok)
+          let@ data = body.run Json.of_string in
+          let* () = post_trustee w dt ~token data in
+          ok
       | _ -> method_not_allowed)
   | _ -> not_found
 
