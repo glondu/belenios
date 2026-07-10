@@ -446,12 +446,11 @@ let all_ttee_done mode all_trustee =
   let dd = if mode = `Basic then Some 1 else Some 7 in
   List.for_all (fun (t : _ trustee) -> t.state = dd) all_trustee
 
-let trustee_decrypt_link ~trustees ~election ~token ~recipient =
+let trustee_decrypt_link ~trustees ~token ~recipient =
   let open (val !Belenios_js.I18n.gettext) in
   let* prefix = Cache.get_prefix () in
   let href =
-    Printf.sprintf "%strustee#%s/%s/%s" prefix (Uuid.to_string trustees) token
-      (Uuid.to_string election)
+    Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string trustees) token
   in
   let* subject, body = Mails.mail_trustee_tally [ lang ] href in
   Lwt.return
@@ -601,7 +600,6 @@ let get_trustees_pd () =
 
 let main_zone_tallying () =
   let open (val !Belenios_js.I18n.gettext) in
-  let election = get_current_uuid () in
   let@ trustees cont =
     let* status = Cache.get_until_success Cache.e_status in
     match status.trustees with None -> Lwt.return [] | Some x -> cont x
@@ -626,7 +624,7 @@ let main_zone_tallying () =
               if t.address = "server" then Lwt.return_none
               else
                 let* link =
-                  trustee_decrypt_link ~trustees ~election ~token:t.token
+                  trustee_decrypt_link ~trustees ~token:t.token
                     ~recipient:t.address
                 in
                 Lwt.return_some
@@ -698,12 +696,11 @@ let ready_to_decrypt () =
         (fun (t : shuffler) -> t.trustee = None || t.fingerprint <> None)
         sh.shufflers
 
-let trustee_shuffle_link ~token ~recipient =
+let trustee_shuffle_link ~trustees ~token ~recipient =
   let open (val !Belenios_js.I18n.gettext) in
-  let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
   let href =
-    Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string uuid) token
+    Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string trustees) token
   in
   let* subject, body = Mails.mail_shuffle [ lang ] href in
   Lwt.return
@@ -722,6 +719,10 @@ let trustee_shuffle_link ~token ~recipient =
 let main_zone_shuffling () =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = get_current_uuid () in
+  let@ trustees cont =
+    let* status = Cache.get_until_success Cache.e_status in
+    match status.trustees with None -> Lwt.return [] | Some x -> cont x
+  in
   let* content =
     match !shuffles with
     | None -> Lwt.return @@ div [ txt @@ s_ "Failed to connect; please reload" ]
@@ -750,7 +751,7 @@ let main_zone_shuffling () =
               | None -> Lwt.return []
               | Some (trustee, true) ->
                   let* link =
-                    trustee_shuffle_link ~token:trustee.token
+                    trustee_shuffle_link ~trustees ~token:trustee.token
                       ~recipient:trustee.address
                   in
                   Lwt.return [ link ]

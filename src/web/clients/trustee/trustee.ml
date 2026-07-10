@@ -20,25 +20,19 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
 open Belenios
 open Belenios_js.Secondary_ui
 open Belenios_js.Session
 
-let fallback ?uuid () =
-  let open (val !Belenios_js.I18n.gettext) in
-  let href =
-    match uuid with
-    | None -> "#check"
-    | Some uuid -> Printf.sprintf "#check/%s" (Uuid.to_string uuid)
-  in
-  Lwt.return
-    [
-      div [ txt @@ s_ "There is nothing to do now." ];
-      div
-        [ a ~a:[ a_href href ] [ txt @@ s_ "You can check your private key." ] ];
-    ]
+type wrapped_election_status =
+  | WES : {
+      election : ('a, 'b) Election.u;
+      status : ('a, 'b) Belenios_web_api.election_trustee_status option;
+    }
+      -> wrapped_election_status
 
 module App (U : UI) = struct
   let component = "admin"
@@ -47,57 +41,150 @@ module App (U : UI) = struct
     let open (val !Belenios_js.I18n.gettext) in
     U.set_title @@ s_ "Trustee management";
     match path with
-    | [ "check" ] -> Check.check ()
-    | [ "check"; uuid ] -> Check.check ~uuid ()
-    | uuid :: token :: path -> (
+    | [ uuid; token ] ->
         let@ uuid cont =
           match Uuid.of_string uuid with
-          | exception _ ->
-              Lwt.return [ div [ txt @@ s_ "Invalid trustees ID!" ] ]
+          | exception _ -> Lwt.return [ txt @@ s_ "Invalid board identifier!" ]
           | x -> cont x
         in
-        match path with
-        | [] -> (
-            let@ group cont =
-              let* x = Api.(get (trustees_group uuid) `Nobody) in
-              match x with Error _ -> fallback () | Ok (x, _) -> cont x
-            in
-            let module G = (val Group.make group) in
-            let@ trustee_status cont =
+        let@ group cont =
+          let* x = Api.(get (trustees_group uuid) `Nobody) in
+          match x with
+          | Error _ -> Lwt.return [ txt @@ s_ "Could not get parameters!" ]
+          | Ok (x, _) -> cont x
+        in
+        let module G = (val Group.make group) in
+        let status_div = div [] in
+        let update_status =
+          let status_div = Tyxml_js.To_dom.of_div status_div in
+          fun () ->
+            let* status =
               let* x =
                 Api.(get (trustees_trustee uuid (module G)) (`Trustee token))
               in
-              match x with Error _ -> fallback () | Ok (x, _) -> cont x
-            in
-            match trustee_status with
-            | `Draft x -> Generate.generate uuid ~token (module G) x
-            | `Ready _ -> fallback ())
-        | [ election_uuid ] -> (
-            let@ election_uuid cont =
-              match Uuid.of_string election_uuid with
-              | exception _ ->
-                  Lwt.return [ div [ txt @@ s_ "Invalid election ID!" ] ]
-              | x -> cont x
-            in
-            let@ election cont =
-              let* x = Api.(get (election election_uuid) `Nobody) in
               match x with
-              | Error _ -> fallback ~uuid:election_uuid ()
-              | Ok (x, _) -> cont x
+              | Error _ -> Lwt.return_none
+              | Ok (x, _) -> Lwt.return_some x
             in
-            let module W = (val election) in
-            let url = Api.election_trustee election_uuid (module W.G) in
-            let@ trustee_status cont =
-              let* x = Api.(get url (`Trustee token)) in
-              match x with
-              | Error _ -> fallback ~uuid:election_uuid ()
-              | Ok (x, _) -> cont x
+            status_div##.innerHTML := Js.string "";
+            let@ () =
+             fun cont ->
+              let* xs = cont () in
+              List.iter
+                (fun x ->
+                  Dom.appendChild status_div (Tyxml_js.To_dom.of_node x))
+                xs;
+              Lwt.return_unit
             in
-            match trustee_status with
-            | `Shuffle -> Shuffle.shuffle uuid ~token
-            | `Tally x -> Decrypt.decrypt ~token (module W) x)
-        | _ -> fallback ())
-    | _ -> fallback ()
+            match status with
+            | None -> Lwt.return [ txt @@ s_ "État inconnu!" ]
+            | Some (`Draft x) -> Generate.generate uuid ~token (module G) x
+            | Some (`Ready uuids) ->
+                let* elections =
+                  Lwt_list.filter_map_p
+                    (fun uuid ->
+                      let@ election cont =
+                        let* x = Api.(get (election uuid) `Nobody) in
+                        match x with
+                        | Error _ -> Lwt.return_none
+                        | Ok (x, _) -> cont x
+                      in
+                      let module W = (val election) in
+                      let* status =
+                        let* x =
+                          Api.(
+                            get
+                              (election_trustee uuid (module W.G))
+                              (`Trustee token))
+                        in
+                        match x with
+                        | Error _ -> Lwt.return_none
+                        | Ok (x, _) -> Lwt.return_some x
+                      in
+                      Lwt.return_some @@ WES { election = (module W); status })
+                    uuids
+                in
+                let action_div = div [] in
+                let elections =
+                  let action_div = Tyxml_js.To_dom.of_div action_div in
+                  elections
+                  |> List.map (fun (WES { election; status }) ->
+                      let module W = (val election) in
+                      let uuid_s = Uuid.to_string W.uuid in
+                      let btn =
+                        match status with
+                        | None -> []
+                        | Some status -> (
+                            let@ () = fun cont -> [ txt " "; cont () ] in
+                            match status with
+                            | `Shuffle ->
+                                let@ () =
+                                  Belenios_js.Common.button
+                                    ~a:
+                                      [
+                                        a_id
+                                        @@ Printf.sprintf "shuffle_%s" uuid_s;
+                                      ]
+                                  @@ s_ "Shuffle"
+                                in
+                                action_div##.innerHTML := Js.string "";
+                                let* xs = Shuffle.shuffle uuid ~token in
+                                List.iter
+                                  (fun x ->
+                                    Dom.appendChild action_div
+                                      (Tyxml_js.To_dom.of_node x))
+                                  xs;
+                                Lwt.return_unit
+                            | `Tally x ->
+                                let@ () =
+                                  Belenios_js.Common.button
+                                    ~a:
+                                      [
+                                        a_id
+                                        @@ Printf.sprintf "decrypt_%s" uuid_s;
+                                      ]
+                                  @@ s_ "Decrypt"
+                                in
+                                action_div##.innerHTML := Js.string "";
+                                let* xs = Decrypt.decrypt ~token election x in
+                                List.iter
+                                  (fun x ->
+                                    Dom.appendChild action_div
+                                      (Tyxml_js.To_dom.of_node x))
+                                  xs;
+                                Lwt.return_unit)
+                      in
+                      let link =
+                        a
+                          ~a:
+                            [
+                              a_href
+                              @@ Printf.sprintf "election#%s"
+                                   (Uuid.to_string W.uuid);
+                              a_target "_blank";
+                            ]
+                          [ txt W.template.name ]
+                      in
+                      [ [ link ]; btn ] |> List.flatten |> li)
+                in
+                [
+                  h3
+                    [ txt @@ s_ "Elections associated to this electoral board" ];
+                  ul
+                    (if elections = [] then [ li [ em [ txt @@ s_ "(none)" ] ] ]
+                     else elections);
+                  hr ();
+                  action_div;
+                ]
+                |> Lwt.return
+        in
+        let* () = update_status () in
+        let btn_update =
+          let@ () = Belenios_js.Common.button @@ s_ "Refresh status" in
+          update_status ()
+        in
+        [ div [ btn_update ]; hr (); status_div ] |> Lwt.return
+    | _ -> Lwt.return [ txt @@ s_ "Error in URL!" ]
 end
 
 module _ = Make (App) ()

@@ -520,12 +520,14 @@ module Make (Config : CONFIG) = struct
     in
     Lwt.return { id; private_keys; private_creds }
 
-  let do_partial_decryption (private_key, link) =
+  let do_partial_decryption uuid (private_key, link) =
     Printf.printf "  Computing partial decryption...\n%!";
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
+    let* () = session#click_on ~selector:(Printf.sprintf "#decrypt_%s" uuid) in
     let* () = set_private_key session private_key in
+    let* () = session#scrollIntoView "submit_data" in
     let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit
 
@@ -547,7 +549,8 @@ module Make (Config : CONFIG) = struct
       Lwt.return links
     in
     let* () =
-      Lwt_list.iter_s do_partial_decryption (List.combine private_keys links)
+      Lwt_list.iter_s (do_partial_decryption id)
+        (List.combine private_keys links)
     in
     let@ session = with_admin ~id () in
     let* () = session#click_on ~selector:"#tab_page" in
