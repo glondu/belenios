@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2026-07-11 11:03+0000\n"
+"PO-Revision-Date: 2026-07-11 11:11+0000\n"
 "Last-Translator: Libre <6n0n1m0s@proton.me>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/voter/"
 "es/>\n"
@@ -191,8 +191,7 @@ msgstr "Falla de autenticación"
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "La autenticación ha fallado, probablemente por un nombre de usuario o "
-"contraseña equivocados, o usted no tiene autorización para realizar esta "
-"operación."
+"contraseña equivocados, o no tiene autorización para realizar esta operación."
 
 #: src/web/server/common/pages_common.ml:576
 msgid "Authentication impossible"
@@ -371,7 +370,7 @@ msgstr "Abrirá en %s (tiempo restante: %s)."
 
 #: src/web/clients/election/home.ml:569
 msgid "JSON result"
-msgstr "resultados JSON"
+msgstr "Resultados JSON"
 
 #: src/web/server/common/pages_common.ml:174 src/web/common/pages_common.ml:94
 msgid "Language:"
@@ -399,7 +398,7 @@ msgstr "Mire los eventos sin procesar para más detalles."
 #: src/web/clients/election/home.ml:459
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
-"Existen muchas variantes de STV, dependiendo, por ejemplo, de cómo se rompen "
+"Existen muchas variantes de STV, dependiendo, por ejemplo, de como se rompen "
 "los lazos."
 
 #: src/web/server/common/pages_common.ml:573
@@ -446,8 +445,8 @@ msgstr "Por favor ingrese:"
 #: src/web/clients/tool/tool_js_fingerprint.ml:61
 msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
 msgstr ""
-"Por favor, pegue los datos para los que desea calcular la huella digital en "
-"el área de texto de abajo:"
+"Por favor, pegue los datos para los cuáles desea calcular la huella digital "
+"en el área de texto de abajo:"
 
 #: src/web/clients/election/advanced.ml:69
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
@@ -641,7 +640,7 @@ msgstr "Para mayor información, por favor contacte a:"
 
 #: src/web/clients/election/home.ml:622
 msgid "Total weight of accepted ballots:"
-msgstr "Peso total de las boletas aceptadas:"
+msgstr "Ponderación total de las boletas aceptadas:"
 
 #: src/web/clients/election/home.ml:244
 msgid "Trustees shuffled the ballots in the following order:"
@@ -889,7 +888,7 @@ msgstr "su boleta no tiene la forma adecuada"
 
 #: src/web/common/confirmation.ml:35
 msgid "your credential has a bad weight"
-msgstr "su credencial tiene un peso incorrecto"
+msgstr "su credencial tiene una ponderación incorrecta"
 
 #: src/web/common/confirmation.ml:33
 msgid "your credential has already been used"
