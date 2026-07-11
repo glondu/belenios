@@ -79,7 +79,7 @@ module App (U : UI) = struct
             match status with
             | None -> Lwt.return [ txt @@ s_ "État inconnu!" ]
             | Some (`Draft x) -> Generate.generate uuid ~token (module G) x
-            | Some (`Ready uuids) ->
+            | Some (`Ready { elections; _ }) ->
                 let* elections =
                   Lwt_list.filter_map_p
                     (fun uuid ->
@@ -102,7 +102,7 @@ module App (U : UI) = struct
                         | Ok (x, _) -> Lwt.return_some x
                       in
                       Lwt.return_some @@ WES { election = (module W); status })
-                    uuids
+                    elections
                 in
                 let action_div = div [] in
                 let elections =

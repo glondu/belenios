@@ -575,8 +575,26 @@ let dispatch_trustees ~token ~ifmatch endpoint method_ body s
           let@ dt cont =
             match dt with
             | None ->
-                let* uuids = Storage.T.get_elections s in
-                Lwt.return @@ `Ready uuids
+                let* cert_verification_key =
+                  let* x = Storage.T.get s (Trustees G.spec) in
+                  match Lopt.get_value x with
+                  | None -> assert false
+                  | Some ts ->
+                      let keys =
+                        ts
+                        |> List.map (function
+                          | `Single (p : _ basic_parameters) ->
+                              [| p.cert.message.verification |]
+                          | `Pedersen (p : _ threshold_parameters) ->
+                              p.certs
+                              |> Array.map (fun (x : _ pedersen_cert) ->
+                                  x.message.verification))
+                        |> Array.concat
+                      in
+                      Lwt.return keys.(index - 1)
+                in
+                let* elections = Storage.T.get_elections s in
+                Lwt.return @@ `Ready { cert_verification_key; elections }
             | Some (dt, _) -> cont dt
           in
           let@ () = fun cont -> Lwt.return @@ `Draft (cont ()) in
