@@ -92,7 +92,9 @@ let decrypt ~token (type a b) (election : (a, b) Election.u)
     Dom.appendChild container (Tyxml_js.To_dom.of_div element);
     Lwt.return_unit
   in
-  let handle_private_key private_key =
+  let compute =
+    let@ () = button @@ s_ "Generate your contribution to decryption" in
+    let private_key = Option.get !seed in
     let* pd =
       compute_partial_decryption election trustee ~encrypted_tally ~private_key
     in
@@ -101,8 +103,6 @@ let decrypt ~token (type a b) (election : (a, b) Election.u)
     r##.disabled := Js._false;
     Lwt.return_unit
   in
-  let input_private_key = make_private_key_input handle_private_key in
-  let compute = txt @@ s_ "Generate your contribution to decryption" in
   let title = h3 [ txt @@ s_ "Partial decryption" ] in
   let contents =
     [
@@ -122,7 +122,6 @@ let decrypt ~token (type a b) (election : (a, b) Election.u)
           b [ txt @@ s_ "Instructions:" ];
           ol
             [
-              li [ input_private_key; br () ];
               li [ div [ compute ]; br () ];
               li
                 [

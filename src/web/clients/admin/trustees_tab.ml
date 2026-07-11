@@ -862,23 +862,7 @@ let import_but () =
 
 let recompute_main_zone () =
   let open (val !Belenios_js.I18n.gettext) in
-  let checkpriv () =
-    let uuid = get_current_uuid () in
-    let href = "trustee#check/" ^ Uuid.to_string uuid in
-    let label = s_ "Check private key ownership" in
-    [
-      h2 [ txt label ];
-      div
-        [
-          txt
-          @@ s_
-               "The following link can be used by trustees to check that they \
-                own the right decryption key.";
-        ];
-      ul [ li [ a ~href label ] ];
-    ]
-  in
-  let* content, show_checkpriv =
+  let* content =
     if is_draft () then
       let* x = get_trustees () in
       match x with
@@ -889,13 +873,8 @@ let recompute_main_zone () =
               div [ new_board_but (); txt " "; import_but () ];
             ]
           in
-          Lwt.return (content, false)
+          Lwt.return content
       | Some (ifmatch_tt, step, mode, all_trustee) -> (
-          let@ () =
-           fun cont ->
-            let* r = cont () in
-            Lwt.return (r, step >= 3 && all_trustee <> [])
-          in
           match step with
           | 1 -> recompute_main_zone_1 ifmatch_tt mode all_trustee
           | 2 -> recompute_main_zone_2 ifmatch_tt mode all_trustee
@@ -910,21 +889,16 @@ let recompute_main_zone () =
           let* () = get_trustees_pd () in
           if all_pd () then
             let* () = trustee_request `ReleaseTally in
-            Lwt.return ([], false)
-          else
-            let* r = main_zone_tallying () in
-            Lwt.return (r, false)
+            Lwt.return []
+          else main_zone_tallying ()
       | `Shuffling ->
           let* () = update_shuffles () in
           if ready_to_decrypt () then
             let* () = trustee_request `FinishShuffling in
             let* () = get_trustees_pd () in
-            let* r = main_zone_tallying () in
-            Lwt.return (r, false)
-          else
-            let* r = main_zone_shuffling () in
-            Lwt.return (r, false)
-      | _ -> Lwt.return ([], false)
+            main_zone_tallying ()
+          else main_zone_shuffling ()
+      | _ -> Lwt.return []
   in
   match content with
   | [] ->
@@ -939,9 +913,7 @@ let recompute_main_zone () =
                  ];
              ];
          ]
-  | _ ->
-      let checkpriv = if show_checkpriv then checkpriv () else [] in
-      Lwt.return @@ List.flatten [ content; checkpriv ]
+  | _ -> Lwt.return content
 
 let () =
   update_main_zone :=

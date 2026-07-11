@@ -19,7 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Js_of_ocaml_tyxml.Tyxml_js
+open Js_of_ocaml
+open Belenios
 
-val make_private_key_input :
-  (string -> unit Lwt.t) -> [> Html_types.div ] Html.elt
+val seed : string option ref
+
+val load_and_check_private_key :
+  ('a, 'b) group -> 'a -> #Dom.node Js.t -> (unit -> unit) -> unit

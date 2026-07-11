@@ -22,10 +22,12 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
-open Tyxml_js.Html5
+open Tyxml_js.Html
 open Belenios
+open Belenios_js.Common
 open Belenios_js.Secondary_ui
 open Belenios_js.Session
+open Common
 
 type wrapped_election_status =
   | WES : {
@@ -67,19 +69,24 @@ module App (U : UI) = struct
               | Ok (x, _) -> Lwt.return_some x
             in
             status_div##.innerHTML := Js.string "";
-            let@ () =
-             fun cont ->
-              let* xs = cont () in
-              List.iter
-                (fun x ->
-                  Dom.appendChild status_div (Tyxml_js.To_dom.of_node x))
-                xs;
-              Lwt.return_unit
-            in
             match status with
-            | None -> Lwt.return [ txt @@ s_ "État inconnu!" ]
-            | Some (`Draft x) -> Generate.generate uuid ~token (module G) x
-            | Some (`Ready { elections; _ }) ->
+            | None ->
+                appendElements status_div [ txt @@ s_ "État inconnu!" ];
+                Lwt.return_unit
+            | Some (`Draft x) ->
+                let* contents = Generate.generate uuid ~token (module G) x in
+                appendElements status_div contents;
+                Lwt.return_unit
+            | Some (`Ready { cert_verification_key = vk; elections }) ->
+                let@ () = finally Lwt.return_unit in
+                let@ () = load_and_check_private_key (module G) vk status_div in
+                let@ () = Lwt.async in
+                let@ () =
+                 fun cont ->
+                  let* contents = cont () in
+                  appendElements status_div contents;
+                  Lwt.return_unit
+                in
                 let* elections =
                   Lwt_list.filter_map_p
                     (fun uuid ->
@@ -119,7 +126,7 @@ module App (U : UI) = struct
                             match status with
                             | `Shuffle ->
                                 let@ () =
-                                  Belenios_js.Common.button
+                                  button
                                     ~a:
                                       [
                                         a_id
@@ -137,7 +144,7 @@ module App (U : UI) = struct
                                 Lwt.return_unit
                             | `Tally x ->
                                 let@ () =
-                                  Belenios_js.Common.button
+                                  button
                                     ~a:
                                       [
                                         a_id
@@ -155,7 +162,7 @@ module App (U : UI) = struct
                                 Lwt.return_unit)
                       in
                       let link =
-                        a
+                        Tyxml_js.Html.a
                           ~a:
                             [
                               a_href
@@ -180,7 +187,9 @@ module App (U : UI) = struct
         in
         let* () = update_status () in
         let btn_update =
-          let@ () = Belenios_js.Common.button @@ s_ "Refresh status" in
+          let@ () =
+            button ~a:[ a_id "refresh_status" ] @@ s_ "Refresh status"
+          in
           update_status ()
         in
         [ div [ btn_update ]; hr (); status_div ] |> Lwt.return

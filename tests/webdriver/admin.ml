@@ -525,8 +525,8 @@ module Make (Config : CONFIG) = struct
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
-    let* () = session#click_on ~selector:(Printf.sprintf "#decrypt_%s" uuid) in
     let* () = set_private_key session private_key in
+    let* () = session#click_on ~selector:(Printf.sprintf "#decrypt_%s" uuid) in
     let* () = session#scrollIntoView "submit_data" in
     let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit

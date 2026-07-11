@@ -24,17 +24,7 @@ open Js_of_ocaml_tyxml
 open Belenios
 open Belenios_js.Common
 
-let wrap_handler handler x =
-  let@ () = Lwt.async in
-  Lwt.catch
-    (fun () -> handler x)
-    (fun _ ->
-      let open (val !Belenios_js.I18n.gettext) in
-      alert
-      @@ s_
-           "Error while processing the private key. Did you load the right \
-            file?";
-      Lwt.return_unit)
+let seed = ref None
 
 let make_private_key_input handler =
   let open (val !Belenios_js.I18n.gettext) in
@@ -42,7 +32,7 @@ let make_private_key_input handler =
   let raw_elt = input ~a:[ a_id "private_key"; a_input_type `Hidden ] () in
   let raw_dom = Tyxml_js.To_dom.of_input raw_elt in
   let onchange _ =
-    wrap_handler handler (Js.to_string raw_dom##.value);
+    handler (String.trim (Js.to_string raw_dom##.value));
     Js._false
   in
   raw_dom##.onchange := Dom_html.handler onchange;
@@ -56,7 +46,7 @@ let make_private_key_input handler =
     reader##.onload :=
       Dom.handler (fun _ ->
           let& content = File.CoerceTo.string reader##.result in
-          wrap_handler handler (String.trim (Js.to_string content));
+          handler (String.trim (Js.to_string content));
           Js._false);
     reader##readAsText file;
     Js._false
@@ -70,3 +60,37 @@ let make_private_key_input handler =
       file_elt;
       raw_elt;
     ]
+
+let load_and_check_private_key (type a b) (group : (a, b) group) (vk : a)
+    container success =
+  let module G = (val group) in
+  let check_seed seed =
+    let module P = Pki.Make (G) in
+    let sk = P.derive_sk seed in
+    G.compare G.(g **~ sk) vk = 0
+  in
+  let@ () =
+   fun cont ->
+    match !seed with
+    | Some seed when check_seed seed -> success ()
+    | _ -> cont ()
+  in
+  let dom = ref None in
+  let i =
+    let@ s = make_private_key_input in
+    if check_seed s then (
+      seed := Some s;
+      let () =
+        match !dom with None -> () | Some dom -> Dom.removeChild container dom
+      in
+      success ())
+    else
+      let open (val !Belenios_js.I18n.gettext) in
+      alert
+      @@ s_
+           "Error while processing the private key. Did you load the right \
+            file?"
+  in
+  let dom' = Tyxml_js.To_dom.of_node i in
+  Dom.appendChild container dom';
+  dom := Some dom'

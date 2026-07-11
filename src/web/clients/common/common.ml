@@ -204,6 +204,9 @@ let show_in container f =
   List.iter (Dom.appendChild container) content;
   Lwt.return_unit
 
+let appendElements (container : #Dom.node Js.t) xs =
+  List.iter (fun x -> Dom.appendChild container (Tyxml_js.To_dom.of_node x)) xs
+
 let input ?a ?onchange ?value input_type =
   let a = Tyxml_js.Html.a_input_type input_type :: Option.value ~default:[] a in
   let elt = Tyxml_js.Html.input ~a () in
