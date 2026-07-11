@@ -44,6 +44,11 @@ let some_string_or_value (type a b) (f : a file)
   | String -> Lopt.some_string s.of_string x
   | Value -> Lopt.some_value s.to_string x
 
+let rmdir dir =
+  let command = ("rm", [| "rm"; "-rf"; dir |]) in
+  let* _ = Lwt_process.exec command in
+  Lwt.return_unit
+
 module type BACKEND = sig
   type nonrec 'a file = 'a file
 
@@ -513,11 +518,6 @@ module MakeBackend
     | Concrete (f, _, _) -> Filesystem.cleanup_file f
     | Abstract _ -> Lwt.fail @@ Not_implemented "del"
     | Admin_password _ -> Lwt.fail @@ Not_implemented "del"
-
-  let rmdir dir =
-    let command = ("rm", [| "rm"; "-rf"; dir |]) in
-    let* _ = Lwt_process.exec command in
-    Lwt.return_unit
 
   let new_uuid_in_dir dir =
     let length = Config.uuid_length in
@@ -1664,6 +1664,55 @@ module Make (Config : CONFIG) : STORAGE = struct
     let get_elections (uuid, x) =
       let module B = (val x : BACKEND) in
       B.get_trustees_elections uuid
+
+    let rec gc () =
+      let open Ocsigen_messages in
+      let* () =
+        if readonly.get () then (
+          accesslog
+            "Trustees garbage collection skipped because of readonly mode";
+          Lwt.return_unit)
+        else
+          let () = accesslog "Trustees garbage collection started" in
+          let* () =
+            Lwt_unix.files_of_directory (Config.spool_dir // "trustees")
+            |> Lwt_stream.iter_s (fun uuid_s ->
+                match Uuid.of_string uuid_s with
+                | exception _ -> Lwt.return_unit
+                | uuid ->
+                    let@ s = with_transaction uuid in
+                    let* elections = get_elections s in
+                    let* kept =
+                      elections
+                      |> Lwt_list.filter_s (fun election ->
+                          let* keep =
+                            let@ s = E.with_transaction election in
+                            let* x = E.get s Metadata in
+                            match Lopt.get_value x with
+                            | None -> Lwt.return_false
+                            | Some m -> Lwt.return (m.trustees = Some uuid)
+                          in
+                          let* () =
+                            if keep then Lwt.return_unit
+                            else
+                              Lwt_unix.unlink
+                                (Config.spool_dir // "trustees" // uuid_s
+                               // "elections" // Uuid.to_string election)
+                          in
+                          Lwt.return keep)
+                    in
+                    if kept = [] then (
+                      Printf.ksprintf accesslog "Removing trustees %s" uuid_s;
+                      rmdir (Config.spool_dir // "trustees" // uuid_s))
+                    else Lwt.return_unit)
+          in
+          accesslog "Trustees garbage collection finished";
+          Lwt.return_unit
+      in
+      let* () = sleep 3600. in
+      gc ()
+
+    let () = Lwt.async gc
   end
 
   module C : CREDENTIALS_TRANSACTION = struct
