@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_server_core
 open Belenios_messages
 
 let mailer =
@@ -175,7 +174,7 @@ let send ?internal (msg : message) =
         | Unix.Unix_error (Unix.EAGAIN, _, _) when retry > 0 ->
             Ocsigen_messages.warning
               "Failed to fork for sending an e-mail; will try again in 1s";
-            let* () = sleep 1. in
+            let* () = Lwt_unix.sleep 1. in
             loop (retry - 1)
         | e ->
             let msg =

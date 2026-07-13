@@ -1625,7 +1625,7 @@ module Make (Config : CONFIG) : STORAGE = struct
         let () = accesslog "Data policy process completed" in
         Lwt.return_unit
     in
-    let* () = sleep 3600. in
+    let* () = Lwt_unix.sleep 3600. in
     data_policy_loop ()
 
   let () = Lwt.async data_policy_loop
@@ -1709,7 +1709,7 @@ module Make (Config : CONFIG) : STORAGE = struct
           accesslog "Trustees garbage collection finished";
           Lwt.return_unit
       in
-      let* () = sleep 3600. in
+      let* () = Lwt_unix.sleep 3600. in
       gc ()
 
     let () =
