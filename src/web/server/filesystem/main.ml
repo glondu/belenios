@@ -1712,7 +1712,10 @@ module Make (Config : CONFIG) : STORAGE = struct
       let* () = sleep 3600. in
       gc ()
 
-    let () = Lwt.async gc
+    let () =
+      let@ () = Lwt.async in
+      let* () = Lwt_unix.sleep 600. in
+      gc ()
   end
 
   module C : CREDENTIALS_TRANSACTION = struct
