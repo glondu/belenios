@@ -82,7 +82,8 @@ type result =
   [ `Json of int * string
   | `Bel of string
   | `Sealing_log of string
-  | `Generic of generic ]
+  | `Generic of generic
+  | `EventStream of string Lwt_stream.t ]
 
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 

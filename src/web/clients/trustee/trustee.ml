@@ -189,6 +189,7 @@ module App (U : UI) = struct
                 ]
                 |> Lwt.return
         in
+        (Common.refresh := fun () -> Lwt.async update_status);
         let* () = update_status () in
         let btn_update =
           let@ () =

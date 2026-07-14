@@ -80,6 +80,14 @@ module Api_result = Eliom_mkreg.Make (struct
         | Path fname ->
             Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
             |> return_response)
+    | `EventStream x ->
+        let headers =
+          Cohttp.Header.add headers "content-type" "text/event-stream"
+        in
+        let body =
+          Ocsigen_response.Body.of_cohttp ~encoding:Chunked @@ `Stream x
+        in
+        Lwt.return @@ Ocsigen_response.respond ~headers ~status:`OK ~body ()
 end)
 
 module Make (Web_state : Web_state_sig.S) = struct

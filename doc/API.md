@@ -221,6 +221,10 @@ the configuration file. A token is valid for 24 hours, or until
 ### `GET`: unit -> trustees_trustee_status
 ### `POST`: json -> unit
 
+## `trustees/$UUID/pedersen-events/$TOKEN` (trustee)
+
+### `GET`: unit -> text/event-stream
+
 ## `cast-result/$STATE`
 
 ### `GET`: unit -> cast_result

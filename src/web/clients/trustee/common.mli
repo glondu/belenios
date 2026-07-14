@@ -31,6 +31,8 @@ type stored_private_key = {
 [@@deriving yojson]
 
 val seed : string option ref
+val refresh : (unit -> unit) ref
+val setup_pedersen_notifications : uuid -> token:string -> unit
 
 val load_and_check_private_key :
   ('a, 'b) group -> 'a -> #Dom.node Js.t -> (unit -> unit) -> unit

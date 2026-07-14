@@ -270,7 +270,43 @@ let post_trustee_basic (type a b) (w : (a, b) group)
       else raise @@ Error `InvalidPublicKey
   | _ -> raise @@ Error `PublicKeyExists
 
-let post_trustee_threshold (type a b) (w : (a, b) group)
+let listeners = ref SMap.empty
+
+let notify uuid =
+  let uuid_s = Uuid.to_string uuid in
+  SMap.find_opt uuid_s !listeners
+  |> Option.value ~default:[]
+  |> List.filter (fun (_, f) ->
+      let msg = "event: message\r\ndata: refresh\r\n\r\n" in
+      try
+        f (Some msg);
+        true
+      with _ -> false)
+  |> function
+  | [] -> listeners := SMap.remove uuid_s !listeners
+  | l -> listeners := SMap.add uuid_s l !listeners
+
+let add_listener uuid index f =
+  let uuid_s = Uuid.to_string uuid in
+  SMap.find_opt uuid_s !listeners
+  |> Option.value ~default:[]
+  |> List.filter (fun (i, f) ->
+      if i = index then (
+        (try f None with _ -> ());
+        false)
+      else true)
+  |> fun l -> listeners := SMap.add uuid_s ((index, f) :: l) !listeners
+
+let remove_listeners uuid =
+  let uuid_s = Uuid.to_string uuid in
+  let () =
+    SMap.find_opt uuid_s !listeners
+    |> Option.value ~default:[]
+    |> List.iter (fun (_, f) -> try f None with _ -> ())
+  in
+  listeners := SMap.remove uuid_s !listeners
+
+let post_trustee_threshold uuid (type a b) (w : (a, b) group)
     ((dt, set) : (a, b) draft_trustees updatable) ~token
     (dtp : _ draft_threshold_params) data =
   let module G = (val w) in
@@ -343,7 +379,8 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
         let certs = { context; certs = get_certs () } in
         let threshold = K.step2 certs in
         assert (dtp.threshold = Some threshold);
-        Array.iter (fun (x : _ draft_threshold_trustee) -> x.step <- Some 3) ts
+        Array.iter (fun (x : _ draft_threshold_trustee) -> x.step <- Some 3) ts;
+        notify uuid
       with e -> dtp.error <- Some (Printexc.to_string e)
   in
   let () =
@@ -356,7 +393,8 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
         for j = 0 to Array.length ts - 1 do
           ts.(j).vinput <- Some vinputs.(j)
         done;
-        Array.iter (fun (x : _ draft_threshold_trustee) -> x.step <- Some 5) ts
+        Array.iter (fun (x : _ draft_threshold_trustee) -> x.step <- Some 5) ts;
+        notify uuid
       with e -> dtp.error <- Some (Printexc.to_string e)
   in
   let () =
@@ -375,15 +413,17 @@ let post_trustee_threshold (type a b) (w : (a, b) group)
         in
         let p = K.step6 { context; certs } polynomials voutputs in
         dtp.parameters <- Some p;
-        Array.iter (fun (x : _ draft_threshold_trustee) -> x.step <- Some 7) ts
+        Array.iter (fun (x : _ draft_threshold_trustee) -> x.step <- Some 7) ts;
+        notify uuid;
+        remove_listeners uuid
       with e -> dtp.error <- Some (Printexc.to_string e)
   in
   set dt
 
-let post_trustee w ((dt, set) : _ draft_trustees updatable) ~token data =
+let post_trustee uuid w ((dt, set) : _ draft_trustees updatable) ~token data =
   match dt.mode with
   | `Basic p -> post_trustee_basic w (dt, set) ~token p data
-  | `Threshold p -> post_trustee_threshold w (dt, set) ~token p data
+  | `Threshold p -> post_trustee_threshold uuid w (dt, set) ~token p data
 
 let validation_error x = raise (Api_generic.Error (`ValidationError x))
 
@@ -483,7 +523,7 @@ let get_synthetic_draft_trustees is_admin (metadata : trustees_metadata)
   in
   Some { step = 3; mode }
 
-let dispatch_trustees ~token ~ifmatch endpoint method_ body s
+let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
     ((metadata, set_metadata) : _ updatable) (type a b) (w : (a, b) group) =
   let module G = (val w) in
   match endpoint with
@@ -655,8 +695,20 @@ let dispatch_trustees ~token ~ifmatch endpoint method_ body s
           in
           let@ () = handle_generic_error in
           let@ data = body.run Json.of_string in
-          let* () = post_trustee w dt ~token data in
+          let* () = post_trustee uuid w dt ~token data in
           ok
+      | _ -> method_not_allowed)
+  | [ "pedersen-events"; token ] -> (
+      let token = { token = Some token; user = None } in
+      let@ _, index, dt = with_trustee s G.spec token metadata in
+      match method_ with
+      | `GET -> (
+          match dt with
+          | Some _ ->
+              let stream, push = Lwt_stream.create () in
+              add_listener uuid index push;
+              Lwt.return @@ `EventStream stream
+          | None -> forbidden)
       | _ -> method_not_allowed)
   | _ -> not_found
 
@@ -691,6 +743,6 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       in
       let { version; group; _ } : trustees_metadata = metadata in
       let module G = (val Group.make { version; group }) in
-      dispatch_trustees ~token ~ifmatch endpoint method_ body s
+      dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
         (metadata, set_metadata)
         (module G)

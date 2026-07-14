@@ -265,6 +265,7 @@ let actionable_threshold ~uuid ~token ~index ~url w container set_step =
   function
   | `Init ->
       set_step 0;
+      setup_pedersen_notifications uuid ~token;
       let open (val !Belenios_js.I18n.gettext) in
       appendElements container
         [
@@ -278,11 +279,13 @@ let actionable_threshold ~uuid ~token ~index ~url w container set_step =
         ]
   | `WaitingForCertificate context ->
       set_step 1;
+      setup_pedersen_notifications uuid ~token;
       generate_key ~uuid ~token ~url
         (generate_threshold w context ~uuid ~token ~index)
         container
   | `WaitingForOtherCertificates vk ->
       set_step 2;
+      setup_pedersen_notifications uuid ~token;
       let open (val !Belenios_js.I18n.gettext) in
       appendElements container
         [ div [ txt @@ s_ "Your public key has already been registered!" ] ];
@@ -294,6 +297,7 @@ let actionable_threshold ~uuid ~token ~index ~url w container set_step =
         ]
   | `Pedersen (p : _ pedersen) ->
       set_step p.step;
+      if p.step < 7 then setup_pedersen_notifications uuid ~token;
       let vk = p.certs.(p.context.index - 1).message.verification in
       let open (val !Belenios_js.I18n.gettext) in
       appendElements container

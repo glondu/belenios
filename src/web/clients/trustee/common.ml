@@ -34,6 +34,26 @@ type stored_private_key = {
 [@@deriving yojson]
 
 let seed = ref None
+let refresh = ref Fun.id
+let pedersen_source = ref (None : EventSource.eventSource Js.t option)
+
+let setup_pedersen_notifications uuid ~token =
+  let@ () =
+   fun cont ->
+    match !pedersen_source with
+    | None -> cont ()
+    | Some s -> ( match s##.readyState with OPEN -> () | _ -> cont ())
+  in
+  let url =
+    Printf.sprintf "api/trustees/%s/pedersen-events/%s" (Uuid.to_string uuid)
+      token
+  in
+  let s = new%js EventSource.eventSource (Js.string url) in
+  s##.onmessage :=
+    Dom.handler (fun _ ->
+        !refresh ();
+        Js._false);
+  pedersen_source := Some s
 
 let make_private_key_input handler =
   let open (val !Belenios_js.I18n.gettext) in
