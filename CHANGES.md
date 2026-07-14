@@ -26,10 +26,24 @@
    + Restructure questions (remove special-casing of homomorphic
      questions)
    + Restructure public credentials
+   + Raise to 256 bits the entropy of seeds used for private keys
  * Web server:
-   + Bump spool version to 2
-   + Bump web API version to 7
+   + New pool structure; bump its version to 2
+   + Many changes in web API; bump its version to 7
    + Add default election preferences to admin UI
+   + Use OIDC sub claim as login inside Belenios
+   + Move hmac to Authorization header in send-message endpoints
+   + Allow direct API use without token by a logged in administrator
+     (identified by a cookie)
+   + Trustee management:
+     - Add a notion of electoral board: a set of trustees that work
+       together on one or more elections; they have their own uuid
+       namespace
+     - Ensure the link sent to trustees is stable, regardless of
+       current status; it now handles generate, check, shuffle and
+       decrypt
+     - Streamline the threshold distributed key generation by
+       automating the steps after private key generation
 
 3.3.0 (2026-07-02)
 ==================
