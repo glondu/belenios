@@ -26,6 +26,7 @@ open Belenios_web_api
 val generate :
   uuid ->
   token:string ->
+  index:int ->
   ('a, 'b) group ->
   ('a, 'b) trustee_status_draft ->
   Html_types.div_content_fun Html.elt list Lwt.t

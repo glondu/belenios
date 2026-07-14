@@ -594,10 +594,16 @@ let dispatch_trustees ~token ~ifmatch endpoint method_ body s
                       Lwt.return keys.(index - 1)
                 in
                 let* elections = Storage.T.get_elections s in
-                Lwt.return @@ `Ready { cert_verification_key; elections }
+                Lwt.return
+                @@ {
+                     index;
+                     status = `Ready { cert_verification_key; elections };
+                   }
             | Some (dt, _) -> cont dt
           in
-          let@ () = fun cont -> Lwt.return @@ `Draft (cont ()) in
+          let@ () =
+           fun cont -> Lwt.return @@ { index; status = `Draft (cont ()) }
+          in
           match dt.mode with
           | `Basic p -> (
               let@ () = fun cont -> `Basic (cont ()) in

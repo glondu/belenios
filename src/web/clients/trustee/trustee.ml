@@ -73,11 +73,15 @@ module App (U : UI) = struct
             | None ->
                 appendElements status_div [ txt @@ s_ "État inconnu!" ];
                 Lwt.return_unit
-            | Some (`Draft x) ->
-                let* contents = Generate.generate uuid ~token (module G) x in
+            | Some { index; status = `Draft x } ->
+                let* contents =
+                  Generate.generate uuid ~token ~index (module G) x
+                in
                 appendElements status_div contents;
                 Lwt.return_unit
-            | Some (`Ready { cert_verification_key = vk; elections }) ->
+            | Some
+                { status = `Ready { cert_verification_key = vk; elections }; _ }
+              ->
                 let@ () = finally Lwt.return_unit in
                 let@ () = load_and_check_private_key (module G) vk status_div in
                 let@ () = Lwt.async in

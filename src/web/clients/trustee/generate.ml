@@ -37,7 +37,7 @@ type keypair = {
   filename : uuid -> string;
 }
 
-let generate_basic (type a b) (w : (a, b) group) ~name () =
+let generate_basic (type a b) (w : (a, b) group) ~name index =
   let module G = (val w) in
   let module Trustees = (val Trustees.get_by_version G.spec.version) in
   let module KG = Trustees.MakeBasic (G) in
@@ -52,11 +52,11 @@ let generate_basic (type a b) (w : (a, b) group) ~name () =
   in
   let mime_type = "text/plain"
   and filename uuid =
-    Printf.sprintf "private_key-%s.txt" (Uuid.to_string uuid)
+    Printf.sprintf "private_key-%s-%d.txt" (Uuid.to_string uuid) index
   in
   { private_key = seed; public_key; fingerprint; mime_type; filename }
 
-let generate_threshold (type a b) (w : (a, b) group) context () =
+let generate_threshold (type a b) (w : (a, b) group) context index =
   let module G = (val w) in
   let module Trustees = (val Trustees.get_by_version G.spec.version) in
   let module P = Pki.Make (G) in
@@ -73,7 +73,7 @@ let generate_threshold (type a b) (w : (a, b) group) context () =
   let public_key = [%yojson_of_group: _ pedersen_cert] cert in
   let mime_type = "text/plain"
   and filename uuid =
-    Printf.sprintf "private_key-%s.txt" (Uuid.to_string uuid)
+    Printf.sprintf "private_key-%s-%d.txt" (Uuid.to_string uuid) index
   in
   { private_key = seed; public_key; fingerprint; mime_type; filename }
 
@@ -110,12 +110,12 @@ let transient container make_elt =
   dom := Some x;
   Dom.appendChild container x
 
-let generate_key ~uuid ~token ~url generate container =
+let generate_key ~uuid ~token ~index ~url generate container =
   let open (val !Belenios_js.I18n.gettext) in
   let@ remove_generate = transient container in
   let@ () = button ~a:[ a_id "generate_key" ] @@ s_ "Generate a key" in
   let@ () = finally Lwt.return_unit in
-  let p = generate () in
+  let p = generate index in
   remove_generate ();
   let@ remove_submit = transient container in
   let btn_submit =
@@ -243,9 +243,9 @@ let compute_threshold_step ~token ~url w (pedersen : _ pedersen) container =
       appendElements container [ div [ txt @@ s_ "Inconsistent state!" ] ];
       Lwt.return_unit
 
-let actionable_basic ~uuid ~token ~url w container = function
+let actionable_basic ~uuid ~token ~index ~url w container = function
   | `Init name ->
-      generate_key ~uuid ~token ~url (generate_basic w ~name) container
+      generate_key ~uuid ~token ~index ~url (generate_basic w ~name) container
   | `Done vk ->
       let open (val !Belenios_js.I18n.gettext) in
       appendElements container
@@ -254,7 +254,8 @@ let actionable_basic ~uuid ~token ~url w container = function
       appendElements container
         [ div [ txt @@ s_ "Your private key is valid!" ] ]
 
-let actionable_threshold ~uuid ~token ~url w container set_step = function
+let actionable_threshold ~uuid ~token ~index ~url w container set_step =
+  function
   | `Init ->
       set_step 0;
       let open (val !Belenios_js.I18n.gettext) in
@@ -270,7 +271,9 @@ let actionable_threshold ~uuid ~token ~url w container set_step = function
         ]
   | `WaitingForCertificate context ->
       set_step 1;
-      generate_key ~uuid ~token ~url (generate_threshold w context) container
+      generate_key ~uuid ~token ~index ~url
+        (generate_threshold w context)
+        container
   | `WaitingForOtherCertificates vk ->
       set_step 2;
       let open (val !Belenios_js.I18n.gettext) in
@@ -294,7 +297,7 @@ let actionable_threshold ~uuid ~token ~url w container set_step = function
       let@ () = Lwt.async in
       compute_threshold_step ~token ~url w p container
 
-let generate uuid ~token (type a b) (w : (a, b) group)
+let generate uuid ~token ~index (type a b) (w : (a, b) group)
     (status : _ trustee_status_draft) =
   let open (val !Belenios_js.I18n.gettext) in
   let url = Api.trustees_trustee uuid w in
@@ -303,7 +306,7 @@ let generate uuid ~token (type a b) (w : (a, b) group)
   let header =
     match status with
     | `Basic s ->
-        actionable_basic ~uuid ~token ~url w container s;
+        actionable_basic ~uuid ~token ~index ~url w container s;
         h3 [ txt @@ s_ "Trustee key generation" ]
     | `Threshold s ->
         let h, set_step =
@@ -317,7 +320,7 @@ let generate uuid ~token (type a b) (w : (a, b) group)
                 @@ s_ "Collaborative key generation"
                 ^^^ step )
         in
-        actionable_threshold ~uuid ~token ~url w container set_step s;
+        actionable_threshold ~uuid ~token ~index ~url w container set_step s;
         h
   in
   Lwt.return [ header; hr (); actionable ]

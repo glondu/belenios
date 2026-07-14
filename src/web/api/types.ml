@@ -402,9 +402,15 @@ type ('a, 'b) trustee_status_ready = {
 }
 [@@deriving yojson]
 
-type ('a, 'b) trustees_trustee_status =
+type ('a, 'b) trustees_trustee_status_status =
   [ `Draft of ('a, 'b) trustee_status_draft
   | `Ready of ('a, 'b) trustee_status_ready ]
+[@@deriving yojson]
+
+type ('a, 'b) trustees_trustee_status = {
+  index : int;
+  status : ('a, 'b) trustees_trustee_status_status;
+}
 [@@deriving yojson]
 
 type ('a, 'b) election_trustee_status =
