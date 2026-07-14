@@ -37,7 +37,7 @@ type keypair = {
   filename : uuid -> string;
 }
 
-let generate_basic (type a b) (w : (a, b) group) ~name index =
+let generate_basic (type a b) (w : (a, b) group) ~name ~uuid ~token ~index () =
   let module G = (val w) in
   let module Trustees = (val Trustees.get_by_version G.spec.version) in
   let module KG = Trustees.MakeBasic (G) in
@@ -50,13 +50,16 @@ let generate_basic (type a b) (w : (a, b) group) ~name index =
     |> (fun x -> x.cert.message.verification)
     |> G.to_string |> sha256_b64
   in
-  let mime_type = "text/plain"
+  let mime_type = "application/json"
   and filename uuid =
-    Printf.sprintf "private_key-%s-%d.txt" (Uuid.to_string uuid) index
+    Printf.sprintf "private_key-%s-%d.json" (Uuid.to_string uuid) index
+  and private_key =
+    !+yojson_of_stored_private_key { uuid; index; token; seed }
   in
-  { private_key = seed; public_key; fingerprint; mime_type; filename }
+  { private_key; public_key; fingerprint; mime_type; filename }
 
-let generate_threshold (type a b) (w : (a, b) group) context index =
+let generate_threshold (type a b) (w : (a, b) group) context ~uuid ~token ~index
+    () =
   let module G = (val w) in
   let module Trustees = (val Trustees.get_by_version G.spec.version) in
   let module P = Pki.Make (G) in
@@ -71,11 +74,13 @@ let generate_threshold (type a b) (w : (a, b) group) context index =
          cert.message
   in
   let public_key = [%yojson_of_group: _ pedersen_cert] cert in
-  let mime_type = "text/plain"
+  let mime_type = "application/json"
   and filename uuid =
-    Printf.sprintf "private_key-%s-%d.txt" (Uuid.to_string uuid) index
+    Printf.sprintf "private_key-%s-%d.json" (Uuid.to_string uuid) index
+  and private_key =
+    !+yojson_of_stored_private_key { uuid; index; token; seed }
   in
-  { private_key = seed; public_key; fingerprint; mime_type; filename }
+  { private_key; public_key; fingerprint; mime_type; filename }
 
 let threshold_step (type a b) (w : (a, b) group) (pedersen : (a, b) pedersen)
     ~private_key =
@@ -110,12 +115,12 @@ let transient container make_elt =
   dom := Some x;
   Dom.appendChild container x
 
-let generate_key ~uuid ~token ~index ~url generate container =
+let generate_key ~uuid ~token ~url generate container =
   let open (val !Belenios_js.I18n.gettext) in
   let@ remove_generate = transient container in
   let@ () = button ~a:[ a_id "generate_key" ] @@ s_ "Generate a key" in
   let@ () = finally Lwt.return_unit in
-  let p = generate index in
+  let p = generate () in
   remove_generate ();
   let@ remove_submit = transient container in
   let btn_submit =
@@ -245,7 +250,9 @@ let compute_threshold_step ~token ~url w (pedersen : _ pedersen) container =
 
 let actionable_basic ~uuid ~token ~index ~url w container = function
   | `Init name ->
-      generate_key ~uuid ~token ~index ~url (generate_basic w ~name) container
+      generate_key ~uuid ~token ~url
+        (generate_basic w ~name ~uuid ~token ~index)
+        container
   | `Done vk ->
       let open (val !Belenios_js.I18n.gettext) in
       appendElements container
@@ -271,8 +278,8 @@ let actionable_threshold ~uuid ~token ~index ~url w container set_step =
         ]
   | `WaitingForCertificate context ->
       set_step 1;
-      generate_key ~uuid ~token ~index ~url
-        (generate_threshold w context)
+      generate_key ~uuid ~token ~url
+        (generate_threshold w context ~uuid ~token ~index)
         container
   | `WaitingForOtherCertificates vk ->
       set_step 2;

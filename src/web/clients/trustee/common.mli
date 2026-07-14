@@ -22,6 +22,14 @@
 open Js_of_ocaml
 open Belenios
 
+type stored_private_key = {
+  uuid : uuid;
+  index : int;
+  token : string;
+  seed : string;
+}
+[@@deriving yojson]
+
 val seed : string option ref
 
 val load_and_check_private_key :

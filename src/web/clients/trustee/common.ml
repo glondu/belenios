@@ -19,10 +19,19 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Ppx_yojson_conv_lib.Yojson_conv
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios
 open Belenios_js.Common
+
+type stored_private_key = {
+  uuid : uuid;
+  index : int;
+  token : string;
+  seed : string;
+}
+[@@deriving yojson]
 
 let seed = ref None
 
@@ -32,7 +41,7 @@ let make_private_key_input handler =
   let raw_elt = input ~a:[ a_id "private_key"; a_input_type `Hidden ] () in
   let raw_dom = Tyxml_js.To_dom.of_input raw_elt in
   let onchange _ =
-    handler (String.trim (Js.to_string raw_dom##.value));
+    handler (Js.to_string raw_dom##.value);
     Js._false
   in
   raw_dom##.onchange := Dom_html.handler onchange;
@@ -46,7 +55,7 @@ let make_private_key_input handler =
     reader##.onload :=
       Dom.handler (fun _ ->
           let& content = File.CoerceTo.string reader##.result in
-          handler (String.trim (Js.to_string content));
+          handler (Js.to_string content);
           Js._false);
     reader##readAsText file;
     Js._false
@@ -78,6 +87,7 @@ let load_and_check_private_key (type a b) (group : (a, b) group) (vk : a)
   let dom = ref None in
   let i =
     let@ s = make_private_key_input in
+    let { seed = s; _ } = !*stored_private_key_of_yojson s in
     if check_seed s then (
       seed := Some s;
       let () =
