@@ -45,7 +45,7 @@ let setup_pedersen_notifications uuid ~token =
     | Some s -> ( match s##.readyState with OPEN -> () | _ -> cont ())
   in
   let url =
-    Printf.sprintf "api/trustees/%s/pedersen-events/%s" (Uuid.to_string uuid)
+    Printf.sprintf "api/trustees/%s/%s/pedersen-events" (Uuid.to_string uuid)
       token
   in
   let s = new%js EventSource.eventSource (Js.string url) in

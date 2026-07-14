@@ -29,8 +29,8 @@ open Belenios_js.Common
 open Belenios_js.Session
 open Common
 
-let send_trustees_request ?ifmatch uuid w req =
-  let* x = Api.(post ?ifmatch (trustees_draft uuid w) !user req) in
+let send_trustees_request ?ifmatch uuid req =
+  let* x = Api.(post ?ifmatch (trustees uuid) !user req) in
   let b =
     if x.code = 200 then (
       Cache.invalidate Cache.status;
@@ -44,58 +44,25 @@ let send_trustees_request ?ifmatch uuid w req =
 (* Forward decl of update functions *)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
-let cast_bt_trustee a b =
-  !+(yojson_of_trustee (yojson_of_basic_parameters a b))
-  >> !*(trustee_of_yojson Fun.id)
-
-let cast_tt_trustee a b =
-  !+(yojson_of_trustee (yojson_of_pedersen_cert a b))
-  >> !*(trustee_of_yojson Fun.id)
-
 let get_trustees () =
   let@ uuid cont =
     let* status = Cache.get_until_success Cache.e_status in
     match status.trustees with None -> Lwt.return_none | Some x -> cont x
   in
-  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let { version; group; _ } : raw_draft = draft in
-  let module G = (val Group.make { version; group }) in
-  let* x = Api.(get (trustees_draft uuid (module G)) !user) in
+  let* x = Api.(get (trustees uuid) !user) in
   let ifmatch = get_ifmatch x in
   match x with
   | Error e ->
       alert (string_of_error e);
       Lwt.return_none
-  | Ok (tt, _) -> (
-      let step = tt.step in
-      match tt.mode with
-      | `Basic x ->
-          let all_trustee =
-            List.map (cast_bt_trustee !&G.to_string !&G.Zq.to_string) x.trustees
-          in
-          let mode = `Basic in
-          Lwt.return_some (ifmatch, step, mode, all_trustee)
-      | `Threshold x ->
-          let all_trustee =
-            List.map (cast_tt_trustee !&G.to_string !&G.Zq.to_string) x.trustees
-          in
-          let mode = `Threshold (Option.value ~default:0 x.threshold) in
-          Lwt.return_some (ifmatch, step, mode, all_trustee))
+  | Ok (tt, _) -> Lwt.return_some (uuid, ifmatch, tt)
 
-let recompute_main_zone_1 ifmatch mode all_trustee =
+let recompute_main_zone_1 uuid ifmatch
+    (Wrapped_trustees_status (_, { mode; trustees = all_trustee; _ })) =
   let open (val !Belenios_js.I18n.gettext) in
-  let@ uuid cont =
-    let* status = Cache.get_until_success Cache.e_status in
-    match status.trustees with
-    | None -> Lwt.return [ txt "no trustees" ]
-    | Some x -> cont x
-  in
-  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let { version; group; _ } : raw_draft = draft in
-  let module G = (val Group.make { version; group }) in
   let erase_trustee_elt t =
     let onclick () =
-      let* b = send_trustees_request uuid (module G) (`RemoveTrustee t) in
+      let* b = send_trustees_request uuid @@ `RemoveTrustee t in
       if b then !update_main_zone () else Lwt.return_unit
     in
     div ~a:[ a_class [ "del_sym" ]; a_onclick_lwt onclick ] []
@@ -121,7 +88,7 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
   let rows_of_ttees =
     first_row
     :: List.map
-         (fun (t : _ trustee) ->
+         (fun (t : _ trustees_status_trustee) ->
            let address = Option.value ~default:"N/A" t.address in
            tr
              [
@@ -157,7 +124,7 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
           let { version; group; _ } : raw_draft = draft in
           let module G = (val Group.make { version; group }) in
-          let* b = send_trustees_request ?ifmatch uuid (module G) r in
+          let* b = send_trustees_request ?ifmatch uuid r in
           let&&* d = document##getElementById (Js.string "popup") in
           d##.style##.display := Js.string "none";
           if b then !update_main_zone () else Lwt.return_unit)
@@ -215,7 +182,7 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
           let { version; group; _ } : raw_draft = draft in
           let module G = (val Group.make { version; group }) in
-          let* b = send_trustees_request ?ifmatch uuid (module G) mm in
+          let* b = send_trustees_request ?ifmatch uuid mm in
           if b then !update_main_zone () else Lwt.return_unit
         else r##.checked := Js.bool with_thr
       in
@@ -242,7 +209,7 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
           let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
           let { version; group; _ } : raw_draft = draft in
           let module G = (val Group.make { version; group }) in
-          let* b = send_trustees_request ?ifmatch uuid (module G) mm in
+          let* b = send_trustees_request ?ifmatch uuid mm in
           if b then !update_main_zone () else Lwt.return_unit
         in
         input ~a:attr ~onchange ~value:(string_of_int v) `Number
@@ -271,7 +238,7 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
           @@ s_ "Proceed to next step? This will freeze the list of trustees."
         in
         if confirm then
-          let* b = send_trustees_request uuid (module G) @@ `SetStep 2 in
+          let* b = send_trustees_request uuid @@ `SetStep 2 in
           if b then !update_main_zone () else Lwt.return_unit
         else Lwt.return_unit
   in
@@ -284,16 +251,16 @@ let recompute_main_zone_1 ifmatch mode all_trustee =
       div ~a:[ a_id "trustee_proc_but" ] [ proc_but ];
     ]
 
-let reset_but uuid w =
+let reset_but uuid =
   let open (val !Belenios_js.I18n.gettext) in
   let@ () = button @@ s_ "Reset and start from scratch" in
   let confir = confirm @@ s_ "Are you sure you want to restart from scratch?" in
   if confir then
-    let* b = send_trustees_request uuid w `Reset in
+    let* b = send_trustees_request uuid `Reset in
     if b then !update_main_zone () else Lwt.return_unit
   else Lwt.return_unit
 
-let validate_but uuid w =
+let validate_but uuid =
   let open (val !Belenios_js.I18n.gettext) in
   let@ () = button ~a:[ a_id "validate_board" ] @@ s_ "Validate board" in
   let confir =
@@ -303,7 +270,7 @@ let validate_but uuid w =
           be possible."
   in
   if confir then
-    let* b = send_trustees_request uuid w `Validate in
+    let* b = send_trustees_request uuid `Validate in
     if b then !update_main_zone () else Lwt.return_unit
   else Lwt.return_unit
 
@@ -340,22 +307,12 @@ let new_board_but () =
 
 (* FIXME: This step 3 is just a dumb, now, but in the future, it should be
  * a page to check that the trustees have their secret key *)
-let recompute_main_zone_3 all_trustee =
+let recompute_main_zone_3 uuid
+    (Wrapped_trustees_status (_, { validated; trustees = all_trustee; _ })) =
   let open (val !Belenios_js.I18n.gettext) in
-  let* reset =
-    let@ uuid cont =
-      let* status = Cache.get_until_success Cache.e_status in
-      match status.trustees with None -> Lwt.return_nil | Some x -> cont x
-    in
-    let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-    let { version; group; _ } : raw_draft = draft in
-    let module G = (val Group.make { version; group }) in
-    let* x = Api.(get (trustees uuid (module G)) `Nobody) in
-    match x with
-    | Error _ ->
-        Lwt.return
-          [ reset_but uuid (module G); txt " "; validate_but uuid (module G) ]
-    | Ok _ -> Lwt.return [ new_board_but () ]
+  let reset =
+    if validated then [ new_board_but () ]
+    else [ reset_but uuid; txt " "; validate_but uuid ]
   in
   let header_row =
     tr
@@ -378,7 +335,7 @@ let recompute_main_zone_3 all_trustee =
   let rows_of_ttees =
     first_row
     :: List.map
-         (fun (t : _ trustee) ->
+         (fun (t : _ trustees_status_trustee) ->
            let address = Option.value ~default:"N/A" t.address in
            tr [ td [ txt address ]; td [ txt t.name ]; td [] ])
          all_trustee
@@ -398,16 +355,14 @@ let string_of_state mode st =
   match mode with
   | `Basic -> (
       match st with
-      | None -> s_ "none"
-      | Some 0 -> s_ "action required"
-      | Some 1 -> s_ "done"
+      | 0 -> s_ "action required"
+      | 1 -> s_ "done"
       | _ -> assert false)
   | `Threshold _ -> (
       match st with
-      | None -> s_ "none"
-      | Some 0 -> s_ "step 0?" (* should not occur if threshold is set *)
-      | Some ((1 | 2 | 3 | 4 | 5 | 6) as s) -> Printf.sprintf (f_ "step %d/7") s
-      | Some 7 -> "done"
+      | 0 -> s_ "step 0?" (* should not occur if threshold is set *)
+      | (1 | 2 | 3 | 4 | 5 | 6) as s -> Printf.sprintf (f_ "step %d/7") s
+      | 7 -> "done"
       | _ -> assert false)
 
 module Mails = Belenios_ui.Mails_admin.Make (Belenios_js.I18n)
@@ -443,8 +398,8 @@ let trustee_generate_link kind =
          ]
 
 let all_ttee_done mode all_trustee =
-  let dd = if mode = `Basic then Some 1 else Some 7 in
-  List.for_all (fun (t : _ trustee) -> t.state = dd) all_trustee
+  let dd = if mode = `Basic then 1 else 7 in
+  List.for_all (fun (t : _ trustees_status_trustee) -> t.step = dd) all_trustee
 
 let trustee_decrypt_link ~trustees ~token ~recipient =
   let open (val !Belenios_js.I18n.gettext) in
@@ -466,7 +421,9 @@ let trustee_decrypt_link ~trustees ~token ~recipient =
            ~recipient ~subject ~body (s_ "Send an e-mail");
        ]
 
-let recompute_main_zone_2 ifmatch_tt mode all_trustee =
+let recompute_main_zone_2 uuid ifmatch_tt
+    (Wrapped_trustees_status (_, { mode; trustees = all_trustee; _ }) as status)
+    =
   let open (val !Belenios_js.I18n.gettext) in
   let confir =
     if all_trustee = [] then
@@ -476,21 +433,12 @@ let recompute_main_zone_2 ifmatch_tt mode all_trustee =
             server for privacy?"
     else true
   in
-  let@ uuid cont =
-    let* status = Cache.get_until_success Cache.e_status in
-    match status.trustees with
-    | None -> Lwt.return [ txt "no trustees" ]
-    | Some x -> cont x
-  in
-  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let { version; group; _ } : raw_draft = draft in
-  let module G = (val Group.make { version; group }) in
   if not confir then
-    let* _ = send_trustees_request uuid (module G) @@ `SetStep 1 in
-    recompute_main_zone_1 ifmatch_tt mode all_trustee
+    let* _ = send_trustees_request uuid @@ `SetStep 1 in
+    recompute_main_zone_1 uuid ifmatch_tt status
   else if all_ttee_done mode all_trustee then
-    let* _ = send_trustees_request uuid (module G) @@ `SetStep 3 in
-    recompute_main_zone_3 all_trustee
+    let* _ = send_trustees_request uuid @@ `SetStep 3 in
+    recompute_main_zone_3 uuid status
   else
     let trustee_generate_link =
       let kind =
@@ -510,7 +458,7 @@ let recompute_main_zone_2 ifmatch_tt mode all_trustee =
     in
     let* rows_of_ttees =
       Lwt_list.map_s
-        (fun (t : _ trustee) ->
+        (fun (t : _ trustees_status_trustee) ->
           let* link =
             trustee_generate_link
               ~token:(Option.value ~default:"" t.token)
@@ -521,7 +469,7 @@ let recompute_main_zone_2 ifmatch_tt mode all_trustee =
               td [ txt @@ Option.value ~default:"N/A" t.address ];
               td [ txt t.name ];
               td [ link ];
-              td [ txt @@ string_of_state mode t.state ];
+              td [ txt @@ string_of_state mode t.step ];
               td [];
             ]
           |> Lwt.return)
@@ -546,7 +494,7 @@ let recompute_main_zone_2 ifmatch_tt mode all_trustee =
           ];
         tablex [ tbody (header_row :: rows_of_ttees) ];
         div [ refresh_but ];
-        div [ reset_but uuid (module G) ];
+        div [ reset_but uuid ];
       ]
 
 (* This function will be used with `FinishShuffling and `ReleaseTally *)
@@ -874,11 +822,14 @@ let recompute_main_zone () =
             ]
           in
           Lwt.return content
-      | Some (ifmatch_tt, step, mode, all_trustee) -> (
+      | Some
+          ( uuid,
+            ifmatch_tt,
+            (Wrapped_trustees_status (_, { step; _ }) as status) ) -> (
           match step with
-          | 1 -> recompute_main_zone_1 ifmatch_tt mode all_trustee
-          | 2 -> recompute_main_zone_2 ifmatch_tt mode all_trustee
-          | 3 -> recompute_main_zone_3 all_trustee
+          | 1 -> recompute_main_zone_1 uuid ifmatch_tt status
+          | 2 -> recompute_main_zone_2 uuid ifmatch_tt status
+          | 3 -> recompute_main_zone_3 uuid status
           | _ ->
               alert "Should not get there; aborting.";
               assert false)

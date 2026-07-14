@@ -43,8 +43,7 @@ let with_administrator_or_nobody (token : token_user)
           f (`Administrator a)
       | _ -> not_found)
 
-let with_trustee s w (token : token_user) (metadata : trustees_metadata) f =
-  let@ token = Option.unwrap unauthorized token.token in
+let with_trustee s w token (metadata : trustees_metadata) f =
   match metadata.trustees with
   | None -> (
       let@ dt, set = Storage.T.update s (Trustees_draft w) in
@@ -72,46 +71,6 @@ let with_trustee s w (token : token_user) (metadata : trustees_metadata) f =
       with
       | Some i -> f (token, i + 1, None)
       | None -> unauthorized)
-
-let get_draft_trustees ~is_admin (trustees : _ draft_trustees) :
-    _ Belenios_web_api.draft_trustees =
-  let mode =
-    match trustees.mode with
-    | `Basic x ->
-        let trustees =
-          List.map
-            (fun (t : _ draft_basic_trustee) ->
-              let state, key =
-                match t.parameters with
-                | None -> (Some 0, None)
-                | Some tpk -> (Some 1, Some tpk)
-              in
-              let address, token, state =
-                if is_admin then (Some t.address, Some t.token, state)
-                else (None, None, None)
-              in
-              { address; name = t.name; token; state; key })
-            x.trustees
-        in
-        `Basic ({ trustees } : _ basic_trustees)
-    | `Threshold x ->
-        let trustees =
-          List.map
-            (fun (t : _ draft_threshold_trustee) ->
-              let address, token, state =
-                if is_admin then
-                  ( Some t.address,
-                    Some t.token,
-                    Some (Option.value t.step ~default:0) )
-                else (None, None, None)
-              in
-              { address; name = t.name; token; state; key = t.cert })
-            x.trustees
-        in
-        `Threshold
-          ({ threshold = x.threshold; trustees } : _ threshold_trustees)
-  in
-  { step = trustees.step; mode }
 
 let check_address address =
   if not @@ is_email address then raise (Error (`Invalid "e-mail address"))
@@ -472,111 +431,138 @@ let validate s (type a b) (w : (a, b) group) (dt : (a, b) draft_trustees)
   let* () = set_metadata { metadata with trustees = Some names } in
   Storage.T.del s (Trustees_draft G.spec)
 
-let get_synthetic_draft_trustees is_admin (metadata : trustees_metadata)
-    (trustees : _ trustees) : _ Belenios_web_api.draft_trustees option =
-  let open Belenios_web_api in
-  let@ external_trustees cont =
-    match metadata.trustees with None -> None | Some x -> cont x
+let get_trustees who s (metadata : trustees_metadata) (type a b)
+    (w : (a, b) group) =
+  let is_admin =
+    match who with
+    | `Administrator a when Accounts.check a metadata.owners -> true
+    | _ -> false
   in
-  let@ mode (cont : _ draft_trustees_mode -> _) =
-    match trustees with
-    | [ `Pedersen p ] ->
-        Array.combine
-          (Array.of_list external_trustees)
-          (Array.combine p.certs p.verification_keys)
-        |> Array.map
-             (fun
-               ( (t : external_trustee),
-                 (cert, (vk : _ threshold_verification_key)) )
-             ->
-               let name = vk.message.message.name in
-               let name = Option.value ~default:"N/A" name in
-               let token, address =
-                 if is_admin then (Some t.token, Some t.address)
-                 else (None, None)
-               in
-               ({ name; address; token; key = Some cert; state = Some 7 }
-                 : _ pedersen_cert trustee))
-        |> Array.to_list
-        |> fun trustees ->
-        cont
-        @@ `Threshold
-             ({ threshold = Some p.context.threshold; trustees }
-               : _ threshold_trustees)
-    | _ -> (
-        try
-          List.combine external_trustees trustees
-          |> List.map (fun ((t : external_trustee), t') ->
-              match t' with
-              | `Pedersen _ -> raise Exit
+  let module G = (val w) in
+  let { version; group; trustees; _ } : trustees_metadata = metadata in
+  match trustees with
+  | None -> (
+      let* x = Storage.T.get s (Trustees_draft G.spec) in
+      match Lopt.get_value x with
+      | None -> assert false
+      | Some x ->
+          let ( (mode : trustees_status_mode),
+                (trustees : _ trustees_status_trustee list) ) =
+            match x.mode with
+            | `Basic p ->
+                ( `Basic,
+                  p.trustees
+                  |> List.map (fun (t : _ draft_basic_trustee) ->
+                      let name = t.name in
+                      let address, token =
+                        if is_admin then (Some t.address, Some t.token)
+                        else (None, None)
+                      in
+                      let cert_verification_key =
+                        match t.parameters with
+                        | None -> None
+                        | Some x -> Some x.cert.message.verification
+                      in
+                      let step =
+                        match cert_verification_key with
+                        | None -> 0
+                        | Some _ -> 1
+                      in
+                      { name; step; address; token; cert_verification_key }) )
+            | `Threshold p ->
+                ( `Threshold (Option.value ~default:0 p.threshold),
+                  p.trustees
+                  |> List.map (fun (t : _ draft_threshold_trustee) ->
+                      let name = t.name in
+                      let step = Option.value ~default:0 t.step in
+                      let address, token =
+                        if is_admin then (Some t.address, Some t.token)
+                        else (None, None)
+                      in
+                      let cert_verification_key =
+                        match t.cert with
+                        | None -> None
+                        | Some x -> Some x.message.verification
+                      in
+                      { name; step; address; token; cert_verification_key }) )
+          in
+          Lwt.return
+            { version; group; step = x.step; validated = false; mode; trustees }
+      )
+  | Some trustees -> (
+      let* x = Storage.T.get s (Trustees G.spec) in
+      match Lopt.get_value x with
+      | None -> assert false
+      | Some x ->
+          let (mode : trustees_status_mode) =
+            match x with
+            | [ `Pedersen p ] -> `Threshold p.context.threshold
+            | _ -> `Basic
+          in
+          let trustees' =
+            x
+            |> List.map (function
               | `Single (p : _ basic_parameters) ->
-                  let name = p.verification_key.message.message.name in
-                  let name = Option.value ~default:"N/A" name in
-                  let token, address =
-                    if is_admin then (Some t.token, Some t.address)
-                    else (None, None)
-                  in
-                  ({ name; address; token; key = Some p; state = Some 1 }
-                    : _ basic_parameters trustee))
-          |> fun trustees -> cont @@ `Basic { trustees }
-        with Exit -> None)
-  in
-  Some { step = 3; mode }
+                  [
+                    ( Option.get p.verification_key.message.message.name,
+                      1,
+                      p.cert.message.verification );
+                  ]
+              | `Pedersen (p : _ threshold_parameters) ->
+                  Array.combine p.verification_keys p.certs
+                  |> Array.map
+                       (fun
+                         ( (x : _ threshold_verification_key),
+                           (y : _ pedersen_cert) )
+                       ->
+                         ( Option.get x.message.message.name,
+                           7,
+                           y.message.verification ))
+                  |> Array.to_list)
+            |> List.flatten
+          in
+          let (trustees : _ trustees_status_trustee list) =
+            List.combine trustees trustees'
+            |> List.map (fun ((t : external_trustee), (name, step, x)) ->
+                let address, token =
+                  if is_admin then (Some t.address, Some t.token)
+                  else (None, None)
+                in
+                { name; step; address; token; cert_verification_key = Some x })
+          in
+          Lwt.return
+            { version; group; step = 3; validated = true; mode; trustees })
 
 let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
     ((metadata, set_metadata) : _ updatable) (type a b) (w : (a, b) group) =
   let module G = (val w) in
   match endpoint with
   | [] -> (
-      let* x = Storage.T.get s (Trustees G.spec) in
-      match Lopt.get_value x with
-      | None -> not_found
-      | Some x -> return_yojson 200 @@ [%yojson_of_group: _ trustees] x)
-  | [ "group" ] ->
-      let { version; group; _ } : trustees_metadata = metadata in
-      return_yojson 200 @@ yojson_of_group_specification { version; group }
-  | [ "draft" ] -> (
       let@ who = with_administrator_or_nobody token metadata in
-      let@ dt =
-       fun cont ->
-        let@ dt, set = Storage.T.update s (Trustees_draft G.spec) in
-        match Lopt.get_value dt with
-        | None -> cont None
-        | Some dt -> cont @@ Some (dt, fun x -> set Value x)
+      let get () =
+        let* x = get_trustees who s metadata w in
+        Lwt.return @@ [%yojson_of_group: _ trustees_status] x
       in
-      let get dt is_admin () =
-        let open Belenios_web_api in
-        let x = get_draft_trustees ~is_admin dt in
-        Lwt.return @@ [%yojson_of_group: _ draft_trustees] x
-      in
-      let get_synthetic is_admin =
-        let open Belenios_web_api in
-        let* x = Storage.T.get s (Trustees G.spec) in
-        match Lopt.get_value x with
-        | None -> Lwt.return_none
-        | Some trustees -> (
-            let x = get_synthetic_draft_trustees is_admin metadata trustees in
-            match x with
-            | None -> Lwt.return_none
-            | Some x ->
-                Lwt.return_some @@ [%yojson_of_group: _ draft_trustees] x)
-      in
-      match (method_, who, dt) with
-      | `GET, _, None -> (
-          let* x =
-            get_synthetic
-              (match who with `Administrator _ -> true | _ -> false)
-          in
-          match x with None -> not_found | Some x -> return_yojson 200 x)
-      | `GET, `Nobody, Some (dt, _) -> handle_get (get dt false)
-      | `GET, `Administrator _, Some (dt, _) -> handle_get (get dt true)
-      | `POST, `Administrator _, Some (dt, set) -> (
-          let@ () = handle_ifmatch ifmatch (get dt true) in
+      match method_ with
+      | `GET ->
+          let* x = get () in
+          return_yojson 200 x
+      | `POST -> (
+          let@ () = handle_ifmatch ifmatch get in
           let@ () =
-           fun cont -> if metadata.trustees <> None then forbidden else cont ()
+           fun cont ->
+            match who with
+            | `Administrator a when Accounts.check a metadata.owners -> cont ()
+            | _ -> unauthorized
           in
           let@ request = body.run !*trustees_request_of_yojson in
-          let@ () = handle_generic_error in
+          let@ dt, set =
+           fun cont ->
+            let@ dt, set = Storage.T.update s (Trustees_draft G.spec) in
+            match Lopt.get_value dt with
+            | None -> precondition_failed
+            | Some dt -> cont (dt, fun x -> set Value x)
+          in
           match request with
           | `SetStep step ->
               let* () =
@@ -603,7 +589,7 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
               let* () = reset_draft_trustees (dt, set) in
               ok)
       | _ -> method_not_allowed)
-  | [ "trustee" ] -> (
+  | [ token; "trustee" ] -> (
       let@ token, index, dt = with_trustee s G.spec token metadata in
       match method_ with
       | `GET -> (
@@ -698,8 +684,7 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
           let* () = post_trustee uuid w dt ~token data in
           ok
       | _ -> method_not_allowed)
-  | [ "pedersen-events"; token ] -> (
-      let token = { token = Some token; user = None } in
+  | [ token; "pedersen-events" ] -> (
       let@ _, index, dt = with_trustee s G.spec token metadata in
       match method_ with
       | `GET -> (

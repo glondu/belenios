@@ -224,37 +224,6 @@ type summary_list = summary list [@@deriving yojson]
 type string_list = string list [@@deriving yojson]
 type addable_trustee = { name : string; address : string } [@@deriving yojson]
 
-type 'a trustee = {
-  name : string;
-  address : string option; [@yojson.option]
-  token : string option; [@yojson.option]
-  state : int option; [@yojson.option]
-  key : 'a option; [@yojson.option]
-}
-[@@deriving yojson]
-
-type ('a, 'b) basic_trustees = {
-  trustees : ('a, 'b) basic_parameters trustee list;
-}
-[@@deriving yojson]
-
-type ('a, 'b) threshold_trustees = {
-  threshold : int option; [@yojson.option]
-  trustees : ('a, 'b) pedersen_cert trustee list;
-}
-[@@deriving yojson]
-
-type ('a, 'b) draft_trustees_mode =
-  [ `Basic of ('a, 'b) basic_trustees
-  | `Threshold of ('a, 'b) threshold_trustees ]
-[@@deriving yojson]
-
-type ('a, 'b) draft_trustees = {
-  step : int;
-  mode : ('a, 'b) draft_trustees_mode;
-}
-[@@deriving yojson]
-
 type draft_status = {
   num_voters : int;
   credentials_ready : bool;
@@ -330,6 +299,42 @@ type credentials_credit = {
 [@@deriving yojson]
 
 type credentials_credits = credentials_credit list [@@deriving yojson]
+
+type ('a, 'b) trustees_status_trustee = {
+  name : string;
+  step : int;
+  address : string option; [@yojson.option]
+  token : string option; [@yojson.option]
+  cert_verification_key : 'a option; [@yojson.option]
+}
+[@@deriving yojson]
+
+type trustees_status_mode = [ `Basic | `Threshold of int ] [@@deriving yojson]
+
+type ('a, 'b) trustees_status = {
+  version : int;
+  group : string;
+  step : int;
+  validated : bool;
+  mode : trustees_status_mode;
+  trustees : ('a, 'b) trustees_status_trustee list;
+}
+[@@deriving yojson]
+
+type wrapped_trustees_status =
+  | Wrapped_trustees_status :
+      ('a, 'b) group * ('a, 'b) trustees_status
+      -> wrapped_trustees_status
+
+let wrapped_trustees_status_of_yojson x =
+  let { version; group; _ } = trustees_status_of_yojson Fun.id Fun.id x in
+  let module G = (val Group.make { version; group }) in
+  let x = [%group_of_yojson: _ trustees_status] x in
+  Wrapped_trustees_status ((module G), x)
+
+let yojson_of_wrapped_trustees_status (Wrapped_trustees_status (w, x)) =
+  let module G = (val w) in
+  [%yojson_of_group: _ trustees_status] x
 
 type trustees_request =
   [ `SetStep of int

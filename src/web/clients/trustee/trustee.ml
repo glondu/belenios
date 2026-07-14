@@ -49,20 +49,21 @@ module App (U : UI) = struct
           | exception _ -> Lwt.return [ txt @@ s_ "Invalid board identifier!" ]
           | x -> cont x
         in
-        let@ group cont =
-          let* x = Api.(get (trustees_group uuid) `Nobody) in
+        let@ trustees cont =
+          let* x = Api.(get (trustees uuid) `Nobody) in
           match x with
           | Error _ -> Lwt.return [ txt @@ s_ "Could not get parameters!" ]
           | Ok (x, _) -> cont x
         in
-        let module G = (val Group.make group) in
+        let (Wrapped_trustees_status (w, _)) = trustees in
+        let module G = (val w) in
         let status_div = div [] in
         let update_status =
           let status_div = Tyxml_js.To_dom.of_div status_div in
           fun () ->
             let* status =
               let* x =
-                Api.(get (trustees_trustee uuid (module G)) (`Trustee token))
+                Api.(get (trustees_trustee uuid ~token (module G)) `Nobody)
               in
               match x with
               | Error _ -> Lwt.return_none

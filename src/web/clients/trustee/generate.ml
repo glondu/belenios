@@ -115,7 +115,7 @@ let transient container make_elt =
   dom := Some x;
   Dom.appendChild container x
 
-let generate_key ~uuid ~token ~url generate container =
+let generate_key ~uuid ~url generate container =
   let open (val !Belenios_js.I18n.gettext) in
   let@ remove_generate = transient container in
   let@ () = button ~a:[ a_id "generate_key" ] @@ s_ "Generate a key" in
@@ -128,7 +128,7 @@ let generate_key ~uuid ~token ~url generate container =
       button ~a:[ a_id "submit_public_key"; a_disabled () ]
       @@ s_ "Submit public key"
     in
-    let* x = Api.(post url (`Trustee token) p.public_key) in
+    let* x = Api.(post url `Nobody p.public_key) in
     match x.code with
     | 200 ->
         remove_submit ();
@@ -198,13 +198,13 @@ let generate_key ~uuid ~token ~url generate container =
       div [ btn_submit ];
     ]
 
-let compute_threshold_step ~token ~url w (pedersen : _ pedersen) container =
+let compute_threshold_step ~url w (pedersen : _ pedersen) container =
   let open (val !Belenios_js.I18n.gettext) in
   match pedersen.step with
   | 3 | 5 -> (
       let private_key = Option.get !Common.seed in
       let* data = threshold_step w pedersen ~private_key in
-      let* x = Api.(post url (`Trustee token) data) in
+      let* x = Api.(post url `Nobody data) in
       match x.code with
       | 200 ->
           appendElements container
@@ -250,7 +250,7 @@ let compute_threshold_step ~token ~url w (pedersen : _ pedersen) container =
 
 let actionable_basic ~uuid ~token ~index ~url w container = function
   | `Init name ->
-      generate_key ~uuid ~token ~url
+      generate_key ~uuid ~url
         (generate_basic w ~name ~uuid ~token ~index)
         container
   | `Done vk ->
@@ -280,7 +280,7 @@ let actionable_threshold ~uuid ~token ~index ~url w container set_step =
   | `WaitingForCertificate context ->
       set_step 1;
       setup_pedersen_notifications uuid ~token;
-      generate_key ~uuid ~token ~url
+      generate_key ~uuid ~url
         (generate_threshold w context ~uuid ~token ~index)
         container
   | `WaitingForOtherCertificates vk ->
@@ -306,12 +306,12 @@ let actionable_threshold ~uuid ~token ~index ~url w container set_step =
       appendElements container
         [ div [ txt @@ s_ "Your private key is valid!" ] ];
       let@ () = Lwt.async in
-      compute_threshold_step ~token ~url w p container
+      compute_threshold_step ~url w p container
 
 let generate uuid ~token ~index (type a b) (w : (a, b) group)
     (status : _ trustee_status_draft) =
   let open (val !Belenios_js.I18n.gettext) in
-  let url = Api.trustees_trustee uuid w in
+  let url = Api.trustees_trustee uuid ~token w in
   let actionable = div [] in
   let container = Tyxml_js.To_dom.of_node actionable in
   let header =

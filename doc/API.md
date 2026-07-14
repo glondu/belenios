@@ -203,25 +203,17 @@ the configuration file. A token is valid for 24 hours, or until
 
 ### `POST`: group_specification -> uuid
 
-## `trustees/$UUID` (anybody)
+## `trustees/$UUID`
 
-### `GET`: unit -> trustees
+### `GET`: unit -> trustees_status (anybody or administrator)
+### `POST`: trustees_request -> unit (administrator)
 
-## `trustees/$UUID/group` (anybody)
-
-### `GET`: unit -> group_specification
-
-## `trustees/$UUID/draft` (administrator)
-
-### `GET`: unit -> draft_trustees
-### `POST`: trustees_request -> unit
-
-## `trustees/$UUID/trustee` (trustee)
+## `trustees/$UUID/$TOKEN/trustee`
 
 ### `GET`: unit -> trustees_trustee_status
 ### `POST`: json -> unit
 
-## `trustees/$UUID/pedersen-events/$TOKEN` (trustee)
+## `trustees/$UUID/$TOKEN/pedersen-events`
 
 ### `GET`: unit -> text/event-stream
 

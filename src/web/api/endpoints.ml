@@ -116,36 +116,18 @@ let trustees_ =
     to_string_post = !+yojson_of_group_specification;
   }
 
-let trustees uuid (type a b) (w : (a, b) group) =
-  let module G = (val w) in
+let trustees uuid =
   {
     path = Printf.sprintf "trustees/%s" (Uuid.to_string uuid);
-    of_string = !*[%group_of_yojson: _ trustees];
-    to_string = !+[%yojson_of_group: _ trustees];
-    to_string_post = !+yojson_of_unit;
-  }
-
-let trustees_group uuid =
-  {
-    path = Printf.sprintf "trustees/%s/group" (Uuid.to_string uuid);
-    of_string = !*group_specification_of_yojson;
-    to_string = !+yojson_of_group_specification;
-    to_string_post = !+yojson_of_unit;
-  }
-
-let trustees_draft uuid (type a b) (w : (a, b) group) =
-  let module G = (val w) in
-  {
-    path = Printf.sprintf "trustees/%s/draft" (Uuid.to_string uuid);
-    of_string = !*[%group_of_yojson: _ draft_trustees];
-    to_string = !+[%yojson_of_group: _ draft_trustees];
+    of_string = !*wrapped_trustees_status_of_yojson;
+    to_string = !+yojson_of_wrapped_trustees_status;
     to_string_post = !+yojson_of_trustees_request;
   }
 
-let trustees_trustee uuid (type a b) (w : (a, b) group) =
+let trustees_trustee uuid ~token (type a b) (w : (a, b) group) =
   let module G = (val w) in
   {
-    path = Printf.sprintf "trustees/%s/trustee" (Uuid.to_string uuid);
+    path = Printf.sprintf "trustees/%s/%s/trustee" (Uuid.to_string uuid) token;
     of_string = !*[%group_of_yojson: _ trustees_trustee_status];
     to_string = !+[%yojson_of_group: _ trustees_trustee_status];
     to_string_post = Json.to_string;
