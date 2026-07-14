@@ -45,7 +45,16 @@ let make_private_key_input handler =
     Js._false
   in
   raw_dom##.onchange := Dom_html.handler onchange;
-  let file_elt = input ~a:[ a_id "private_key_file"; a_input_type `File ] () in
+  let file_elt =
+    input
+      ~a:
+        [
+          a_id "private_key_file";
+          a_input_type `File;
+          a_accept [ ".json"; "application/json" ];
+        ]
+      ()
+  in
   let file_dom = Tyxml_js.To_dom.of_input file_elt in
   let onchange _ =
     let ( let& ) x f = Js.Opt.case x (fun () -> Js._false) f in
