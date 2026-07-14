@@ -116,19 +116,21 @@ let load_and_check_private_key (type a b) (group : (a, b) group) (vk : a)
   let dom = ref None in
   let i =
     let@ s = make_private_key_input in
-    let { seed = s; _ } = !*stored_private_key_of_yojson s in
-    if check_seed s then (
-      seed := Some s;
-      let () =
-        match !dom with None -> () | Some dom -> Dom.removeChild container dom
-      in
-      success ())
-    else
-      let open (val !Belenios_js.I18n.gettext) in
-      alert
-      @@ s_
-           "Error while processing the private key. Did you load the right \
-            file?"
+    match !*stored_private_key_of_yojson s with
+    | { seed = s; _ } when check_seed s ->
+        seed := Some s;
+        let () =
+          match !dom with
+          | None -> ()
+          | Some dom -> Dom.removeChild container dom
+        in
+        success ()
+    | _ | (exception _) ->
+        let open (val !Belenios_js.I18n.gettext) in
+        alert
+        @@ s_
+             "Error while processing the private key. Did you load the right \
+              file?"
   in
   let dom' = Tyxml_js.To_dom.of_node i in
   Dom.appendChild container dom';
