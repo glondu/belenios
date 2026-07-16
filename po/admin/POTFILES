@@ -20,7 +20,6 @@ src/web/clients/admin/trustees_tab.ml
 src/web/clients/trustee/common.ml
 src/web/clients/trustee/trustee.ml
 src/web/clients/trustee/generate.ml
-src/web/clients/trustee/check.ml
 src/web/clients/trustee/decrypt.ml
 src/web/clients/trustee/shuffle.ml
 src/web/clients/credauth/credauth.ml
