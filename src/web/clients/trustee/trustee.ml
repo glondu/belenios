@@ -72,7 +72,7 @@ module App (U : UI) = struct
             status_div##.innerHTML := Js.string "";
             match status with
             | None ->
-                appendElements status_div [ txt @@ s_ "État inconnu!" ];
+                appendElements status_div [ txt @@ s_ "Unknown state!" ];
                 Lwt.return_unit
             | Some { index; status = `Draft x } ->
                 let* contents =
