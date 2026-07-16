@@ -586,6 +586,8 @@ module Make (Config : CONFIG) = struct
     let* () = session#navigate_to link in
     let* () = set_private_key session private_key in
     let* () = session#click_on ~selector:(Printf.sprintf "#decrypt_%s" uuid) in
+    let* () = session#scrollIntoView "do_decrypt" in
+    let* () = session#click_on ~selector:"#do_decrypt" in
     let* () = session#scrollIntoView "submit_data" in
     let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit
@@ -614,7 +616,10 @@ module Make (Config : CONFIG) = struct
             if
               String.starts_with url
                 ~prefix:(Printf.sprintf "%s/election#" belenios)
-            then Lwt.return_unit
+            then (
+              let* x = session#get_elements ~selector:".result_question" in
+              if x = [] then failwith "no results";
+              Lwt.return_unit)
             else loop ws
       in
       loop windows

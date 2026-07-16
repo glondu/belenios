@@ -93,7 +93,10 @@ let decrypt ~token (type a b) (election : (a, b) Election.u)
     Lwt.return_unit
   in
   let compute =
-    let@ () = button @@ s_ "Generate your contribution to decryption" in
+    let@ () =
+      button ~a:[ a_id "do_decrypt" ]
+      @@ s_ "Generate your contribution to decryption"
+    in
     let private_key = Option.get !seed in
     let* pd =
       compute_partial_decryption election trustee ~encrypted_tally ~private_key
