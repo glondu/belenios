@@ -373,8 +373,8 @@ module Make (Config : CONFIG) = struct
     Printf.printf "  Logging out...\n%!";
     session#click_on ~selector:"#logout_direct"
 
-  let setup_trustee link =
-    Printf.printf "    Setting up trustee...\n%!";
+  let setup_trustee_basic link =
+    Printf.printf "    Setting up trustee (basic)...\n%!";
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
@@ -399,6 +399,66 @@ module Make (Config : CONFIG) = struct
         | _ -> assert false)
     | _ -> assert false
 
+  let setup_trustee_threshold (session : Webdriver.helpers) link =
+    Printf.printf "    Setting up trustee (threshold)...\n%!";
+    let switch_window () =
+      let* windows = session#get_windows in
+      let* b =
+        Lwt.try_bind
+          (fun () ->
+            Lwt_list.find_s
+              (fun w ->
+                let* () = session#switch_to_window w in
+                let* url = session#get_url in
+                Lwt.return (url = link))
+              windows)
+          (fun _ -> Lwt.return_true)
+          (function Not_found -> Lwt.return_false | e -> Lwt.reraise e)
+      in
+      if b then Lwt.return_unit else failwith "could not find window"
+    in
+    let* _ =
+      let script = Printf.sprintf {|window.open("%s", "_blank")|} link in
+      session#execute ~script ~args:[]
+    in
+    let* () = switch_window () in
+    let* () = close_cookie_disclaimer_if_needed session in
+    let* () = session#click_on ~selector:"#generate_key" in
+    let* private_key =
+      let* x = session#get_elements ~selector:"#private_key" in
+      match x with
+      | [ x ] -> (
+          let* () = session#scrollIntoView "private_key" in
+          let* () = session#click x in
+          let* x =
+            session#execute ~script:"return arguments[0].href"
+              ~args:[ Webdriver.json_of_element x ]
+          in
+          match x with
+          | Some (`String x) ->
+              let private_key = decode_data_uri x in
+              (* TODO: check fingerprint *)
+              let* () = session#scrollIntoView "submit_public_key" in
+              let* () = session#click_on ~selector:"#submit_public_key" in
+              Lwt.return private_key
+          | _ -> assert false)
+      | _ -> assert false
+    in
+    let wait () =
+      let* () = switch_window () in
+      let rec wait_done n =
+        let* () = Lwt_unix.sleep 1. in
+        let* x = session#get_elements ~selector:"#pedersen_done" in
+        match x with
+        | [] ->
+            if n > 0 then wait_done (n - 1)
+            else failwith "#pedersen_done did not appear"
+        | _ -> Lwt.return_unit
+      in
+      wait_done 5
+    in
+    Lwt.return (private_key, wait)
+
   let set_private_key session private_key =
     let script =
       {|
@@ -412,16 +472,6 @@ module Make (Config : CONFIG) = struct
     match x with
     | Some (`Bool true) -> Lwt.return_unit
     | _ -> failwith "setting #private_key failed"
-
-  let setup_threshold_trustee step (private_key, link) =
-    Printf.printf "    Setting up trustee (step %d)...\n%!" step;
-    let@ session = Webdriver.with_session ~headless ~url:webdriver () in
-    let session = new Webdriver.helpers session in
-    let* () = session#navigate_to link in
-    let* () = Config.(session#set_window_rect ~width ~height ()) in
-    let* () = set_private_key session private_key in
-    let* () = session#implicit_wait in
-    Lwt.return_unit
 
   let setup_registrar = function
     | None -> Lwt.return_none
@@ -490,12 +540,16 @@ module Make (Config : CONFIG) = struct
     in
     let* private_keys =
       match config.trustees.mode with
-      | Basic -> Lwt_list.map_s setup_trustee trustee_links
+      | Basic -> Lwt_list.map_s setup_trustee_basic trustee_links
       | Threshold _ ->
-          let* private_keys = Lwt_list.map_s setup_trustee trustee_links in
-          let ts = List.combine private_keys trustee_links in
-          let* () = Lwt_list.iter_s (setup_threshold_trustee 2) ts in
-          let* () = Lwt_list.iter_s (setup_threshold_trustee 3) ts in
+          let@ session = Webdriver.with_session ~headless ~url:webdriver () in
+          let session = new Webdriver.helpers session in
+          let* () = Config.(session#set_window_rect ~width ~height ()) in
+          let* xs =
+            Lwt_list.map_s (setup_trustee_threshold session) trustee_links
+          in
+          let private_keys, waiters = List.split xs in
+          let* () = Lwt_list.iter_s (fun x -> x ()) waiters in
           Lwt.return private_keys
     in
     let* () =

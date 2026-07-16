@@ -236,6 +236,7 @@ let compute_threshold_step ~url w (pedersen : _ pedersen) container =
       appendElements container
         [
           div
+            ~a:[ a_id "pedersen_done" ]
             [
               txt
               @@ s_
