@@ -126,6 +126,19 @@ let send ?internal (msg : message) =
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let t = Mails_voter.email_login l ~recipient ?state ~code () in
         Lwt.return ("login", "", uuid, t)
+    | `Trustee_link { recipient; uuid; token; langs; belenios_url; admin_id } ->
+        let langs = List.map Language.get langs in
+        let link =
+          Printf.sprintf "%strustee#%s/%s" belenios_url (Uuid.to_string uuid)
+            token
+        in
+        let module Mails = Belenios_ui.Mails_admin.Make (Web_i18n) in
+        let* subject, body = Mails.mail_trustee langs link in
+        Lwt.return
+          ( "trustee",
+            string_of_int admin_id,
+            Some uuid,
+            { recipient; subject; body } )
     | `Credentials_seed m ->
         let lang = Language.get m.lang in
         let* l = Web_i18n.get ~component:"admin" ~lang in

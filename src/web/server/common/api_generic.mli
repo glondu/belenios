@@ -60,6 +60,7 @@ val method_not_allowed : result Lwt.t
 val precondition_failed : result Lwt.t
 val request_entity_too_large : result Lwt.t
 val conflict : result Lwt.t
+val service_unavailable : result Lwt.t
 
 val handle_ifmatch :
   string option ->

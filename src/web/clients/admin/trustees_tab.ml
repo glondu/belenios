@@ -365,56 +365,23 @@ let string_of_state mode st =
       | 7 -> "done"
       | _ -> assert false)
 
-module Mails = Belenios_ui.Mails_admin.Make (Belenios_js.I18n)
-
-let trustee_generate_link ~token ~recipient =
-  let generate_mail = Mails.mail_trustee in
+let trustee_link_button uuid ~address =
   let open (val !Belenios_js.I18n.gettext) in
-  let@ uuid cont =
-    let* status = Cache.get_until_success Cache.e_status in
-    match status.trustees with None -> assert false | Some x -> cont x
+  let@ () = button ~a:[ a_class [ "send_link" ] ] @@ s_ "Send link" in
+  let* langs =
+    let* x = Cache.get_until_success Cache.account in
+    Lwt.return x.preferences.languages
   in
-  let* prefix = Cache.get_prefix () in
-  let href =
-    Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string uuid) token
-  in
-  let* subject, body = generate_mail [ lang ] href in
-  Lwt.return
-  @@ span
-       ~a:[ a_class [ "trustee-links" ] ]
-       [
-         a
-           ~a:[ a_class [ "trustee-link"; "trustee-generate-link" ] ]
-           ~href (s_ "Direct link");
-         br ();
-         a_mailto
-           ~a:[ a_class [ "trustee-link" ] ]
-           ~recipient ~subject ~body (s_ "Send an e-mail");
-       ]
+  let* b = send_trustees_request uuid @@ `SendLink { address; langs } in
+  if b then
+    Printf.ksprintf alert
+      (f_ "An e-mail with a link has been sent to %s.")
+      address;
+  Lwt.return_unit
 
 let all_ttee_done mode all_trustee =
   let dd = if mode = `Basic then 1 else 7 in
   List.for_all (fun (t : _ trustees_status_trustee) -> t.step = dd) all_trustee
-
-let trustee_decrypt_link ~trustees ~token ~recipient =
-  let open (val !Belenios_js.I18n.gettext) in
-  let* prefix = Cache.get_prefix () in
-  let href =
-    Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string trustees) token
-  in
-  let* subject, body = Mails.mail_trustee [ lang ] href in
-  Lwt.return
-  @@ span
-       ~a:[ a_class [ "trustee-links" ] ]
-       [
-         a
-           ~a:[ a_class [ "trustee-link"; "trustee-decrypt-link" ] ]
-           ~href (s_ "Direct link");
-         br ();
-         a_mailto
-           ~a:[ a_class [ "trustee-link" ] ]
-           ~recipient ~subject ~body (s_ "Send an e-mail");
-       ]
 
 let recompute_main_zone_2 uuid ifmatch_tt
     (Wrapped_trustees_status (_, { mode; trustees = all_trustee; _ }) as status)
@@ -448,10 +415,9 @@ let recompute_main_zone_2 uuid ifmatch_tt
     let* rows_of_ttees =
       Lwt_list.map_s
         (fun (t : _ trustees_status_trustee) ->
-          let* link =
-            trustee_generate_link
-              ~token:(Option.value ~default:"" t.token)
-              ~recipient:(Option.value ~default:"" t.address)
+          let link =
+            trustee_link_button uuid
+              ~address:(Option.value ~default:"" t.address)
           in
           tr
             [
@@ -560,10 +526,7 @@ let main_zone_tallying () =
             (fun (t : trustee_pd) ->
               if t.address = "server" then Lwt.return_none
               else
-                let* link =
-                  trustee_decrypt_link ~trustees ~token:t.token
-                    ~recipient:t.address
-                in
+                let link = trustee_link_button trustees ~address:t.address in
                 Lwt.return_some
                 @@ tr
                      [
@@ -633,26 +596,6 @@ let ready_to_decrypt () =
         (fun (t : shuffler) -> t.trustee = None || t.fingerprint <> None)
         sh.shufflers
 
-let trustee_shuffle_link ~trustees ~token ~recipient =
-  let open (val !Belenios_js.I18n.gettext) in
-  let* prefix = Cache.get_prefix () in
-  let href =
-    Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string trustees) token
-  in
-  let* subject, body = Mails.mail_trustee [ lang ] href in
-  Lwt.return
-  @@ span
-       ~a:[ a_class [ "trustee-links" ] ]
-       [
-         a
-           ~a:[ a_class [ "trustee-link"; "trustee-shuffle-link" ] ]
-           ~href (s_ "Direct link");
-         br ();
-         a_mailto
-           ~a:[ a_class [ "trustee-link" ] ]
-           ~recipient ~subject ~body (s_ "Send an e-mail");
-       ]
-
 let main_zone_shuffling () =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = get_current_uuid () in
@@ -687,9 +630,8 @@ let main_zone_shuffling () =
               match t.trustee with
               | None -> Lwt.return []
               | Some (trustee, true) ->
-                  let* link =
-                    trustee_shuffle_link ~trustees ~token:trustee.token
-                      ~recipient:trustee.address
+                  let link =
+                    trustee_link_button trustees ~address:trustee.address
                   in
                   Lwt.return [ link ]
               | Some (trustee, false) ->

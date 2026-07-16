@@ -64,7 +64,7 @@ type private_creds =
 
 type election_params = {
   id : string;
-  private_keys : string list;
+  private_keys : (string * string) list;
   private_creds : private_creds option;
 }
 

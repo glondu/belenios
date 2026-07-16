@@ -533,6 +533,15 @@ let get_trustees who s (metadata : trustees_metadata) (type a b)
           Lwt.return
             { version; group; step = 3; validated = true; mode; trustees })
 
+type draft_trustees_request =
+  [ `SetStep of int
+  | `AddTrustee of addable_trustee
+  | `RemoveTrustee of string
+  | `SetBasic
+  | `SetThreshold of int
+  | `Validate
+  | `Reset ]
+
 let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
     ((metadata, set_metadata) : _ updatable) (type a b) (w : (a, b) group) =
   let module G = (val w) in
@@ -548,14 +557,46 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
           let* x = get () in
           return_yojson 200 x
       | `POST -> (
-          let@ () = handle_ifmatch ifmatch get in
-          let@ () =
-           fun cont ->
+          let@ admin_id cont =
             match who with
-            | `Administrator a when Accounts.check a metadata.owners -> cont ()
+            | `Administrator a when Accounts.check a metadata.owners ->
+                cont a.id
             | _ -> unauthorized
           in
           let@ request = body.run !*trustees_request_of_yojson in
+          let@ request cont =
+            match request with
+            | `SendLink { address; langs } -> (
+                let* trustees = get_trustees who s metadata w in
+                let@ t cont =
+                  let address = Some address in
+                  match
+                    List.find_opt
+                      (fun (t : _ trustees_status_trustee) ->
+                        t.address = address)
+                      trustees.trustees
+                  with
+                  | None -> not_found
+                  | Some t -> cont t
+                in
+                let@ token cont =
+                  match t.token with None -> forbidden | Some x -> cont x
+                in
+                let m : Belenios_messages.trustee_link_message =
+                  {
+                    recipient = { name = t.name; address };
+                    uuid;
+                    token;
+                    langs;
+                    belenios_url = !Web_config.prefix ^ "/";
+                    admin_id;
+                  }
+                in
+                let* x = Send_message.send @@ `Trustee_link m in
+                match x with Ok _ -> ok | Error _ -> service_unavailable)
+            | #draft_trustees_request as x -> cont x
+          in
+          let@ () = handle_ifmatch ifmatch get in
           let@ dt, set =
            fun cont ->
             let@ dt, set = Storage.T.update s (Trustees_draft G.spec) in

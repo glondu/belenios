@@ -67,7 +67,7 @@ type private_creds =
 
 type election_params = {
   id : string;
-  private_keys : string list;
+  private_keys : (string * string) list;
   private_creds : private_creds option;
 }
 
@@ -266,20 +266,18 @@ module Make (Config : CONFIG) = struct
     let* () = session#fill_with ~selector:"#add_trustee_popup #inp2" name in
     session#click_on ~selector:"#add_trustee_popup button:nth-child(2)"
 
-  let collect_links_by_className className session =
-    let* elements =
-      let selector = Printf.sprintf ".%s" className in
-      session#get_elements ~selector
-    in
-    let* x =
-      session#execute ~script:"return Array.from(arguments).map((x) => x.href)"
-        ~args:(List.map Webdriver.json_of_element elements)
-    in
-    match x with
-    | Some (`List xs) ->
-        Lwt.return
-        @@ List.map (function `String x -> x | _ -> assert false) xs
-    | _ -> assert false
+  let collect_trustee_links session trustees =
+    let* elements = session#get_elements ~selector:"button.send_link" in
+    List.combine trustees elements
+    |> Lwt_list.map_s (fun ((t : trustee), e) ->
+        let* () = session#click e in
+        let* () = session#accept in
+        let* () = Lwt_unix.sleep 1. in
+        let x = Emails.parse Config.emails in
+        match Emails.extract_trustee_link x t.email with
+        | Some x -> x |> Netencoding.QuotedPrintable.decode |> Lwt.return
+        | None | (exception _) ->
+            Printf.ksprintf failwith "failed to retrieve link for %s" t.email)
 
   let set_trustees session { mode; trustees } =
     Printf.printf "    Setting trustees...\n%!";
@@ -310,7 +308,7 @@ module Make (Config : CONFIG) = struct
     | [] ->
         let* () = session#accept in
         Lwt.return_nil
-    | _ -> collect_links_by_className "trustee-generate-link" session
+    | _ -> collect_trustee_links session trustees
 
   let set_credentials session nvoters =
     Printf.printf "    Setting credentials...\n%!";
@@ -415,12 +413,14 @@ module Make (Config : CONFIG) = struct
           (fun _ -> Lwt.return_true)
           (function Not_found -> Lwt.return_false | e -> Lwt.reraise e)
       in
-      if b then Lwt.return_unit else failwith "could not find window"
+      if b then Lwt.return_unit
+      else Printf.ksprintf failwith "could not find window open at %s" link
     in
     let* _ =
       let script = Printf.sprintf {|window.open("%s", "_blank")|} link in
       session#execute ~script ~args:[]
     in
+    let* () = Lwt_unix.sleep 1. in
     let* () = switch_window () in
     let* () = close_cookie_disclaimer_if_needed session in
     let* () = session#click_on ~selector:"#generate_key" in
@@ -572,7 +572,12 @@ module Make (Config : CONFIG) = struct
       let* () = logout session in
       Lwt.return_unit
     in
-    Lwt.return { id; private_keys; private_creds }
+    Lwt.return
+      {
+        id;
+        private_keys = List.combine private_keys trustee_links;
+        private_creds;
+      }
 
   let do_partial_decryption uuid (private_key, link) =
     Printf.printf "  Computing partial decryption...\n%!";
@@ -587,25 +592,15 @@ module Make (Config : CONFIG) = struct
 
   let tally_election check { id; private_keys; _ } =
     Printf.printf "  Tallying election %s...\n%!" id;
-    let* links =
+    let* () =
       let@ session = with_admin ~id () in
       let* () = session#click_on ~selector:"#tab_openclose" in
       let* () = session#click_on ~selector:"button" in
       let* () = session#click_on ~selector:"#tab_tally" in
       let* () = session#accept in
-      let* () = session#click_on ~selector:"#tab_trustees" in
-      let* links =
-        match private_keys with
-        | [] -> Lwt.return_nil
-        | _ -> collect_links_by_className "trustee-decrypt-link" session
-      in
-      let* () = logout session in
-      Lwt.return links
+      logout session
     in
-    let* () =
-      Lwt_list.iter_s (do_partial_decryption id)
-        (List.combine private_keys links)
-    in
+    let* () = Lwt_list.iter_s (do_partial_decryption id) private_keys in
     let@ session = with_admin ~id () in
     let* () = session#click_on ~selector:"#tab_page" in
     let* () = session#click_on ~selector:"a[target]" in

@@ -69,3 +69,5 @@ let extract_credop x v =
   match (server, uuid, key) with
   | Some server, Some uuid, Some key -> Some (server, uuid, key)
   | _ -> None
+
+let extract_trustee_link x v = extract ~rex:(Re.Pcre.regexp "^  (http.+)$") x v

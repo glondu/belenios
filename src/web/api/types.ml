@@ -336,9 +336,13 @@ let yojson_of_wrapped_trustees_status (Wrapped_trustees_status (w, x)) =
   let module G = (val w) in
   [%yojson_of_group: _ trustees_status] x
 
+type send_link_payload = { address : string; langs : string list }
+[@@deriving yojson]
+
 type trustees_request =
   [ `SetStep of int
   | `AddTrustee of addable_trustee
+  | `SendLink of send_link_payload
   | `RemoveTrustee of string
   | `SetBasic
   | `SetThreshold of int

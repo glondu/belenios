@@ -50,6 +50,16 @@ type confirmation_message = {
 }
 [@@deriving yojson]
 
+type trustee_link_message = {
+  recipient : recipient;
+  uuid : uuid;
+  token : string;
+  langs : string list;
+  belenios_url : string;
+  admin_id : int;
+}
+[@@deriving yojson]
+
 type credentials_seed_message = {
   uuid : uuid;
   admin_id : int;
@@ -67,6 +77,7 @@ type message =
   | `Voter_credential of material_message
   | `Vote_confirmation of confirmation_message
   | `Mail_login of code_message
+  | `Trustee_link of trustee_link_message
   | `Credentials_seed of credentials_seed_message ]
 [@@deriving yojson]
 
