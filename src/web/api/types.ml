@@ -304,7 +304,6 @@ type ('a, 'b) trustees_status_trustee = {
   name : string;
   step : int;
   address : string option; [@yojson.option]
-  token : string option; [@yojson.option]
   cert_verification_key : 'a option; [@yojson.option]
 }
 [@@deriving yojson]

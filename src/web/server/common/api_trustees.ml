@@ -447,17 +447,15 @@ let get_trustees who s (metadata : trustees_metadata) (type a b)
       | None -> assert false
       | Some x ->
           let ( (mode : trustees_status_mode),
-                (trustees : _ trustees_status_trustee list) ) =
+                (trustees : _ trustees_status_trustee list),
+                tokens ) =
             match x.mode with
             | `Basic p ->
                 ( `Basic,
                   p.trustees
                   |> List.map (fun (t : _ draft_basic_trustee) ->
                       let name = t.name in
-                      let address, token =
-                        if is_admin then (Some t.address, Some t.token)
-                        else (None, None)
-                      in
+                      let address = if is_admin then Some t.address else None in
                       let cert_verification_key =
                         match t.parameters with
                         | None -> None
@@ -468,28 +466,40 @@ let get_trustees who s (metadata : trustees_metadata) (type a b)
                         | None -> 0
                         | Some _ -> 1
                       in
-                      { name; step; address; token; cert_verification_key }) )
+                      { name; step; address; cert_verification_key }),
+                  p.trustees
+                  |> List.map (fun (t : _ draft_basic_trustee) -> t.token) )
             | `Threshold p ->
                 ( `Threshold (Option.value ~default:0 p.threshold),
                   p.trustees
                   |> List.map (fun (t : _ draft_threshold_trustee) ->
                       let name = t.name in
                       let step = Option.value ~default:0 t.step in
-                      let address, token =
-                        if is_admin then (Some t.address, Some t.token)
-                        else (None, None)
-                      in
+                      let address = if is_admin then Some t.address else None in
                       let cert_verification_key =
                         match t.cert with
                         | None -> None
                         | Some x -> Some x.message.verification
                       in
-                      { name; step; address; token; cert_verification_key }) )
+                      { name; step; address; cert_verification_key }),
+                  p.trustees
+                  |> List.map (fun (t : _ draft_threshold_trustee) -> t.token)
+                )
           in
           Lwt.return
-            { version; group; step = x.step; validated = false; mode; trustees }
-      )
+            ( {
+                version;
+                group;
+                step = x.step;
+                validated = false;
+                mode;
+                trustees;
+              },
+              tokens ))
   | Some trustees -> (
+      let tokens =
+        trustees |> List.map (fun (t : external_trustee) -> t.token)
+      in
       let* x = Storage.T.get s (Trustees G.spec) in
       match Lopt.get_value x with
       | None -> assert false
@@ -524,14 +534,12 @@ let get_trustees who s (metadata : trustees_metadata) (type a b)
           let (trustees : _ trustees_status_trustee list) =
             List.combine trustees trustees'
             |> List.map (fun ((t : external_trustee), (name, step, x)) ->
-                let address, token =
-                  if is_admin then (Some t.address, Some t.token)
-                  else (None, None)
-                in
-                { name; step; address; token; cert_verification_key = Some x })
+                let address = if is_admin then Some t.address else None in
+                { name; step; address; cert_verification_key = Some x })
           in
           Lwt.return
-            { version; group; step = 3; validated = true; mode; trustees })
+            ( { version; group; step = 3; validated = true; mode; trustees },
+              tokens ))
 
 type draft_trustees_request =
   [ `SetStep of int
@@ -550,7 +558,7 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
       let@ who = with_administrator_or_nobody token metadata in
       let get () =
         let* x = get_trustees who s metadata w in
-        Lwt.return @@ [%yojson_of_group: _ trustees_status] x
+        Lwt.return @@ [%yojson_of_group: _ trustees_status] (fst x)
       in
       match method_ with
       | `GET ->
@@ -567,24 +575,23 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
           let@ request cont =
             match request with
             | `SendLink { address; langs } -> (
-                let* trustees = get_trustees who s metadata w in
-                let@ t cont =
+                let* trustees, tokens = get_trustees who s metadata w in
+                let@ name, token =
+                 fun cont ->
                   let address = Some address in
                   match
-                    List.find_opt
-                      (fun (t : _ trustees_status_trustee) ->
-                        t.address = address)
-                      trustees.trustees
+                    List.combine trustees.trustees tokens
+                    |> List.find_map
+                         (fun ((t : _ trustees_status_trustee), token) ->
+                           if t.address = address then Some (t.name, token)
+                           else None)
                   with
                   | None -> not_found
                   | Some t -> cont t
                 in
-                let@ token cont =
-                  match t.token with None -> forbidden | Some x -> cont x
-                in
                 let m : Belenios_messages.trustee_link_message =
                   {
-                    recipient = { name = t.name; address };
+                    recipient = { name; address };
                     uuid;
                     token;
                     langs;
