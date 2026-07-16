@@ -1670,6 +1670,10 @@ msgstr ""
 msgid "Type the password again: "
 msgstr ""
 
+#: src/web/clients/trustee/trustee.ml:75
+msgid "Unknown state!"
+msgstr ""
+
 #: src/web/clients/admin/admin.ml:459
 msgid "Unknown uuid"
 msgstr ""
@@ -2081,8 +2085,4 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:530
 msgid "your name:"
 msgstr "vòstre nom :"
-
-#: src/web/clients/trustee/trustee.ml:75
-msgid "État inconnu!"
-msgstr ""
 

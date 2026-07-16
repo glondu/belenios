@@ -1745,6 +1745,10 @@ msgstr "Tipo di risposta:"
 msgid "Type the password again: "
 msgstr "Digitare nuovamente la password: "
 
+#: src/web/clients/trustee/trustee.ml:75
+msgid "Unknown state!"
+msgstr ""
+
 #: src/web/clients/admin/admin.ml:459
 msgid "Unknown uuid"
 msgstr "Uuid sconosciuto"
@@ -2190,8 +2194,4 @@ msgstr "il tuo indirizzo email:"
 #: src/web/server/common/pages_admin.ml:530
 msgid "your name:"
 msgstr "il tuo nome:"
-
-#: src/web/clients/trustee/trustee.ml:75
-msgid "État inconnu!"
-msgstr ""
 

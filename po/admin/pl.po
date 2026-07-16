@@ -1752,6 +1752,10 @@ msgstr "Typ głosu:"
 msgid "Type the password again: "
 msgstr "Wpisz hasło ponownie: "
 
+#: src/web/clients/trustee/trustee.ml:75
+msgid "Unknown state!"
+msgstr ""
+
 #: src/web/clients/admin/admin.ml:459
 msgid "Unknown uuid"
 msgstr "Nieznany uuid"
@@ -2196,8 +2200,4 @@ msgstr "Twój adres e-mail:"
 #: src/web/server/common/pages_admin.ml:530
 msgid "your name:"
 msgstr "twoje imię:"
-
-#: src/web/clients/trustee/trustee.ml:75
-msgid "État inconnu!"
-msgstr ""
 

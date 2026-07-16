@@ -1716,6 +1716,10 @@ msgstr "பதில் வகை:"
 msgid "Type the password again: "
 msgstr "கடவுச்சொல்லை மீண்டும் தட்டச்சு செய்க: "
 
+#: src/web/clients/trustee/trustee.ml:75
+msgid "Unknown state!"
+msgstr ""
+
 #: src/web/clients/admin/admin.ml:459
 msgid "Unknown uuid"
 msgstr "தெரியாத uuid"
@@ -2148,8 +2152,4 @@ msgstr "உங்கள் மின்னஞ்சல் முகவரி:"
 #: src/web/server/common/pages_admin.ml:530
 msgid "your name:"
 msgstr "உங்கள் பெயர்:"
-
-#: src/web/clients/trustee/trustee.ml:75
-msgid "État inconnu!"
-msgstr ""
 
