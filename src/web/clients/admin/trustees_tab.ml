@@ -367,35 +367,30 @@ let string_of_state mode st =
 
 module Mails = Belenios_ui.Mails_admin.Make (Belenios_js.I18n)
 
-let trustee_generate_link kind =
-  let generate_mail =
-    match kind with
-    | `Basic -> Mails.mail_trustee_generation_basic
-    | `Threshold -> Mails.mail_trustee_generation_threshold
+let trustee_generate_link ~token ~recipient =
+  let generate_mail = Mails.mail_trustee in
+  let open (val !Belenios_js.I18n.gettext) in
+  let@ uuid cont =
+    let* status = Cache.get_until_success Cache.e_status in
+    match status.trustees with None -> assert false | Some x -> cont x
   in
-  fun ~token ~recipient ->
-    let open (val !Belenios_js.I18n.gettext) in
-    let@ uuid cont =
-      let* status = Cache.get_until_success Cache.e_status in
-      match status.trustees with None -> assert false | Some x -> cont x
-    in
-    let* prefix = Cache.get_prefix () in
-    let href =
-      Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string uuid) token
-    in
-    let* subject, body = generate_mail [ lang ] href in
-    Lwt.return
-    @@ span
-         ~a:[ a_class [ "trustee-links" ] ]
-         [
-           a
-             ~a:[ a_class [ "trustee-link"; "trustee-generate-link" ] ]
-             ~href (s_ "Direct link");
-           br ();
-           a_mailto
-             ~a:[ a_class [ "trustee-link" ] ]
-             ~recipient ~subject ~body (s_ "Send an e-mail");
-         ]
+  let* prefix = Cache.get_prefix () in
+  let href =
+    Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string uuid) token
+  in
+  let* subject, body = generate_mail [ lang ] href in
+  Lwt.return
+  @@ span
+       ~a:[ a_class [ "trustee-links" ] ]
+       [
+         a
+           ~a:[ a_class [ "trustee-link"; "trustee-generate-link" ] ]
+           ~href (s_ "Direct link");
+         br ();
+         a_mailto
+           ~a:[ a_class [ "trustee-link" ] ]
+           ~recipient ~subject ~body (s_ "Send an e-mail");
+       ]
 
 let all_ttee_done mode all_trustee =
   let dd = if mode = `Basic then 1 else 7 in
@@ -407,7 +402,7 @@ let trustee_decrypt_link ~trustees ~token ~recipient =
   let href =
     Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string trustees) token
   in
-  let* subject, body = Mails.mail_trustee_tally [ lang ] href in
+  let* subject, body = Mails.mail_trustee [ lang ] href in
   Lwt.return
   @@ span
        ~a:[ a_class [ "trustee-links" ] ]
@@ -440,12 +435,6 @@ let recompute_main_zone_2 uuid ifmatch_tt
     let* _ = send_trustees_request uuid @@ `SetStep 3 in
     recompute_main_zone_3 uuid status
   else
-    let trustee_generate_link =
-      let kind =
-        match mode with `Basic -> `Basic | `Threshold _ -> `Threshold
-      in
-      trustee_generate_link kind
-    in
     let header_row =
       tr
         [
@@ -650,7 +639,7 @@ let trustee_shuffle_link ~trustees ~token ~recipient =
   let href =
     Printf.sprintf "%strustee#%s/%s" prefix (Uuid.to_string trustees) token
   in
-  let* subject, body = Mails.mail_shuffle [ lang ] href in
+  let* subject, body = Mails.mail_trustee [ lang ] href in
   Lwt.return
   @@ span
        ~a:[ a_class [ "trustee-links" ] ]
