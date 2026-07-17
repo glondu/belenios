@@ -356,15 +356,11 @@ module Make (G : GROUP) = struct
         (if Z.(compare (logand n one) one) = 0 then b else neutral) * x * x
       else neutral
     in
-    let total =
-      let open Weight in
-      List.fold_left (fun a (w, _) -> a + w) zero es
-    in
-    let es = List.map (fun (w, b) -> power b (Weight.expand ~total w)) es in
+    let es = List.map (fun (w, b) -> power b (Weight.to_Z w)) es in
     List.fold_left (Shape.map2 eg_combine) neutral es
 
   let compute_result ~total_weight:total _ =
-    let num_tallied = Weight.expand ~total total in
+    let num_tallied = Weight.to_Z total in
     let log =
       let module X = BabyStepGiantStep (G) in
       let log = X.log ~generator:G.g ~max:num_tallied in
@@ -374,12 +370,12 @@ module Make (G : GROUP) = struct
         | None -> invalid_arg "Cannot compute result"
     in
     unshapify
-    >> Array.map (Array.map (fun i -> Weight.reduce ~total (log i |> Zq.to_Z)))
+    >> Array.map (Array.map (fun i -> log i |> Zq.to_Z |> Weight.of_Z))
 
-  let check_result ~total_weight _ x r =
+  let check_result ~total_weight:_ _ x r =
     Array.for_all2
       (Array.for_all2 (fun x r ->
-           let r = Weight.expand ~total:total_weight r |> Zq.coerce in
+           let r = r |> Weight.to_Z |> Zq.coerce in
            let g' = if Zq.compare r Zq.zero = 0 then G.one else g **~ r in
            x =~ g'))
       (unshapify x) r

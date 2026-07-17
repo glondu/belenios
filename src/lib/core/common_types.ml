@@ -134,6 +134,9 @@ module Weight = struct
     if x >= 0 then Z.of_int x
     else Printf.ksprintf invalid_arg "%d is not a valid weight" x
 
+  let to_Z = Fun.id
+  let of_Z = Fun.id
+
   let t_of_yojson = function
     | `Int x -> of_int x
     | `Intlit x | `String x -> of_string x
@@ -143,10 +146,7 @@ module Weight = struct
     if compare x max_int31 <= 0 then `Int (Z.to_int x)
     else `String (Z.to_string x)
 
-  let max_expanded_weight = of_string "100000000000"
-  let is_int x i = Z.(compare x (of_int i) = 0)
-  let expand ~total:_ x = x
-  let reduce ~total:_ x = x
+  let max_weight = of_string "100000000000"
   let min a b = if compare a b < 0 then a else b
   let max a b = if compare a b > 0 then a else b
 end

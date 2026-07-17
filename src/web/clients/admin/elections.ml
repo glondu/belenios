@@ -724,7 +724,7 @@ let try_voters voters =
             | `TotalWeightTooBig (x, y) ->
                 Printf.sprintf
                   (f_ "total weight too big: %s/%s")
-                  (Z.to_string x) (Z.to_string y)
+                  (Weight.to_string x) (Weight.to_string y)
           in
           let msg =
             Printf.sprintf

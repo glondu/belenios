@@ -347,7 +347,7 @@ let make file =
           let weight =
             if has_weights then Some w
             else (
-              assert (Weight.is_int w 1);
+              assert (Weight.(compare w one) = 0);
               None)
           in
           { hash; weight })

@@ -282,9 +282,8 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
       se_voters
   in
   let* () =
-    let expanded = Weight.expand ~total:total_weight total_weight in
-    if Z.compare expanded Weight.max_expanded_weight > 0 then
-      fail @@ `TotalWeightTooBig (expanded, Weight.max_expanded_weight)
+    if Weight.(compare total_weight max_weight) > 0 then
+      fail @@ `TotalWeightTooBig (total_weight, Weight.max_weight)
     else Lwt.return_unit
   in
   let se = { se with voters = se_voters } in
@@ -502,8 +501,7 @@ let import_voters uuid ((Draft (v, se), set) : _ updatable_with_billing) from =
   else
     match merge_voters se.voters voters with
     | Ok (voters, total_weight) ->
-        let expanded = Weight.expand ~total:total_weight total_weight in
-        if Z.compare expanded Weight.max_expanded_weight <= 0 then (
+        if Weight.(compare total_weight max_weight) <= 0 then (
           se.voters <- voters;
           let* () = set (Draft (v, se)) in
           Lwt.return @@ Ok ())

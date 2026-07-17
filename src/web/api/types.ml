@@ -74,7 +74,7 @@ type voter_list_error =
   [ `FormatMix
   | `Identity of string
   | `Duplicate of string
-  | `TotalWeightTooBig of number * number ]
+  | `TotalWeightTooBig of weight * weight ]
 [@@deriving yojson]
 
 type error =

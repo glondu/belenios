@@ -616,7 +616,7 @@ let make_result_div (election : Election.t) t ~result =
   let nballots = t.num_tallied in
   let total_weight = t.total_weight in
   let div_total_weight =
-    if not Weight.(is_int total_weight nballots) then
+    if Weight.(compare total_weight (of_int nballots)) <> 0 then
       div
         [
           txt @@ s_ "Total weight of accepted ballots:";

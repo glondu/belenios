@@ -136,7 +136,7 @@ let compute_checksums (type a b) (election : (a, b) u) trustees
           (total, min, max))
         (Weight.zero, None, None) public_credentials
     in
-    if Weight.is_int total ec_num_voters then None
+    if Weight.(compare total (of_int ec_num_voters)) = 0 then None
     else
       match (min, max) with
       | Some min, Some max -> Some { total; min; max }

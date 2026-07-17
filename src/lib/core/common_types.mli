@@ -65,11 +65,11 @@ module Weight : sig
 
   val zero : t
   val one : t
-  val is_int : t -> int -> bool
+  val of_int : int -> t
+  val to_Z : t -> Z.t
+  val of_Z : Z.t -> t
   val ( + ) : t -> t -> t
-  val expand : total:t -> t -> Z.t
-  val reduce : total:t -> Z.t -> t
-  val max_expanded_weight : Z.t
+  val max_weight : t
   val min : t -> t -> t
   val max : t -> t -> t
   val of_string : string -> t
