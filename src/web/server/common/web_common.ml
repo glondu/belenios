@@ -136,13 +136,6 @@ type credential_record = {
   cr_username : string option;
 }
 
-let has_explicit_weights voters =
-  List.exists
-    (fun (v : draft_voter) ->
-      let { weight; _ } : Voter.t = v.id in
-      weight <> None)
-    voters
-
 let exhaust_file file =
   let fname = file.Ocsigen_extensions.tmp_filename in
   let* result = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in

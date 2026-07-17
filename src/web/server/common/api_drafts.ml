@@ -204,7 +204,6 @@ let post_drafts account draft =
     {
       version;
       group;
-      voters = [];
       questions = se_questions;
       public_creds = token;
       public_creds_received = false;
@@ -231,50 +230,31 @@ let post_drafts account draft =
   in
   Lwt.return_some uuid
 
-let get_draft_voters (Draft (_, se)) =
-  se.voters |> List.map (fun (x : draft_voter) -> x.id)
-
-let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
+let put_draft_voters s voters =
   let fail e = raise @@ Error (`VoterListError e) in
-  let existing_voters =
-    List.fold_left
-      (fun accu (v : draft_voter) ->
-        let login = v.id.login in
-        SMap.add (String.lowercase_ascii login) v accu)
-      SMap.empty se.voters
-  in
-  let se_voters =
-    List.map
-      (fun voter ->
-        if not (Voter.validate voter) then fail @@ `BadVoter voter;
-        let login = voter.login in
-        match SMap.find_opt (String.lowercase_ascii login) existing_voters with
-        | None -> { id = voter }
-        | Some v ->
-            v.id <- voter;
-            v)
+  let () =
+    List.iter
+      (fun (v : voter) -> if not @@ Voter.validate v then fail @@ `BadVoter v)
       voters
   in
   let* total_weight, _ =
     Lwt_list.fold_left_s
-      (fun (total_weight, voters) (v : draft_voter) ->
-        let login = v.id.login in
-        let weight = Voter.get_weight v.id in
-        let login = String.lowercase_ascii login in
+      (fun (total_weight, voters) (v : voter) ->
+        let weight = Voter.get_weight v in
+        let login = String.lowercase_ascii v.login in
         let* voters =
           if SSet.mem login voters then fail @@ `Duplicate login
           else Lwt.return (SSet.add login voters)
         in
         Lwt.return (Weight.(total_weight + weight), voters))
-      (Weight.zero, SSet.empty) se_voters
+      (Weight.zero, SSet.empty) voters
   in
   let* () =
     if Weight.(compare total_weight max_weight) > 0 then
       fail @@ `TotalWeightTooBig (total_weight, Weight.max_weight)
     else Lwt.return_unit
   in
-  let se = { se with voters = se_voters } in
-  set (Draft (v, se))
+  Storage.E.set s Voters Value voters
 
 let get_credentials_token (Draft (_, se)) =
   if se.questions.credential_authority = `Server then Lwt.return_none
@@ -283,8 +263,14 @@ let get_credentials_token (Draft (_, se)) =
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
 
-let generate_credentials_on_server account uuid (Draft (_, se) as draft) =
-  let nvoters = List.length se.voters in
+let generate_credentials_on_server s account uuid (Draft (_, se) as draft) =
+  let* voters =
+    let* x = Storage.E.get s Voters in
+    match Lopt.get_value x with
+    | None -> Lwt.return_nil
+    | Some x -> Lwt.return x
+  in
+  let nvoters = List.length voters in
   if nvoters > Accounts.max_voters account then
     Lwt.return (Stdlib.Error `TooManyVoters)
   else if nvoters = 0 then Lwt.return (Stdlib.Error `NoVoters)
@@ -293,7 +279,9 @@ let generate_credentials_on_server account uuid (Draft (_, se) as draft) =
   else if se.questions.credential_authority <> `Server then
     Lwt.return (Stdlib.Error `NoServer)
   else
-    let () = Web_persist.generate_credentials_on_server_async uuid draft in
+    let () =
+      Web_persist.generate_credentials_on_server_async uuid draft voters
+    in
     Lwt.return (Ok ())
 
 let exn_of_generate_credentials_on_server_error = function
@@ -306,10 +294,16 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
     ((Draft (v, se), set) : _ updatable_with_billing)
     ?(certificate : (a, b) credentials_certificate option)
     (credentials : a public_credentials_with_id) =
+  let* voters =
+    let* x = Storage.E.get s Voters in
+    match Lopt.get_value x with
+    | None -> Lwt.return_nil
+    | Some x -> Lwt.return x
+  in
   let module G = (val w) in
-  let () = if se.voters = [] then raise (Error (`ValidationError `NoVoters)) in
+  let () = if voters = [] then raise (Error (`ValidationError `NoVoters)) in
   let () =
-    if not (List.length se.voters = List.length credentials) then
+    if not (List.length voters = List.length credentials) then
       raise (Error (`ValidationError `WrongLength))
   in
   let () =
@@ -335,15 +329,15 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
   in
   let usernames =
     List.fold_left
-      (fun accu ({ id; _ } : draft_voter) ->
-        let username = id.login in
-        let weight = Voter.get_weight id in
+      (fun accu (v : voter) ->
+        let username = v.login in
+        let weight = Voter.get_weight v in
         if SMap.mem username accu then
           raise
             (Error
                (`GenericError (Printf.sprintf "duplicate username %s" username)))
         else SMap.add username (weight, ref false) accu)
-      SMap.empty se.voters
+      SMap.empty voters
   in
   let _, _ =
     List.fold_left
@@ -379,7 +373,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
   se.public_creds_certificate <- certificate;
   set (Draft (v, se))
 
-let get_draft_status uuid (Draft (v, se)) (metadata : metadata) =
+let get_draft_status s uuid (Draft (v, se)) (metadata : metadata) =
   let* private_credentials_downloaded =
     if se.questions.credential_authority = `Server then
       Lwt.return_some se.private_creds_downloaded
@@ -391,7 +385,13 @@ let get_draft_status uuid (Draft (v, se)) (metadata : metadata) =
     | `Pending n -> (false, Some n)
     | `Done -> (true, None)
   in
-  let has_weights = has_explicit_weights se.voters in
+  let* voters =
+    let* x = Storage.E.get s Voters in
+    match Lopt.get_value x with
+    | None -> Lwt.return_nil
+    | Some x -> Lwt.return x
+  in
+  let has_weights = Voter.has_explicit_weights voters in
   let { version; group; _ } : _ raw_draft_election = se in
   let module G = (val Group.make { version; group }) in
   let* trustees =
@@ -433,7 +433,7 @@ let get_draft_status uuid (Draft (v, se)) (metadata : metadata) =
   in
   Lwt.return
     {
-      num_voters = List.length se.voters;
+      num_voters = List.length voters;
       credentials_ready;
       credentials_left;
       private_credentials_downloaded;
@@ -451,47 +451,40 @@ let get_draft_status uuid (Draft (v, se)) (metadata : metadata) =
 let merge_voters a b =
   let weights =
     List.fold_left
-      (fun accu (sv : draft_voter) ->
-        let login = sv.id.login |> String.lowercase_ascii in
-        let weight = Voter.get_weight sv.id in
+      (fun accu (v : voter) ->
+        let login = v.login |> String.lowercase_ascii in
+        let weight = Voter.get_weight v in
         SMap.add login weight accu)
       SMap.empty a
   in
   let rec loop weights accu = function
     | [] ->
         Ok (List.rev accu, Weight.(SMap.fold (fun _ x y -> x + y) weights zero))
-    | (id : voter) :: xs ->
-        let login = id.login |> String.lowercase_ascii in
-        let weight = Voter.get_weight id in
-        if SMap.mem login weights then Stdlib.Error id
-        else
-          loop
-            (SMap.add login weight weights)
-            (({ id } : draft_voter) :: accu)
-            xs
+    | (v : voter) :: xs ->
+        let login = v.login |> String.lowercase_ascii in
+        let weight = Voter.get_weight v in
+        if SMap.mem login weights then Stdlib.Error v
+        else loop (SMap.add login weight weights) (v :: accu) xs
   in
   loop weights (List.rev a) b
 
-let import_voters uuid ((Draft (v, se), set) : _ updatable_with_billing) from =
-  let@ voters cont =
-    let* x = Web_persist.get_all_voters from in
-    match x with
-    | [] -> (
-        let* se = Storage.E.get from Draft in
-        match Lopt.get_value se with
-        | None -> Lwt.return @@ Stdlib.Error `NotFound
-        | Some (W (_, se)) -> cont @@ get_draft_voters se)
-    | _ -> cont x
+let import_voters s uuid draft from =
+  let* cur_voters, set =
+    let@ x, set = Storage.E.update s Voters in
+    let set x = set Value x in
+    match Lopt.get_value x with
+    | None -> Lwt.return ([], set)
+    | Some x -> Lwt.return (x, set)
   in
-  if Web_persist.get_credentials_status uuid (Draft (v, se)) <> `None then
+  let* new_voters = Web_persist.get_all_voters from in
+  if Web_persist.get_credentials_status uuid draft <> `None then
     Lwt.return @@ Stdlib.Error `Forbidden
   else
-    match merge_voters se.voters voters with
+    match merge_voters cur_voters new_voters with
     | Ok (voters, total_weight) ->
-        if Weight.(compare total_weight max_weight) <= 0 then (
-          se.voters <- voters;
-          let* () = set (Draft (v, se)) in
-          Lwt.return @@ Ok ())
+        if Weight.(compare total_weight max_weight) <= 0 then
+          let* () = set voters in
+          Lwt.return @@ Ok ()
         else Lwt.return @@ Stdlib.Error (`TotalWeightTooBig total_weight)
     | Error x ->
         let login = x.login in
@@ -569,7 +562,7 @@ let post_draft_status ~admin_id s uuid
           set_trustees uuid se trustees (metadata, set_metadata)
       | _ -> forbidden)
   | `ValidateElection ->
-      let* status = get_draft_status uuid (Draft (v, se)) metadata in
+      let* status = get_draft_status s uuid (Draft (v, se)) metadata in
       let* () =
         Web_persist.validate_election ~admin_id s wse (metadata, set_metadata)
           status
@@ -665,7 +658,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
             match (who, x) with
             | `Administrator account, [] -> (
                 let@ () = handle_generic_error in
-                let* x = generate_credentials_on_server account uuid se in
+                let* x = generate_credentials_on_server s account uuid se in
                 match x with
                 | Ok () -> ok
                 | Error e ->
@@ -711,8 +704,9 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
   | [ "voters" ] -> (
       let@ who = with_administrator_or_credential_authority token se metadata in
       let get () =
-        let x = get_draft_voters se in
-        Lwt.return @@ yojson_of_voter_list x
+        let* x = Storage.E.get s Voters in
+        (match Lopt.get_value x with None -> [] | Some x -> x)
+        |> yojson_of_voter_list |> Lwt.return
       in
       match (method_, who) with
       | `GET, _ -> handle_get get
@@ -722,7 +716,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           else
             let@ voters = body.run !*voter_list_of_yojson in
             let@ () = handle_generic_error in
-            let* () = put_draft_voters (se, set) voters in
+            let* () = put_draft_voters s voters in
             ok
       | `POST, `Administrator account -> (
           let@ () = handle_ifmatch ifmatch get in
@@ -732,7 +726,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           | `Import from -> (
               let@ from = Storage.E.with_transaction from in
               let@ _ = check_owner account from in
-              let* x = import_voters uuid (se, set) from in
+              let* x = import_voters s uuid se from in
               match x with
               | Ok () -> ok
               | Stdlib.Error `Forbidden -> forbidden
@@ -750,7 +744,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       match method_ with
       | `GET ->
           let@ () = handle_generic_error in
-          let* x = get_draft_status uuid se metadata in
+          let* x = get_draft_status s uuid se metadata in
           return_json 200 (!+yojson_of_draft_status x)
       | _ -> method_not_allowed)
   | _ -> not_found

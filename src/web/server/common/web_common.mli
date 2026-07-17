@@ -94,5 +94,4 @@ type credential_record = {
   cr_username : string option;
 }
 
-val has_explicit_weights : draft_voter list -> bool
 val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t

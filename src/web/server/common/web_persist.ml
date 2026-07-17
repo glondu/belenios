@@ -619,17 +619,22 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
   let@ () =
    fun cont -> if se.pending_credentials then cont () else Lwt.return_unit
   in
+  let* voters =
+    let* x = Storage.E.get s Voters in
+    match Lopt.get_value x with
+    | None -> Lwt.return_nil
+    | Some x -> Lwt.return x
+  in
   let voter_map =
     List.fold_left
-      (fun accu (v : draft_voter) ->
-        let login = v.id.login in
-        let weight = Voter.get_weight v.id in
+      (fun accu (v : voter) ->
+        let login = v.login in
+        let weight = Voter.get_weight v in
         let recipient =
-          match v.id with
-          | { address; _ } -> Option.value ~default:login address
+          match v with { address; _ } -> Option.value ~default:login address
         in
         SMap.add login (recipient, weight) accu)
-      SMap.empty se.voters
+      SMap.empty voters
   in
   let* metadata = Mails_voter.get_metadata s ~admin_id in
   let send = Mails_voter.generate_credential_email metadata in
@@ -855,10 +860,6 @@ let validate_election ~admin_id storage
       ~group:se.group ~public_key
     |> Json.to_string
   in
-  (* write election files to disk *)
-  let voters = se.voters |> List.map (fun (x : draft_voter) -> x.id) in
-  let* () = voters |> Storage.E.set storage Voters Value in
-  let* () = metadata |> Storage.E.set storage Metadata Value in
   (* initialize credentials *)
   let* public_creds = init_credential_mapping storage w in
   (* initialize events *)
@@ -989,12 +990,11 @@ type credentials_status = [ `None | `Pending of int | `Done ]
 
 let pending_generations = ref SMap.empty
 
-let generate_credentials_on_server_async uuid (Draft (_, se)) =
+let generate_credentials_on_server_async uuid (Draft (_, se)) voters =
   let uuid_s = Uuid.to_string uuid in
   match SMap.find_opt uuid_s !pending_generations with
   | Some _ -> ()
   | None ->
-      let voters = List.map (fun (v : draft_voter) -> v.id) se.voters in
       let { version; group; _ } : _ raw_draft_election = se in
       let module G = (val Belenios.Group.make { version; group }) in
       let module Cred =

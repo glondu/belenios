@@ -38,15 +38,13 @@ val draft_of_api :
   ('a, 'b) draft_election * metadata
 
 val post_drafts : account -> draft -> uuid option Lwt.t
-val get_draft_voters : ('a, 'b) draft_election -> voter_list
-
-val put_draft_voters :
-  ('a, 'b) draft_election updatable_with_billing -> voter_list -> unit Lwt.t
+val put_draft_voters : Storage.E.t -> voter list -> unit Lwt.t
 
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
 
 val generate_credentials_on_server :
+  Storage.E.t ->
   account ->
   uuid ->
   ('a, 'b) draft_election ->
@@ -64,16 +62,19 @@ val submit_public_credentials :
   unit Lwt.t
 
 val get_draft_status :
-  uuid -> ('a, 'b) draft_election -> metadata -> draft_status Lwt.t
+  Storage.E.t ->
+  uuid ->
+  ('a, 'b) draft_election ->
+  metadata ->
+  draft_status Lwt.t
 
 val merge_voters :
-  draft_voter list ->
-  Voter.t list ->
-  (draft_voter list * weight, Voter.t) Stdlib.result
+  voter list -> voter list -> (voter list * weight, Voter.t) Stdlib.result
 
 val import_voters :
+  Storage.E.t ->
   uuid ->
-  ('a, 'b) draft_election updatable_with_billing ->
+  ('a, 'b) draft_election ->
   Storage.E.t ->
   ( unit,
     [ `Forbidden

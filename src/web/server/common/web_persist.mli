@@ -114,7 +114,7 @@ val close_election : Storage.E.t -> bool Lwt.t
 type credentials_status = [ `None | `Pending of int | `Done ]
 
 val generate_credentials_on_server_async :
-  uuid -> ('a, 'b) draft_election -> unit
+  uuid -> ('a, 'b) draft_election -> voter list -> unit
 
 val get_credentials_status :
   uuid -> ('a, 'b) draft_election -> credentials_status

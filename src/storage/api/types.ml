@@ -83,8 +83,6 @@ type election_state =
 
 (** {1 Types related to elections being prepared} *)
 
-type draft_voter = { mutable id : voter } [@@deriving yojson]
-
 type ('a, 'b) draft_basic_trustee = {
   address : string;
   name : string;
@@ -133,7 +131,6 @@ type ('a, 'b) draft_trustees = {
 type ('a, 'b) raw_draft_election = {
   version : int;
   mutable group : string;
-  mutable voters : draft_voter list;
   mutable questions : template;
   public_creds : string;
   mutable public_creds_received : bool;
