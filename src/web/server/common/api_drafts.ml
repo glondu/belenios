@@ -246,8 +246,7 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
   let se_voters =
     List.map
       (fun voter ->
-        if not (Voter.validate voter) then
-          fail @@ `Identity (Voter.to_string voter);
+        if not (Voter.validate voter) then fail @@ `BadVoter voter;
         let login = Voter.get voter in
         match SMap.find_opt (String.lowercase_ascii login) existing_voters with
         | None -> { id = voter }
@@ -256,20 +255,9 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
             v)
       voters
   in
-  let* total_weight, _, _ =
+  let* total_weight, _ =
     Lwt_list.fold_left_s
-      (fun (total_weight, shape, voters) (v : draft_voter) ->
-        let shape =
-          let shape' =
-            let (typ, { login; weight; _ }) : Voter.t = v.id in
-            match typ with
-            | `Plain -> `Plain (login <> None, weight <> None)
-            | `Json -> `Json
-          in
-          match shape with
-          | Some x when x <> shape' -> fail `FormatMix
-          | _ -> Some shape'
-        in
+      (fun (total_weight, voters) (v : draft_voter) ->
         let login = Voter.get v.id in
         let weight = Voter.get_weight v.id in
         let login = String.lowercase_ascii login in
@@ -277,9 +265,8 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
           if SSet.mem login voters then fail @@ `Duplicate login
           else Lwt.return (SSet.add login voters)
         in
-        Lwt.return (Weight.(total_weight + weight), shape, voters))
-      (Weight.zero, None, SSet.empty)
-      se_voters
+        Lwt.return (Weight.(total_weight + weight), voters))
+      (Weight.zero, SSet.empty) se_voters
   in
   let* () =
     if Weight.(compare total_weight max_weight) > 0 then

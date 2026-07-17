@@ -139,7 +139,7 @@ type credential_record = {
 let has_explicit_weights voters =
   List.exists
     (fun (v : draft_voter) ->
-      let (_, { weight; _ }) : Voter.t = v.id in
+      let { weight; _ } : Voter.t = v.id in
       weight <> None)
     voters
 

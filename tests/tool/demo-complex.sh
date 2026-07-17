@@ -32,10 +32,13 @@ uuid="--uuid $UUID"
 group="--group Ed25519"
 
 # Generate credentials
-for i in $(seq 1 $N); do
-    printf "voter%05d@example.com,voter%05d\n" $i $i >> voters.txt
+echo '[' > voters.json
+for i in $(seq 1 $((N-1))); do
+    printf '{"address":"voter%05d@example.com","login":"voter%05d"},\n' $i $i >> voters.json
 done
-belenios-tool setup generate-credentials $uuid $group --file voters.txt | tee generate-credentials.out
+printf '{"address":"voter%05d@example.com","login":"voter%05d"}\n' $N $N >> voters.json
+echo ']' >> voters.json
+belenios-tool setup generate-credentials $uuid $group --file voters.json | tee generate-credentials.out
 mv *.pubcreds public_creds.json
 mv *.privcreds private_creds.json
 paste <(jq --raw-output 'keys_unsorted[]' < private_creds.json) <(jq --raw-output '.[]' < private_creds.json) > private_creds.txt

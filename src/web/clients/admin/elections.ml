@@ -692,9 +692,39 @@ let erase_voter_elt v () =
   in
   div ~a:[ a_class [ "del_sym" ]; a_onclick_lwt onclick ] []
 
+let option_of_string = function "" -> None | x -> Some x
+
+exception Invalid_identity of string
+
+let parse_voter_csv x : voter =
+  match String.split_on_char ',' x with
+  | [ address ] ->
+      { address = option_of_string address; login = None; weight = None }
+  | [ address; login ] ->
+      {
+        address = option_of_string address;
+        login = option_of_string login;
+        weight = None;
+      }
+  | [ address; login; weight ] ->
+      {
+        address = option_of_string address;
+        login = option_of_string login;
+        weight = Some (Weight.of_string weight);
+      }
+  | _ -> raise @@ Invalid_identity x
+
+let parse_voters voters =
+  if voters = "" then []
+  else
+    match voters.[0] with
+    | '[' -> !*voter_list_of_yojson voters
+    | '{' -> voters |> split_lines |> List.map !*voter_of_yojson
+    | _ -> voters |> split_lines |> List.map parse_voter_csv
+
 let try_voters voters =
   let open (val !Belenios_js.I18n.gettext) in
-  match Voter.list_of_string voters with
+  match parse_voters voters with
   | exception Invalid_identity id ->
       let detail = Printf.sprintf (f_ "invalid identity: %s") id in
       let msg =
@@ -717,10 +747,10 @@ let try_voters voters =
       | Error (`Structured { code = 400; error = `VoterListError e; _ }) ->
           let detail =
             match e with
-            | `FormatMix -> s_ "all voters must be in the same format"
             | `Duplicate login ->
                 Printf.sprintf (f_ "duplicate voter: %s") login
-            | `Identity id -> Printf.sprintf (f_ "invalid identity: %s") id
+            | `BadVoter v ->
+                Printf.sprintf (f_ "bad voter: %s") (!+yojson_of_voter v)
             | `TotalWeightTooBig (x, y) ->
                 Printf.sprintf
                   (f_ "total weight too big: %s/%s")
@@ -763,7 +793,7 @@ let voters_content () =
   let with_login, with_weight =
     let rec loop ((with_login, with_weight) as accu) = function
       | [] -> accu
-      | ((_, { login; weight; _ }) : Voter.t) :: xs ->
+      | ({ login; weight; _ } : Voter.t) :: xs ->
           let with_login = with_login || login <> None in
           let with_weight = with_weight || weight <> None in
           if with_login && with_weight then (true, true)
@@ -794,7 +824,7 @@ let voters_content () =
         (fun v ->
           let login = Voter.get v in
           let weight = Voter.get_weight v in
-          let address = Option.value ~default:"" (snd v).address in
+          let address = Option.value ~default:"" v.address in
           let voted = SSet.mem login reco in
           if show_only_missing && voted then None
           else
@@ -993,9 +1023,9 @@ let voters_content () =
         (s_ "Voting records")
     in
     let link2 =
-      let filename = Printf.sprintf "voters-%s.txt" uuid in
-      a_data ~filename ~mime_type:"text/plain"
-        ~data:(Voter.list_to_string voters)
+      let filename = Printf.sprintf "voters-%s.json" uuid in
+      a_data ~filename ~mime_type:"application/json"
+        ~data:(!+yojson_of_voter_list voters)
         (s_ "Voter list")
     in
     let nv = List.length voters in

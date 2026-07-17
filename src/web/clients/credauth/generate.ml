@@ -31,7 +31,7 @@ open Belenios_js.Session
 
 let do_generate (type a b) (w : (a, b) group) uuid ~voters :
     a Credential.batch Lwt.t =
-  let voters = Voter.list_of_string voters in
+  let voters = !*voter_list_of_yojson voters in
   let module G = (val w) in
   let module Cred =
     Credential.Make
@@ -172,7 +172,7 @@ let generate configuration uuid ~token =
     let* x = Api.(get (draft_voters uuid) (`Credauth token)) in
     match x with Error _ -> error () | Ok (x, _) -> cont x
   in
-  let voters = Voter.list_to_string voters in
+  let voters = !+yojson_of_voter_list voters in
   let header = h3 [ txt @@ s_ "Credential generation" ] in
   let link_div =
     let url =

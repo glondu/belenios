@@ -318,22 +318,6 @@ let is_email =
             let domain = Re.Pcre.get_substring g 1 |> String.lowercase_ascii in
             not (SSet.mem domain blacklist))
 
-exception Invalid_identity of string
-
-let option_of_string = function "" -> None | x -> Some x
-let string_of_option = function None -> "" | Some x -> x
-
-let split_identity_opt x =
-  match String.split_on_char ',' x with
-  | [ address ] -> (option_of_string address, None, None)
-  | [ address; login ] ->
-      (option_of_string address, option_of_string login, None)
-  | [ address; login; weight ] ->
-      ( option_of_string address,
-        option_of_string login,
-        Some (Weight.of_string weight) )
-  | _ -> raise @@ Invalid_identity x
-
 let map_and_concat_with_commas f xs =
   let n = Array.length xs in
   let res = Buffer.create (n * 1024) in
@@ -375,71 +359,24 @@ let uniq_first (type a) ?(compare = Stdlib.compare) xs =
   loop S.empty [] xs
 
 module Voter = struct
-  type t = [ `Plain | `Json ] * voter
+  type t = voter [@@deriving yojson]
 
-  let t_of_yojson = function
-    | `String x ->
-        let address, login, weight = split_identity_opt x in
-        ((`Plain, { address; login; weight }) : t)
-    | x -> (`Json, voter_of_yojson x)
-
-  let of_string x =
-    match !*voter_of_yojson x with
-    | exception _ -> t_of_yojson (`String (String.trim x))
-    | o -> (`Json, o)
-
-  let to_string ((typ, o) : t) =
-    match typ with
-    | `Json -> !+yojson_of_voter o
-    | `Plain -> (
-        match o with
-        | { address; login = None; weight = None } -> string_of_option address
-        | { address; login; weight = None } ->
-            Printf.sprintf "%s,%s" (string_of_option address)
-              (string_of_option login)
-        | { address; login; weight = Some weight } ->
-            Printf.sprintf "%s,%s,%s" (string_of_option address)
-              (string_of_option login) (Weight.to_string weight))
-
-  let yojson_of_t ((typ, o) as x : t) =
-    match typ with
-    | `Json -> yojson_of_voter o
-    | `Plain -> `String (to_string x)
-
-  let list_to_string voters =
-    if List.exists (fun (x, _) -> x = `Json) voters then
-      !+yojson_of_voter_list (List.map snd voters)
-    else
-      let b = Buffer.create 1024 in
-      List.iter
-        (fun x ->
-          Buffer.add_string b (to_string x);
-          Buffer.add_char b '\n')
-        voters;
-      Buffer.contents b
-
-  let list_of_string x =
-    match !*voter_list_of_yojson x with
-    | voters -> List.map (fun x -> (`Json, x)) voters
-    | exception _ -> rev_split_lines x |> List.rev_map of_string
-
-  let get ((_, { address; login; _ }) : t) =
+  let get ({ address; login; _ } : t) =
     match (login, address) with
     | None, None -> invalid_arg "Voter.get"
     | Some x, _ -> x
     | _, Some x -> x
 
-  let get_weight ((_, { weight; _ }) : t) =
-    Option.value ~default:Weight.one weight
+  let get_weight ({ weight; _ } : t) = Option.value ~default:Weight.one weight
 
-  let get_recipient ((_, { address; login; _ }) : t) : recipient =
+  let get_recipient ({ address; login; _ } : t) : recipient =
     match (login, address) with
     | None, None -> invalid_arg "Voter.get_recipient"
     | Some name, None -> { name; address = name }
     | None, Some address -> { name = address; address }
     | Some name, Some address -> { name; address }
 
-  let validate ((_, { address; login; _ }) : t) =
+  let validate ({ address; login; _ } : t) =
     match (address, login) with
     | None, None -> false
     | Some x, None -> is_email x
@@ -460,11 +397,11 @@ module Voter = struct
       if last < first then accu
       else
         let login = Some (string_of_int last) in
-        let x : t = (`Plain, { address = None; login; weight = None }) in
+        let x : t = { address = None; login; weight = None } in
         loop (last - 1) (x :: accu)
     in
     loop last []
 
   let has_explicit_weights voters =
-    List.exists (fun ((_, { weight; _ }) : t) -> weight <> None) voters
+    List.exists (fun ({ weight; _ } : t) -> weight <> None) voters
 end

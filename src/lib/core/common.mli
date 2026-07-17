@@ -96,15 +96,9 @@ val map_and_concat_with_commas : ('a -> string) -> 'a array -> string
 val remove_special_characters : string -> string
 val uniq_first : ?compare:('a -> 'a -> int) -> 'a list -> 'a list
 
-exception Invalid_identity of string
-
 module Voter : sig
-  type t = [ `Plain | `Json ] * voter [@@deriving yojson]
+  type t = voter [@@deriving yojson]
 
-  val to_string : t -> string
-  val of_string : string -> t
-  val list_to_string : t list -> string
-  val list_of_string : string -> t list
   val get : t -> string
   val get_weight : t -> Weight.t
   val get_recipient : t -> recipient

@@ -71,8 +71,7 @@ type validation_error =
 [@@deriving yojson]
 
 type voter_list_error =
-  [ `FormatMix
-  | `Identity of string
+  [ `BadVoter of voter
   | `Duplicate of string
   | `TotalWeightTooBig of weight * weight ]
 [@@deriving yojson]

@@ -51,7 +51,7 @@ let show main uuid =
             in
             Lwt.return @@ div [ txt msg ]
         | Ok (xs, _) ->
-            let fingerprint = Voter.list_to_string xs |> sha256_b64 in
+            let fingerprint = !+yojson_of_voter_list xs |> sha256_b64 in
             let fingerprint =
               Printf.sprintf
                 "The voter list has %d voter(s) and its fingerprint is %s."

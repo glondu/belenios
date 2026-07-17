@@ -323,7 +323,7 @@ module Credgen : CMDLINER_MODULE = struct
           else Lwt.return @@ `Generate (Voter.generate n)
       | None, Some f, None ->
           let* x = string_of_file f in
-          Lwt.return @@ `Generate (x |> Voter.list_of_string)
+          Lwt.return @@ `Generate (x |> !*voter_list_of_yojson)
       | None, None, Some c -> Lwt.return @@ `Derive c
       | _, _, _ -> failcmd "--count, --file and --derive are mutually exclusive"
     in

@@ -556,7 +556,7 @@ let compute_audit_cache s =
   | Some election ->
       let module W = (val election) in
       let* voters = get_all_voters s in
-      let voters_hash = Hash.hash_string (Voter.list_to_string voters) in
+      let voters_hash = Hash.hash_string (!+yojson_of_voter_list voters) in
       let* shuffles =
         let* x = Public_archive.get_shuffles s in
         let&* x = x in
@@ -626,7 +626,7 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
         let weight = Voter.get_weight v.id in
         let recipient =
           match v.id with
-          | _, { address; _ } -> Option.value ~default:login address
+          | { address; _ } -> Option.value ~default:login address
         in
         SMap.add login (recipient, weight) accu)
       SMap.empty se.voters

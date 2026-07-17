@@ -113,10 +113,14 @@ module Make (P : PARAMS) = struct
     let nb_length = String.length (string_of_int nb_voters) in
     let rec loop n accu =
       if n > 0 then
-        loop (n - 1) (Printf.sprintf "voter%0*d@example.org" nb_length n :: accu)
+        let address =
+          Some (Printf.sprintf "voter%0*d@example.org" nb_length n)
+        in
+        let v : voter = { address; login = address; weight = None } in
+        loop (n - 1) (v :: accu)
       else accu
     in
-    let voters = loop nb_voters [] |> List.map Voter.of_string in
+    let voters = loop nb_voters [] in
     let body = voters |> !+yojson_of_voter_list |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.put ~headers ~body

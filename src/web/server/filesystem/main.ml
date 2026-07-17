@@ -320,7 +320,7 @@ module MakeBackend
     | Last_event -> Concrete ("last_event.json", Trim, None)
     | Sealing_log -> Concrete ("sealing.log", Raw, None)
     | Records -> Abstract (records_ops, ())
-    | Voters -> Concrete ("voters.txt", Raw, None)
+    | Voters -> Concrete ("voters.json", Raw, None)
     | Confidential_archive -> Concrete ("archive.zip", Raw, None)
     | Extended_record key -> Abstract (extended_records_ops, key)
     | Credential_mapping key -> Abstract (credential_mappings_ops, key)
@@ -937,7 +937,7 @@ module MakeBackend
     let username_or_address =
       match voters with
       | [] -> `Username
-      | (_, { login; _ }) :: _ -> (
+      | { login; _ } :: _ -> (
           match login with None -> `Address | Some _ -> `Username)
     in
     Lwt.return { has_explicit_weights; username_or_address; voter_map }
@@ -964,7 +964,7 @@ module MakeBackend
     let* x = get_voters uuid in
     let&** { voter_map; _ } = x in
     let&** x = SMap.find_opt (String.lowercase_ascii id) voter_map in
-    x |> Lopt.some_value Voter.to_string |> Lwt.return
+    x |> Lopt.some_value !+yojson_of_voter |> Lwt.return
 
   let () =
     voters_config_ops.get <- get_voters_config;
