@@ -928,8 +928,8 @@ module MakeBackend
     let* voters = get_all_voters uuid in
     let voter_map =
       List.fold_left
-        (fun accu x ->
-          let login = Voter.get x in
+        (fun accu (x : voter) ->
+          let login = x.login in
           SMap.add (String.lowercase_ascii login) x accu)
         SMap.empty voters
     in
@@ -937,8 +937,8 @@ module MakeBackend
     let username_or_address =
       match voters with
       | [] -> `Username
-      | { login; _ } :: _ -> (
-          match login with None -> `Address | Some _ -> `Username)
+      | { login; _ } :: _ ->
+          if String.contains login '@' then `Address else `Username
     in
     Lwt.return { has_explicit_weights; username_or_address; voter_map }
 

@@ -110,7 +110,7 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
     let* privs, pubs =
       monadic_fold_left
         (fun (privs, pubs) v ->
-          let username = Voter.get v in
+          let username = v.login in
           let weight = Voter.get_weight v in
           let { private_credential; private_key } = generate_one () in
           ( SMap.add username private_credential privs,
@@ -152,7 +152,7 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
       let rec loop (privs, pubs) voters subs =
         match (voters, subs) with
         | v :: vs, s :: ss ->
-            let username = Voter.get v in
+            let username = v.login in
             let weight = Voter.get_weight v in
             let privs = SMap.add username s.base privs in
             let pubs =

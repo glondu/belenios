@@ -466,11 +466,11 @@ type client_configuration = {
 [@@deriving yojson]
 
 type confirmation = {
-  recipient : recipient;
+  voter : voter;
   name : string option; [@yojson.option]
   hash : hash;
   revote : bool;
-  weight : weight option;
+  weight : bool;
   email : bool;
 }
 [@@deriving yojson]

@@ -99,9 +99,7 @@ val uniq_first : ?compare:('a -> 'a -> int) -> 'a list -> 'a list
 module Voter : sig
   type t = voter [@@deriving yojson]
 
-  val get : t -> string
   val get_weight : t -> Weight.t
-  val get_recipient : t -> recipient
   val validate : t -> bool
   val generate : int -> t list
   val has_explicit_weights : t list -> bool

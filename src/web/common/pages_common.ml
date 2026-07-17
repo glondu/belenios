@@ -201,7 +201,7 @@ module Make (Base : BASE) = struct
     let result, step_title, final_step_class =
       match result with
       | `Ok
-          ({ recipient; name; hash; revote; weight; email } :
+          ({ voter; name; hash; revote; weight; email } :
             Belenios_web_api.confirmation) ->
           let this_is_a_revote =
             if revote then
@@ -211,7 +211,8 @@ module Make (Base : BASE) = struct
           in
           let your_weight_is =
             match weight with
-            | Some weight ->
+            | true ->
+                let weight = Voter.get_weight voter in
                 span
                   [
                     txt
@@ -219,7 +220,7 @@ module Make (Base : BASE) = struct
                          (Weight.to_string weight));
                     txt " ";
                   ]
-            | None -> txt ""
+            | false -> txt ""
           in
           let ballot_box =
             let href =
@@ -230,7 +231,7 @@ module Make (Base : BASE) = struct
           in
           ( [
               txt (s_ " as user ");
-              em [ txt @@ Option.value ~default:recipient.name name ];
+              em [ txt @@ Option.value ~default:voter.login name ];
               txt (s_ " has been accepted.");
               txt " ";
               this_is_a_revote;

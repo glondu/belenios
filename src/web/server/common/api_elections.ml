@@ -398,14 +398,12 @@ let cast_ballot send_confirmation s (election : Election.t) ~ballot ~user
     ~precast_data =
   let { user; name; timestamp } : Web_auth_sig.timestamped_user = user in
   let module W = (val election) in
-  let* recipient, weight =
+  let* voter =
     let* x = Web_persist.get_voter s user.name in
-    match x with
-    | Some x -> Lwt.return Voter.(get_recipient x, get_weight x)
-    | None -> fail `UnauthorizedVoter
+    match x with Some x -> Lwt.return x | None -> fail `UnauthorizedVoter
   in
+  let weight = Voter.get_weight voter in
   let* show_weight = Web_persist.get_has_explicit_weights s in
-  let oweight = if show_weight then Some weight else None in
   let user_s = string_of_user user in
   let* state = Web_persist.get_election_state s in
   let* voting_open =
@@ -428,7 +426,7 @@ let cast_ballot send_confirmation s (election : Election.t) ~ballot ~user
   match r with
   | Ok (hash, revote) ->
       let confirmation : confirmation =
-        { recipient; name; hash; revote; weight = oweight; email = false }
+        { voter; name; hash; revote; weight = show_weight; email = false }
       in
       let* email = send_confirmation s confirmation in
       let () =

@@ -112,11 +112,8 @@ struct
       | Some uuid ->
           let* address =
             let@ s = Storage.E.with_transaction uuid in
-            let*& { address; login; _ } = Web_persist.get_voter s name in
-            match (address, login) with
-            | Some x, _ -> Lwt.return_some x
-            | _, Some x -> Lwt.return_some x
-            | _ -> Lwt.return_none
+            let*& { address; _ } = Web_persist.get_voter s name in
+            Lwt.return address
           in
           return (address, `Election)
     in

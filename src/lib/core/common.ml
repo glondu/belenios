@@ -361,27 +361,12 @@ let uniq_first (type a) ?(compare = Stdlib.compare) xs =
 module Voter = struct
   type t = voter [@@deriving yojson]
 
-  let get ({ address; login; _ } : t) =
-    match (login, address) with
-    | None, None -> invalid_arg "Voter.get"
-    | Some x, _ -> x
-    | _, Some x -> x
-
   let get_weight ({ weight; _ } : t) = Option.value ~default:Weight.one weight
 
-  let get_recipient ({ address; login; _ } : t) : recipient =
-    match (login, address) with
-    | None, None -> invalid_arg "Voter.get_recipient"
-    | Some name, None -> { name; address = name }
-    | None, Some address -> { name = address; address }
-    | Some name, Some address -> { name; address }
-
   let validate ({ address; login; _ } : t) =
-    match (address, login) with
-    | None, None -> false
-    | Some x, None -> is_email x
-    | None, Some y -> is_username y
-    | Some x, Some y -> is_email x && is_username y
+    match address with
+    | None -> is_username login
+    | Some address -> is_email address && (login = address || is_username login)
 
   let int_length n = string_of_int n |> String.length
 
@@ -396,7 +381,7 @@ module Voter = struct
     let rec loop last accu =
       if last < first then accu
       else
-        let login = Some (string_of_int last) in
+        let login = string_of_int last in
         let x : t = { address = None; login; weight = None } in
         loop (last - 1) (x :: accu)
     in

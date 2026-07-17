@@ -192,14 +192,14 @@ let generate_credential_email (metadata : Belenios_messages.metadata) =
 let mail_confirmation l uuid ~title x contact =
   let url2 = Web_common.get_election_home_url uuid in
   let url1 = url2 ^ "/ballots" in
-  let ({ recipient; weight; hash; revote; _ } : Belenios_web_api.confirmation) =
+  let ({ voter; weight; hash; revote; _ } : Belenios_web_api.confirmation) =
     x
   in
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let subject = Printf.sprintf (f_ "Your vote for election %s") title in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
-  add_sentence b (Printf.sprintf (f_ "Dear %s,") recipient.name);
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") voter.login);
   add_newline b;
   add_newline b;
   add_sentence b (s_ "Your vote for election");
@@ -211,10 +211,11 @@ let mail_confirmation l uuid ~title x contact =
   add_newline b;
   add_sentence b (s_ "has been recorded.");
   (match weight with
-  | Some weight ->
+  | true ->
+      let weight = Voter.get_weight voter in
       add_sentence b
         (Printf.sprintf (f_ "Your weight is %s.") (Weight.to_string weight))
-  | None -> ());
+  | false -> ());
   add_sentence b (s_ "Your smart ballot tracker is");
   add_newline b;
   add_newline b;
@@ -243,8 +244,13 @@ let mail_confirmation l uuid ~title x contact =
   add_string b "-- ";
   add_newline b;
   add_string b !Web_config.vendor;
-  ({ recipient = x.recipient; subject; body = contents b }
-    : Belenios_messages.text_message)
+  let recipient : recipient =
+    {
+      name = voter.login;
+      address = Option.value ~default:voter.login voter.address;
+    }
+  in
+  ({ recipient; subject; body = contents b } : Belenios_messages.text_message)
 
 (* Forward reference set in Web_main *)
 let make_login_link = ref (fun _ -> failwith "make_login_link")

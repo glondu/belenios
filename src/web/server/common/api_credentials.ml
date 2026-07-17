@@ -52,7 +52,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
     let map =
       List.fold_left
         (fun accu (v : voter) ->
-          let voter = Voter.get v in
+          let voter = v.login in
           SMap.add voter (v.weight, v.address) accu)
         SMap.empty voter_list
     in

@@ -622,7 +622,7 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
   let voter_map =
     List.fold_left
       (fun accu (v : draft_voter) ->
-        let login = Voter.get v.id in
+        let login = v.id.login in
         let weight = Voter.get_weight v.id in
         let recipient =
           match v.id with

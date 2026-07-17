@@ -115,8 +115,8 @@ type 'a shape = 'a Shape.t [@@deriving yojson]
 (** {2 Misc} *)
 
 type voter = {
+  login : string;
   address : string option; [@yojson.option]
-  login : string option; [@yojson.option]
   weight : weight option; [@yojson.option]
 }
 [@@deriving yojson]

@@ -698,18 +698,13 @@ exception Invalid_identity of string
 
 let parse_voter_csv x : voter =
   match String.split_on_char ',' x with
-  | [ address ] ->
-      { address = option_of_string address; login = None; weight = None }
+  | [ address ] -> { address = Some address; login = address; weight = None }
   | [ address; login ] ->
-      {
-        address = option_of_string address;
-        login = option_of_string login;
-        weight = None;
-      }
+      { address = option_of_string address; login; weight = None }
   | [ address; login; weight ] ->
       {
         address = option_of_string address;
-        login = option_of_string login;
+        login = (if login = "" then address else login);
         weight = Some (Weight.of_string weight);
       }
   | _ -> raise @@ Invalid_identity x
@@ -793,8 +788,8 @@ let voters_content () =
   let with_login, with_weight =
     let rec loop ((with_login, with_weight) as accu) = function
       | [] -> accu
-      | ({ login; weight; _ } : Voter.t) :: xs ->
-          let with_login = with_login || login <> None in
+      | ({ address; login; weight; _ } : Voter.t) :: xs ->
+          let with_login = with_login || Some login <> address in
           let with_weight = with_weight || weight <> None in
           if with_login && with_weight then (true, true)
           else loop (with_login, with_weight) xs
@@ -821,8 +816,8 @@ let voters_content () =
   let make_rows_of_voters show_only_missing =
     let rows_of_voters =
       List.filter_map
-        (fun v ->
-          let login = Voter.get v in
+        (fun (v : voter) ->
+          let login = v.login in
           let weight = Voter.get_weight v in
           let address = Option.value ~default:"" v.address in
           let voted = SSet.mem login reco in

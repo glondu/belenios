@@ -113,10 +113,8 @@ module Make (P : PARAMS) = struct
     let nb_length = String.length (string_of_int nb_voters) in
     let rec loop n accu =
       if n > 0 then
-        let address =
-          Some (Printf.sprintf "voter%0*d@example.org" nb_length n)
-        in
-        let v : voter = { address; login = address; weight = None } in
+        let login = Printf.sprintf "voter%0*d@example.org" nb_length n in
+        let v : voter = { address = Some login; login; weight = None } in
         loop (n - 1) (v :: accu)
       else accu
     in
