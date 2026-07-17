@@ -389,4 +389,9 @@ module Voter = struct
 
   let has_explicit_weights voters =
     List.exists (fun ({ weight; _ } : t) -> weight <> None) voters
+
+  let hash voters =
+    voters
+    |> List.map (fun (v : voter) -> { v with address = None })
+    |> yojson_of_voter_list |> Hash.hash_yojson
 end

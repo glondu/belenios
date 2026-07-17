@@ -168,11 +168,11 @@ let generate configuration uuid ~token =
     let* x = Api.(get (draft uuid) `Nobody) in
     match x with Error _ -> error () | Ok (x, _) -> cont x
   in
-  let@ voters cont =
+  let@ voters' cont =
     let* x = Api.(get (draft_voters uuid) (`Credauth token)) in
     match x with Error _ -> error () | Ok (x, _) -> cont x
   in
-  let voters = !+yojson_of_voter_list voters in
+  let voters = !+yojson_of_voter_list voters' in
   let header = h3 [ txt @@ s_ "Credential generation" ] in
   let link_div =
     let url =
@@ -189,7 +189,11 @@ let generate configuration uuid ~token =
   let () =
     Dom.appendChild container @@ Tyxml_js.To_dom.of_div
     @@
-    let hash = span ~a:[ a_id "voters_hash" ] [ txt @@ sha256_b64 voters ] in
+    let hash =
+      span
+        ~a:[ a_id "voters_hash" ]
+        [ txt @@ Hash.to_b64 @@ Voter.hash voters' ]
+    in
     div
       [
         div [ txt @@ s_ "Voter list:" ];

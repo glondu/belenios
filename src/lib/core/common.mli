@@ -103,4 +103,5 @@ module Voter : sig
   val validate : t -> bool
   val generate : int -> t list
   val has_explicit_weights : t list -> bool
+  val hash : t list -> Hash.t
 end

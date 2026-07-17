@@ -556,7 +556,7 @@ let compute_audit_cache s =
   | Some election ->
       let module W = (val election) in
       let* voters = get_all_voters s in
-      let voters_hash = Hash.hash_string (!+yojson_of_voter_list voters) in
+      let voters_hash = Voter.hash voters in
       let* shuffles =
         let* x = Public_archive.get_shuffles s in
         let&* x = x in
