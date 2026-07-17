@@ -67,30 +67,57 @@ module Make (P : PARAMS) () = struct
              Shape.Atomic (if j = i then 1 else 0)));
     |]
 
-  let submit_ballot ~username ~ballot =
-    let token =
-      `Assoc [ ("username", `String username) ]
-      |> Json.to_string |> Base64.encode
-      |> function
-      | Ok x -> x
-      | Error (`Msg msg) ->
-          Printf.ksprintf failwith "error while encoding to base64: %s" msg
+  let voter_login ~username ~state =
+    let body =
+      { username }
+      |> !+Belenios_web_api.yojson_of_auth_dummy_info
+      |> Cohttp_lwt.Body.of_string
     in
     let headers =
-      [ ("Authorization", Printf.sprintf "Bearer %s" token) ]
+      [ ("Authorization", Printf.sprintf "Bearer %s" state) ]
       |> Cohttp.Header.of_list
     in
+    let* response, x =
+      Cohttp_lwt_unix.Client.post ~headers ~body
+        (Printf.ksprintf Uri.of_string "%s/login/voter" api_root)
+    in
+    let* () = Cohttp_lwt.Body.drain_body x in
+    match Cohttp.Code.code_of_status response.status with
+    | 200 -> Lwt.return_ok ()
+    | code -> Lwt.return_error code
+
+  let submit_ballot ~username ~ballot =
     let body = ballot |> Cohttp_lwt.Body.of_string in
     let start = Unix.gettimeofday () in
     let* response, x =
-      Cohttp_lwt_unix.Client.post ~headers ~body
+      Cohttp_lwt_unix.Client.post ~body
         (Printf.ksprintf Uri.of_string "%s/elections/%s/ballots" api_root
            (Uuid.to_string W.uuid))
     in
-    let* () = Cohttp_lwt.Body.drain_body x in
+    let* state = Cohttp_lwt.Body.to_string x in
+    let state = Json.of_string state in
     let delta = Unix.gettimeofday () -. start in
     match Cohttp.Code.code_of_status response.status with
-    | 200 -> Lwt.return delta
+    | 401 -> (
+        let@ state cont =
+          let fail () =
+            Printf.eprintf "no state in response to POST .../ballots\n%!";
+            Lwt.return delta
+          in
+          match state with
+          | `Assoc o -> (
+              match List.assoc_opt "state" o with
+              | Some (`String state) -> cont state
+              | _ -> fail ())
+          | _ -> fail ()
+        in
+        let* x = voter_login ~username ~state in
+        let delta = Unix.gettimeofday () -. start in
+        match x with
+        | Ok () -> Lwt.return delta
+        | Error code ->
+            Printf.eprintf "voter login returned %d\n%!" code;
+            Lwt.return delta)
     | code ->
         Printf.eprintf "unexpected status %d in submit_ballot for %s\n%!" code
           username;

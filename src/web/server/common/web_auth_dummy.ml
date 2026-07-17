@@ -24,8 +24,6 @@ open Lwt
 open Belenios
 open Belenios_storage_api
 
-let perform_admin_login = Web_auth.perform_admin_login
-
 module Make
     (Web_services : Web_services_sig.S)
     (Pages_common : Pages_common_sig.S)
@@ -44,22 +42,14 @@ struct
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
-  let dispatch a endpoint method_ (body : Api_generic.body) =
+  let dispatch a endpoint method_ (body : Api_generic.body) cont =
     match endpoint with
     | [] -> (
         match method_ with
-        | `POST -> (
+        | `POST ->
             let@ i = body.run !*Belenios_web_api.auth_dummy_info_of_yojson in
             let user : user = { domain = a.auth_instance; name = i.username } in
-            let* account =
-              perform_admin_login a ~name:None ~address:None user
-            in
-            match account with
-            | Ok account ->
-                let* token = Api_generic.new_token account user in
-                Api_generic.return_json 200
-                @@ !+Belenios_web_api.yojson_of_auth_token token
-            | Error () -> Api_generic.forbidden)
+            cont ~address:None user
         | _ -> Api_generic.method_not_allowed)
     | _ -> Api_generic.not_found
 

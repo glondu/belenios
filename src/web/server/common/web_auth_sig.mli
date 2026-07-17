@@ -44,6 +44,7 @@ type auth_dispatch =
   string list ->
   [ `DELETE | `GET | `POST | `PUT ] ->
   Api_generic.body ->
+  (address:string option -> user -> Api_generic.result Lwt.t) ->
   Api_generic.result Lwt.t
 
 type auth_system = {
@@ -110,4 +111,11 @@ module type S = sig
     Eliom_registration.Html.result Lwt.t
 
   module State : STATE
+
+  val login_voter_dispatch :
+    state:string ->
+    string list ->
+    [ `DELETE | `GET | `POST | `PUT ] ->
+    Api_generic.body ->
+    Api_generic.result Lwt.t
 end

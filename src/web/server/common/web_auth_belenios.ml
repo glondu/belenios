@@ -97,7 +97,7 @@ struct
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
-  let dispatch _ _ _ _ = Api_generic.not_found
+  let dispatch _ _ _ _ _ = Api_generic.not_found
 
   let run_post_login_handler =
     Web_auth.register ~auth_system:"belenios"

@@ -327,11 +327,17 @@ module Make () = struct
   module Api = Api_eliom.Make (X.Web_state)
   module Web_captcha = Web_captcha.Make (X.Web_services)
 
+  let () = Api.admin_cont := Web_auth.admin_cont
+
+  let election_cast_confirm_handler_ref =
+    Web_auth.election_cast_confirm_handler_ref
+
   module Web_auth =
     Web_auth.Make (X.Web_state) (X.Web_services) (X.Pages_common)
 
   let () = Api.get_result := Web_auth.State.get_result
   let () = Api.get_dispatch := Web_auth.get_dispatch
+  let () = Api.login_voter_dispatch := Web_auth.login_voter_dispatch
 
   let () =
     Mails_voter.make_login_link :=
@@ -356,6 +362,10 @@ module Make () = struct
   module Site_common = Site_common.Make (X) (Web_auth)
   module Site_admin = Site_admin.Make (X) (Site_common) (Web_auth)
   module Site_voter = Site_voter.Make (X) (Web_auth) (Site_common)
+
+  let () =
+    election_cast_confirm_handler_ref :=
+      Site_voter.election_cast_confirm_handler
 
   let () = Api_elections.state_module := Some (module Web_auth.State)
   let () = Lwt.async Mails_voter_bulk.process_bulk_emails

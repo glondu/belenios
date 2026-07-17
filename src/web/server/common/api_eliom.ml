@@ -94,6 +94,8 @@ module Make (Web_state : Web_state_sig.S) = struct
   (* Forward references set in Web_main *)
   let get_result = ref (fun ~state:_ -> None)
   let get_dispatch = ref (fun _ -> None)
+  let admin_cont = ref (fun _ ~address:_ _ -> assert false)
+  let login_voter_dispatch = ref (fun ~state:_ _ _ _ -> assert false)
 
   let dispatch endpoint method_ _params body =
     let sp = Eliom_common.get_sp () in
@@ -211,7 +213,7 @@ module Make (Web_state : Web_state_sig.S) = struct
         Api_credentials.dispatch endpoint method_ body
     | "billing" :: endpoint ->
         Billing.dispatch ~token ~ifmatch endpoint method_ body
-    | "login" :: service :: endpoint -> (
+    | "login" :: "admin" :: service :: endpoint -> (
         let rec find_instance xs cont =
           match xs with
           | [] -> not_found
@@ -221,8 +223,12 @@ module Make (Web_state : Web_state_sig.S) = struct
         let@ a = find_instance !Web_config.site_auth_config in
         match !get_dispatch a.auth_system with
         | None -> not_found
-        | Some dispatch -> dispatch a endpoint method_ body)
-    | [ "login" ] -> (
+        | Some dispatch -> dispatch a endpoint method_ body (!admin_cont a))
+    | "login" :: "voter" :: endpoint -> (
+        match token.token with
+        | None -> unauthorized
+        | Some state -> !login_voter_dispatch ~state endpoint method_ body)
+    | [ "login"; "admin" ] -> (
         match method_ with
         | `DELETE ->
             let@ token = Option.unwrap unauthorized token.token in

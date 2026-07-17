@@ -19,7 +19,21 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_storage_api
+
 module Make (_ : Web_state_sig.S) : sig
   val get_result : (state:string -> Belenios_web_api.cast_result option) ref
   val get_dispatch : (string -> Web_auth_sig.auth_dispatch option) ref
+
+  val admin_cont :
+    (auth_config -> address:string option -> user -> Api_generic.result Lwt.t)
+    ref
+
+  val login_voter_dispatch :
+    (state:string ->
+    string list ->
+    [ `DELETE | `GET | `POST | `PUT ] ->
+    Api_generic.body ->
+    Api_generic.result Lwt.t)
+    ref
 end

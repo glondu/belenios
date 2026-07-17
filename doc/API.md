@@ -60,19 +60,26 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 ### `GET`: unit -> api_account
 ### `PUT`: api_account -> unit
 
-## `login/$SERVICE` (anybody)
-
-### `POST`: json -> auth_token
+## `login/admin/$SERVICE` (anybody)
 
 Use this endpoint to get an API token suitable for the authenticated
 administrator endpoints in a programmatic way. `$SERVICE` is the
 `name` attribute of an authentication (`<auth>` element) declared in
-the configuration file. A token is valid for 24 hours, or until
-`DELETE` (below) is called.
+the configuration file. The details of endpoints and what they expect
+depend on the authentication method.
 
-## `login` (administrator)
+A token is valid for 24 hours, or until `DELETE` (below) is called.
+
+## `login/admin` (administrator)
 
 ### `DELETE`: unit -> unit
+
+## `login/voter` (voter)
+
+Use this endpoint, with the state returned by
+`elections/$UUID/ballots` as bearer token, to authenticate a voter. As
+for `login/admin/$SERVICE`, the details depend on the authentication
+method.
 
 ## `elections` (administrator)
 

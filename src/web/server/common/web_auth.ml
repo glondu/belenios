@@ -68,6 +68,18 @@ let perform_admin_login a ~name ~address (user : user) =
             Lwt.return_ok x)
   else Lwt.return_error ()
 
+let admin_cont a ~address user =
+  let* account = perform_admin_login a ~name:None ~address user in
+  match account with
+  | Ok account ->
+      let* token = Api_generic.new_token account user in
+      Api_generic.return_json 200
+      @@ !+Belenios_web_api.yojson_of_auth_token token
+  | Error () -> Api_generic.forbidden
+
+(* Forward reference set in Web_main *)
+let election_cast_confirm_handler_ref = ref (fun ~state:_ -> assert false)
+
 module Make
     (Web_state : Web_state_sig.S)
     (Web_services : Web_services_sig.S)
@@ -448,4 +460,32 @@ struct
       | None -> ()
       | Some env -> env.result <- Some x
   end
+
+  let login_voter_dispatch ~state endpoint method_ body =
+    match get_auth_env ~state with
+    | None -> Api_generic.forbidden
+    | Some env -> (
+        let@ uuid cont =
+          match env.kind with
+          | `Election uuid -> cont uuid
+          | _ -> Api_generic.forbidden
+        in
+        let* x =
+          let@ s = Storage.E.with_transaction uuid in
+          get_election_auth_configs s
+        in
+        match x with
+        | [ a ] -> (
+            match get_dispatch a.auth_system with
+            | None -> Api_generic.not_found
+            | Some dispatch ->
+                let cont ~address:_ user =
+                  env.user <- Some { user; name = None; timestamp = None };
+                  let* x = !election_cast_confirm_handler_ref ~state in
+                  match x with
+                  | Ok _ -> Api_generic.return_yojson 200 (yojson_of_uuid uuid)
+                  | Error _ -> Api_generic.forbidden
+                in
+                dispatch a endpoint method_ body cont)
+        | _ -> Api_generic.forbidden)
 end

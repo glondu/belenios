@@ -40,7 +40,7 @@ module Make (P : PARAMS) = struct
 
   let api_root = prefix ^ "api"
   let group = "Ed25519"
-  let version = 1
+  let version = 2
 
   let generate_candidates n =
     Array.init n (fun i -> Printf.sprintf "Candidate %d" (i + 1))
@@ -94,20 +94,28 @@ module Make (P : PARAMS) = struct
     [ ("Authorization", Printf.sprintf "Bearer %s" api_token) ]
     |> Cohttp.Header.of_list
 
-  let create_draft () =
-    let body = !+yojson_of_raw_draft draft |> Cohttp_lwt.Body.of_string in
+  let create to_yojson endpoint x =
+    let body = !+to_yojson x |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
-        (Printf.ksprintf Uri.of_string "%s/elections" api_root)
+        (Printf.ksprintf Uri.of_string endpoint api_root)
     in
     let* x = Cohttp_lwt.Body.to_string x in
     match Cohttp.Code.code_of_status response.status with
     | 200 -> (
         match Json.of_string x with
         | `String uuid -> Lwt.return (Uuid.of_string uuid)
-        | _ | (exception _) -> failwith "unexpected body in create_draft")
+        | _ | (exception _) ->
+            Printf.ksprintf failwith "unexpected body in create(%s)"
+              (string_of_format endpoint))
     | code ->
-        Printf.ksprintf failwith "unexpected status %d in create_draft" code
+        Printf.ksprintf failwith "unexpected status %d in create(%s)" code
+          (string_of_format endpoint)
+
+  let create_draft () = create yojson_of_raw_draft "%s/elections" draft
+
+  let create_trustees () =
+    create yojson_of_group_specification "%s/trustees" { version; group }
 
   let setup_voters uuid nb_voters =
     let nb_length = String.length (string_of_int nb_voters) in
@@ -182,28 +190,47 @@ module Make (P : PARAMS) = struct
         Printf.ksprintf failwith "unexpected status %d in setup_credentials"
           code
 
-  let validate_election uuid =
-    let body =
-      `ValidateElection |> !+yojson_of_draft_request
-      |> Cohttp_lwt.Body.of_string
-    in
+  let send_request to_yojson endpoint uuid r =
+    let body = r |> !+to_yojson |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
-        (Printf.ksprintf Uri.of_string "%s/elections/%s/draft" api_root
-           (Uuid.to_string uuid))
+        (Printf.ksprintf Uri.of_string endpoint api_root (Uuid.to_string uuid))
     in
     let* () = Cohttp_lwt.Body.drain_body x in
     match Cohttp.Code.code_of_status response.status with
     | 200 -> Lwt.return_unit
     | code ->
-        Printf.ksprintf failwith "unexpected status %d in validate_election"
-          code
+        Printf.ksprintf failwith "unexpected status %d on send_request(%s)" code
+          (string_of_format endpoint)
+
+  let validate_election uuid =
+    let* trustees = create_trustees () in
+    let* () =
+      send_request yojson_of_trustees_request "%s/trustees/%s" trustees
+        `Validate
+    in
+    let* () =
+      send_request yojson_of_draft_request "%s/elections/%s/draft" uuid
+        (`SetTrustees (Some trustees))
+    in
+    let* () =
+      send_request yojson_of_draft_request "%s/elections/%s/draft" uuid
+        `ValidateElection
+    in
+    let* () =
+      send_request yojson_of_admin_request "%s/elections/%s" uuid `Open
+    in
+    Lwt.return_unit
 
   let main () =
     let* uuid = create_draft () in
     print_endline (Uuid.to_string uuid);
     let* voters = setup_voters uuid nb_voters in
     let* private_creds = setup_credentials uuid voters in
+    let* () =
+      send_request yojson_of_draft_request "%s/elections/%s/draft" uuid
+        `SetCredentialAuthorityVisited
+    in
     let* () =
       let open Lwt_io in
       let@ f =
@@ -215,6 +242,41 @@ module Make (P : PARAMS) = struct
     if validate then validate_election uuid else Lwt.return_unit
 end
 
+let perform_login ~prefix ~username =
+  let@ token cont =
+    let body =
+      { username } |> !+yojson_of_auth_dummy_info |> Cohttp_lwt.Body.of_string
+    in
+    let* response, x =
+      Cohttp_lwt_unix.Client.post ~body
+        (Printf.ksprintf Uri.of_string "%sapi/login/admin/demo" prefix)
+    in
+    let* x = Cohttp_lwt.Body.to_string x in
+    let { token; _ } = !*auth_token_of_yojson x in
+    match Cohttp.Code.code_of_status response.status with
+    | 200 -> cont token
+    | code ->
+        Printf.ksprintf failwith "unexpected status %d in perform_login" code
+  in
+  let@ id cont =
+    let headers =
+      [ ("Authorization", Printf.sprintf "Bearer %s" token) ]
+      |> Cohttp.Header.of_list
+    in
+    let* response, x =
+      Cohttp_lwt_unix.Client.get ~headers
+        (Printf.ksprintf Uri.of_string "%sapi/account" prefix)
+    in
+    let* x = Cohttp_lwt.Body.to_string x in
+    let { id; _ } = !*api_account_of_yojson x in
+    match Cohttp.Code.code_of_status response.status with
+    | 200 -> cont id
+    | code ->
+        Printf.ksprintf failwith
+          "unexpected status %d when retrieving account id" code
+  in
+  Lwt.return (token, id)
+
 open Cmdliner
 
 let candidates_t =
@@ -225,14 +287,12 @@ let voters_t =
   let doc = "Use $(docv) voters." in
   Arg.(value & opt int 1000 & info [ "voters" ] ~docv:"VOTERS" ~doc)
 
-let admin_id_t =
-  let doc = "Use admin account id $(docv)." in
-  Arg.(value & opt (some int) None & info [ "admin-id" ] ~docv:"ADMIN-ID" ~doc)
-
-let api_token_t =
-  let doc = "Use API token $(docv)." in
+let admin_login_t =
+  let doc = "Use $(docv) as admin login for dummy authentication." in
   Arg.(
-    value & opt (some string) None & info [ "api-token" ] ~docv:"API-TOKEN" ~doc)
+    value
+    & opt (some string) None
+    & info [ "admin-login" ] ~docv:"ADMIN-LOGIN" ~doc)
 
 let nh_t =
   let doc = "Use a non-homomorphic question." in
@@ -242,18 +302,22 @@ let validate_t =
   let doc = "Validate the election." in
   Arg.(value & flag & info [ "validate" ] ~doc)
 
-let main url candidates voters admin_id api_token nh validate =
+let main url candidates voters admin_login nh validate =
   let@ () = wrap_main in
+  let prefix = get_mandatory "url" url in
+  let username = get_mandatory "admin-login" admin_login in
+  let@ () = fun cont -> Lwt_main.run @@ cont () in
+  let* api_token, admin_id = perform_login ~prefix ~username in
   let module X = Make (struct
-    let prefix = get_mandatory "url" url
+    let prefix = prefix
     let nb_candidates = candidates
     let nb_voters = voters
-    let admin_id = get_mandatory "admin-id" admin_id
-    let api_token = get_mandatory "api-token" api_token
+    let admin_id = admin_id
+    let api_token = api_token
     let nh = nh
     let validate = validate
   end) in
-  Lwt_main.run (X.main ())
+  X.main ()
 
 let cmd =
   let doc = "set up a scaling test election" in
@@ -262,5 +326,5 @@ let cmd =
     (Cmd.info "setup" ~doc ~man)
     Term.(
       ret
-        (const main $ url_t $ candidates_t $ voters_t $ admin_id_t $ api_token_t
-       $ nh_t $ validate_t))
+        (const main $ url_t $ candidates_t $ voters_t $ admin_login_t $ nh_t
+       $ validate_t))

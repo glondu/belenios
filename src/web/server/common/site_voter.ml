@@ -86,33 +86,41 @@ struct
         match r with Ok _ -> Lwt.return_true | Error () -> Lwt.return_false)
       (fun _ -> Lwt.return_false)
 
+  let election_cast_confirm_handler ~state =
+    let@ env cont =
+      let x = Web_auth.State.get_election ~state in
+      match x with Some x -> cont x | None -> Lwt.return_error `StateNotFound
+    in
+    let uuid = env.uuid in
+    let@ s = Storage.E.with_transaction uuid in
+    let@ election =
+      Public_archive.with_election s ~fallback:(fun () ->
+          Lwt.return_error `ElectionNotFound)
+    in
+    match env.state with
+    | None -> Lwt.return_error `EmptyState
+    | Some { ballot; precast_data; _ } -> (
+        match env.user with
+        | None -> Lwt.return_error `NoUser
+        | Some user ->
+            let* result =
+              Lwt.catch
+                (fun () ->
+                  let* hash =
+                    Api_elections.cast_ballot send_confirmation_email s election
+                      ~ballot ~user ~precast_data
+                  in
+                  return (`Ok hash))
+                (function
+                  | BeleniosWebError e -> return (`Error e) | e -> Lwt.fail e)
+            in
+            let () = Web_auth.State.set_result ~state result in
+            Lwt.return_ok uuid)
+
   let () =
     Any.register ~service:election_cast_confirm (fun state () ->
-        let@ env cont =
-          let x = Web_auth.State.get_election ~state in
-          match x with Some x -> cont x | None -> fail_http `Forbidden
-        in
-        let uuid = env.uuid in
-        let@ s = Storage.E.with_transaction uuid in
-        let@ election = with_election s in
-        match env.state with
-        | None -> Pages_voter.lost_ballot s election () >>= Html.send
-        | Some { ballot; precast_data; _ } -> (
-            match env.user with
-            | None -> forbidden ()
-            | Some user ->
-                let* result =
-                  Lwt.catch
-                    (fun () ->
-                      let* hash =
-                        Api_elections.cast_ballot send_confirmation_email s
-                          election ~ballot ~user ~precast_data
-                      in
-                      return (`Ok hash))
-                    (function
-                      | BeleniosWebError e -> return (`Error e)
-                      | e -> Lwt.fail e)
-                in
-                let () = Web_auth.State.set_result ~state result in
-                redir_preapply election_login_done (uuid, state) ()))
+        let* x = election_cast_confirm_handler ~state in
+        match x with
+        | Ok uuid -> redir_preapply election_login_done (uuid, state) ()
+        | Error _ -> forbidden ())
 end

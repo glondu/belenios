@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
 open Belenios_storage_api
 
 val perform_admin_login :
@@ -27,6 +28,15 @@ val perform_admin_login :
   address:string option ->
   user ->
   (account, unit) result Lwt.t
+
+val admin_cont :
+  auth_config -> address:string option -> user -> Api_generic.result Lwt.t
+
+val election_cast_confirm_handler_ref :
+  (state:string ->
+  (uuid, [ `ElectionNotFound | `EmptyState | `NoUser | `StateNotFound ]) result
+  Lwt.t)
+  ref
 
 module Make
     (_ : Web_state_sig.S)
