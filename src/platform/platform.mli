@@ -48,6 +48,7 @@ module Z : sig
   val zero : t
   val one : t
   val of_int : int -> t
+  val of_int64 : int64 -> t
   val of_string : string -> t
   val of_hex : string -> t
   val ( + ) : t -> t -> t
@@ -57,6 +58,7 @@ module Z : sig
   val ( mod ) : t -> t -> t
   val erem : t -> t -> t
   val to_int : t -> int
+  val to_int64 : t -> int64
   val to_string : t -> string
   val to_hex : t -> string
   val compare : t -> t -> int

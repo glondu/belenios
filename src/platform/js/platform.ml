@@ -166,6 +166,7 @@ module Z = struct
   let of_hex x = lib##ofHex (Js.string x)
   let of_string x = lib##ofString (Js.string x)
   let of_int x = lib##ofInt x
+  let of_int64 x = x |> Int64.to_string |> of_string
   let ( + ) x y = lib##add x y
   let ( - ) x y = lib##subtract x y
   let ( * ) x y = lib##multiply x y
@@ -173,6 +174,7 @@ module Z = struct
   let ( mod ) x y = lib##_mod x y
   let to_int x = lib##toInt x
   let to_string x = lib##toString x |> Js.to_string
+  let to_int64 x = x |> to_string |> Int64.of_string
   let to_hex x = lib##toHex x |> Js.to_string
   let compare x y = lib##compare x y
   let ( =% ) x y = compare x y = 0

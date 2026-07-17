@@ -120,35 +120,35 @@ end
 type hash = Hash.t [@@deriving yojson]
 
 module Weight = struct
-  include Z
+  type t = int64 [@@deriving yojson]
 
-  let max_int31 = of_string "1073741823"
+  let zero = 0L
+  let one = 1L
+
+  let of_int x =
+    if x >= 0 then Int64.of_int x
+    else Printf.ksprintf invalid_arg "%d is not a valid weight" x
 
   let of_string x =
     try
-      let x = Z.of_string x in
-      if Z.(compare x zero >= 0) then x else raise Exit
+      let x = Int64.of_string x in
+      if Int64.(compare x zero >= 0) then x else raise Exit
     with _ -> Printf.ksprintf invalid_arg "%S is not a valid weight" x
 
-  let of_int x =
-    if x >= 0 then Z.of_int x
-    else Printf.ksprintf invalid_arg "%d is not a valid weight" x
+  let of_Z x =
+    try
+      let x = Z.to_int64 x in
+      if Int64.(compare x zero >= 0) then x else raise Exit
+    with _ ->
+      Printf.ksprintf invalid_arg "%s is not a valid weight" (Z.to_string x)
 
-  let to_Z = Fun.id
-  let of_Z = Fun.id
-
-  let t_of_yojson = function
-    | `Int x -> of_int x
-    | `Intlit x | `String x -> of_string x
-    | _ -> invalid_arg "invalid weight"
-
-  let yojson_of_t x =
-    if compare x max_int31 <= 0 then `Int (Z.to_int x)
-    else `String (Z.to_string x)
-
-  let max_weight = of_string "100000000000"
-  let min a b = if compare a b < 0 then a else b
-  let max a b = if compare a b > 0 then a else b
+  let to_string = Int64.to_string
+  let to_Z = Z.of_int64
+  let ( + ) = Int64.add
+  let max_weight = 100000000000L
+  let min = Int64.min
+  let max = Int64.max
+  let compare = Int64.compare
 end
 
 type weight = Weight.t [@@deriving yojson]
