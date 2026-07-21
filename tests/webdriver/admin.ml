@@ -460,6 +460,7 @@ module Make (Config : CONFIG) = struct
     Lwt.return (private_key, wait)
 
   let set_private_key session private_key =
+    let* () = Lwt_unix.sleep 1. in
     let script =
       {|
         const x = document.getElementById("private_key");
