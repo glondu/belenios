@@ -283,7 +283,11 @@ let new_board_but () =
   let* x = Api.(post trustees_ !user { version; group }) in
   match x.code with
   | 200 -> (
-      let trustees_uuid = Uuid.of_string x.content in
+      let trustees_uuid =
+        match Belenios.Json.of_string x.content with
+        | `String x -> Uuid.of_string x
+        | _ -> assert false
+      in
       let* x =
         Api.(post (draft election_uuid) !user)
           (`SetTrustees (Some trustees_uuid))

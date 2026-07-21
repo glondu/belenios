@@ -762,8 +762,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
         Storage.T.set s (Trustees_draft G.spec) Value
           { step = 1; mode = `Basic { trustees = [] } }
       in
-      return_generic
-        { mime = "text/plain"; content = String (Uuid.to_string uuid) }
+      return_yojson 200 @@ `String (Uuid.to_string uuid)
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.T.with_transaction uuid in
