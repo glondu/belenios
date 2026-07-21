@@ -48,6 +48,14 @@ tool:
     # Run command-line tool tests
     - make check
 
+scaling:
+  extends: .base
+  stage: test
+  script:
+    - source ~/env.sh
+    - opam install -y ppx_yojson_conv
+    - dune exec -- tests/scaling/main.exe scenario
+
 scenarios:
   extends: .base
   stage: test

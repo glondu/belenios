@@ -21,7 +21,7 @@
 
 open Cmdliner
 
-let cmds = [ Setup.cmd; Vote.cmd ]
+let cmds = [ Setup.cmd; Vote.cmd; Scenario.cmd ]
 
 let default_cmd =
   let open Belenios.Version in
