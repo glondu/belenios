@@ -140,7 +140,7 @@ module App (U : UI) = struct
                                   @@ s_ "Shuffle"
                                 in
                                 action_div##.innerHTML := Js.string "";
-                                let* xs = Shuffle.shuffle uuid ~token in
+                                let* xs = Shuffle.shuffle W.uuid ~token in
                                 List.iter
                                   (fun x ->
                                     Dom.appendChild action_div

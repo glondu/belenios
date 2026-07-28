@@ -266,7 +266,7 @@ let get_trustee_by_address s w (metadata : metadata) address =
             else find xs
       in
       let* names = get_trustee_names s w in
-      find (List.combine xs names)
+      find (List.combine xs (List.tl names))
 
 let skip_shuffler s trustee =
   let@ x, set = Storage.E.update s State_state in
