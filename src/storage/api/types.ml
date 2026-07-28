@@ -81,9 +81,31 @@ type election_state =
   | `Archived ]
 [@@deriving yojson]
 
-type stored_election_state =
-  [ `Open | `Closed | `Shuffling | `EncryptedTally | `Tallied ]
+type skipped_shufflers = string list [@@deriving yojson]
+
+type shuffle_token = {
+  trustee : external_trustee;
+  trustee_id : int;
+  name : string;
+}
 [@@deriving yojson]
+
+type shuffle_state = {
+  skipped : skipped_shufflers;
+  token : shuffle_token option; [@yoson.option]
+}
+[@@deriving yojson]
+
+type stored_election_state_without_shuffling =
+  [ `Open | `Closed | `EncryptedTally | `Tallied ]
+
+type stored_election_state =
+  [ `Open | `Closed | `Shuffling of shuffle_state | `EncryptedTally | `Tallied ]
+[@@deriving yojson]
+
+let to_election_state = function
+  | #stored_election_state_without_shuffling as x -> x
+  | `Shuffling _ -> `Shuffling
 
 (** {1 Types related to elections being prepared} *)
 
@@ -210,25 +232,6 @@ let election_records_of_yojson : json -> election_records = function
   | `Assoc o -> List.map (fun (k, v) -> (k, int64_of_yojson v)) o
   | x -> of_yojson_error "object expected" x
 
-type skipped_shufflers = string list [@@deriving yojson]
-
-type shuffle_token = {
-  trustee : external_trustee;
-  trustee_id : int;
-  name : string;
-}
-[@@deriving yojson]
-
-type shuffle_state = {
-  skipped : skipped_shufflers;
-  token : shuffle_token option; [@yoson.option]
-}
-[@@deriving yojson]
-
-type some_state_state = [ `Decryption | `Shuffle of shuffle_state ]
-[@@deriving yojson]
-
-type state_state = some_state_state option [@@deriving yojson]
 type credentials_seed = { seed : string; token : string } [@@deriving yojson]
 
 type ('a, 'b) credentials_params = {

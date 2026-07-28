@@ -178,21 +178,15 @@ let get_partial_decryptions s w (metadata : metadata) =
   | _ -> assert false
 
 let get_shuffles s (metadata : metadata) =
-  let@ () =
-   fun cont ->
-    let* state = Web_persist.get_election_state s in
-    match state with
-    | `Shuffling -> cont ()
-    | _ -> Lwt.fail @@ Error `NotInExpectedState
+  let@ shuffle_state cont =
+    let* x = Storage.E.get s State in
+    match Lopt.get_value x with
+    | Some (`Shuffling x) -> cont x
+    | _ -> raise @@ Error `NotInExpectedState
   in
   let* shuffles = Public_archive.get_shuffles s in
   let shuffles = Option.value shuffles ~default:[] in
-  let* skipped, token =
-    let* x = Storage.E.get s State_state in
-    match Lopt.get_value x with
-    | Some (Some (`Shuffle { skipped; token; _ })) -> Lwt.return (skipped, token)
-    | _ -> Lwt.return ([], None)
-  in
+  let { skipped; token } = shuffle_state in
   let* external_trustees = get_external_trustees metadata in
   let external_trustees =
     match external_trustees with None -> assert false | Some x -> x
@@ -269,21 +263,17 @@ let get_trustee_by_address s w (metadata : metadata) address =
       find (List.combine xs (List.tl names))
 
 let skip_shuffler s trustee =
-  let@ x, set = Storage.E.update s State_state in
-  let current, set =
-    let ok : Belenios_storage_api.shuffle_token option -> _ = function
-      | None -> true
-      | Some t when t.trustee.address = trustee -> true
-      | _ -> false
-    in
-    match Lopt.get_value x with
-    | None -> ([], Storage.E.set s State_state Value)
-    | Some (Some (`Shuffle { skipped; token })) when ok token ->
-        (skipped, set Value)
-    | _ -> raise @@ Error `NotInExpectedState
+  let ok : Belenios_storage_api.shuffle_token option -> _ = function
+    | None -> true
+    | Some t when t.trustee.address = trustee -> true
+    | _ -> false
   in
-  if List.mem trustee current then Lwt.fail @@ Error `NotInExpectedState
-  else set (Some (`Shuffle { skipped = trustee :: current; token = None }))
+  let@ x, set = Storage.E.update s State in
+  match Lopt.get_value x with
+  | Some (`Shuffling { skipped; token })
+    when ok token && not (List.mem trustee skipped) ->
+      set Value @@ `Shuffling { skipped = trustee :: skipped; token = None }
+  | _ -> raise @@ Error `NotInExpectedState
 
 let select_shuffler s w metadata trustee =
   let@ trustee, trustee_id, name =
@@ -291,16 +281,14 @@ let select_shuffler s w metadata trustee =
     let* x = get_trustee_by_address s w metadata trustee in
     match x with None -> failwith __FUNCTION__ | Some x -> cont x
   in
-  let@ x, set = Storage.E.update s State_state in
-  let* skipped, set =
-    match Lopt.get_value x with
-    | Some (Some (`Shuffle { skipped; _ })) -> Lwt.return (skipped, set Value)
-    | _ -> Lwt.return ([], set Value)
-  in
-  let t : Belenios_storage_api.shuffle_token =
-    { trustee; trustee_id; name = Option.value ~default:"N/A" name }
-  in
-  set (Some (`Shuffle { skipped; token = Some t }))
+  let@ x, set = Storage.E.update s State in
+  match Lopt.get_value x with
+  | Some (`Shuffling { skipped; _ }) ->
+      let t : Belenios_storage_api.shuffle_token =
+        { trustee; trustee_id; name = Option.value ~default:"N/A" name }
+      in
+      set Value @@ `Shuffling { skipped; token = Some t }
+  | _ -> raise @@ Error `NotInExpectedState
 
 let post_partial_decryption s (election : Election.t) ~trustee_id
     ~partial_decryption =
@@ -350,10 +338,10 @@ let post_partial_decryption s (election : Election.t) ~trustee_id
   else Lwt.return @@ Stdlib.Error `Invalid
 
 let post_shuffle s (election : Election.t) ~token ~shuffle =
-  let@ x, set = Storage.E.update s State_state in
+  let@ x, set = Storage.E.update s State in
   match Lopt.get_value x with
-  | Some (Some (`Shuffle { skipped; token = Some x }))
-    when token = x.trustee.token ->
+  | Some (`Shuffling { skipped; token = Some x }) when token = x.trustee.token
+    ->
       Lwt.catch
         (fun () ->
           let module W = (val election) in
@@ -381,7 +369,7 @@ let post_shuffle s (election : Election.t) ~token ~shuffle =
           in
           match y with
           | Some _ ->
-              let* () = set Value (Some (`Shuffle { skipped; token = None })) in
+              let* () = set Value @@ `Shuffling { skipped; token = None } in
               let* () = Storage.E.del s Audit_cache in
               Lwt.return @@ Ok ()
           | None -> Lwt.return @@ Stdlib.Error `Failure)

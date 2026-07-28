@@ -220,7 +220,6 @@ let internal_release_tally ~force s set_state =
       let* () = set_state `Tallied in
       let@ dates, set_dates = update_election_dates s in
       let* () = set_dates { dates with tally = Some (datetime_now ()) } in
-      let* () = Storage.E.set s State_state Value None in
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
@@ -231,7 +230,7 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
       let* state =
         let* x = Storage.E.get s State in
         match Lopt.get_value x with
-        | Some x -> Lwt.return (x :> election_state)
+        | Some x -> Lwt.return @@ to_election_state x
         | None -> (
             let* x = Storage.E.get s Draft in
             match Lopt.get_value x with
@@ -257,7 +256,8 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
   let set_state : election_state -> _ = function
     | `Draft -> failwith "cannot set state to Draft"
     | `Archived -> failwith "cannot set state to Archived this way"
-    | #stored_election_state as x -> set_state x
+    | `Shuffling -> set_state @@ `Shuffling { skipped = []; token = None }
+    | #stored_election_state_without_shuffling as x -> set_state x
   in
   let now = datetime_now () in
   let* dates = get_election_dates s in
@@ -275,8 +275,8 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
               else cont2 ()
             in
             let* b = internal_release_tally ~force:false s set_state in
-            return
-              ((if b then `Tallied else (state :> election_state)), set_state))
+            return ((if b then `Tallied else to_election_state state), set_state)
+        )
     | _ -> cont ()
   in
   let new_state =
@@ -286,10 +286,10 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
     match new_state with `Open when past dates.auto_close -> `Closed | x -> x
   in
   let* () =
-    if update && new_state <> state then set_state (new_state :> election_state)
+    if update && new_state <> state then set_state (to_election_state new_state)
     else Lwt.return_unit
   in
-  return ((new_state :> election_state), set_state)
+  return (to_election_state new_state, set_state)
 
 let update_election_state s cont = raw_get_election_state s cont
 
@@ -936,7 +936,6 @@ let finish_shuffling s =
         | true -> cont ()
         | false -> Lwt.fail @@ Failure "race condition in finish_shuffling"
       in
-      let* () = Storage.E.set s State_state Value None in
       let* () = transition_to_encrypted_tally set_state in
       Lwt.return_true
   | _ -> Lwt.return_false

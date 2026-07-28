@@ -30,11 +30,6 @@ let get_election (type t) : t election_file -> t serializers = function
         of_string = !*stored_election_state_of_yojson;
         to_string = !+yojson_of_stored_election_state;
       }
-  | State_state ->
-      {
-        of_string = !*state_state_of_yojson;
-        to_string = !+yojson_of_state_state;
-      }
   | Dates ->
       {
         of_string = !*election_dates_of_yojson;

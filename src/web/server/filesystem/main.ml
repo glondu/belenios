@@ -105,10 +105,6 @@ module MakeBackend
 
   (** {1 Forward references} *)
 
-  let state_state_ops : (_, Belenios_storage_api.state_state) abstract_file_ops
-      =
-    make_uninitialized_ops "state_state_ops"
-
   let archive_header_ops : (_, Archive.header) abstract_file_ops =
     make_uninitialized_ops "archive_header_ops"
 
@@ -309,7 +305,6 @@ module MakeBackend
       t election_file -> t raw_file_props = function
     | Draft -> Concrete (draft_filename, Raw, None)
     | State -> Concrete ("state.json", Trim, None)
-    | State_state -> Abstract (state_state_ops, ())
     | Public_creds _ -> Concrete (public_creds_filename, Trim, None)
     | Private_creds -> Concrete ("private_creds.txt", Raw, None)
     | Dates -> Concrete (dates_filename, Raw, None)
@@ -652,79 +647,6 @@ module MakeBackend
         Lwt.return_none)
 
   (** {1 Views} *)
-
-  let skipped_shufflers_filename = "skipped_shufflers.json"
-  let shuffle_token_filename = "shuffle_token.json"
-
-  let get_state_state uuid () =
-    let* state = get (Election (uuid, State)) in
-    match Lopt.get_value state with
-    | Some `EncryptedTally ->
-        Some `Decryption
-        |> Lopt.some_value !+Belenios_storage_api.yojson_of_state_state
-        |> Lwt.return
-    | Some `Shuffling ->
-        let* skipped =
-          Filesystem.read_file (spool_elections uuid skipped_shufflers_filename)
-        in
-        let skipped =
-          skipped
-          |> Option.map
-               (String.trim
-               >> !*Belenios_storage_api.skipped_shufflers_of_yojson)
-          |> Option.value ~default:[]
-        in
-        let* token =
-          Filesystem.read_file (spool_elections uuid shuffle_token_filename)
-        in
-        let token =
-          token
-          |> Option.map
-               (String.trim >> !*Belenios_storage_api.shuffle_token_of_yojson)
-        in
-        Some (`Shuffle { skipped; token })
-        |> Lopt.some_value !+Belenios_storage_api.yojson_of_state_state
-        |> Lwt.return
-    | _ -> Lopt.none_lwt
-
-  let set_state_state uuid () (x : Belenios_storage_api.state_state Lopt.t) =
-    match Lopt.get_value x with
-    | None -> assert false
-    | Some None ->
-        cleanup_files uuid
-          [
-            `Elections skipped_shufflers_filename;
-            `Elections shuffle_token_filename;
-          ]
-    | Some (Some (`Shuffle { skipped; token })) ->
-        let* () =
-          skipped
-          |> !+Belenios_storage_api.yojson_of_skipped_shufflers
-          |> (fun x -> x ^ "\n")
-          |> Filesystem.write_file
-               (spool_elections uuid skipped_shufflers_filename)
-        in
-        let* () =
-          match token with
-          | None -> cleanup_files uuid [ `Elections shuffle_token_filename ]
-          | Some token ->
-              token
-              |> !+Belenios_storage_api.yojson_of_shuffle_token
-              |> (fun x -> x ^ "\n")
-              |> Filesystem.write_file
-                   (spool_elections uuid shuffle_token_filename)
-        in
-        Lwt.return_unit
-    | Some (Some `Decryption) ->
-        cleanup_files uuid
-          [
-            `Elections skipped_shufflers_filename;
-            `Elections shuffle_token_filename;
-          ]
-
-  let () =
-    state_state_ops.get <- get_state_state;
-    state_state_ops.set <- set_state_state
 
   let records_filename = "records"
 
@@ -1090,8 +1012,6 @@ module MakeBackend
         [
           `Elections dates_filename;
           `Elections records_filename;
-          `Elections skipped_shufflers_filename;
-          `Elections shuffle_token_filename;
           `Elections archive_filename;
         ]
     in
