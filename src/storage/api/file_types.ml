@@ -26,7 +26,7 @@ open Extra
 type abstract
 
 type _ election_file =
-  | State : election_state election_file
+  | State : stored_election_state election_file
   | State_state : state_state election_file
   | Dates : election_dates election_file
   | Metadata : metadata election_file

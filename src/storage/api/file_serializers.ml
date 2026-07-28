@@ -27,8 +27,8 @@ open Extra
 let get_election (type t) : t election_file -> t serializers = function
   | State ->
       {
-        of_string = !*election_state_of_yojson;
-        to_string = !+yojson_of_election_state;
+        of_string = !*stored_election_state_of_yojson;
+        to_string = !+yojson_of_stored_election_state;
       }
   | State_state ->
       {

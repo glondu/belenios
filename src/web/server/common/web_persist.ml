@@ -228,14 +228,17 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
   let@ () =
    fun cont ->
     if Storage.readonly.get () then
-      let* x = Storage.E.get s State in
-      match Lopt.get_value x with
-      | Some x -> return (x, fun _ -> raise Readonly_storage)
-      | None -> (
-          let* x = Storage.E.get s Draft in
-          match Lopt.get_value x with
-          | Some _ -> return (`Draft, fun _ -> raise Readonly_storage)
-          | None -> return (`Archived, fun _ -> raise Readonly_storage))
+      let* state =
+        let* x = Storage.E.get s State in
+        match Lopt.get_value x with
+        | Some x -> Lwt.return (x :> election_state)
+        | None -> (
+            let* x = Storage.E.get s Draft in
+            match Lopt.get_value x with
+            | Some _ -> Lwt.return `Draft
+            | None -> Lwt.return `Archived)
+      in
+      return (state, fun _ -> raise Readonly_storage)
     else cont ()
   in
   let@ state, set_state =
@@ -247,11 +250,14 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
         let* x = Storage.E.get s Draft in
         match Lopt.get_value x with
         | Some _ ->
-            return
-              (`Draft, fun _ -> Lwt.fail_with "cannot get out of Draft this way")
+            return (`Draft, fun _ -> failwith "cannot get out of Draft this way")
         | None ->
-            return
-              (`Archived, fun _ -> Lwt.fail_with "cannot get out of Archived"))
+            return (`Archived, fun _ -> failwith "cannot get out of Archived"))
+  in
+  let set_state : election_state -> _ = function
+    | `Draft -> failwith "cannot set state to Draft"
+    | `Archived -> failwith "cannot set state to Archived this way"
+    | #stored_election_state as x -> set_state x
   in
   let now = datetime_now () in
   let* dates = get_election_dates s in
@@ -269,7 +275,8 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
               else cont2 ()
             in
             let* b = internal_release_tally ~force:false s set_state in
-            return ((if b then `Tallied else state), set_state))
+            return
+              ((if b then `Tallied else (state :> election_state)), set_state))
     | _ -> cont ()
   in
   let new_state =
@@ -278,12 +285,11 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
   let new_state =
     match new_state with `Open when past dates.auto_close -> `Closed | x -> x
   in
-  assert (new_state <> `Archived);
   let* () =
-    if update && new_state <> state then set_state new_state
+    if update && new_state <> state then set_state (new_state :> election_state)
     else Lwt.return_unit
   in
-  return (new_state, set_state)
+  return ((new_state :> election_state), set_state)
 
 let update_election_state s cont = raw_get_election_state s cont
 

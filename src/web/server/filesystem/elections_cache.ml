@@ -49,7 +49,7 @@ module Make (I : INPUT) () = struct
           match Lopt.get_value x with
           | Some _ -> Lwt.return `Draft
           | None -> Lwt.return `Archived)
-      | Some x -> Lwt.return x
+      | Some x -> Lwt.return (x :> election_state)
     in
     let get of_string file =
       let* x = I.get s (Election (uuid, file)) in
@@ -158,7 +158,7 @@ module Make (I : INPUT) () = struct
       let* x = I.get s (Election (uuid, State)) in
       match Lopt.get_value x with
       | None -> Lwt.return `Archived
-      | Some x -> Lwt.return x
+      | Some x -> Lwt.return (x :> election_state)
     in
     let* dates =
       let* x = I.get s (Election (uuid, Dates)) in

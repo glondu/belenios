@@ -81,6 +81,10 @@ type election_state =
   | `Archived ]
 [@@deriving yojson]
 
+type stored_election_state =
+  [ `Open | `Closed | `Shuffling | `EncryptedTally | `Tallied ]
+[@@deriving yojson]
+
 (** {1 Types related to elections being prepared} *)
 
 type ('a, 'b) draft_basic_trustee = {
