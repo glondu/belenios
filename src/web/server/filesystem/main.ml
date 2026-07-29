@@ -306,7 +306,7 @@ module MakeBackend
     | Draft -> Concrete (draft_filename, Raw, None)
     | State -> Concrete ("state.json", Trim, None)
     | Public_creds _ -> Concrete (public_creds_filename, Trim, None)
-    | Private_creds -> Concrete ("private_creds.txt", Raw, None)
+    | Private_creds -> Concrete ("private_creds.json", Raw, None)
     | Dates -> Concrete (dates_filename, Raw, None)
     | Metadata -> Concrete ("metadata.json", Trim, None)
     | Server_seed -> Concrete (server_seed_filename, Trim, None)
