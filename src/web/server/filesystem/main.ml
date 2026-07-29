@@ -273,8 +273,6 @@ module MakeBackend
         | `Credentials x -> Filesystem.cleanup_file (spool_credentials uuid x))
       xs
 
-  type kind = Raw | Trim
-
   let files_of_directory d = Lwt_unix.files_of_directory d |> Lwt_stream.to_list
 
   let list_accounts () =
@@ -291,7 +289,7 @@ module MakeBackend
          [] xs
 
   type _ raw_file_props =
-    | Concrete : string * kind * 'a serializers option -> 'a raw_file_props
+    | Concrete : string -> 'a raw_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a raw_file_props
 
   let draft_filename = "draft.json"
@@ -303,20 +301,20 @@ module MakeBackend
 
   let get_election_file_props _uuid (type t) :
       t election_file -> t raw_file_props = function
-    | Draft -> Concrete (draft_filename, Raw, None)
-    | State -> Concrete ("state.json", Trim, None)
-    | Public_creds _ -> Concrete (public_creds_filename, Trim, None)
-    | Private_creds -> Concrete ("private_creds.json", Raw, None)
-    | Dates -> Concrete (dates_filename, Raw, None)
-    | Metadata -> Concrete ("metadata.json", Trim, None)
-    | Server_seed -> Concrete (server_seed_filename, Trim, None)
-    | Audit_cache -> Concrete ("audit_cache.json", Trim, None)
+    | Draft -> Concrete draft_filename
+    | State -> Concrete "state.json"
+    | Public_creds _ -> Concrete public_creds_filename
+    | Private_creds -> Concrete "private_creds.json"
+    | Dates -> Concrete dates_filename
+    | Metadata -> Concrete "metadata.json"
+    | Server_seed -> Concrete server_seed_filename
+    | Audit_cache -> Concrete "audit_cache.json"
     | Archive_header -> Abstract (archive_header_ops, ())
-    | Last_event -> Concrete ("last_event.json", Trim, None)
-    | Sealing_log -> Concrete ("sealing.log", Raw, None)
+    | Last_event -> Concrete "last_event.json"
+    | Sealing_log -> Concrete "sealing.log"
     | Records -> Abstract (records_ops, ())
-    | Voters -> Concrete ("voters.json", Raw, None)
-    | Confidential_archive -> Concrete ("archive.zip", Raw, None)
+    | Voters -> Concrete "voters.json"
+    | Confidential_archive -> Concrete "archive.zip"
     | Extended_record key -> Abstract (extended_records_ops, key)
     | Credential_mapping key -> Abstract (credential_mappings_ops, key)
     | Data key -> Abstract (data_ops, key)
@@ -328,18 +326,18 @@ module MakeBackend
 
   let get_trustees_file_props _uuid (type t) :
       t trustees_file -> t raw_file_props = function
-    | Trustees_metadata -> Concrete ("metadata.json", Raw, None)
-    | Trustees _ -> Concrete ("trustees.json", Raw, None)
-    | Trustees_draft _ -> Concrete ("draft.json", Raw, None)
-    | Trustees_private_keys _ -> Concrete ("private_keys.jsons", Raw, None)
+    | Trustees_metadata -> Concrete "metadata.json"
+    | Trustees _ -> Concrete "trustees.json"
+    | Trustees_draft _ -> Concrete "draft.json"
+    | Trustees_private_keys _ -> Concrete "private_keys.jsons"
 
   let get_credentials_file_props _uuid (type t) :
       t credentials_file -> t raw_file_props = function
-    | Credentials_params -> Concrete ("credentials_params.json", Raw, None)
-    | Credentials_metadata -> Concrete ("credentials_metadata.json", Raw, None)
-    | Credentials_seed -> Concrete ("credentials_seed.json", Raw, None)
-    | Credentials_records _ -> Concrete ("credentials_records.json", Raw, None)
-    | Credentials_credits -> Concrete ("credentials_credits.json", Raw, None)
+    | Credentials_params -> Concrete "credentials_params.json"
+    | Credentials_metadata -> Concrete "credentials_metadata.json"
+    | Credentials_seed -> Concrete "credentials_seed.json"
+    | Credentials_records _ -> Concrete "credentials_records.json"
+    | Credentials_credits -> Concrete "credentials_credits.json"
 
   let clear_caches (type t) : t file -> _ = function
     | Election (_, (Draft | State)) -> Elections_cache.clear ()
@@ -350,7 +348,7 @@ module MakeBackend
   let credential_mappings_filename = "credential_mappings.jsons"
 
   type _ file_props =
-    | Concrete : string * kind * 'a serializers option -> 'a file_props
+    | Concrete : string -> 'a file_props
     | Abstract : ('key, 'a) abstract_file_ops * uuid * 'key -> 'a file_props
     | Admin_password :
         string * admin_password_kind
@@ -358,32 +356,26 @@ module MakeBackend
 
   let get_props (type t) : t file -> t file_props = function
     | Account (Account id) ->
-        Concrete
-          ( Config.spool_dir // "accounts" // Printf.sprintf "%d.json" id,
-            Raw,
-            None )
+        Concrete (Config.spool_dir // "accounts" // Printf.sprintf "%d.json" id)
     | Election (uuid, f) -> (
         match get_election_file_props uuid f with
-        | Concrete (fname, kind, convert) ->
-            Concrete (spool_elections uuid fname, kind, convert)
+        | Concrete fname -> Concrete (spool_elections uuid fname)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
     | Trustees (uuid, f) -> (
         match get_trustees_file_props uuid f with
-        | Concrete (fname, kind, convert) ->
-            Concrete (spool_trustees uuid fname, kind, convert)
+        | Concrete fname -> Concrete (spool_trustees uuid fname)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
     | Credentials (uuid, f) -> (
         match get_credentials_file_props uuid f with
-        | Concrete (fname, kind, convert) ->
-            Concrete (spool_credentials uuid fname, kind, convert)
+        | Concrete fname -> Concrete (spool_credentials uuid fname)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
-    | Account (Auth_db f) -> Concrete (SMap.find f Config.maps, Raw, None)
+    | Account (Auth_db f) -> Concrete (SMap.find f Config.maps)
     | Account (Admin_password (file, key)) ->
         Admin_password (SMap.find file Config.maps, key)
 
   let file_exists (type t) (x : t file) =
     match get_props x with
-    | Concrete (path, _, _) -> Filesystem.file_exists path
+    | Concrete path -> Filesystem.file_exists path
     | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "file_exists"
 
   let deleted_filename = "deleted.json"
@@ -403,14 +395,10 @@ module MakeBackend
 
   let get (type t) (f : t file) : t lopt Lwt.t =
     match get_props f with
-    | Concrete (path, kind, convert) ->
+    | Concrete path ->
         let* x = Filesystem.read_file path in
         let&** x = x in
-        (match kind with Raw -> x | Trim -> String.trim x)
-        |> (match convert with
-          | None -> some_string_or_value f String
-          | Some { of_string; _ } -> of_string >> some_string_or_value f Value)
-        |> Lwt.return
+        x |> some_string_or_value f String |> Lwt.return
     | Abstract (ops, uuid, key) -> ops.get uuid key
     | Admin_password (file, key) -> get_password_record_admin file key
 
@@ -418,15 +406,10 @@ module MakeBackend
       (data : u) =
     let data = some_string_or_value f spec data in
     match get_props f with
-    | Concrete (fname, kind, convert) -> (
-        match
-          match convert with
-          | None -> Lopt.get_string data
-          | Some { to_string; _ } -> Lopt.get_value data |> Option.map to_string
-        with
+    | Concrete fname -> (
+        match Lopt.get_string data with
         | None -> assert false
         | Some data ->
-            let data = match kind with Raw -> data | Trim -> data ^ "\n" in
             let* () = Filesystem.write_file fname data in
             let () = clear_caches f in
             Lwt.return_unit)
@@ -510,7 +493,7 @@ module MakeBackend
 
   let del (type t) (f : t file) =
     match get_props f with
-    | Concrete (f, _, _) -> Filesystem.cleanup_file f
+    | Concrete f -> Filesystem.cleanup_file f
     | Abstract _ -> Lwt.fail @@ Not_implemented "del"
     | Admin_password _ -> Lwt.fail @@ Not_implemented "del"
 
@@ -612,14 +595,14 @@ module MakeBackend
       let* b = file_exists archive_name in
       let* () = if not b then make_archive uuid else Lwt.return_unit in
       match get_props archive_name with
-      | Concrete (f, _, _) -> Lwt.return f
+      | Concrete f -> Lwt.return f
       | _ -> Lwt.fail @@ Not_implemented "get_archive"
     else Lwt.fail Not_found
 
   let get_unixfilename (type t) : t file -> _ = function
     | Election (_, (Private_creds | Sealing_log : t election_file)) as x -> (
         match get_props x with
-        | Concrete (f, _, _) -> Lwt.return f
+        | Concrete f -> Lwt.return f
         | _ -> Lwt.fail @@ Not_implemented "get_as_file")
     | Election (uuid, Confidential_archive) -> get_archive uuid
     | _ -> Lwt.fail Not_found
