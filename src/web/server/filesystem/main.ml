@@ -294,6 +294,8 @@ module MakeBackend
 
   let draft_filename = "draft.json"
   let dates_filename = "dates.json"
+  let voters_filename = "voters.json"
+  let records_filename = "records"
   let archive_filename = "archive.bel"
   let public_creds_filename = "public_creds.json"
   let server_seed_filename = "server_seed.txt"
@@ -313,7 +315,7 @@ module MakeBackend
     | Last_event -> Concrete "last_event.json"
     | Sealing_log -> Concrete "sealing.log"
     | Records -> Abstract (records_ops, ())
-    | Voters -> Concrete "voters.json"
+    | Voters -> Concrete voters_filename
     | Confidential_archive -> Concrete "archive.zip"
     | Extended_record key -> Abstract (extended_records_ops, key)
     | Credential_mapping key -> Abstract (credential_mappings_ops, key)
@@ -556,13 +558,13 @@ module MakeBackend
       Lwt_list.iter_p
         (fun x ->
           try_copy_file (spool_elections uuid x) (temp_dir // "public" // x))
-        [ Uuid.to_string uuid ^ ".bel" ]
+        [ archive_filename ]
     in
     let* () =
       Lwt_list.iter_p
         (fun x ->
           try_copy_file (spool_elections uuid x) (temp_dir // "restricted" // x))
-        [ "voters.txt"; "records" ]
+        [ voters_filename; records_filename ]
     in
     let command =
       Printf.ksprintf Lwt_process.shell
@@ -630,8 +632,6 @@ module MakeBackend
         Lwt.return_none)
 
   (** {1 Views} *)
-
-  let records_filename = "records"
 
   let split_voting_record =
     let rex = Re.Pcre.regexp "\"(.*)(\\..*)?\" \".*:(.*)\"" in
