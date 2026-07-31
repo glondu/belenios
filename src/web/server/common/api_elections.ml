@@ -392,7 +392,7 @@ let cast_ballot send_confirmation s (election : Election.t) ~ballot ~user
   in
   let weight = Voter.get_weight voter in
   let* show_weight = Web_persist.get_has_explicit_weights s in
-  let user_s = string_of_user user in
+  let user_s = user.name in
   let* state = Web_persist.get_election_state s in
   let* voting_open =
     match state with

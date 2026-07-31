@@ -295,7 +295,7 @@ module MakeBackend
   let draft_filename = "draft.json"
   let dates_filename = "dates.json"
   let voters_filename = "voters.json"
-  let records_filename = "records"
+  let records_filename = "records.json"
   let archive_filename = "archive.bel"
   let public_creds_filename = "public_creds.json"
   let server_seed_filename = "server_seed.txt"
@@ -633,24 +633,14 @@ module MakeBackend
 
   (** {1 Views} *)
 
-  let split_voting_record =
-    let rex = Re.Pcre.regexp "\"(.*)(\\..*)?\" \".*:(.*)\"" in
-    fun x ->
-      let s = Re.Pcre.exec ~rex x in
-      let date =
-        Datetime.to_int64 @@ Datetime.wrap @@ Re.Pcre.get_substring s 1
-      in
-      let username = Re.Pcre.get_substring s 3 in
-      (username, date)
-
   let get_records uuid () =
     let* raw_records =
       Filesystem.read_file (spool_elections uuid records_filename)
     in
     let&** raw_records = raw_records in
-    raw_records |> split_lines
-    |> List.map split_voting_record
-    |> Lopt.some_value !+Belenios_storage_api.yojson_of_election_records
+    raw_records
+    |> !*election_records_of_yojson
+    |> Lopt.some_value !+yojson_of_election_records
     |> Lwt.return
 
   let () = records_ops.get <- get_records
@@ -684,11 +674,8 @@ module MakeBackend
     in
     let records =
       rs
-      |> List.map (fun (u, (d, _)) ->
-          Printf.sprintf "%s %S"
-            (d |> Datetime.from_int64 |> !+yojson_of_datetime)
-            u)
-      |> join_lines
+      |> List.map (fun (username, (date, _)) -> (username, date))
+      |> !+yojson_of_election_records
     in
     let* () =
       Filesystem.write_file
