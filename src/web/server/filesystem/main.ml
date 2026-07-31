@@ -108,8 +108,7 @@ module MakeBackend
   let archive_header_ops : (_, Archive.header) abstract_file_ops =
     make_uninitialized_ops "archive_header_ops"
 
-  let records_ops : (_, Belenios_storage_api.election_records) abstract_file_ops
-      =
+  let records_ops : (_, Belenios_web_api.election_records) abstract_file_ops =
     make_uninitialized_ops "records_ops"
 
   let extended_records_ops :
@@ -639,8 +638,8 @@ module MakeBackend
     in
     let&** raw_records = raw_records in
     raw_records
-    |> !*election_records_of_yojson
-    |> Lopt.some_value !+yojson_of_election_records
+    |> !*Belenios_web_api.election_records_of_yojson
+    |> Lopt.some_value !+Belenios_web_api.yojson_of_election_records
     |> Lwt.return
 
   let () = records_ops.get <- get_records
@@ -675,7 +674,7 @@ module MakeBackend
     let records =
       rs
       |> List.map (fun (username, (date, _)) -> (username, date))
-      |> !+yojson_of_election_records
+      |> !+Belenios_web_api.yojson_of_election_records
     in
     let* () =
       Filesystem.write_file

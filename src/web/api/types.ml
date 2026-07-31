@@ -368,8 +368,14 @@ type election_auto_dates = {
 }
 [@@deriving yojson]
 
-type voting_record = { date : int64; username : string } [@@deriving yojson]
-type records = voting_record list [@@deriving yojson]
+type election_records = (string * int64) list
+
+let yojson_of_election_records x : json =
+  `Assoc (List.map (fun (k, v) -> (k, yojson_of_int64 v)) x)
+
+let election_records_of_yojson : json -> election_records = function
+  | `Assoc o -> List.map (fun (k, v) -> (k, int64_of_yojson v)) o
+  | x -> of_yojson_error "object expected" x
 
 type admin_request =
   [ `Open

@@ -69,8 +69,8 @@ let get_election (type t) : t election_file -> t serializers = function
   | Sealing_log -> { of_string = Fun.id; to_string = Fun.id }
   | Records ->
       {
-        of_string = !*election_records_of_yojson;
-        to_string = !+yojson_of_election_records;
+        of_string = !*Belenios_web_api.election_records_of_yojson;
+        to_string = !+Belenios_web_api.yojson_of_election_records;
       }
   | Voters ->
       { of_string = !*voter_list_of_yojson; to_string = !+yojson_of_voter_list }

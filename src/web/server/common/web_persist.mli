@@ -56,9 +56,7 @@ val get_all_voters : Storage.E.t -> Voter.t list Lwt.t
 val get_draft_public_credentials :
   Storage.E.t -> ('a, 'b) group -> 'a public_credentials option Lwt.t
 
-val get_records :
-  Storage.E.t -> Belenios_storage_api.election_records option Lwt.t
-
+val get_records : Storage.E.t -> Belenios_web_api.election_records option Lwt.t
 val get_voter : Storage.E.t -> string -> Voter.t option Lwt.t
 
 (** {1 Derived election data} *)

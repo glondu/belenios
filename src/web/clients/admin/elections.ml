@@ -782,7 +782,7 @@ let voters_content () =
   in
   let reco =
     List.fold_left
-      (fun accu (r : voting_record) -> SSet.add r.username accu)
+      (fun accu (username, _) -> SSet.add username accu)
       SSet.empty records
   in
   let with_login, with_weight =
@@ -1007,8 +1007,7 @@ let voters_content () =
     (* Running election *)
     let data =
       List.map
-        (fun (x : voting_record) ->
-          datestring_of_int64 x.date ^ " " ^ x.username)
+        (fun (username, date) -> datestring_of_int64 date ^ " " ^ username)
         records
     in
     let uuid = get_current_uuid () |> Uuid.to_string in

@@ -210,8 +210,8 @@ let election_voters uuid =
 let election_records uuid =
   {
     path = Printf.sprintf "elections/%s/records" (Uuid.to_string uuid);
-    of_string = !*records_of_yojson;
-    to_string = !+yojson_of_records;
+    of_string = !*election_records_of_yojson;
+    to_string = !+yojson_of_election_records;
     to_string_post = !+yojson_of_unit;
   }
 

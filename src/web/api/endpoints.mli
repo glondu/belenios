@@ -82,7 +82,7 @@ val election_auto_dates :
   uuid -> ([< nobody | admin ], election_auto_dates, unit) t
 
 val election_voters : uuid -> (admin, voter_list, unit) t
-val election_records : uuid -> (admin, records, unit) t
+val election_records : uuid -> (admin, election_records, unit) t
 val election_nh_ciphertexts : uuid -> (nobody, json, unit) t
 val election_encrypted_tally : uuid -> (nobody, json, unit) t
 val election_partial_decryptions : uuid -> (admin, partial_decryptions, unit) t

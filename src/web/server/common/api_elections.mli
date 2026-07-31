@@ -25,7 +25,7 @@ open Belenios_web_api
 open Api_generic
 
 val get_election_status : Storage.E.t -> election_status Lwt.t
-val get_records : Storage.E.t -> records Lwt.t
+val get_records : Storage.E.t -> election_records Lwt.t
 
 val get_partial_decryptions :
   Storage.E.t -> ('a, 'b) group -> metadata -> partial_decryptions Lwt.t

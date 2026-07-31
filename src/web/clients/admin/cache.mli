@@ -44,7 +44,7 @@ val status : draft_status t
 val account : api_account t
 val e_elec : Election.t t
 val e_voters : voter_list t
-val e_records : records t
+val e_records : Belenios_web_api.election_records t
 val e_status : election_status t
 val e_dates : election_auto_dates t
 val get_prefix : unit -> string Lwt.t

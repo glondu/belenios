@@ -378,9 +378,7 @@ let post_shuffle s (election : Election.t) ~token ~shuffle =
 
 let get_records s =
   let* x = Web_persist.get_records s in
-  Option.value ~default:[] x
-  |> List.map (fun (username, date) -> ({ date; username } : voting_record))
-  |> Lwt.return
+  Option.value ~default:[] x |> Lwt.return
 
 let cast_ballot send_confirmation s (election : Election.t) ~ballot ~user
     ~precast_data =
@@ -510,7 +508,7 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       | `GET ->
           let@ () = handle_generic_error in
           let* x = get_records s in
-          return_json 200 (!+yojson_of_records x)
+          return_json 200 (!+yojson_of_election_records x)
       | _ -> method_not_allowed)
   | [ "partial-decryptions" ] -> (
       match method_ with

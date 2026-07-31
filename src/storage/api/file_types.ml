@@ -37,7 +37,7 @@ type _ election_file =
   | Public_creds : ('a, 'b) spec -> 'a public_credentials_with_id election_file
   | Private_creds : private_credentials election_file
   | Sealing_log : string election_file
-  | Records : election_records election_file
+  | Records : Belenios_web_api.election_records election_file
   | Voters : Voter.t list election_file
   | Confidential_archive : abstract election_file
   | Extended_record : string -> extended_record election_file
