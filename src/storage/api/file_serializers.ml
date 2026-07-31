@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios
 open File_types
 open Types
@@ -86,8 +87,8 @@ let get_election (type t) : t election_file -> t serializers = function
       }
   | Credential_mapping _ ->
       {
-        of_string = !*credential_mapping_of_yojson;
-        to_string = !+yojson_of_credential_mapping;
+        of_string = !*[%of_yojson: hash option];
+        to_string = !+[%yojson_of: hash option];
       }
   | Data _ -> { of_string = Fun.id; to_string = Fun.id }
   | Roots -> { of_string = !*roots_of_yojson; to_string = !+yojson_of_roots }

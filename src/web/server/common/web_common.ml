@@ -131,7 +131,7 @@ let unurlize = String.map (function '-' -> '+' | '_' -> '/' | c -> c)
 let get_booth_index = function Some 2 -> Some 0 | _ -> None
 
 type credential_record = {
-  cr_ballot : string option;
+  cr_ballot : hash option;
   cr_weight : weight;
   cr_username : string option;
 }

@@ -65,10 +65,7 @@ type metadata = {
 type extended_record = { username : string; date : int64; credential : string }
 [@@deriving yojson]
 
-type credential_mapping = {
-  credential : string;
-  ballot : string option; [@yojson.option]
-}
+type credential_mapping = { credential : string; ballot : hash }
 [@@deriving yojson]
 
 type election_state =

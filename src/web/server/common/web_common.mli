@@ -89,7 +89,7 @@ val unurlize : string -> string
 val get_booth_index : int option -> int option
 
 type credential_record = {
-  cr_ballot : string option;
+  cr_ballot : hash option;
   cr_weight : weight;
   cr_username : string option;
 }

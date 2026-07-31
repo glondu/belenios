@@ -41,7 +41,7 @@ type _ election_file =
   | Voters : Voter.t list election_file
   | Confidential_archive : abstract election_file
   | Extended_record : string -> extended_record election_file
-  | Credential_mapping : string -> credential_mapping election_file
+  | Credential_mapping : string -> hash option election_file
   | Data : hash -> string election_file
   | Roots : roots election_file
   | Voters_config : voters_config election_file

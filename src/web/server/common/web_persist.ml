@@ -434,7 +434,7 @@ let raw_compute_encrypted_tally s (election : Election.t) =
 
 let get_credential_record s credential =
   let* credential_mapping = Storage.E.get s (Credential_mapping credential) in
-  let&* { ballot = cr_ballot; _ } = Lopt.get_value credential_mapping in
+  let&* cr_ballot = Lopt.get_value credential_mapping in
   let* cr_username = get_credential_user s credential in
   let* cr_weight = get_credential_weight s credential in
   Lwt.return_some { cr_ballot; cr_weight; cr_username }
@@ -537,9 +537,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
               cont (h, true)
       in
       let* () =
-        hash |> Hash.to_b64
-        |> (fun ballot -> { ballot = Some ballot; credential })
-        |> Storage.E.set s (Credential_mapping credential) Value
+        Some hash |> Storage.E.set s (Credential_mapping credential) Value
       in
       let* () =
         { username = user; date; credential }
@@ -727,8 +725,7 @@ let init_credential_mapping s (type a b) (w : (a, b) group) =
       let* () =
         SMap.bindings xs
         |> Lwt_list.iter_s (fun (credential, ballot) ->
-            Storage.E.set s (Credential_mapping credential) Value
-              { credential; ballot })
+            Storage.E.set s (Credential_mapping credential) Value ballot)
       in
       Lwt.return public_credentials
   | None -> Lwt.fail @@ Election_not_found (uuid, "init_credential_mapping")

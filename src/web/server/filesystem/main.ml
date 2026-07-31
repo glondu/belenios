@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
@@ -115,7 +116,7 @@ module MakeBackend
       (_, Belenios_storage_api.extended_record) abstract_file_ops =
     make_uninitialized_ops "extended_records_ops"
 
-  let credential_mappings_ops : (_, credential_mapping) abstract_file_ops =
+  let credential_mappings_ops : (_, hash option) abstract_file_ops =
     make_uninitialized_ops "credential_mappings_ops"
 
   let data_ops : (_, string) abstract_file_ops =
@@ -731,7 +732,7 @@ module MakeBackend
 
   module CredMappingsCacheTypes = struct
     type key = uuid
-    type value = string option SMap.t
+    type value = hash SMap.t
   end
 
   module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
@@ -785,18 +786,14 @@ module MakeBackend
   let () =
     credential_mappings_ops.get <-
       (fun uuid credential ->
-        let* x = find_credential_mapping uuid credential in
-        let&** ballot = x in
-        { credential; ballot }
-        |> Lopt.some_value !+yojson_of_credential_mapping
-        |> Lwt.return);
+        let* ballot = find_credential_mapping uuid credential in
+        ballot |> Lopt.some_value !+[%yojson_of: hash option] |> Lwt.return);
     credential_mappings_ops.set <-
       (fun uuid cred data ->
-        match Lopt.get_string data with
-        | None -> assert false
-        | Some data ->
-            let mapping = if data = "" then None else Some data in
-            add_credential_mapping uuid cred mapping)
+        match Lopt.get_value data with
+        | Some (Some data) -> add_credential_mapping uuid cred data
+        | Some None -> Lwt.return_unit
+        | _ -> assert false)
 
   type voters = {
     has_explicit_weights : bool;
