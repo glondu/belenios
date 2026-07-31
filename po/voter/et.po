@@ -8,14 +8,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-16 10:10+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2026-08-01 04:55+0000\n"
+"Last-Translator: Heldur-Valdek Seeder <valdek.seeder@gmail.com>\n"
+"Language-Team: Estonian <https://hosted.weblate.org/projects/belenios/voter/"
+"et/>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "Language: et\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #: src/web/server/common/pages_common.ml:349
 msgid " (if you forgot it, for example)."
@@ -23,15 +25,15 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:245
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " Teile on saadetud kinnituskiri."
 
 #: src/web/common/pages_common.ml:243
 msgid " anytime during the election."
-msgstr ""
+msgstr " valimiste ajal igal ajal."
 
 #: src/web/common/pages_common.ml:232
 msgid " as user "
-msgstr ""
+msgstr " kasutajana "
 
 #: src/web/clients/election/ballots.ml:59
 msgid " ballot(s) have been accepted so far."
@@ -51,7 +53,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:234
 msgid " has been accepted."
-msgstr ""
+msgstr " on heaks kiidetud."
 
 #: src/web/clients/election/ballots.ml:71
 msgid " have been tallied."
@@ -59,11 +61,11 @@ msgstr ""
 
 #: src/web/server/common/pages_common.ml:551
 msgid " in the following box: "
-msgstr ""
+msgstr " järgmisse lahtrisse: "
 
 #: src/web/common/pages_common.ml:252
 msgid " is rejected, because "
-msgstr ""
+msgstr " lükatakse tagasi, sest "
 
 #: src/web/clients/election/home.ml:363 src/web/clients/election/home.ml:332
 msgid "%d blank ballot(s)"
@@ -111,7 +113,7 @@ msgstr ""
 
 #: src/web/server/common/pages_common.ml:500
 msgid "A verification code has been sent to %s."
-msgstr ""
+msgstr "Kinnituskood on saadetud aadressile %s."
 
 #: src/web/clients/election/home.ml:279
 msgid "About this election"
@@ -206,7 +208,7 @@ msgstr ""
 
 #: src/web/server/common/mails_voter.ml:289
 msgid "Best regards,"
-msgstr ""
+msgstr "Parimate soovidega,"
 
 #: src/web/clients/election/home.ml:498
 msgid "Blank vote"
@@ -218,7 +220,7 @@ msgstr ""
 
 #: src/web/clients/common/secondary_ui.ml:70
 msgid "By using this site, you accept our "
-msgstr ""
+msgstr "Selle saidi kasutamisega nõustute meie "
 
 #: src/web/server/common/pages_common.ml:586
 msgid "Click here"
@@ -226,7 +228,7 @@ msgstr ""
 
 #: src/web/clients/common/secondary_ui.ml:80
 msgid "Close"
-msgstr ""
+msgstr "Sulge"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:92
 msgid "Compare"
@@ -234,7 +236,7 @@ msgstr ""
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:74
 msgid "Compute fingerprint"
-msgstr ""
+msgstr "Arvuta sõrmejälg"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:35
 msgid "Computed fingerprint:"
@@ -259,13 +261,13 @@ msgstr ""
 #. src/web/server/common/mails_voter.ml:202
 #: src/web/server/common/mails_voter.ml:256
 msgid "Dear %s,"
-msgstr ""
+msgstr "Lugupeetud %s,"
 
 #. src/web/server/common/pages_common.ml:356
 #. src/web/server/common/pages_common.ml:288
 #: src/web/server/common/pages_common.ml:540
 msgid "E-mail address:"
-msgstr ""
+msgstr "E-posti aadress:"
 
 #: src/web/clients/election/home.ml:94
 msgid "Election fingerprint"
@@ -285,7 +287,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:143 src/web/common/pages_common.ml:134
 msgid "Election server"
-msgstr ""
+msgstr "Valimisserver"
 
 #: src/web/clients/election/advanced.ml:57
 msgid "Encrypted ballot in JSON format"
@@ -293,7 +295,7 @@ msgstr ""
 
 #: src/web/clients/election/main.ml:70
 msgid "Error"
-msgstr ""
+msgstr "Viga"
 
 #: src/web/clients/election/ballots.ml:97
 msgid "Error while loading ballots!"
@@ -305,7 +307,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:256
 msgid "FAIL!"
-msgstr ""
+msgstr "EBAÕNNESTUMINE!"
 
 #: src/web/clients/election/advanced.ml:112
 msgid "File:"
@@ -325,12 +327,12 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:69
 msgid "Get the source code"
-msgstr ""
+msgstr "Lae alla lähtekood"
 
 #. src/web/common/pages_common.ml:273
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
-msgstr ""
+msgstr "Tagasi valimiste juurde"
 
 #: src/web/server/common/mails_voter.ml:128
 msgid "If the above link does not work:"
@@ -362,11 +364,11 @@ msgstr ""
 
 #: src/web/server/common/pages_common.ml:174 src/web/common/pages_common.ml:94
 msgid "Language:"
-msgstr ""
+msgstr "Keel:"
 
 #: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
-msgstr ""
+msgstr "Laadimine..."
 
 #. src/web/server/common/pages_common.ml:412
 #. src/web/server/common/pages_common.ml:320
@@ -697,7 +699,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:241
 msgid "You can check its presence in the "
-msgstr ""
+msgstr "Selle olemasolu saate kontrollida "
 
 #: src/web/server/common/mails_voter.ml:230
 msgid "You can check its presence in the ballot box, accessible at"
@@ -717,7 +719,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:262
 msgid "Your ballot for "
-msgstr ""
+msgstr "Teie hääletussedel "
 
 #: src/web/server/common/mails_voter.ml:173
 msgid "Your credential for election %s"
@@ -737,7 +739,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:238
 msgid "Your smart ballot tracker is "
-msgstr ""
+msgstr "Teie nutikas häältelugemise jälgija on "
 
 #: src/web/server/common/mails_voter.ml:205
 msgid "Your vote for election"
@@ -753,11 +755,11 @@ msgstr ""
 
 #: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:218
 msgid "Your weight is %s."
-msgstr ""
+msgstr "Sinu kaal on %s."
 
 #: src/web/common/pages_common.ml:229
 msgid "ballot box"
-msgstr ""
+msgstr "valimiskast"
 
 #: src/web/server/common/pages_common.ml:347
 msgid "change your password"
@@ -801,7 +803,7 @@ msgstr ""
 
 #: src/web/clients/common/secondary_ui.ml:71
 msgid "terms of service"
-msgstr ""
+msgstr "kasutustingimused"
 
 #: src/web/clients/election/home.ml:402
 msgid "the Wikipedia page"
