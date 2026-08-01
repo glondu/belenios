@@ -112,6 +112,14 @@ end
 
 type 'a shape = 'a Shape.t [@@deriving yojson]
 
+module SMap : sig
+  type +!'a t [@@deriving yojson]
+
+  include Map.S with type 'a t := 'a t and type key = string
+end
+
+type 'a smap = 'a SMap.t [@@deriving yojson]
+
 (** {2 Misc} *)
 
 type voter = {

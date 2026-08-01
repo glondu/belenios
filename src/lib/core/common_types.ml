@@ -262,6 +262,20 @@ end
 
 type 'a shape = 'a Shape.t [@@deriving yojson]
 
+module SMap = struct
+  include Map.Make (String)
+
+  let yojson_of_t yojson_of_b xs : json =
+    `Assoc (bindings xs |> List.map (fun (a, b) -> (a, yojson_of_b b)))
+
+  let t_of_yojson b_of_yojson : json -> _ = function
+    | `Assoc xs ->
+        List.fold_left (fun accu (a, b) -> add a (b_of_yojson b) accu) empty xs
+    | x -> of_yojson_error "object expected" x
+end
+
+type 'a smap = 'a SMap.t [@@deriving yojson]
+
 (** {2 Misc} *)
 
 type voter = {
