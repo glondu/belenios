@@ -120,6 +120,14 @@ end
 
 type 'a smap = 'a SMap.t [@@deriving yojson]
 
+module HMap : sig
+  type +!'a t [@@deriving yojson]
+
+  include Map.S with type 'a t := 'a t and type key = hash
+end
+
+type 'a hmap = 'a HMap.t [@@deriving yojson]
+
 (** {2 Misc} *)
 
 type voter = {

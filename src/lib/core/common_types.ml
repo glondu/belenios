@@ -276,6 +276,23 @@ end
 
 type 'a smap = 'a SMap.t [@@deriving yojson]
 
+module HMap = struct
+  include Map.Make (Hash)
+
+  let yojson_of_t yojson_of_b xs : json =
+    `Assoc
+      (bindings xs |> List.map (fun (a, b) -> (Hash.to_hex a, yojson_of_b b)))
+
+  let t_of_yojson b_of_yojson : json -> _ = function
+    | `Assoc xs ->
+        List.fold_left
+          (fun accu (a, b) -> add (Hash.of_hex a) (b_of_yojson b) accu)
+          empty xs
+    | x -> of_yojson_error "object expected" x
+end
+
+type 'a hmap = 'a HMap.t [@@deriving yojson]
+
 (** {2 Misc} *)
 
 type voter = {

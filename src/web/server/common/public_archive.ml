@@ -176,8 +176,6 @@ let get_ballot_weight s (election : Election.t) ballot =
       Printf.ksprintf failwith "anomaly in get_ballot_weight (%s)"
         (Printexc.to_string e))
 
-module HMap = Map.Make (Hash)
-
 module BallotsCacheTypes = struct
   type key = uuid
   type value = Weight.t HMap.t

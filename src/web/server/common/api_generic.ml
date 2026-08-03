@@ -217,8 +217,6 @@ let put_account ((a, set) : account updatable) (u : user) (b : api_account) =
   in
   set a
 
-module HMap = Map.Make (Hash)
-
 let msgcache = ref HMap.empty
 
 let filter_msgcache ~now cache =
