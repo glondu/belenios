@@ -988,15 +988,15 @@ let get_records s =
   let&* x = Lopt.get_value x in
   Lwt.return_some x
 
-type credentials_status = [ `None | `Pending of int | `Done ]
+type credentials_status = [ `None | `Pending | `Done ]
 
-let pending_generations = ref SMap.empty
+let pending_generations = ref SSet.empty
 
 let generate_credentials_on_server_async uuid (Draft (_, se)) voters =
   let uuid_s = Uuid.to_string uuid in
-  match SMap.find_opt uuid_s !pending_generations with
-  | Some _ -> ()
-  | None ->
+  match SSet.mem uuid_s !pending_generations with
+  | true -> ()
+  | false ->
       let { version; group; _ } : _ raw_draft_election = se in
       let module G = (val Belenios.Group.make { version; group }) in
       let module Cred =
@@ -1010,13 +1010,10 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) voters =
             let pause = Lwt.pause
             let uuid = uuid
           end) in
-      let t, p = Cred.generate_sub (List.length voters) in
-      pending_generations := SMap.add uuid_s p !pending_generations;
+      let t = Cred.generate voters in
+      pending_generations := SSet.add uuid_s !pending_generations;
       Lwt.async (fun () ->
-          let* x = t in
-          let Credential.{ private_creds; public_with_ids; _ } =
-            Cred.merge_sub voters x
-          in
+          let* Credential.{ private_creds; public_with_ids; _ } = t in
           let@ s = Storage.E.with_transaction uuid in
           let@ se, set = Storage.E.update s Draft in
           match Lopt.get_value se with
@@ -1028,11 +1025,11 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) voters =
               se.public_creds_received <- true;
               se.pending_credentials <- true;
               let* () = set Value (W (w, Draft (v, se))) in
-              pending_generations := SMap.remove uuid_s !pending_generations;
+              pending_generations := SSet.remove uuid_s !pending_generations;
               Lwt.return_unit
           | None -> Lwt.return_unit)
 
 let get_credentials_status uuid (Draft (_, se)) =
-  match SMap.find_opt (Uuid.to_string uuid) !pending_generations with
-  | Some p -> `Pending (p ())
-  | None -> if se.public_creds_received then `Done else `None
+  match SSet.mem (Uuid.to_string uuid) !pending_generations with
+  | true -> `Pending
+  | false -> if se.public_creds_received then `Done else `None

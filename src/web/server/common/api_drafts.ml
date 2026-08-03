@@ -379,17 +379,18 @@ let get_draft_status s uuid (Draft (v, se)) (metadata : metadata) =
       Lwt.return_some se.private_creds_downloaded
     else Lwt.return_none
   in
-  let credentials_ready, credentials_left =
-    match Web_persist.get_credentials_status uuid (Draft (v, se)) with
-    | `None -> (false, None)
-    | `Pending n -> (false, Some n)
-    | `Done -> (true, None)
-  in
   let* voters =
     let* x = Storage.E.get s Voters in
     match Lopt.get_value x with
     | None -> Lwt.return_nil
     | Some x -> Lwt.return x
+  in
+  let num_voters = List.length voters in
+  let credentials_ready, credentials_left =
+    match Web_persist.get_credentials_status uuid (Draft (v, se)) with
+    | `None -> (false, None)
+    | `Pending -> (false, Some num_voters)
+    | `Done -> (true, None)
   in
   let has_weights = Voter.has_explicit_weights voters in
   let { version; group; _ } : _ raw_draft_election = se in
@@ -433,7 +434,7 @@ let get_draft_status s uuid (Draft (v, se)) (metadata : metadata) =
   in
   Lwt.return
     {
-      num_voters = List.length voters;
+      num_voters;
       credentials_ready;
       credentials_left;
       private_credentials_downloaded;

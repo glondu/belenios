@@ -22,7 +22,6 @@
 open Signatures_core
 open Common_types
 open Election_types
-open Misc_types
 open Common
 
 let salt_length = 22 (* > 128 bits of entropy *)
@@ -70,8 +69,6 @@ module type S = sig
   type public_key
 
   val generate : Voter.t list -> public_key batch m
-  val generate_sub : int -> sub_batch m * (unit -> int)
-  val merge_sub : Voter.t list -> sub_batch -> public_key batch
 
   val derive :
     string -> (private_key, [ `Wrong | `Invalid | `MaybePassword ]) result m
@@ -131,50 +128,4 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
       public_with_ids = List.map serialize_with_id bindings;
     }
     |> E.return
-
-  let generate_sub n =
-    let n = ref n in
-    let rec loop accu =
-      if !n > 0 then (
-        let* () = E.pause () in
-        let { private_credential; private_key } = generate_one () in
-        let public = G.(g **~ private_key |> to_string) in
-        let x = { base = private_credential; public } in
-        decr n;
-        loop (x :: accu))
-      else E.return accu
-    in
-    (loop [], fun () -> !n)
-
-  let merge_sub voters subs =
-    let implicit_weights = not (Voter.has_explicit_weights voters) in
-    let privs, pubs =
-      let rec loop (privs, pubs) voters subs =
-        match (voters, subs) with
-        | v :: vs, s :: ss ->
-            let username = v.login in
-            let weight = Voter.get_weight v in
-            let privs = SMap.add username s.base privs in
-            let pubs =
-              GMap.add G.(of_string s.public) (weight, username) pubs
-            in
-            loop (privs, pubs) vs ss
-        | [], _ -> (privs, pubs)
-        | _ :: _, [] -> failwith "merge_sub"
-      in
-      loop (SMap.empty, GMap.empty) voters subs
-    in
-    let serialize_public (e, (w, _)) : _ public_credential =
-      { credential = e; weight = (if implicit_weights then None else Some w) }
-    in
-    let serialize_with_id ((_, (_, id)) as x) : _ public_credential_with_id =
-      let credential = serialize_public x in
-      { credential; id }
-    in
-    let bindings = GMap.bindings pubs in
-    {
-      private_creds = SMap.bindings privs;
-      public_creds = List.map serialize_public bindings;
-      public_with_ids = List.map serialize_with_id bindings;
-    }
 end
