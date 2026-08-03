@@ -51,13 +51,12 @@ type _ election_file =
   | Records : Belenios_web_api.election_records election_file
   | Voters : Voter.t list election_file
   | Confidential_archive : abstract election_file
-  | Extended_record : string -> extended_record election_file
-  | Credential_mapping : string -> hash option election_file
   | Data : hash -> string election_file
   | Roots : roots election_file
   | Voters_config : voters_config election_file
   | Voter : string -> Voter.t election_file
   | Credential_props : string -> wrapped_public_credential_props election_file
+  | Credential_dynamic_records : credential_dynamic_records election_file
 
 type _ credentials_file =
   | Credentials_params : wrapped_credentials_params credentials_file

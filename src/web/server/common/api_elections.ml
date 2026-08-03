@@ -378,7 +378,7 @@ let post_shuffle s (election : Election.t) ~token ~shuffle =
 
 let get_records s =
   let* x = Web_persist.get_records s in
-  Option.value ~default:[] x |> Lwt.return
+  match x with None -> assert false | Some x -> Lwt.return x
 
 let cast_ballot send_confirmation s (election : Election.t) ~ballot ~user
     ~precast_data =

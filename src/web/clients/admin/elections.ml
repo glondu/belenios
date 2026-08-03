@@ -778,12 +778,8 @@ let voters_content () =
     else Cache.get_until_success Cache.e_voters
   in
   let* records =
-    if is_draft then Lwt.return [] else Cache.get_until_success Cache.e_records
-  in
-  let reco =
-    List.fold_left
-      (fun accu (username, _) -> SSet.add username accu)
-      SSet.empty records
+    if is_draft then Lwt.return SMap.empty
+    else Cache.get_until_success Cache.e_records
   in
   let with_login, with_weight =
     let rec loop ((with_login, with_weight) as accu) = function
@@ -820,7 +816,11 @@ let voters_content () =
           let login = v.login in
           let weight = Voter.get_weight v in
           let address = Option.value ~default:"" v.address in
-          let voted = SSet.mem login reco in
+          let voted =
+            match SMap.find_opt login records with
+            | Some (Some _) -> true
+            | _ -> false
+          in
           if show_only_missing && voted then None
           else
             List.flatten
@@ -1006,9 +1006,11 @@ let voters_content () =
   else
     (* Running election *)
     let data =
-      List.map
-        (fun (username, date) -> datestring_of_int64 date ^ " " ^ username)
-        records
+      records |> SMap.bindings
+      |> List.filter_map (fun (username, date) ->
+          match date with
+          | None -> None
+          | Some date -> Some (datestring_of_int64 date ^ " " ^ username))
     in
     let uuid = get_current_uuid () |> Uuid.to_string in
     let link =
@@ -1023,7 +1025,7 @@ let voters_content () =
         (s_ "Voter list")
     in
     let nv = List.length voters in
-    let n = List.length records in
+    let n = SMap.cardinal records in
     let turnout =
       Printf.sprintf
         (f_ "Current turnout: %d / %d = %.2f %%")

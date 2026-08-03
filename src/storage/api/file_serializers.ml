@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios
 open File_types
 open Types
@@ -80,16 +79,6 @@ let get_election (type t) : t election_file -> t serializers = function
         of_string = (fun _ -> invalid_arg "Confidential_archive.of_string");
         to_string = (fun _ -> invalid_arg "Confidential_archive.to_string");
       }
-  | Extended_record _ ->
-      {
-        of_string = !*extended_record_of_yojson;
-        to_string = !+yojson_of_extended_record;
-      }
-  | Credential_mapping _ ->
-      {
-        of_string = !*[%of_yojson: hash option];
-        to_string = !+[%yojson_of: hash option];
-      }
   | Data _ -> { of_string = Fun.id; to_string = Fun.id }
   | Roots -> { of_string = !*roots_of_yojson; to_string = !+yojson_of_roots }
   | Voters_config ->
@@ -102,6 +91,11 @@ let get_election (type t) : t election_file -> t serializers = function
       {
         of_string = !*wrapped_public_credential_props_of_yojson;
         to_string = !+yojson_of_wrapped_public_credential_props;
+      }
+  | Credential_dynamic_records ->
+      {
+        of_string = !*credential_dynamic_records_of_yojson;
+        to_string = !+yojson_of_credential_dynamic_records;
       }
 
 let get_trustees (type t) : t trustees_file -> t serializers = function

@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
@@ -97,27 +96,16 @@ module MakeBackend
 
   type ('key, 'a) abstract_file_ops = {
     mutable get : uuid -> 'key -> 'a lopt Lwt.t;
-    mutable set : uuid -> 'key -> 'a lopt -> unit Lwt.t;
   }
 
   let make_uninitialized_ops what =
     let e x = Lwt.fail @@ Not_implemented (Printf.sprintf "%s.%s" what x) in
-    { get = (fun _ _ -> e "get"); set = (fun _ _ _ -> e "set") }
+    { get = (fun _ _ -> e "get") }
 
   (** {1 Forward references} *)
 
   let archive_header_ops : (_, Archive.header) abstract_file_ops =
     make_uninitialized_ops "archive_header_ops"
-
-  let records_ops : (_, Belenios_web_api.election_records) abstract_file_ops =
-    make_uninitialized_ops "records_ops"
-
-  let extended_records_ops :
-      (_, Belenios_storage_api.extended_record) abstract_file_ops =
-    make_uninitialized_ops "extended_records_ops"
-
-  let credential_mappings_ops : (_, hash option) abstract_file_ops =
-    make_uninitialized_ops "credential_mappings_ops"
 
   let data_ops : (_, string) abstract_file_ops =
     make_uninitialized_ops "data_ops"
@@ -298,6 +286,7 @@ module MakeBackend
   let public_creds_filename = "public_creds.json"
   let server_seed_filename = "server_seed.txt"
   let private_keys_filename = "private_keys.jsons"
+  let credential_dynamic_records_filename = "credential_dynamic_records.json"
 
   let get_election_file_props _uuid (type t) :
       t election_file -> t raw_file_props = function
@@ -312,11 +301,10 @@ module MakeBackend
     | Archive_header -> Abstract (archive_header_ops, ())
     | Last_event -> Concrete "last_event.json"
     | Sealing_log -> Concrete "sealing.log"
-    | Records -> Abstract (records_ops, ())
+    | Records -> Concrete records_filename
     | Voters -> Concrete voters_filename
     | Confidential_archive -> Concrete "archive.zip"
-    | Extended_record key -> Abstract (extended_records_ops, key)
-    | Credential_mapping key -> Abstract (credential_mappings_ops, key)
+    | Credential_dynamic_records -> Concrete credential_dynamic_records_filename
     | Data key -> Abstract (data_ops, key)
     | Roots -> Abstract (roots_ops, ())
     | Voters_config -> Abstract (voters_config_ops, ())
@@ -342,9 +330,6 @@ module MakeBackend
     | Election (_, (Draft | State)) -> Elections_cache.clear ()
     | Account (Account _) -> Accounts_cache.clear ()
     | _ -> ()
-
-  let extended_records_filename = "extended_records.jsons"
-  let credential_mappings_filename = "credential_mappings.jsons"
 
   type _ file_props =
     | Concrete : string -> 'a file_props
@@ -412,7 +397,7 @@ module MakeBackend
             let* () = Filesystem.write_file fname data in
             let () = clear_caches f in
             Lwt.return_unit)
-    | Abstract (ops, uuid, key) -> ops.set uuid key data
+    | Abstract _ -> failwith "abstract_ops.set"
     | Admin_password (file, key) -> set_password_record_admin file key data
 
   let get_group uuid : (module GROUP) option Lwt.t =
@@ -482,13 +467,6 @@ module MakeBackend
     let* r = g (x, set) in
     del_txid_cell (File f);
     Lwt.return r
-
-  let append_to_file fname lines =
-    let open Lwt_io in
-    let@ oc =
-      with_file ~mode:Output ~flags:[ O_WRONLY; O_APPEND; O_CREAT ] fname
-    in
-    Lwt_list.iter_s (write_line oc) lines
 
   let del (type t) (f : t file) =
     match get_props f with
@@ -630,168 +608,6 @@ module MakeBackend
 
   (** {1 Views} *)
 
-  let get_records uuid () =
-    let* raw_records =
-      Filesystem.read_file (spool_elections uuid records_filename)
-    in
-    let&** raw_records = raw_records in
-    raw_records
-    |> !*Belenios_web_api.election_records_of_yojson
-    |> Lopt.some_value !+Belenios_web_api.yojson_of_election_records
-    |> Lwt.return
-
-  let () = records_ops.get <- get_records
-
-  module ExtendedRecordsCacheTypes = struct
-    type key = uuid
-    type value = (int64 * string) SMap.t
-  end
-
-  module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
-
-  let raw_get_extended_records uuid =
-    let* x =
-      Filesystem.read_file (spool_elections uuid extended_records_filename)
-    in
-    let x = match x with None -> [] | Some x -> split_lines x in
-    Lwt_list.fold_left_s
-      (fun accu x ->
-        let x = !*extended_record_of_yojson x in
-        Lwt.return @@ SMap.add x.username (x.date, x.credential) accu)
-      SMap.empty x
-
-  let dump_extended_records uuid rs =
-    let rs = SMap.bindings rs in
-    let extended_records =
-      List.map
-        (fun (username, (date, credential)) ->
-          { username; date; credential } |> !+yojson_of_extended_record)
-        rs
-      |> join_lines
-    in
-    let records =
-      rs
-      |> List.map (fun (username, (date, _)) -> (username, date))
-      |> !+Belenios_web_api.yojson_of_election_records
-    in
-    let* () =
-      Filesystem.write_file
-        (spool_elections uuid extended_records_filename)
-        extended_records
-    in
-    Filesystem.write_file (spool_elections uuid records_filename) records
-
-  let extended_records_cache =
-    new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
-
-  let extended_records_deferrer =
-    Indexed_defer.create mutexes (function
-      | Election uuid ->
-          let* x = extended_records_cache#find uuid in
-          dump_extended_records uuid x
-      | _ -> Lwt.return_unit)
-
-  let find_extended_record uuid username =
-    let* rs = extended_records_cache#find uuid in
-    Lwt.return (SMap.find_opt username rs)
-
-  let add_extended_record uuid username r =
-    let* rs = extended_records_cache#find uuid in
-    let rs = SMap.add username r rs in
-    extended_records_cache#add uuid rs;
-    let* () =
-      let date, credential = r in
-      { username; date; credential }
-      |> !+yojson_of_extended_record
-      |> (fun x -> [ x ])
-      |> append_to_file (spool_elections uuid extended_records_filename)
-    in
-    Indexed_defer.defer extended_records_deferrer (Election uuid);
-    Lwt.return_unit
-
-  let () =
-    extended_records_ops.get <-
-      (fun uuid username ->
-        let* x = find_extended_record uuid username in
-        let&** date, credential = x in
-        let open Belenios_storage_api in
-        { username; date; credential }
-        |> Lopt.some_value !+yojson_of_extended_record
-        |> Lwt.return);
-    extended_records_ops.set <-
-      (fun uuid username data ->
-        match Lopt.get_value data with
-        | None -> assert false
-        | Some { username = r_username; date; credential } ->
-            if username = r_username then
-              add_extended_record uuid username (date, credential)
-            else Lwt.fail @@ Not_implemented "extended_records_ops.set")
-
-  module CredMappingsCacheTypes = struct
-    type key = uuid
-    type value = hash SMap.t
-  end
-
-  module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
-
-  let raw_get_credential_mappings uuid =
-    let* x =
-      Filesystem.read_file (spool_elections uuid credential_mappings_filename)
-    in
-    let x = match x with None -> [] | Some x -> split_lines x in
-    Lwt_list.fold_left_s
-      (fun accu x ->
-        let x = !*credential_mapping_of_yojson x in
-        Lwt.return @@ SMap.add x.credential x.ballot accu)
-      SMap.empty x
-
-  let dump_credential_mappings uuid xs =
-    SMap.fold
-      (fun credential ballot accu -> { credential; ballot } :: accu)
-      xs []
-    |> List.rev_map !+yojson_of_credential_mapping
-    |> join_lines
-    |> Filesystem.write_file (spool_elections uuid credential_mappings_filename)
-
-  let credential_mappings_cache =
-    new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
-
-  let credential_mappings_deferrer =
-    Indexed_defer.create mutexes (function
-      | Election uuid ->
-          let* x = credential_mappings_cache#find uuid in
-          dump_credential_mappings uuid x
-      | _ -> Lwt.return_unit)
-
-  let find_credential_mapping uuid cred =
-    let* xs = credential_mappings_cache#find uuid in
-    Lwt.return @@ SMap.find_opt cred xs
-
-  let add_credential_mapping uuid cred mapping =
-    let* xs = credential_mappings_cache#find uuid in
-    let xs = SMap.add cred mapping xs in
-    credential_mappings_cache#add uuid xs;
-    let* () =
-      { credential = cred; ballot = mapping }
-      |> !+yojson_of_credential_mapping
-      |> (fun x -> [ x ])
-      |> append_to_file (spool_elections uuid credential_mappings_filename)
-    in
-    Indexed_defer.defer credential_mappings_deferrer (Election uuid);
-    Lwt.return_unit
-
-  let () =
-    credential_mappings_ops.get <-
-      (fun uuid credential ->
-        let* ballot = find_credential_mapping uuid credential in
-        ballot |> Lopt.some_value !+[%yojson_of: hash option] |> Lwt.return);
-    credential_mappings_ops.set <-
-      (fun uuid cred data ->
-        match Lopt.get_value data with
-        | Some (Some data) -> add_credential_mapping uuid cred data
-        | Some None -> Lwt.return_unit
-        | _ -> assert false)
-
   type voters = {
     has_explicit_weights : bool;
     username_or_address : [ `Username | `Address ];
@@ -926,9 +742,8 @@ module MakeBackend
     let* () =
       cleanup_files uuid
         [
-          `Elections extended_records_filename;
-          `Elections credential_mappings_filename;
           `Elections public_creds_filename;
+          `Elections credential_dynamic_records_filename;
           `Elections server_seed_filename;
           `Elections private_keys_filename;
         ]

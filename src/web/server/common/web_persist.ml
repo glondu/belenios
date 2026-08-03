@@ -421,8 +421,16 @@ let raw_compute_encrypted_tally s (election : Election.t) =
   | false -> Lwt.fail @@ Failure "race condition in raw_compute_encrypted_tally"
 
 let get_credential_record s credential =
-  let* credential_mapping = Storage.E.get s (Credential_mapping credential) in
-  let&* cr_ballot = Lopt.get_value credential_mapping in
+  let* cr_ballot =
+    let* x = Storage.E.get s Credential_dynamic_records in
+    match Lopt.get_value x with
+    | None -> assert false
+    | Some x -> (
+        let x = SMap.find_opt credential x in
+        match x with
+        | Some (Some { ballot; _ }) -> Lwt.return_some ballot
+        | _ -> Lwt.return_none)
+  in
   let* (W x) = get_credential_props s credential in
   let cr_username = x.id in
   let cr_weight = x.weight |> Option.value ~default:Weight.one in
@@ -470,15 +478,10 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
-  let get_username user =
+  let username =
     match String.index_opt user ':' with
     | None -> user
     | Some i -> String.sub user (i + 1) (String.length user - i - 1)
-  in
-  let get_user_record user =
-    let* x = Storage.E.get s (Extended_record user) in
-    let&* { credential; _ } = Lopt.get_value x in
-    Lwt.return_some credential
   in
   let@ x cont =
     let { credential; credential_record = cr } = precast_data in
@@ -490,17 +493,9 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
     let@ () =
      fun cont2 ->
       match cr.cr_username with
-      | Some username when get_username user <> username ->
+      | Some username' when username <> username' ->
           cont @@ Error `WrongUsername
-      | Some _ -> cont2 ()
-      | None -> (
-          let* x = get_user_record user in
-          match (x, cr.cr_ballot) with
-          | None, None -> cont2 ()
-          | None, Some _ -> cont @@ Error `UsedCredential
-          | Some _, None -> cont @@ Error `RevoteNotAllowed
-          | Some credential', _ when credential' = credential -> cont2 ()
-          | Some _, _ -> cont @@ Error `WrongCredential)
+      | _ -> cont2 ()
     in
     let* x = get_credential_record s credential in
     match x with
@@ -526,11 +521,22 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
               cont (h, true)
       in
       let* () =
-        Some hash |> Storage.E.set s (Credential_mapping credential) Value
+        let@ x, set = Storage.E.update s Credential_dynamic_records in
+        match Lopt.get_value x with
+        | None -> assert false
+        | Some x ->
+            let x =
+              SMap.add credential (Some { ballot = hash; timestamp = date }) x
+            in
+            set Value x
       in
       let* () =
-        { username = user; date; credential }
-        |> Storage.E.set s (Extended_record user) Value
+        let@ x, set = Storage.E.update s Records in
+        match Lopt.get_value x with
+        | None -> assert false
+        | Some x ->
+            let x = SMap.add username (Some date) x in
+            set Value x
       in
       Lwt.return (Ok (hash, revote))
 
@@ -705,12 +711,17 @@ let init_credential_mapping s (type a b) (w : (a, b) group) =
         |> SMap.map (fun x ->
             ({ x with id = None } : _ public_credential_props))
       in
-      let xs = x |> SMap.map (fun _ -> None) in
-      let* () =
-        SMap.bindings xs
-        |> Lwt_list.iter_s (fun (credential, ballot) ->
-            Storage.E.set s (Credential_mapping credential) Value ballot)
+      let records =
+        SMap.fold
+          (fun _ (x : _ public_credential_props) accu ->
+            match x.id with
+            | None -> assert false
+            | Some id -> SMap.add id None accu)
+          x SMap.empty
       in
+      let xs = x |> SMap.map (fun _ -> None) in
+      let* () = Storage.E.set s Records Value records in
+      let* () = Storage.E.set s Credential_dynamic_records Value xs in
       Lwt.return public_credentials
   | None -> Lwt.fail @@ Election_not_found (uuid, "init_credential_mapping")
 
