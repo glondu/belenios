@@ -353,16 +353,9 @@ let get_voter s id =
   let&* x = Lopt.get_value x in
   Lwt.return_some x
 
-let get_credential_user s cred =
-  let* x = Storage.E.get s (Credential_user cred) in
-  match Lopt.get_value x with
-  | Some x -> Lwt.return_some x
-  | None ->
-      let uuid = Storage.E.get_uuid s in
-      Lwt.fail
-        (Failure
-           (Printf.sprintf "could not find credential record of %s/%s"
-              (Uuid.to_string uuid) cred))
+let get_credential_props s cred =
+  let* x = Storage.E.get s (Credential_props cred) in
+  match Lopt.get_value x with Some x -> Lwt.return x | None -> assert false
 
 let add_ballot s (election : Election.t) last ballot =
   let module W = (val election) in
@@ -375,12 +368,6 @@ let add_ballot s (election : Election.t) last ballot =
       let () = Public_archive.clear_ballot_cache (Storage.E.get_uuid s) in
       Lwt.return hash
   | false -> Lwt.fail @@ Failure "race condition in add_ballot"
-
-let get_credential_weight s credential =
-  let* x = Storage.E.get s (Credential_weight credential) in
-  match Lopt.get_value x with
-  | None -> Lwt.return Weight.one
-  | Some x -> Lwt.return x
 
 let raw_compute_encrypted_tally s (election : Election.t) =
   let module W = (val election) in
@@ -402,7 +389,8 @@ let raw_compute_encrypted_tally s (election : Election.t) =
   let* ballots =
     Lwt_list.fold_left_s
       (fun accu (credential, ballot) ->
-        let* weight = get_credential_weight s (W.G.to_string credential) in
+        let* (W x) = get_credential_props s (W.G.to_string credential) in
+        let weight = x.weight |> Option.value ~default:Weight.one in
         Lwt.return @@ ((weight, ballot) :: accu))
       [] (GMap.bindings ballots)
   in
@@ -435,8 +423,9 @@ let raw_compute_encrypted_tally s (election : Election.t) =
 let get_credential_record s credential =
   let* credential_mapping = Storage.E.get s (Credential_mapping credential) in
   let&* cr_ballot = Lopt.get_value credential_mapping in
-  let* cr_username = get_credential_user s credential in
-  let* cr_weight = get_credential_weight s credential in
+  let* (W x) = get_credential_props s credential in
+  let cr_username = x.id in
+  let cr_weight = x.weight |> Option.value ~default:Weight.one in
   Lwt.return_some { cr_ballot; cr_weight; cr_username }
 
 type precast_data = {

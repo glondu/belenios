@@ -154,9 +154,9 @@ let get_public_creds s (type a b) (w : (a, b) group) =
       Lwt.return @@ !*(public_credentials_of_yojson !$G.of_string) x
 
 let get_credential_weight s cred =
-  let* x = Storage.E.get s (Credential_weight cred) in
+  let* x = Storage.E.get s (Credential_props cred) in
   match Lopt.get_value x with
-  | Some x -> Lwt.return x
+  | Some (W x) -> x.weight |> Option.value ~default:Weight.one |> Lwt.return
   | None ->
       let uuid = Storage.E.get_uuid s in
       Lwt.fail

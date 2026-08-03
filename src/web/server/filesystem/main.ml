@@ -131,11 +131,9 @@ module MakeBackend
   let voters_ops : (_, Voter.t) abstract_file_ops =
     make_uninitialized_ops "voters_ops"
 
-  let credential_weights_ops : (_, Weight.t) abstract_file_ops =
-    make_uninitialized_ops "credential_weights_ops"
-
-  let credential_users_ops : (_, string) abstract_file_ops =
-    make_uninitialized_ops "credential_users_ops"
+  let credential_props_ops :
+      (_, wrapped_public_credential_props) abstract_file_ops =
+    make_uninitialized_ops "credential_props_ops"
 
   module PasswordRecordsCacheTypes = struct
     type key = Admin of string
@@ -323,8 +321,7 @@ module MakeBackend
     | Roots -> Abstract (roots_ops, ())
     | Voters_config -> Abstract (voters_config_ops, ())
     | Voter key -> Abstract (voters_ops, key)
-    | Credential_weight key -> Abstract (credential_weights_ops, key)
-    | Credential_user key -> Abstract (credential_users_ops, key)
+    | Credential_props key -> Abstract (credential_props_ops, key)
 
   let get_trustees_file_props _uuid (type t) :
       t trustees_file -> t raw_file_props = function
@@ -904,27 +901,17 @@ module MakeBackend
   let credential_cache =
     new CredCache.cache raw_get_credential_cache ~timer:3600. 10
 
-  let get_credential_user uuid cred =
+  let get_credential_props uuid cred =
     Lwt.catch
       (fun () ->
         let* (W x) = credential_cache#find uuid in
         let&** x = SMap.find_opt cred x in
-        let&** x = x.id in
-        x |> Lopt.some_value Fun.id |> Lwt.return)
+        W x
+        |> Lopt.some_value !+yojson_of_wrapped_public_credential_props
+        |> Lwt.return)
       (fun _ -> Lopt.none_lwt)
 
-  let get_credential_weight uuid cred =
-    Lwt.catch
-      (fun () ->
-        let* (W x) = credential_cache#find uuid in
-        let&** x = SMap.find_opt cred x in
-        let x = x.weight |> Option.value ~default:Weight.one in
-        x |> Lopt.some_value Weight.to_string |> Lwt.return)
-      (fun _ -> Lopt.none_lwt)
-
-  let () =
-    credential_users_ops.get <- get_credential_user;
-    credential_weights_ops.get <- get_credential_weight
+  let () = credential_props_ops.get <- get_credential_props
 
   (** {1 Cleaning operations} *)
 

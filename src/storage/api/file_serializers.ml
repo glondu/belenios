@@ -98,9 +98,11 @@ let get_election (type t) : t election_file -> t serializers = function
         to_string = !+yojson_of_voters_config;
       }
   | Voter _ -> { of_string = !*voter_of_yojson; to_string = !+yojson_of_voter }
-  | Credential_weight _ ->
-      { of_string = Weight.of_string; to_string = Weight.to_string }
-  | Credential_user _ -> { of_string = Fun.id; to_string = Fun.id }
+  | Credential_props _ ->
+      {
+        of_string = !*wrapped_public_credential_props_of_yojson;
+        to_string = !+yojson_of_wrapped_public_credential_props;
+      }
 
 let get_trustees (type t) : t trustees_file -> t serializers = function
   | Trustees_metadata ->
