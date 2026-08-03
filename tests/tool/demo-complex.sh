@@ -31,13 +31,23 @@ cd $DIR
 uuid="--uuid $UUID"
 group="--group Ed25519"
 
-# Generate credentials
-echo '[' > voters.json
-for i in $(seq 1 $((N-1))); do
-    printf '{"address":"voter%05d@example.com","login":"voter%05d"},\n' $i $i >> voters.json
+# Generate voters
+VOTERS="{"
+FIRST=y
+for i in $(seq 1 $N); do
+    if [ $FIRST = y ]; then
+        FIRST=n
+    else
+        VOTERS="$VOTERS,"
+    fi
+    login="$(printf "voter%05d" $i)"
+    hash="$(echo -n "$login" | sha256sum | awk '{print $1}')"
+    VOTERS="$VOTERS$(printf '"%s":{"login":"%s","address":"%s@example.com"}' $hash $login $login)"
 done
-printf '{"address":"voter%05d@example.com","login":"voter%05d"}\n' $N $N >> voters.json
-echo ']' >> voters.json
+VOTERS="$VOTERS}"
+echo "$VOTERS" > voters.json
+
+# Generate credentials
 belenios-tool setup generate-credentials $uuid $group --file voters.json | tee generate-credentials.out
 mv *.pubcreds public_creds.json
 mv *.privcreds private_creds.json

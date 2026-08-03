@@ -55,7 +55,7 @@ let show main uuid =
             let fingerprint =
               Printf.sprintf
                 "The voter list has %d voter(s) and its fingerprint is %s."
-                (List.length xs) fingerprint
+                (HMap.cardinal xs) fingerprint
             in
             let container = div [] |> Tyxml_js.To_dom.of_div in
             let b =

@@ -99,8 +99,8 @@ module Voter : sig
   type t = voter [@@deriving yojson]
 
   val get_weight : t -> Weight.t
-  val validate : t -> bool
-  val generate : int -> t list
-  val has_explicit_weights : t list -> bool
-  val hash : t list -> Hash.t
+  val validate : voters -> (unit, t) Stdlib.result
+  val generate : int -> voters
+  val has_explicit_weights : voters -> bool
+  val hash : voters -> Hash.t
 end

@@ -50,11 +50,12 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let* creds = Cred.generate voter_list in
   let* records =
     let map =
-      List.fold_left
-        (fun accu (v : voter) ->
-          let voter = v.login in
-          SMap.add voter (v.weight, v.address) accu)
-        SMap.empty voter_list
+      HMap.bindings voter_list
+      |> List.fold_left
+           (fun accu (_, (v : voter)) ->
+             let voter = v.login in
+             SMap.add voter (v.weight, v.address) accu)
+           SMap.empty
     in
     creds.private_creds |> SMap.bindings
     |> Lwt_list.map_s (fun (voter, x) ->
@@ -77,7 +78,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let raw_certificate : (_, _) raw_credentials_certificate =
     {
       uuid = r.uuid;
-      voter_list_length = List.length voter_list;
+      voter_list_length = HMap.cardinal voter_list;
       public_creds_hash;
       verification_key;
       encryption_key;

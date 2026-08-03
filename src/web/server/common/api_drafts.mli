@@ -38,7 +38,7 @@ val draft_of_api :
   ('a, 'b) draft_election * metadata
 
 val post_drafts : account -> draft -> uuid option Lwt.t
-val put_draft_voters : Storage.E.t -> voter list -> unit Lwt.t
+val put_draft_voters : Storage.E.t -> voters -> unit Lwt.t
 
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
@@ -68,8 +68,7 @@ val get_draft_status :
   metadata ->
   draft_status Lwt.t
 
-val merge_voters :
-  voter list -> voter list -> (voter list * weight, Voter.t) Stdlib.result
+val merge_voters : voters -> voters -> (voters * weight, voter) Stdlib.result
 
 val import_voters :
   Storage.E.t ->

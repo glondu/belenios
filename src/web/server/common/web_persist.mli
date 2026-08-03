@@ -51,7 +51,7 @@ val set_election_automatic_dates :
 
 (** {1 Voter-specific stuff} *)
 
-val get_all_voters : Storage.E.t -> Voter.t list Lwt.t
+val get_all_voters : Storage.E.t -> voters Lwt.t
 
 val get_draft_public_credentials :
   Storage.E.t -> ('a, 'b) group -> 'a public_credentials option Lwt.t
@@ -112,7 +112,7 @@ val close_election : Storage.E.t -> bool Lwt.t
 type credentials_status = [ `None | `Pending | `Done ]
 
 val generate_credentials_on_server_async :
-  uuid -> ('a, 'b) draft_election -> voter list -> unit
+  uuid -> ('a, 'b) draft_election -> voters -> unit
 
 val get_credentials_status :
   uuid -> ('a, 'b) draft_election -> credentials_status

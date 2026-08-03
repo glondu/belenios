@@ -137,7 +137,7 @@ type voter = {
 }
 [@@deriving yojson]
 
-type voters = voter list [@@deriving yojson]
+type voters = voter hmap [@@deriving yojson]
 type recipient = { name : string; address : string } [@@deriving yojson]
 
 type 'a public_credential = {

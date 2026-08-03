@@ -29,16 +29,28 @@ cd $DIR
 uuid="--uuid $UUID"
 group="--group Ed25519"
 
-# Generate credentials
-cat > voters.json <<EOF
-[
-{"address":"voter1@example.com","login":"voter1","weight":1000000000},
-{"address":"voter2@example.com","login":"voter2","weight":2000000000},
-{"address":"voter3@example.com","login":"voter3","weight":3000000000},
-{"address":"voter4@example.com","login":"voter4","weight":4000000000},
-{"address":"voter5@example.com","login":"voter5","weight":90000000000}
-]
+# Generate voters
+VOTERS="{"
+FIRST=y
+while read login weight; do
+    if [ $FIRST = y ]; then
+        FIRST=n
+    else
+        VOTERS="$VOTERS,"
+    fi
+    hash="$(echo -n "$login" | sha256sum | awk '{print $1}')"
+    VOTERS="$VOTERS$(printf '"%s":{"login":"%s","address":"%s@example.com","weight":%s}' $hash $login $login $weight)"
+done <<EOF
+voter1 1000000000
+voter2 2000000000
+voter3 3000000000
+voter4 4000000000
+voter5 90000000000
 EOF
+VOTERS="$VOTERS}"
+echo "$VOTERS" > voters.json
+
+# Generate credentials
 belenios-tool setup generate-credentials $uuid $group --file voters.json | tee generate-credentials.out
 mv *.pubcreds public_creds.json
 mv *.privcreds private_creds.json

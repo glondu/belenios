@@ -362,10 +362,22 @@ module Voter = struct
 
   let get_weight ({ weight; _ } : t) = Option.value ~default:Weight.one weight
 
-  let validate ({ address; login; _ } : t) =
+  let validate_one ({ address; login; _ } : t) =
     match address with
     | None -> is_username login
     | Some address -> is_email address && (login = address || is_username login)
+
+  exception Bad_voter of t
+
+  let validate (xs : voters) =
+    try
+      HMap.iter
+        (fun hash x ->
+          if not (hash = Hash.hash_string x.login && validate_one x) then
+            raise @@ Bad_voter x)
+        xs;
+      Ok ()
+    with Bad_voter x -> Error x
 
   let int_length n = string_of_int n |> String.length
 
@@ -382,15 +394,16 @@ module Voter = struct
       else
         let login = string_of_int last in
         let x : t = { address = None; login; weight = None } in
-        loop (last - 1) (x :: accu)
+        let accu = HMap.add Hash.(hash_string login) x accu in
+        loop (last - 1) accu
     in
-    loop last []
+    loop last HMap.empty
 
   let has_explicit_weights voters =
-    List.exists (fun ({ weight; _ } : t) -> weight <> None) voters
+    HMap.exists (fun _ ({ weight; _ } : t) -> weight <> None) voters
 
   let hash voters =
     voters
-    |> List.map (fun (v : voter) -> { v with address = None })
+    |> HMap.map (fun (v : voter) -> { v with address = None })
     |> yojson_of_voters |> Hash.hash_yojson
 end

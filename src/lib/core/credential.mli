@@ -22,7 +22,6 @@
 open Signatures_core
 open Common_types
 open Election_types
-open Common
 
 type 'a batch = {
   private_creds : private_credentials;
@@ -45,7 +44,7 @@ module type S = sig
   type private_key
   type public_key
 
-  val generate : Voter.t list -> public_key batch m
+  val generate : voters -> public_key batch m
 
   val derive :
     string -> (private_key, [ `Wrong | `Invalid | `MaybePassword ]) result m

@@ -233,21 +233,21 @@ let post_drafts account draft =
 let put_draft_voters s voters =
   let fail e = raise @@ Error (`VoterListError e) in
   let () =
-    List.iter
-      (fun (v : voter) -> if not @@ Voter.validate v then fail @@ `BadVoter v)
-      voters
+    match Voter.validate voters with
+    | Ok () -> ()
+    | Error v -> fail @@ `BadVoter v
   in
-  let* total_weight, _ =
-    Lwt_list.fold_left_s
-      (fun (total_weight, voters) (v : voter) ->
+  let total_weight, _ =
+    HMap.fold
+      (fun _ (v : voter) (total_weight, voters) ->
         let weight = Voter.get_weight v in
         let login = String.lowercase_ascii v.login in
-        let* voters =
+        let voters =
           if SSet.mem login voters then fail @@ `Duplicate login
-          else Lwt.return (SSet.add login voters)
+          else SSet.add login voters
         in
-        Lwt.return (Weight.(total_weight + weight), voters))
-      (Weight.zero, SSet.empty) voters
+        (Weight.(total_weight + weight), voters))
+      voters (Weight.zero, SSet.empty)
   in
   let* () =
     if Weight.(compare total_weight max_weight) > 0 then
@@ -267,10 +267,10 @@ let generate_credentials_on_server s account uuid (Draft (_, se) as draft) =
   let* voters =
     let* x = Storage.E.get s Voters in
     match Lopt.get_value x with
-    | None -> Lwt.return_nil
+    | None -> Lwt.return HMap.empty
     | Some x -> Lwt.return x
   in
-  let nvoters = List.length voters in
+  let nvoters = HMap.cardinal voters in
   if nvoters > Accounts.max_voters account then
     Lwt.return (Stdlib.Error `TooManyVoters)
   else if nvoters = 0 then Lwt.return (Stdlib.Error `NoVoters)
@@ -297,13 +297,15 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
   let* voters =
     let* x = Storage.E.get s Voters in
     match Lopt.get_value x with
-    | None -> Lwt.return_nil
+    | None -> Lwt.return HMap.empty
     | Some x -> Lwt.return x
   in
   let module G = (val w) in
-  let () = if voters = [] then raise (Error (`ValidationError `NoVoters)) in
   let () =
-    if not (List.length voters = SMap.cardinal credentials) then
+    if HMap.is_empty voters then raise (Error (`ValidationError `NoVoters))
+  in
+  let () =
+    if not (HMap.cardinal voters = SMap.cardinal credentials) then
       raise (Error (`ValidationError `WrongLength))
   in
   let () =
@@ -328,8 +330,8 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
           raise (Error (`GenericError "bad certificate"))
   in
   let usernames =
-    List.fold_left
-      (fun accu (v : voter) ->
+    HMap.fold
+      (fun _ (v : voter) accu ->
         let username = v.login in
         let weight = Voter.get_weight v in
         if SMap.mem username accu then
@@ -337,7 +339,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
             (Error
                (`GenericError (Printf.sprintf "duplicate username %s" username)))
         else SMap.add username (weight, ref false) accu)
-      SMap.empty voters
+      voters SMap.empty
   in
   let _, _ =
     SMap.fold
@@ -387,10 +389,10 @@ let get_draft_status s uuid (Draft (v, se)) (metadata : metadata) =
   let* voters =
     let* x = Storage.E.get s Voters in
     match Lopt.get_value x with
-    | None -> Lwt.return_nil
+    | None -> Lwt.return HMap.empty
     | Some x -> Lwt.return x
   in
-  let num_voters = List.length voters in
+  let num_voters = HMap.cardinal voters in
   let credentials_ready, credentials_left =
     match Web_persist.get_credentials_status uuid (Draft (v, se)) with
     | `None -> (false, None)
@@ -456,30 +458,34 @@ let get_draft_status s uuid (Draft (v, se)) (metadata : metadata) =
 
 let merge_voters a b =
   let weights =
-    List.fold_left
-      (fun accu (v : voter) ->
+    HMap.fold
+      (fun _ (v : voter) accu ->
         let login = v.login |> String.lowercase_ascii in
         let weight = Voter.get_weight v in
         SMap.add login weight accu)
-      SMap.empty a
+      a SMap.empty
   in
-  let rec loop weights accu = function
-    | [] ->
-        Ok (List.rev accu, Weight.(SMap.fold (fun _ x y -> x + y) weights zero))
-    | (v : voter) :: xs ->
+  let exception Exit of voter in
+  try
+    HMap.fold
+      (fun _ (v : voter) (weights, accu) ->
         let login = v.login |> String.lowercase_ascii in
         let weight = Voter.get_weight v in
-        if SMap.mem login weights then Stdlib.Error v
-        else loop (SMap.add login weight weights) (v :: accu) xs
-  in
-  loop weights (List.rev a) b
+        if SMap.mem login weights then raise @@ Exit v
+        else
+          let accu = HMap.add Hash.(hash_string login) v accu in
+          (SMap.add login weight weights, accu))
+      b (weights, HMap.empty)
+    |> fun (weights, accu) ->
+    Ok (accu, Weight.(SMap.fold (fun _ x y -> x + y) weights zero))
+  with Exit v -> Stdlib.Error v
 
 let import_voters s uuid draft from =
   let* cur_voters, set =
     let@ x, set = Storage.E.update s Voters in
     let set x = set Value x in
     match Lopt.get_value x with
-    | None -> Lwt.return ([], set)
+    | None -> Lwt.return (HMap.empty, set)
     | Some x -> Lwt.return (x, set)
   in
   let* new_voters = Web_persist.get_all_voters from in
@@ -711,7 +717,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let@ who = with_administrator_or_credential_authority token se metadata in
       let get () =
         let* x = Storage.E.get s Voters in
-        (match Lopt.get_value x with None -> [] | Some x -> x)
+        (match Lopt.get_value x with None -> HMap.empty | Some x -> x)
         |> yojson_of_voters |> Lwt.return
       in
       match (method_, who) with

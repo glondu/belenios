@@ -623,22 +623,24 @@ module MakeBackend
 
   let get_all_voters uuid =
     let* x = get (Election (uuid, Voters)) in
-    match Lopt.get_value x with None -> Lwt.return [] | Some x -> Lwt.return x
+    match Lopt.get_value x with
+    | None -> Lwt.return HMap.empty
+    | Some x -> Lwt.return x
 
   let raw_get_voter_cache uuid =
     let* voters = get_all_voters uuid in
     let voter_map =
-      List.fold_left
-        (fun accu (x : voter) ->
+      HMap.fold
+        (fun _ (x : voter) accu ->
           let login = x.login in
           SMap.add (String.lowercase_ascii login) x accu)
-        SMap.empty voters
+        voters SMap.empty
     in
     let has_explicit_weights = Voter.has_explicit_weights voters in
     let username_or_address =
-      match voters with
-      | [] -> `Username
-      | { login; _ } :: _ ->
+      match HMap.min_binding_opt voters with
+      | None -> `Username
+      | Some (_, { login; _ }) ->
           if String.contains login '@' then `Address else `Username
     in
     Lwt.return { has_explicit_weights; username_or_address; voter_map }

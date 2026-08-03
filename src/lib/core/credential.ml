@@ -68,7 +68,7 @@ module type S = sig
   type private_key
   type public_key
 
-  val generate : Voter.t list -> public_key batch m
+  val generate : voters -> public_key batch m
 
   val derive :
     string -> (private_key, [ `Wrong | `Invalid | `MaybePassword ]) result m
@@ -104,17 +104,18 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
 
   let generate voters =
     let* privs, pubs =
-      monadic_fold_left
-        (fun (privs, pubs) v ->
-          let username = v.login in
-          let weight = v.weight in
-          let { private_credential; private_key } = generate_one () in
-          ( SMap.add username private_credential privs,
-            SMap.add
-              G.(g **~ private_key |> to_string)
-              { credential = None; weight; id = Some username }
-              pubs ))
-        (SMap.empty, SMap.empty) voters
+      HMap.bindings voters
+      |> monadic_fold_left
+           (fun (privs, pubs) (_, v) ->
+             let username = v.login in
+             let weight = v.weight in
+             let { private_credential; private_key } = generate_one () in
+             ( SMap.add username private_credential privs,
+               SMap.add
+                 G.(g **~ private_key |> to_string)
+                 { credential = None; weight; id = Some username }
+                 pubs ))
+           (SMap.empty, SMap.empty)
     in
     {
       private_creds = privs;
