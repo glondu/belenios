@@ -308,7 +308,7 @@ module Credgen : CMDLINER_MODULE = struct
 
   let as_json to_string things oc =
     let* () = Lwt_io.write oc (to_string things) in
-    Lwt.return @@ List.length things
+    Lwt.return @@ SMap.cardinal things
 
   let main version group dir uuid count file derive =
     let@ () = wrap_main in

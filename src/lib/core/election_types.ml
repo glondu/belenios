@@ -26,36 +26,22 @@ open Common_types
 type voter = Common.Voter.t [@@deriving yojson]
 type voter_list = voter list [@@deriving yojson]
 
-type 'a public_credential = {
-  credential : 'a;
+type ('a, 'b) public_credential_props = {
+  credential : 'a option; [@yojson.option]
+      (* always None and never read, this is here to make the type
+         injective *)
   weight : weight option; [@yojson.option]
+  id : 'b option; [@yojson.option]
 }
 [@@deriving yojson]
 
-type 'a public_credentials = 'a public_credential list [@@deriving yojson]
-
-type 'a public_credential_with_id = {
-  credential : 'a public_credential;
-  id : string;
-}
+type 'a public_credentials = ('a, unit) public_credential_props smap
 [@@deriving yojson]
 
-type 'a public_credentials_with_id = 'a public_credential_with_id list
+type 'a public_credentials_with_id = ('a, string) public_credential_props smap
 [@@deriving yojson]
 
-type private_credentials = (string * string) list
-
-let private_credentials_of_yojson : json -> private_credentials = function
-  | `Assoc o ->
-      List.map
-        (function
-          | k, `String v -> (k, v) | _, x -> of_yojson_error "string expected" x)
-        o
-  | x -> of_yojson_error "object expected" x
-
-let yojson_of_private_credentials : private_credentials -> json =
- fun x -> `Assoc (List.map (fun (k, v) -> (k, `String v)) x)
-
+type private_credentials = string smap [@@deriving yojson]
 type lang_dir = [ `Ltr | `Rtl ] [@@deriving yojson]
 
 type credential_authority = [ `Server | `External of string ]

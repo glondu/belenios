@@ -266,18 +266,17 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
     lazy
       (let* x = Lazy.force raw_public_creds in
        x
-       |> Option.map
-            (List.fold_left
-               (fun (has_weights, accu) (x : _ public_credential) ->
-                 let has_weights = has_weights || x.weight <> None in
-                 let y = G.to_string x.credential in
-                 if SMap.mem y accu then
-                   Printf.ksprintf failwith "duplicate credential: %s" y
-                 else
-                   ( has_weights,
-                     SMap.add y (Option.value ~default:Weight.one x.weight) accu
-                   ))
-               (false, SMap.empty))
+       |> Option.map (fun x ->
+           SMap.fold
+             (fun y (x : _ public_credential_props) (has_weights, accu) ->
+               let has_weights = has_weights || x.weight <> None in
+               if SMap.mem y accu then
+                 Printf.ksprintf failwith "duplicate credential: %s" y
+               else
+                 ( has_weights,
+                   SMap.add y (Option.value ~default:Weight.one x.weight) accu
+                 ))
+             x (false, SMap.empty))
        |> Lwt.return)
 
   let public_creds =

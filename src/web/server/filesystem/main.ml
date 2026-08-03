@@ -860,7 +860,7 @@ module MakeBackend
 
   module CredCacheTypes = struct
     type key = uuid
-    type value = { cred_map : (string option * Weight.t) SMap.t }
+    type value = W : 'a public_credentials_with_id -> value
   end
 
   module CredCache = Ocsigen_cache.Make (CredCacheTypes)
@@ -893,23 +893,13 @@ module MakeBackend
           let public_creds =
             x |> !*(public_credentials_of_yojson !$G.of_string)
           in
-          cont (List.map (fun x -> (x, None)) public_creds)
-      | Some x ->
           cont
-            (List.map
-               (fun (x : _ public_credential_with_id) ->
-                 (x.credential, Some x.id))
-               x)
+            (SMap.map
+               (fun x -> ({ x with id = None } : _ public_credential_props))
+               public_creds)
+      | Some x -> cont x
     in
-    let cred_map =
-      List.fold_left
-        (fun cred_map ((p : _ public_credential), id) ->
-          SMap.add (G.to_string p.credential)
-            (id, Option.value ~default:Weight.one p.weight)
-            cred_map)
-        SMap.empty public_creds
-    in
-    Lwt.return CredCacheTypes.{ cred_map }
+    Lwt.return CredCacheTypes.(W public_creds)
 
   let credential_cache =
     new CredCache.cache raw_get_credential_cache ~timer:3600. 10
@@ -917,17 +907,18 @@ module MakeBackend
   let get_credential_user uuid cred =
     Lwt.catch
       (fun () ->
-        let* x = credential_cache#find uuid in
-        let&** x, _ = SMap.find_opt cred x.cred_map in
-        let&** x = x in
+        let* (W x) = credential_cache#find uuid in
+        let&** x = SMap.find_opt cred x in
+        let&** x = x.id in
         x |> Lopt.some_value Fun.id |> Lwt.return)
       (fun _ -> Lopt.none_lwt)
 
   let get_credential_weight uuid cred =
     Lwt.catch
       (fun () ->
-        let* x = credential_cache#find uuid in
-        let&** _, x = SMap.find_opt cred x.cred_map in
+        let* (W x) = credential_cache#find uuid in
+        let&** x = SMap.find_opt cred x in
+        let x = x.weight |> Option.value ~default:Weight.one in
         x |> Lopt.some_value Weight.to_string |> Lwt.return)
       (fun _ -> Lopt.none_lwt)
 

@@ -56,8 +56,8 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
           SMap.add voter (v.weight, v.address) accu)
         SMap.empty voter_list
     in
-    Lwt_list.map_s
-      (fun (voter, x) ->
+    creds.private_creds |> SMap.bindings
+    |> Lwt_list.map_s (fun (voter, x) ->
         let* credential =
           P.encrypt ~algorithm xch_encrypted_credential encryption_key x
         in
@@ -68,7 +68,6 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
         in
         let x : _ credentials_record = { credential; weight; address } in
         Lwt.return (voter, x))
-      creds.private_creds
   in
   let public_creds_hash =
     creds.public_creds

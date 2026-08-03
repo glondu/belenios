@@ -643,14 +643,15 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
   let* metadata = Mails_voter.get_metadata s ~admin_id in
   let send = Mails_voter.generate_credential_email metadata in
   let* jobs =
-    Lwt_list.fold_left_s
-      (fun jobs (login, credential) ->
-        match SMap.find_opt login voter_map with
-        | None -> Lwt.return jobs
-        | Some (recipient, weight) ->
-            let* job = send ~recipient ~login ~weight credential in
-            Lwt.return (job :: jobs))
-      [] private_creds
+    private_creds |> SMap.bindings
+    |> Lwt_list.fold_left_s
+         (fun jobs (login, credential) ->
+           match SMap.find_opt login voter_map with
+           | None -> Lwt.return jobs
+           | Some (recipient, weight) ->
+               let* job = send ~recipient ~login ~weight credential in
+               Lwt.return (job :: jobs))
+         []
   in
   let* () = Mails_voter_bulk.submit_bulk_emails jobs in
   se.pending_credentials <- false;
@@ -711,17 +712,11 @@ let init_credential_mapping s (type a b) (w : (a, b) group) =
   match Lopt.get_value file with
   | Some x ->
       let public_credentials =
-        x |> List.map (fun (x : _ public_credential_with_id) -> x.credential)
+        x
+        |> SMap.map (fun x ->
+            ({ x with id = None } : _ public_credential_props))
       in
-      let xs =
-        List.fold_left
-          (fun accu (x : _ public_credential) ->
-            let x = G.to_string x.credential in
-            if SMap.mem x accu then
-              failwith "trying to add duplicate credential"
-            else SMap.add x None accu)
-          SMap.empty public_credentials
-      in
+      let xs = x |> SMap.map (fun _ -> None) in
       let* () =
         SMap.bindings xs
         |> Lwt_list.iter_s (fun (credential, ballot) ->
@@ -980,7 +975,7 @@ let get_draft_public_credentials s (type a b) (w : (a, b) group) =
   let* x = Storage.E.get s (Public_creds G.spec) in
   let&* x = Lopt.get_value x in
   x
-  |> List.map (fun (x : _ public_credential_with_id) -> x.credential)
+  |> SMap.map (fun x -> ({ x with id = None } : _ public_credential_props))
   |> Lwt.return_some
 
 let get_records s =

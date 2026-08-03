@@ -50,7 +50,7 @@ type 'a t = { private_credential : string; private_key : 'a }
 type 'a batch = {
   private_creds : private_credentials;
   public_creds : 'a public_credentials;
-  public_with_ids : 'a public_credential_with_id list;
+  public_with_ids : 'a public_credentials_with_id;
 }
 
 module type ELECTION = sig
@@ -103,29 +103,23 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
         monadic_fold_left f (f accu x) xs
 
   let generate voters =
-    let implicit_weights = not (Voter.has_explicit_weights voters) in
     let* privs, pubs =
       monadic_fold_left
         (fun (privs, pubs) v ->
           let username = v.login in
-          let weight = Voter.get_weight v in
+          let weight = v.weight in
           let { private_credential; private_key } = generate_one () in
           ( SMap.add username private_credential privs,
-            GMap.add G.(g **~ private_key) (weight, username) pubs ))
-        (SMap.empty, GMap.empty) voters
+            SMap.add
+              G.(g **~ private_key |> to_string)
+              { credential = None; weight; id = Some username }
+              pubs ))
+        (SMap.empty, SMap.empty) voters
     in
-    let serialize_public (e, (w, _)) : _ public_credential =
-      { credential = e; weight = (if implicit_weights then None else Some w) }
-    in
-    let serialize_with_id ((_, (_, id)) as x) : _ public_credential_with_id =
-      let credential = serialize_public x in
-      { credential; id }
-    in
-    let bindings = GMap.bindings pubs in
     {
-      private_creds = SMap.bindings privs;
-      public_creds = List.map serialize_public bindings;
-      public_with_ids = List.map serialize_with_id bindings;
+      private_creds = privs;
+      public_creds = SMap.map (fun x -> { x with id = None }) pubs;
+      public_with_ids = pubs;
     }
     |> E.return
 end

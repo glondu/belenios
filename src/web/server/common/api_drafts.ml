@@ -303,7 +303,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
   let module G = (val w) in
   let () = if voters = [] then raise (Error (`ValidationError `NoVoters)) in
   let () =
-    if not (List.length voters = List.length credentials) then
+    if not (List.length voters = SMap.cardinal credentials) then
       raise (Error (`ValidationError `WrongLength))
   in
   let () =
@@ -312,9 +312,9 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
     | Some certificate ->
         let public_creds_ok =
           let public_creds_hash =
-            List.map
-              (fun (x : _ public_credential_with_id) -> x.credential)
-              credentials
+            credentials
+            |> SMap.map (fun x ->
+                ({ x with id = None } : _ public_credential_props))
             |> yojson_of_public_credentials !&G.to_string
             |> Hash.hash_yojson
           in
@@ -340,8 +340,8 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
       SMap.empty voters
   in
   let _, _ =
-    List.fold_left
-      (fun (i, creds) (p : _ public_credential_with_id) ->
+    SMap.fold
+      (fun cred_s (p : _ public_credential_props) (i, creds) ->
         let invalid fmt =
           Printf.ksprintf
             (fun x ->
@@ -350,9 +350,10 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
                    (`GenericError (Printf.sprintf "invalid %s at index %d" x i))))
             fmt
         in
-        let weight = Option.value ~default:Weight.one p.credential.weight in
-        let username = p.id in
-        let cred_s = G.to_string p.credential.credential in
+        let weight = Option.value ~default:Weight.one p.weight in
+        let username =
+          match p.id with None -> invalid "missing id" | Some x -> x
+        in
         let () =
           match SMap.find_opt username usernames with
           | None -> invalid "username %s" username
@@ -361,12 +362,16 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
               else if Weight.compare w weight <> 0 then
                 invalid "differing weight"
               else if SSet.mem cred_s creds then invalid "duplicate credential"
-              else if not (G.check p.credential.credential) then
-                invalid "public credential"
+              else if
+                not
+                  (match G.of_string cred_s with
+                  | x -> G.check x
+                  | exception _ -> false)
+              then invalid "public credential"
               else used := true
         in
         (i + 1, SSet.add cred_s creds))
-      (0, SSet.empty) credentials
+      credentials (0, SSet.empty)
   in
   let* () = Storage.E.set s (Public_creds G.spec) Value credentials in
   se.public_creds_received <- true;
@@ -657,7 +662,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
               body.run !*(public_credentials_with_id_of_yojson !$G.of_string)
             in
             match (who, x) with
-            | `Administrator account, [] -> (
+            | `Administrator account, c when SMap.is_empty c -> (
                 let@ () = handle_generic_error in
                 let* x = generate_credentials_on_server s account uuid se in
                 match x with

@@ -96,7 +96,9 @@ let rec show_draft_credentials : 'a 'b. uuid -> ('a, 'b) group -> _ -> _ =
       | None ->
           let b =
             let@ () = button "Generate on server" in
-            let* x = Api.(post (draft_public_credentials uuid w) !user []) in
+            let* x =
+              Api.(post (draft_public_credentials uuid w) !user SMap.empty)
+            in
             let@ () = show_in container in
             generic_proceed x (fun () ->
                 show_draft_credentials uuid w container)

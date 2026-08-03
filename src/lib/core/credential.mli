@@ -27,7 +27,7 @@ open Common
 type 'a batch = {
   private_creds : private_credentials;
   public_creds : 'a public_credentials;
-  public_with_ids : 'a public_credential_with_id list;
+  public_with_ids : 'a public_credentials_with_id;
 }
 
 module type ELECTION = sig

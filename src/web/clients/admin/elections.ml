@@ -1466,7 +1466,7 @@ let credauth_changeable_content uuid draft currsel =
           (s_ "Generate and send the credentials")
       in
       let* res =
-        Api.(post (draft_public_credentials uuid (module G)) !user [])
+        Api.(post (draft_public_credentials uuid (module G)) !user SMap.empty)
       in
       match res.code with
       | 200 -> !update_election_main ()
