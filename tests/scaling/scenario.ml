@@ -40,6 +40,14 @@ let main () =
         |] )
   in
   let* () = Lwt_unix.sleep 1. in
+  let* () =
+    match server#state with
+    | Running -> Lwt.return_unit
+    | Exited status ->
+        let r = match status with WEXITED r -> r | _ -> 127 in
+        let* () = Lwt_io.eprintlf "Starting server exited with %d" r in
+        exit 1
+  in
   let* uuid =
     Lwt_process.pread
       ( self,
@@ -68,7 +76,10 @@ let main () =
           "--concurrency=10";
         |] )
   in
-  server#terminate;
+  let* _ =
+    let cmd = "demo/stop-server.sh" in
+    Lwt_process.exec (cmd, [| cmd |])
+  in
   let delta = Unix.gettimeofday () -. start in
   let* () =
     match status with
