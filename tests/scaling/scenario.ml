@@ -25,10 +25,15 @@ open Belenios
 
 let self = Sys.argv.(0)
 
+let nb_voters =
+  match int_of_string @@ Sys.getenv "BELENIOS_SCALING_NB_VOTERS" with
+  | n -> n
+  | exception _ -> 1000
+
 let main () =
   let@ () = Common.wrap_main in
   let@ () = fun cont -> Lwt_main.run @@ cont () in
-  let* () = Lwt_io.eprintlf "Running scenario..." in
+  let* () = Lwt_io.eprintlf "Running scenario with %d voters..." nb_voters in
   let start = Unix.gettimeofday () in
   let@ server =
     Lwt_process.with_process_none
@@ -56,6 +61,7 @@ let main () =
           "setup";
           "--admin-login=admin";
           "--url=http://127.0.0.1:8001/";
+          Printf.sprintf "--voters=%d" nb_voters;
           "--validate";
         |] )
   in
@@ -73,6 +79,7 @@ let main () =
           credentials;
           "--url=http://127.0.0.1:8001/";
           uuid_flag;
+          Printf.sprintf "--requests=%d" nb_voters;
           "--concurrency=10";
         |] )
   in
