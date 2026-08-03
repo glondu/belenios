@@ -127,7 +127,7 @@ module Make (P : PARAMS) = struct
       else accu
     in
     let voters = loop nb_voters [] in
-    let body = voters |> !+yojson_of_voter_list |> Cohttp_lwt.Body.of_string in
+    let body = voters |> !+yojson_of_voters |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.put ~headers ~body
         (Printf.ksprintf Uri.of_string "%s/elections/%s/draft/voters" api_root

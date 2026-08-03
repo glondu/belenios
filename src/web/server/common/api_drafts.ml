@@ -712,7 +712,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let get () =
         let* x = Storage.E.get s Voters in
         (match Lopt.get_value x with None -> [] | Some x -> x)
-        |> yojson_of_voter_list |> Lwt.return
+        |> yojson_of_voters |> Lwt.return
       in
       match (method_, who) with
       | `GET, _ -> handle_get get
@@ -720,7 +720,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_ifmatch ifmatch get in
           if Web_persist.get_credentials_status uuid se <> `None then forbidden
           else
-            let@ voters = body.run !*voter_list_of_yojson in
+            let@ voters = body.run !*voters_of_yojson in
             let@ () = handle_generic_error in
             let* () = put_draft_voters s voters in
             ok

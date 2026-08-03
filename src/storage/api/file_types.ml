@@ -49,7 +49,7 @@ type _ election_file =
   | Private_creds : private_credentials election_file
   | Sealing_log : string election_file
   | Records : Belenios_web_api.election_records election_file
-  | Voters : Voter.t list election_file
+  | Voters : voters election_file
   | Confidential_archive : abstract election_file
   | Data : hash -> string election_file
   | Roots : roots election_file

@@ -500,7 +500,7 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       | `GET ->
           let@ () = handle_generic_error in
           let* x = Web_persist.get_all_voters s in
-          return_json 200 (!+yojson_of_voter_list x)
+          return_json 200 (!+yojson_of_voters x)
       | _ -> method_not_allowed)
   | [ "records" ] -> (
       let@ _ = with_administrator token metadata in

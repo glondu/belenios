@@ -713,7 +713,7 @@ let parse_voters voters =
   if voters = "" then []
   else
     match voters.[0] with
-    | '[' -> !*voter_list_of_yojson voters
+    | '[' -> !*voters_of_yojson voters
     | '{' -> voters |> split_lines |> List.map !*voter_of_yojson
     | _ -> voters |> split_lines |> List.map parse_voter_csv
 
@@ -870,7 +870,7 @@ let voters_content () =
         | Error msg -> popup_failsync msg
         | Ok () ->
             let* voters = Cache.get_until_success Cache.voters in
-            let ifmatch = sha256_b64 @@ !+yojson_of_voter_list voters in
+            let ifmatch = sha256_b64 @@ !+yojson_of_voters voters in
             let* () =
               let target_uuid = get_current_uuid () in
               let@ from_uuid = popup_choose_elec target_uuid in
@@ -1021,7 +1021,7 @@ let voters_content () =
     let link2 =
       let filename = Printf.sprintf "voters-%s.json" uuid in
       a_data ~filename ~mime_type:"application/json"
-        ~data:(!+yojson_of_voter_list voters)
+        ~data:(!+yojson_of_voters voters)
         (s_ "Voter list")
     in
     let nv = List.length voters in

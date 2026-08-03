@@ -72,8 +72,8 @@ let draft_status uuid =
 let draft_voters uuid =
   {
     path = Printf.sprintf "elections/%s/draft/voters" (Uuid.to_string uuid);
-    of_string = !*voter_list_of_yojson;
-    to_string = !+yojson_of_voter_list;
+    of_string = !*voters_of_yojson;
+    to_string = !+yojson_of_voters;
     to_string_post = !+yojson_of_voters_request;
   }
 
@@ -202,8 +202,8 @@ let election_auto_dates uuid =
 let election_voters uuid =
   {
     path = Printf.sprintf "elections/%s/voters" (Uuid.to_string uuid);
-    of_string = !*voter_list_of_yojson;
-    to_string = !+yojson_of_voter_list;
+    of_string = !*voters_of_yojson;
+    to_string = !+yojson_of_voters;
     to_string_post = !+yojson_of_unit;
   }
 

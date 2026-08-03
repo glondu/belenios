@@ -39,11 +39,11 @@ val sync_until_success : unit -> unit Lwt.t
 val delayed_sync : float -> unit
 val config : configuration t
 val draft : Belenios_web_api.draft t
-val voters : voter_list t
+val voters : voters t
 val status : draft_status t
 val account : api_account t
 val e_elec : Election.t t
-val e_voters : voter_list t
+val e_voters : voters t
 val e_records : Belenios_web_api.election_records t
 val e_status : election_status t
 val e_dates : election_auto_dates t

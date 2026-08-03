@@ -58,14 +58,13 @@ let rec show_draft_voters uuid draft container =
   let@ () = show_in container in
   let* x = Api.(get (draft_voters uuid) !user) in
   let@ voters, ifmatch = with_ok "voters" x in
-  let voters_str = !+yojson_of_voter_list voters in
+  let voters_str = !+yojson_of_voters voters in
   let t, tget = textarea voters_str in
   let b =
     let@ () = button "Save changes" in
     let* x =
       Api.(
-        put ~ifmatch (draft_voters uuid) !user
-          (!*voter_list_of_yojson (tget ())))
+        put ~ifmatch (draft_voters uuid) !user (!*voters_of_yojson (tget ())))
     in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_voters uuid draft container)

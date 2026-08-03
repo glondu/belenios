@@ -72,8 +72,7 @@ let get_election (type t) : t election_file -> t serializers = function
         of_string = !*Belenios_web_api.election_records_of_yojson;
         to_string = !+Belenios_web_api.yojson_of_election_records;
       }
-  | Voters ->
-      { of_string = !*voter_list_of_yojson; to_string = !+yojson_of_voter_list }
+  | Voters -> { of_string = !*voters_of_yojson; to_string = !+yojson_of_voters }
   | Confidential_archive ->
       {
         of_string = (fun _ -> invalid_arg "Confidential_archive.of_string");

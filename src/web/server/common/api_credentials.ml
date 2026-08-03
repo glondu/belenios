@@ -372,7 +372,7 @@ let process_request : credentials_request -> _ = function
         let* body = Cohttp_lwt.Body.to_string body in
         match Cohttp.Code.code_of_status x.status with
         | 200 -> (
-            match !*voter_list_of_yojson body with
+            match !*voters_of_yojson body with
             | exception _ -> return_yojson 502 `Null
             | x -> cont x)
         | code -> return_yojson 502 (`Int code)

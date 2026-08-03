@@ -392,5 +392,5 @@ module Voter = struct
   let hash voters =
     voters
     |> List.map (fun (v : voter) -> { v with address = None })
-    |> yojson_of_voter_list |> Hash.hash_yojson
+    |> yojson_of_voters |> Hash.hash_yojson
 end

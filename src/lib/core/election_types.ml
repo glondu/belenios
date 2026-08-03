@@ -23,9 +23,6 @@
 open Ppx_yojson_conv_lib.Yojson_conv
 open Common_types
 
-type voter = Common.Voter.t [@@deriving yojson]
-type voter_list = voter list [@@deriving yojson]
-
 type ('a, 'b) public_credential_props = {
   credential : 'a option; [@yojson.option]
       (* always None and never read, this is here to make the type

@@ -94,8 +94,8 @@ method.
 
 ## `elections/$UUID/draft/voters`
 
-### `GET`: unit -> voter_list (administrator or credential authority)
-### `PUT`: voter_list -> unit (administrator)
+### `GET`: unit -> voters (administrator or credential authority)
+### `PUT`: voters -> unit (administrator)
 ### `POST`: voters_request -> unit (administrator)
 
 ## `elections/$UUID/draft/credentials/token` (administrator)
@@ -149,7 +149,7 @@ method.
 
 ## `elections/$UUID/voters` (administrator)
 
-### `GET`: unit -> voter_list
+### `GET`: unit -> voters
 
 ## `elections/$UUID/records` (administrator)
 

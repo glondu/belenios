@@ -40,7 +40,7 @@ val configuration : ([< nobody | admin ], configuration, unit) t
 val account : (admin, api_account, unit) t
 val draft : uuid -> ([< nobody | admin ], draft, draft_request) t
 val draft_status : uuid -> (admin, draft_status, unit) t
-val draft_voters : uuid -> ([< admin | credauth ], voter_list, voters_request) t
+val draft_voters : uuid -> ([< admin | credauth ], voters, voters_request) t
 
 val draft_public_credentials :
   uuid ->
@@ -81,7 +81,7 @@ val election_sealing_log : uuid -> (admin, string, unit) t
 val election_auto_dates :
   uuid -> ([< nobody | admin ], election_auto_dates, unit) t
 
-val election_voters : uuid -> (admin, voter_list, unit) t
+val election_voters : uuid -> (admin, voters, unit) t
 val election_records : uuid -> (admin, election_records, unit) t
 val election_nh_ciphertexts : uuid -> (nobody, json, unit) t
 val election_encrypted_tally : uuid -> (nobody, json, unit) t

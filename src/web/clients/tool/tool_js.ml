@@ -218,7 +218,7 @@ module Credgen = struct
     get_textarea "credgen_number" |> int_of_string |> Voter.generate |> generate
 
   let generate_ids () =
-    get_textarea "credgen_ids" |> !*voter_list_of_yojson |> generate
+    get_textarea "credgen_ids" |> !*voters_of_yojson |> generate
 
   let cmds =
     [
