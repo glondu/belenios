@@ -49,8 +49,8 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
       end) in
   let* creds = Cred.generate voter_list in
   let* records =
-    creds.private_creds |> HMap.bindings
-    |> Lwt_list.map_s (fun (voter_h, x) ->
+    creds.private_creds |> HMap.to_seq |> Lwt_seq.of_seq
+    |> Lwt_seq.map_s (fun (voter_h, x) ->
         let* credential =
           P.encrypt ~algorithm xch_encrypted_credential encryption_key x
         in
@@ -61,6 +61,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
         in
         let x : _ credentials_record = { login; credential; weight; address } in
         Lwt.return (voter_h, x))
+    |> Lwt_seq.to_list
   in
   let records = HMap.of_list records in
   let public_creds_hash =
@@ -195,8 +196,8 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
     let module P = Pki.Make (G) in
     let decryption_key = P.derive_dk seed in
     let { algorithm; records } = credentials_records in
-    records |> HMap.bindings
-    |> Lwt_list.fold_left_s
+    records |> HMap.to_seq |> Lwt_seq.of_seq
+    |> Lwt_seq.fold_left_s
          (fun accu (v, c) ->
            let encrypted_msg = c.credential in
            let* x =
@@ -270,8 +271,8 @@ let process_resend_request (r : credentials_resend) (type a b)
         let module G = (val w) in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk r.seed in
-        records |> HMap.bindings
-        |> Lwt_list.filter_map_s (fun (v, c) ->
+        records |> HMap.to_seq |> Lwt_seq.of_seq
+        |> Lwt_seq.filter_map_s (fun (v, c) ->
             if HSet.mem v voters then
               let encrypted_msg = c.credential in
               let* x =
@@ -282,6 +283,7 @@ let process_resend_request (r : credentials_resend) (type a b)
               | None -> Lwt.return_none
               | Some credential -> Lwt.return_some (v, { c with credential })
             else Lwt.return_none)
+        |> Lwt_seq.to_list
   in
   let send = Mails_voter.generate_credential_email metadata in
   let* jobs =
@@ -398,8 +400,8 @@ let process_request : credentials_request -> _ = function
         let module G = (val w) in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk seed in
-        Lwt_list.filter_map_s
-          (fun (v, (c : _ credentials_record)) ->
+        records |> HMap.to_seq |> Lwt_seq.of_seq
+        |> Lwt_seq.filter_map_s (fun (v, (c : _ credentials_record)) ->
             let encrypted_msg = c.credential in
             let* x =
               P.decrypt ~algorithm xch_encrypted_credential decryption_key
@@ -408,7 +410,7 @@ let process_request : credentials_request -> _ = function
             match x with
             | None -> Lwt.return_none
             | Some credential -> Lwt.return_some (v, { c with credential }))
-          (HMap.bindings records)
+        |> Lwt_seq.to_list
       in
       let send = Mails_voter.generate_credential_email r.metadata in
       let* jobs =

@@ -798,15 +798,16 @@ let voters_content () =
     else Cache.get_until_success Cache.e_records
   in
   let with_login, with_weight =
-    let rec loop ((with_login, with_weight) as accu) = function
-      | [] -> accu
-      | (_, ({ address; login; weight; _ } : voter)) :: xs ->
+    let rec loop ((with_login, with_weight) as accu) xs =
+      match xs () with
+      | Seq.Nil -> accu
+      | Cons ((_, ({ address; login; weight; _ } : voter)), xs) ->
           let with_login = with_login || Some login <> address in
           let with_weight = with_weight || weight <> None in
           if with_login && with_weight then (true, true)
           else loop (with_login, with_weight) xs
     in
-    loop (false, false) (HMap.bindings voters)
+    loop (false, false) (HMap.to_seq voters)
   in
   let header_row =
     List.flatten

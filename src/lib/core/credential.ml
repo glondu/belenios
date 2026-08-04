@@ -96,15 +96,16 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
     | `Invalid -> E.return (Error `Invalid)
     | `MaybePassword -> E.return (Error `MaybePassword)
 
-  let rec monadic_fold_left f accu = function
-    | [] -> E.return accu
-    | x :: xs ->
+  let rec monadic_fold_left f accu xs =
+    match xs () with
+    | Seq.Nil -> E.return accu
+    | Cons (x, xs) ->
         let* () = E.pause () in
         monadic_fold_left f (f accu x) xs
 
   let generate voters =
     let* privs, pubs =
-      HMap.bindings voters
+      voters |> HMap.to_seq
       |> monadic_fold_left
            (fun (privs, pubs) (_, v) ->
              let username = v.login in

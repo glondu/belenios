@@ -389,15 +389,16 @@ let raw_compute_encrypted_tally s (election : Election.t) =
       GMap.empty
   in
   let* ballots =
-    Lwt_list.fold_left_s
-      (fun accu (credential, ballot) ->
-        let* x =
-          get_credential_props s G.spec
-            (credential |> G.to_string |> Hash.hash_string)
-        in
-        let weight = x.weight |> Option.value ~default:Weight.one in
-        Lwt.return @@ ((weight, ballot) :: accu))
-      [] (GMap.bindings ballots)
+    ballots |> GMap.to_seq |> Lwt_seq.of_seq
+    |> Lwt_seq.fold_left_s
+         (fun accu (credential, ballot) ->
+           let* x =
+             get_credential_props s G.spec
+               (credential |> G.to_string |> Hash.hash_string)
+           in
+           let weight = x.weight |> Option.value ~default:Weight.one in
+           Lwt.return @@ ((weight, ballot) :: accu))
+         []
   in
   let tally = W.E.process_ballots ballots in
   let tally_s = !+(yojson_of_encrypted_tally !&W.G.to_string) tally in
@@ -636,8 +637,8 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
   let* metadata = Mails_voter.get_metadata s ~admin_id in
   let send = Mails_voter.generate_credential_email metadata in
   let* jobs =
-    private_creds |> HMap.bindings
-    |> Lwt_list.fold_left_s
+    private_creds |> HMap.to_seq |> Lwt_seq.of_seq
+    |> Lwt_seq.fold_left_s
          (fun jobs (login_h, credential) ->
            match HMap.find_opt login_h voters with
            | None -> Lwt.return jobs
