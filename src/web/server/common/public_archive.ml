@@ -153,10 +153,10 @@ let get_public_creds s (type a b) (w : (a, b) group) =
       let module G = (val w) in
       Lwt.return @@ !*(public_credentials_of_yojson !$G.of_string) x
 
-let get_credential_weight s cred =
-  let* x = Storage.E.get s (Credential_props cred) in
+let get_credential_weight s (type a b) (w : (a, b) spec) cred =
+  let* x = Storage.E.get s (Credential_props (w, cred)) in
   match Lopt.get_value x with
-  | Some (W x) -> x.weight |> Option.value ~default:Weight.one |> Lwt.return
+  | Some x -> x.weight |> Option.value ~default:Weight.one |> Lwt.return
   | None ->
       let uuid = Storage.E.get_uuid s in
       Lwt.fail
@@ -171,7 +171,7 @@ let get_ballot_weight s (election : Election.t) ballot =
     (fun () ->
       let ballot = !*[%group_of_yojson: _ ballot] ballot in
       let credential = ballot.message.credential in
-      get_credential_weight s (W.G.to_string credential))
+      get_credential_weight s G.spec (W.G.to_string credential))
     (fun e ->
       Printf.ksprintf failwith "anomaly in get_ballot_weight (%s)"
         (Printexc.to_string e))

@@ -24,18 +24,21 @@ open Ppx_yojson_conv_lib.Yojson_conv
 open Common_types
 
 type ('a, 'b) public_credential_props = {
-  credential : 'a option; [@yojson.option]
-      (* always None and never read, this is here to make the type
-         injective *)
+  credential : 'a;
   weight : weight option; [@yojson.option]
   id : 'b option; [@yojson.option]
 }
 [@@deriving yojson]
 
-type 'a public_credentials = ('a, unit) public_credential_props smap
+type 'a public_credential = ('a, unit) public_credential_props
 [@@deriving yojson]
 
-type 'a public_credentials_with_id = ('a, string) public_credential_props smap
+type 'a public_credentials = 'a public_credential smap [@@deriving yojson]
+
+type 'a public_credential_with_id = ('a, string) public_credential_props
+[@@deriving yojson]
+
+type 'a public_credentials_with_id = 'a public_credential_with_id smap
 [@@deriving yojson]
 
 type private_credentials = string smap [@@deriving yojson]

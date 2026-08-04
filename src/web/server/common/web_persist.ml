@@ -355,8 +355,8 @@ let get_voter s id =
   let&* x = Lopt.get_value x in
   Lwt.return_some x
 
-let get_credential_props s cred =
-  let* x = Storage.E.get s (Credential_props cred) in
+let get_credential_props s (type a b) (w : (a, b) spec) cred =
+  let* x = Storage.E.get s (Credential_props (w, cred)) in
   match Lopt.get_value x with Some x -> Lwt.return x | None -> assert false
 
 let add_ballot s (election : Election.t) last ballot =
@@ -391,7 +391,7 @@ let raw_compute_encrypted_tally s (election : Election.t) =
   let* ballots =
     Lwt_list.fold_left_s
       (fun accu (credential, ballot) ->
-        let* (W x) = get_credential_props s (W.G.to_string credential) in
+        let* x = get_credential_props s G.spec (G.to_string credential) in
         let weight = x.weight |> Option.value ~default:Weight.one in
         Lwt.return @@ ((weight, ballot) :: accu))
       [] (GMap.bindings ballots)
@@ -422,7 +422,7 @@ let raw_compute_encrypted_tally s (election : Election.t) =
   | true -> Storage.E.del s Audit_cache
   | false -> Lwt.fail @@ Failure "race condition in raw_compute_encrypted_tally"
 
-let get_credential_record s credential =
+let get_credential_record s (type a b) (w : (a, b) spec) credential =
   let* cr_ballot =
     let* x = Storage.E.get s Credential_dynamic_records in
     match Lopt.get_value x with
@@ -433,7 +433,7 @@ let get_credential_record s credential =
         | Some (Some { ballot; _ }) -> Lwt.return_some ballot
         | _ -> Lwt.return_none)
   in
-  let* (W x) = get_credential_props s credential in
+  let* x = get_credential_props s w credential in
   let cr_username = x.id in
   let cr_weight = x.weight |> Option.value ~default:Weight.one in
   Lwt.return_some { cr_ballot; cr_weight; cr_username }
@@ -450,6 +450,7 @@ let precast_ballot s ~ballot =
         Lwt.fail (Election_not_found (uuid, "precast_ballot")))
   in
   let module W = (val election) in
+  let module G = W.G in
   let@ () =
    fun cont ->
     let hash = Hash.hash_string ballot in
@@ -465,7 +466,7 @@ let precast_ballot s ~ballot =
   in
   let credential = rc.rc_credential in
   let@ credential_record cont =
-    let* x = get_credential_record s credential in
+    let* x = get_credential_record s G.spec credential in
     match x with
     | None -> Lwt.return @@ Error `InvalidCredential
     | Some cr -> cont cr
@@ -476,6 +477,7 @@ let precast_ballot s ~ballot =
 let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
     ~precast_data =
   let module W = (val election) in
+  let module G = W.G in
   let@ last cont =
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
@@ -499,7 +501,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
           cont @@ Error `WrongUsername
       | _ -> cont2 ()
     in
-    let* x = get_credential_record s credential in
+    let* x = get_credential_record s G.spec credential in
     match x with
     | None -> assert false
     | Some cr' when cr'.cr_ballot = cr.cr_ballot ->

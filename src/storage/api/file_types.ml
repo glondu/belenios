@@ -19,22 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios
 open Types
 open Extra
 
 type abstract
-
-type wrapped_public_credential_props =
-  | W : ('a, string) public_credential_props -> wrapped_public_credential_props
-
-let yojson_of_wrapped_public_credential_props (W x) =
-  yojson_of_public_credential_props Fun.id [%yojson_of: string]
-    { x with credential = None }
-
-let wrapped_public_credential_props_of_yojson x =
-  W (public_credential_props_of_yojson Fun.id [%of_yojson: string] x)
 
 type _ election_file =
   | State : stored_election_state election_file
@@ -55,7 +44,9 @@ type _ election_file =
   | Roots : roots election_file
   | Voters_config : voters_config election_file
   | Voter : string -> Voter.t election_file
-  | Credential_props : string -> wrapped_public_credential_props election_file
+  | Credential_props :
+      ('a, 'b) spec * string
+      -> 'a public_credential_with_id election_file
   | Credential_dynamic_records : credential_dynamic_records election_file
 
 type _ credentials_file =
