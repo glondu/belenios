@@ -162,7 +162,7 @@ let get_credential_weight s (type a b) (w : (a, b) spec) cred =
       Lwt.fail
         (Failure
            (Printf.sprintf "could not find credential weight of %s/%s"
-              (Uuid.to_string uuid) cred))
+              (Uuid.to_string uuid) (Hash.to_hex cred)))
 
 let get_ballot_weight s (election : Election.t) ballot =
   let module W = (val election) in
@@ -171,7 +171,8 @@ let get_ballot_weight s (election : Election.t) ballot =
     (fun () ->
       let ballot = !*[%group_of_yojson: _ ballot] ballot in
       let credential = ballot.message.credential in
-      get_credential_weight s G.spec (W.G.to_string credential))
+      get_credential_weight s G.spec
+        (credential |> G.to_string |> Hash.hash_string))
     (fun e ->
       Printf.ksprintf failwith "anomaly in get_ballot_weight (%s)"
         (Printexc.to_string e))

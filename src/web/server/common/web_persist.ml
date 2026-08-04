@@ -391,7 +391,10 @@ let raw_compute_encrypted_tally s (election : Election.t) =
   let* ballots =
     Lwt_list.fold_left_s
       (fun accu (credential, ballot) ->
-        let* x = get_credential_props s G.spec (G.to_string credential) in
+        let* x =
+          get_credential_props s G.spec
+            (credential |> G.to_string |> Hash.hash_string)
+        in
         let weight = x.weight |> Option.value ~default:Weight.one in
         Lwt.return @@ ((weight, ballot) :: accu))
       [] (GMap.bindings ballots)
@@ -428,7 +431,7 @@ let get_credential_record s (type a b) (w : (a, b) spec) credential =
     match Lopt.get_value x with
     | None -> assert false
     | Some x -> (
-        let x = SMap.find_opt credential x in
+        let x = HMap.find_opt credential x in
         match x with
         | Some (Some { ballot; _ }) -> Lwt.return_some ballot
         | _ -> Lwt.return_none)
@@ -439,7 +442,7 @@ let get_credential_record s (type a b) (w : (a, b) spec) credential =
   Lwt.return_some { cr_ballot; cr_weight; cr_username }
 
 type precast_data = {
-  credential : string;
+  credential_hash : hash;
   credential_record : credential_record;
 }
 
@@ -464,14 +467,14 @@ let precast_ballot s ~ballot =
     | Error _ as x -> Lwt.return x
     | Ok rc -> cont rc
   in
-  let credential = rc.rc_credential in
+  let credential_hash = Hash.hash_string rc.rc_credential in
   let@ credential_record cont =
-    let* x = get_credential_record s G.spec credential in
+    let* x = get_credential_record s G.spec credential_hash in
     match x with
     | None -> Lwt.return @@ Error `InvalidCredential
     | Some cr -> cont cr
   in
-  if rc.rc_check () then Lwt.return @@ Ok { credential; credential_record }
+  if rc.rc_check () then Lwt.return @@ Ok { credential_hash; credential_record }
   else Lwt.return @@ Error `InvalidBallot
 
 let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
@@ -488,7 +491,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
     | Some i -> String.sub user (i + 1) (String.length user - i - 1)
   in
   let@ x cont =
-    let { credential; credential_record = cr } = precast_data in
+    let { credential_hash; credential_record = cr } = precast_data in
     let@ () =
      fun cont2 ->
       if Weight.compare cr.cr_weight weight <> 0 then cont @@ Error `WrongWeight
@@ -501,16 +504,16 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
           cont @@ Error `WrongUsername
       | _ -> cont2 ()
     in
-    let* x = get_credential_record s G.spec credential in
+    let* x = get_credential_record s G.spec credential_hash in
     match x with
     | None -> assert false
     | Some cr' when cr'.cr_ballot = cr.cr_ballot ->
-        cont @@ Ok (credential, cr.cr_ballot)
+        cont @@ Ok (credential_hash, cr.cr_ballot)
     | Some _ -> cont @@ Error `ExpiredBallot
   in
   match x with
   | Error _ as x -> Lwt.return x
-  | Ok (credential, old) ->
+  | Ok (credential_hash, old) ->
       let@ hash, revote =
        fun cont ->
         match old with
@@ -530,7 +533,9 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
         | None -> assert false
         | Some x ->
             let x =
-              SMap.add credential (Some { ballot = hash; timestamp = date }) x
+              HMap.add credential_hash
+                (Some { ballot = hash; timestamp = date })
+                x
             in
             set Value x
       in
@@ -628,26 +633,18 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
     | None -> Lwt.return HMap.empty
     | Some x -> Lwt.return x
   in
-  let voter_map =
-    HMap.fold
-      (fun _ (v : voter) accu ->
-        let login = v.login in
-        let weight = Voter.get_weight v in
-        let recipient =
-          match v with { address; _ } -> Option.value ~default:login address
-        in
-        SMap.add login (recipient, weight) accu)
-      voters SMap.empty
-  in
   let* metadata = Mails_voter.get_metadata s ~admin_id in
   let send = Mails_voter.generate_credential_email metadata in
   let* jobs =
-    private_creds |> SMap.bindings
+    private_creds |> HMap.bindings
     |> Lwt_list.fold_left_s
-         (fun jobs (login, credential) ->
-           match SMap.find_opt login voter_map with
+         (fun jobs (login_h, credential) ->
+           match HMap.find_opt login_h voters with
            | None -> Lwt.return jobs
-           | Some (recipient, weight) ->
+           | Some (v : voter) ->
+               let login = v.login in
+               let weight = Voter.get_weight v in
+               let recipient = v.address |> Option.value ~default:login in
                let* job = send ~recipient ~login ~weight credential in
                Lwt.return (job :: jobs))
          []
@@ -712,18 +709,18 @@ let init_credential_mapping s (type a b) (w : (a, b) group) =
   | Some x ->
       let public_credentials =
         x
-        |> SMap.map (fun x ->
+        |> HMap.map (fun x ->
             ({ x with id = None } : _ public_credential_props))
       in
       let records =
-        SMap.fold
+        HMap.fold
           (fun _ (x : _ public_credential_props) accu ->
             match x.id with
             | None -> assert false
             | Some id -> SMap.add id None accu)
           x SMap.empty
       in
-      let xs = x |> SMap.map (fun _ -> None) in
+      let xs = x |> HMap.map (fun _ -> None) in
       let* () = Storage.E.set s Records Value records in
       let* () = Storage.E.set s Credential_dynamic_records Value xs in
       Lwt.return public_credentials
@@ -979,7 +976,7 @@ let get_draft_public_credentials s (type a b) (w : (a, b) group) =
   let* x = Storage.E.get s (Public_creds G.spec) in
   let&* x = Lopt.get_value x in
   x
-  |> SMap.map (fun x -> ({ x with id = None } : _ public_credential_props))
+  |> HMap.map (fun x -> ({ x with id = None } : _ public_credential_props))
   |> Lwt.return_some
 
 let get_records s =

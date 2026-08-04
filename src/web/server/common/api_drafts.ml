@@ -305,7 +305,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
     if HMap.is_empty voters then raise (Error (`ValidationError `NoVoters))
   in
   let () =
-    if not (HMap.cardinal voters = SMap.cardinal credentials) then
+    if not (HMap.cardinal voters = HMap.cardinal credentials) then
       raise (Error (`ValidationError `WrongLength))
   in
   let () =
@@ -315,7 +315,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
         let public_creds_ok =
           let public_creds_hash =
             credentials
-            |> SMap.map (fun x ->
+            |> HMap.map (fun x ->
                 ({ x with id = None } : _ public_credential_props))
             |> yojson_of_public_credentials !&G.to_string
             |> Hash.hash_yojson
@@ -342,8 +342,8 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
       voters SMap.empty
   in
   let _, _ =
-    SMap.fold
-      (fun cred_s (p : _ public_credential_props) (i, creds) ->
+    HMap.fold
+      (fun cred_h (p : _ public_credential_props) (i, creds) ->
         let invalid fmt =
           Printf.ksprintf
             (fun x ->
@@ -352,6 +352,8 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
                    (`GenericError (Printf.sprintf "invalid %s at index %d" x i))))
             fmt
         in
+        let cred_s = G.to_string p.credential in
+        if cred_h <> Hash.hash_string cred_s then invalid "credential hash";
         let weight = Option.value ~default:Weight.one p.weight in
         let username =
           match p.id with None -> invalid "missing id" | Some x -> x
@@ -668,7 +670,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
               body.run !*(public_credentials_with_id_of_yojson !$G.of_string)
             in
             match (who, x) with
-            | `Administrator account, c when SMap.is_empty c -> (
+            | `Administrator account, c when HMap.is_empty c -> (
                 let@ () = handle_generic_error in
                 let* x = generate_credentials_on_server s account uuid se in
                 match x with

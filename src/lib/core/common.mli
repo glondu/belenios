@@ -73,6 +73,7 @@ val ( !+ ) : ('a -> json) -> 'a -> string
 val compare_b64 : string -> string -> int
 
 module SSet : Set.S with type elt = string
+module HSet : Set.S with type elt = hash
 module IMap : Map.S with type key = int
 
 val random_modulo : Z.t -> Crypto_primitives.rng -> Z.t

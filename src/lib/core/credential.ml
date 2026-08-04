@@ -111,16 +111,16 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
              let weight = v.weight in
              let { private_credential; private_key } = generate_one () in
              let credential = G.(g **~ private_key) in
-             ( SMap.add username private_credential privs,
-               SMap.add
-                 G.(credential |> to_string)
+             ( HMap.add (Hash.hash_string username) private_credential privs,
+               HMap.add
+                 (credential |> G.to_string |> Hash.hash_string)
                  { credential; weight; id = Some username }
                  pubs ))
-           (SMap.empty, SMap.empty)
+           (HMap.empty, HMap.empty)
     in
     {
       private_creds = privs;
-      public_creds = SMap.map (fun x -> { x with id = None }) pubs;
+      public_creds = HMap.map (fun x -> { x with id = None }) pubs;
       public_with_ids = pubs;
     }
     |> E.return

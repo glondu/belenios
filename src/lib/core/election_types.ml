@@ -33,15 +33,15 @@ type ('a, 'b) public_credential_props = {
 type 'a public_credential = ('a, unit) public_credential_props
 [@@deriving yojson]
 
-type 'a public_credentials = 'a public_credential smap [@@deriving yojson]
+type 'a public_credentials = 'a public_credential hmap [@@deriving yojson]
 
 type 'a public_credential_with_id = ('a, string) public_credential_props
 [@@deriving yojson]
 
-type 'a public_credentials_with_id = 'a public_credential_with_id smap
+type 'a public_credentials_with_id = 'a public_credential_with_id hmap
 [@@deriving yojson]
 
-type private_credentials = string smap [@@deriving yojson]
+type private_credentials = string hmap [@@deriving yojson]
 type lang_dir = [ `Ltr | `Rtl ] [@@deriving yojson]
 
 type credential_authority = [ `Server | `External of string ]

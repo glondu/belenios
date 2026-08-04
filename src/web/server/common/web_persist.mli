@@ -75,7 +75,7 @@ val validate_election :
   unit Lwt.t
 
 type precast_data = {
-  credential : string;
+  credential_hash : hash;
   credential_record : credential_record;
 }
 

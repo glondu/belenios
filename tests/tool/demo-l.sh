@@ -54,7 +54,6 @@ echo "$VOTERS" > voters.json
 belenios-tool setup generate-credentials $uuid $group --file voters.json | tee generate-credentials.out
 mv *.pubcreds public_creds.json
 mv *.privcreds private_creds.json
-paste <(jq --raw-output 'keys_unsorted[]' < private_creds.json) <(jq --raw-output '.[]' < private_creds.json) > private_creds.txt
 
 # Generate trustee keys
 belenios-tool setup generate-trustee-key $group --name "Trustee 1"
@@ -85,19 +84,20 @@ rm -f generate-credentials.out
 header "Simulate votes"
 
 cat > votes.txt <<EOF
-[[[0,0,0],[1,1],[0,0,0,0]]]
-[[[0,0,0],[0,0],[1,1,1,1]]]
-[[[1,1,0],[0,0],[0,0,0,0]]]
-[[[1,0,1],[0,0],[0,0,0,0]]]
-[[[0,0,0],[0,0],[1,1,0,0]]]
+voter1 [[[0,0,0],[1,1],[0,0,0,0]]]
+voter2 [[[0,0,0],[0,0],[1,1,1,1]]]
+voter3 [[[1,1,0],[0,0],[0,0,0,0]]]
+voter4 [[[1,0,1],[0,0],[0,0,0,0]]]
+voter5 [[[0,0,0],[0,0],[1,1,0,0]]]
 EOF
 
-paste private_creds.txt votes.txt | while read id cred vote; do
+cat votes.txt | while read login vote; do
+    cred="$(jq --raw-output .[\""$(echo -n "$login" | sha256sum | awk '{print $1}')"\"] private_creds.json)"
     BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --choice <(echo "$vote"))"
     belenios-tool election verify-ballot --ballot <(echo "$BALLOT")
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
     echo "$BALLOT" | belenios-tool archive add-event --type=Ballot
-    echo "Voter $id voted with $HASH" >&2
+    echo "Voter $login voted with $HASH" >&2
     echo >&2
 done
 
@@ -113,11 +113,12 @@ header "Simulate revotes and verify diff"
 
 tdir="$(mktemp -d)"
 cp $UUID.bel "$tdir"
-paste <(head -n 3 private_creds.txt) <(head -n 3 votes.txt) | while read id cred vote; do
+head -n 3 votes.txt | while read login vote; do
+    cred="$(jq --raw-output .[\""$(echo -n "$login" | sha256sum | awk '{print $1}')"\"] private_creds.json)"
     BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --choice <(echo "$vote"))"
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
     echo "$BALLOT" | belenios-tool archive add-event --type=Ballot
-    echo "Voter $id voted with $HASH" >&2
+    echo "Voter $login voted with $HASH" >&2
     echo >&2
 done
 belenios-tool election verify-diff --dir1="$tdir" --dir2=.

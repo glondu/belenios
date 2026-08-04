@@ -101,7 +101,7 @@ module MakeBackend
   type abstract_credential_props = {
     mutable get_credential_props :
       'a 'b.
-      uuid -> ('a, 'b) spec -> string -> 'a public_credential_with_id lopt Lwt.t;
+      uuid -> ('a, 'b) spec -> hash -> 'a public_credential_with_id lopt Lwt.t;
   }
 
   let make_uninitialized_ops what =
@@ -283,7 +283,7 @@ module MakeBackend
     | Concrete : string -> 'a raw_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a raw_file_props
     | Abstract_credential_props :
-        ('a, 'b) spec * string
+        ('a, 'b) spec * hash
         -> 'a public_credential_with_id raw_file_props
 
   let draft_filename = "draft.json"
@@ -343,7 +343,7 @@ module MakeBackend
     | Concrete : string -> 'a file_props
     | Abstract : ('key, 'a) abstract_file_ops * uuid * 'key -> 'a file_props
     | Abstract_credential_props :
-        uuid * ('a, 'b) spec * string
+        uuid * ('a, 'b) spec * hash
         -> 'a public_credential_with_id file_props
     | Admin_password :
         string * admin_password_kind
@@ -728,7 +728,7 @@ module MakeBackend
             x |> !*(public_credentials_of_yojson !$G.of_string)
           in
           cont
-            (SMap.map
+            (HMap.map
                (fun x -> ({ x with id = None } : _ public_credential_props))
                public_creds)
       | Some x -> cont x
@@ -748,7 +748,7 @@ module MakeBackend
             match Type.Id.provably_equal w.element w'.element with
             | None -> assert false
             | Some Equal ->
-                let&** x = SMap.find_opt cred x in
+                let&** x = HMap.find_opt cred x in
                 (x : (a, string) public_credential_props)
                 |> Lopt.some_value
                      !+(yojson_of_public_credential_with_id !&G.to_string)

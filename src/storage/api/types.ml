@@ -71,7 +71,7 @@ type credential_mapping = { credential : string; ballot : hash }
 type credential_dynamic_record = { ballot : hash; timestamp : int64 }
 [@@deriving yojson]
 
-type credential_dynamic_records = credential_dynamic_record option smap
+type credential_dynamic_records = credential_dynamic_record option hmap
 [@@deriving yojson]
 
 type election_state =
@@ -254,6 +254,7 @@ let yojson_of_wrapped_credentials_params : wrapped_credentials_params -> json =
   [%yojson_of_group: _ credentials_params] x
 
 type 'a credentials_record = {
+  login : string;
   credential : 'a;
   address : string option; [@yojson.option]
   weight : weight option; [@yojson.option]
@@ -265,17 +266,8 @@ type ('a, 'b) credentials_records_item =
 [@@deriving yojson]
 
 type ('a, 'b) credentials_records_object =
-  (string * ('a, 'b) credentials_records_item) list
-
-let yojson_of_credentials_records_object a b x : json =
-  `Assoc
-    (List.map (fun (k, v) -> (k, yojson_of_credentials_records_item a b v)) x)
-
-let credentials_records_object_of_yojson a b :
-    json -> _ credentials_records_object = function
-  | `Assoc o ->
-      List.map (fun (k, v) -> (k, credentials_records_item_of_yojson a b v)) o
-  | x -> of_yojson_error "object expected" x
+  ('a, 'b) credentials_records_item hmap
+[@@deriving yojson]
 
 type ('a, 'b) credentials_records = {
   algorithm : string;

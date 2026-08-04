@@ -49,27 +49,20 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
       end) in
   let* creds = Cred.generate voter_list in
   let* records =
-    let map =
-      HMap.bindings voter_list
-      |> List.fold_left
-           (fun accu (_, (v : voter)) ->
-             let voter = v.login in
-             SMap.add voter (v.weight, v.address) accu)
-           SMap.empty
-    in
-    creds.private_creds |> SMap.bindings
-    |> Lwt_list.map_s (fun (voter, x) ->
+    creds.private_creds |> HMap.bindings
+    |> Lwt_list.map_s (fun (voter_h, x) ->
         let* credential =
           P.encrypt ~algorithm xch_encrypted_credential encryption_key x
         in
-        let weight, address =
-          match SMap.find_opt voter map with
-          | None -> (None, None)
-          | Some x -> x
+        let login, weight, address =
+          match HMap.find_opt voter_h voter_list with
+          | None -> assert false
+          | Some (v : voter) -> (v.login, v.weight, v.address)
         in
-        let x : _ credentials_record = { credential; weight; address } in
-        Lwt.return (voter, x))
+        let x : _ credentials_record = { login; credential; weight; address } in
+        Lwt.return (voter_h, x))
   in
+  let records = HMap.of_list records in
   let public_creds_hash =
     creds.public_creds
     |> yojson_of_public_credentials !&G.to_string
@@ -202,7 +195,7 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
     let module P = Pki.Make (G) in
     let decryption_key = P.derive_dk seed in
     let { algorithm; records } = credentials_records in
-    records
+    records |> HMap.bindings
     |> Lwt_list.fold_left_s
          (fun accu (v, c) ->
            let encrypted_msg = c.credential in
@@ -260,12 +253,12 @@ let process_resend_request (r : credentials_resend) (type a b)
     match r.spec with
     | `All_voters ->
         `Some_voters
-          (List.fold_left
-             (fun accu (x, _) -> SSet.add x accu)
-             SSet.empty records)
+          (HMap.fold (fun x _ accu -> HSet.add x accu) records HSet.empty)
     | `Some_voters xs ->
         `Some_voters
-          (List.fold_left (fun accu x -> SSet.add x accu) SSet.empty xs)
+          (List.fold_left
+             (fun accu x -> HSet.add (Hash.hash_string x) accu)
+             HSet.empty xs)
     | `Missing_voters -> `Missing_voters
   in
   let* credentials_records =
@@ -277,9 +270,9 @@ let process_resend_request (r : credentials_resend) (type a b)
         let module G = (val w) in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk r.seed in
-        records
+        records |> HMap.bindings
         |> Lwt_list.filter_map_s (fun (v, c) ->
-            if SSet.mem v voters then
+            if HSet.mem v voters then
               let encrypted_msg = c.credential in
               let* x =
                 P.decrypt ~algorithm xch_encrypted_credential decryption_key
@@ -293,8 +286,8 @@ let process_resend_request (r : credentials_resend) (type a b)
   let send = Mails_voter.generate_credential_email metadata in
   let* jobs =
     credentials_records
-    |> Lwt_list.map_s (fun (login, (c : _ credentials_record)) ->
-        send ?recipient:c.address ~login ?weight:c.weight c.credential)
+    |> Lwt_list.map_s (fun (_, (c : _ credentials_record)) ->
+        send ?recipient:c.address ~login:c.login ?weight:c.weight c.credential)
   in
   let credit : credentials_credit =
     {
@@ -400,7 +393,7 @@ let process_request : credentials_request -> _ = function
         match Lopt.get_value x with Some x -> cont x | None -> not_found
       in
       let { algorithm; records } = credentials_records in
-      let n = List.length records in
+      let n = HMap.cardinal records in
       let* credentials_records =
         let module G = (val w) in
         let module P = Pki.Make (G) in
@@ -415,13 +408,14 @@ let process_request : credentials_request -> _ = function
             match x with
             | None -> Lwt.return_none
             | Some credential -> Lwt.return_some (v, { c with credential }))
-          records
+          (HMap.bindings records)
       in
       let send = Mails_voter.generate_credential_email r.metadata in
       let* jobs =
         Lwt_list.map_s
-          (fun (login, (c : _ credentials_record)) ->
-            send ?recipient:c.address ~login ?weight:c.weight c.credential)
+          (fun (_, (c : _ credentials_record)) ->
+            send ?recipient:c.address ~login:c.login ?weight:c.weight
+              c.credential)
           credentials_records
       in
       let* () = Mails_voter_bulk.submit_bulk_emails jobs in

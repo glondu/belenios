@@ -166,7 +166,10 @@ let scenario admin questions nvoters trustees registrar auth =
               | Some x -> x
               | _ -> assert false)
           | Some (Creds (`Assoc o)) -> (
-              match List.assoc_opt voter o with
+              let voter_h =
+                Digestif.SHA256.(voter |> digest_string |> to_hex)
+              in
+              match List.assoc_opt voter_h o with
               | Some (`String x) -> x
               | _ -> assert false)
           | _ -> assert false

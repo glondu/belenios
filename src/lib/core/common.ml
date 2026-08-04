@@ -180,6 +180,7 @@ let compare_b64 a b =
   loop 0
 
 module SSet = Set.Make (String)
+module HSet = Set.Make (Hash)
 module IMap = Map.Make (Int)
 
 let check_modulo p x = Z.(compare x zero >= 0 && compare x p < 0)

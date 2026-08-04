@@ -151,7 +151,7 @@ module Events : CMDLINER_MODULE = struct
     let public_creds =
       public_creds
       |> !*(public_credentials_with_id_of_yojson Fun.id)
-      |> SMap.map (fun x -> { x with id = None })
+      |> HMap.map (fun x -> { x with id = None })
       |> !+(yojson_of_public_credentials Fun.id)
     in
     let file =

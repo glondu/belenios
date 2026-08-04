@@ -120,10 +120,10 @@ let compute_checksums (type a b) (election : (a, b) u) trustees
     Hash.hash_string
       (!+(yojson_of_public_credentials !&W.G.to_string) public_credentials)
   in
-  let ec_num_voters = SMap.cardinal public_credentials in
+  let ec_num_voters = HMap.cardinal public_credentials in
   let ec_weights =
     let total, min, max =
-      SMap.fold
+      HMap.fold
         (fun _ (p : _ public_credential_props) (total, min, max) ->
           let w = Option.value ~default:Weight.one p.weight in
           let total = Weight.(total + w) in

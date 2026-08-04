@@ -110,12 +110,12 @@ struct
     state : state option;
     mutable data : data;
     mutable user : timestamped_user option;
-    credential : string option;
+    credential : hash option;
     mutable result : Belenios_web_api.cast_result option;
   }
 
   let auth_env = ref SMap.empty
-  let cred_env = ref SMap.empty
+  let cred_env = ref HMap.empty
 
   let get_auth_env ~state =
     let now = Unix.gettimeofday () in
@@ -125,7 +125,7 @@ struct
       (fun _ e ->
         match e.credential with
         | None -> ()
-        | Some c -> cred_env := SMap.remove c !cred_env)
+        | Some c -> cred_env := HMap.remove c !cred_env)
       b;
     SMap.find_opt state a
 
@@ -161,7 +161,7 @@ struct
     let e = get_auth_env ~state in
     auth_env := SMap.remove state !auth_env;
     match e with
-    | Some { credential = Some c; _ } -> cred_env := SMap.remove c !cred_env
+    | Some { credential = Some c; _ } -> cred_env := HMap.remove c !cred_env
     | _ -> ()
 
   let exec ?(extern = false) ?(login = false) ?state x =
@@ -408,9 +408,9 @@ struct
 
     let create_election storage state =
       let uuid = Storage.E.get_uuid storage in
-      let credential = state.precast_data.credential in
+      let credential = state.precast_data.credential_hash in
       let () =
-        match SMap.find_opt credential !cred_env with
+        match HMap.find_opt credential !cred_env with
         | None -> ()
         | Some state -> del_auth_env ~state
       in

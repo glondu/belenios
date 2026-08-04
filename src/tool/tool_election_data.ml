@@ -267,9 +267,10 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
       (let* x = Lazy.force raw_public_creds in
        x
        |> Option.map (fun x ->
-           SMap.fold
-             (fun y (x : _ public_credential_props) (has_weights, accu) ->
+           HMap.fold
+             (fun _ (x : _ public_credential_props) (has_weights, accu) ->
                let has_weights = has_weights || x.weight <> None in
+               let y = G.to_string x.credential in
                if SMap.mem y accu then
                  Printf.ksprintf failwith "duplicate credential: %s" y
                else
