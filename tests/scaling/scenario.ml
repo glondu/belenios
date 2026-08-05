@@ -67,6 +67,7 @@ let main () =
   in
   let uuid = String.trim uuid in
   let* status =
+    let voters = Printf.sprintf "--voters=./scaling.%s.voters.json" uuid in
     let credentials =
       Printf.sprintf "--credentials=./scaling.%s.privcreds.json" uuid
     in
@@ -76,6 +77,7 @@ let main () =
         [|
           self;
           "vote";
+          voters;
           credentials;
           "--url=http://127.0.0.1:8001/";
           uuid_flag;

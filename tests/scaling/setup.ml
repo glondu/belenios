@@ -236,6 +236,14 @@ module Make (P : PARAMS) = struct
       let open Lwt_io in
       let@ f =
         with_file ~mode:output
+          (Printf.sprintf "scaling.%s.voters.json" (Uuid.to_string uuid))
+      in
+      write f (!+yojson_of_voters voters)
+    in
+    let* () =
+      let open Lwt_io in
+      let@ f =
+        with_file ~mode:output
           (Printf.sprintf "scaling.%s.privcreds.json" (Uuid.to_string uuid))
       in
       write f (!+yojson_of_private_credentials private_creds)
