@@ -105,7 +105,8 @@ let delete_live_election s uuid roots =
     | Some [ { auth_system = "cas"; auth_config; _ } ] ->
         let server = List.assoc "server" auth_config in
         `CAS server
-    | Some [ { auth_system = "email"; _ } ] -> `Email
+    | Some [ { auth_system = "import"; auth_instance; _ } ] ->
+        `Import auth_instance
     | _ -> `Unknown
   in
   let* de_trustees =

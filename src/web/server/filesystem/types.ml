@@ -34,7 +34,7 @@ let datetime_of_yojson = function
 type extended_record = { username : string; date : int64; credential : string }
 [@@deriving yojson]
 
-type authentication_method = [ `CAS of string | `Email | `Unknown ]
+type authentication_method = [ `CAS of string | `Import of string | `Unknown ]
 [@@deriving yojson]
 
 type credential_method = [ `Automatic | `Manual ] [@@deriving yojson]
