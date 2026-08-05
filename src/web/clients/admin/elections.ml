@@ -43,12 +43,6 @@ let read_full file =
   reader##readAsText file;
   t
 
-(* FIXME: get timezone offset from browser *)
-let datestring_of_int64 x =
-  let x = new%js Js.date_fromTimeValue (Js.float (Int64.to_float x *. 1000.)) in
-  let res = Js.to_string x##toISOString in
-  String.sub res 0 (String.length res - 5)
-
 (* forward declaration of the main function *)
 let update_election_main = ref (fun () -> assert false)
 
@@ -443,10 +437,6 @@ let rec insert_sep sep x =
   match x with [] | [ _ ] -> x | a :: b -> a :: sep () :: insert_sep sep b
 
 let flatten_with_sep sep x = List.flatten @@ insert_sep sep x
-
-let lines_to_file l =
-  let res = String.concat "\n" l in
-  res ^ "\n"
 
 let tab_elt title =
   div ~a:[ a_class [ "main-menu__item-menutitle" ] ] [ txt title ]
@@ -1023,25 +1013,17 @@ let voters_content () =
       ]
   else
     (* Running election *)
-    let data =
-      records |> SMap.bindings
-      |> List.filter_map (fun (username, (r : election_record option)) ->
-          match r with
-          | None -> None
-          | Some { timestamp } ->
-              Some (datestring_of_int64 timestamp ^ " " ^ username))
-    in
-    let uuid = get_current_uuid () |> Uuid.to_string in
+    let uuid = get_current_uuid () in
+    let uuid_s = Uuid.to_string uuid in
     let link =
-      let filename = Printf.sprintf "records-%s.txt" uuid in
-      a_data ~filename ~mime_type:"text/plain" ~data:(lines_to_file data)
-        (s_ "Voting records")
+      let href = !/((Api.election_records uuid).path) in
+      let filename = Printf.sprintf "records-%s.json" uuid_s in
+      a ~a:[ a_download (Some filename) ] ~href (s_ "Voting records")
     in
     let link2 =
-      let filename = Printf.sprintf "voters-%s.json" uuid in
-      a_data ~filename ~mime_type:"application/json"
-        ~data:(!+yojson_of_voters voters)
-        (s_ "Voter list")
+      let href = !/((Api.election_voters uuid).path) in
+      let filename = Printf.sprintf "voters-%s.json" uuid_s in
+      a ~a:[ a_download (Some filename) ] ~href (s_ "Voter list")
     in
     let nv = HMap.cardinal voters in
     let n = SMap.cardinal records in
