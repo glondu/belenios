@@ -20,15 +20,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (daca ati uitat-o, de exemplu)."
 
-#: src/web/common/pages_common.ml:245
+#: src/web/common/pages_common.ml:246
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Un e-mail de confirmare v-a fost trimis."
 
-#: src/web/common/pages_common.ml:243
+#: src/web/common/pages_common.ml:244
 msgid " anytime during the election."
 msgstr " în orice moment pe durata alegerii."
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:233
 msgid " as user "
 msgstr ""
 
@@ -48,7 +48,7 @@ msgstr " buletin(e) de vot au fost acceptat(e)."
 msgid " for more information."
 msgstr ""
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:235
 msgid " has been accepted."
 msgstr " a fost acceptat."
 
@@ -60,7 +60,7 @@ msgstr " au fost contorizate."
 msgid " in the following box: "
 msgstr ""
 
-#: src/web/common/pages_common.ml:252
+#: src/web/common/pages_common.ml:253
 msgid " is rejected, because "
 msgstr " este resprins, deoarece "
 
@@ -149,7 +149,7 @@ msgstr ""
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:275
+#: src/web/server/common/mails_voter.ml:286
 msgid "Alternatively, you can follow the link:"
 msgstr ""
 
@@ -171,7 +171,7 @@ msgstr "Autentificare"
 msgid "Authenticate with %s"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:296
+#: src/web/server/common/mails_voter.ml:307
 msgid "Authentication"
 msgstr ""
 
@@ -205,7 +205,7 @@ msgstr ""
 msgid "Bad security code!"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:289
+#: src/web/server/common/mails_voter.ml:300
 msgid "Best regards,"
 msgstr ""
 
@@ -257,8 +257,8 @@ msgstr ""
 msgid "Credentials fingerprint"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:256
-#. src/web/server/common/mails_voter.ml:202
+#: src/web/server/common/mails_voter.ml:267
+#. src/web/server/common/mails_voter.ml:207
 msgid "Dear %s,"
 msgstr "Draga %s,"
 
@@ -304,7 +304,7 @@ msgstr ""
 msgid "Expected fingerprint:"
 msgstr ""
 
-#: src/web/common/pages_common.ml:256
+#: src/web/common/pages_common.ml:257
 msgid "FAIL!"
 msgstr "EȘEC!"
 
@@ -329,11 +329,11 @@ msgid "Get the source code"
 msgstr "Obține codul sursă"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:273
+#. src/web/common/pages_common.ml:274
 msgid "Go back to election"
 msgstr "Întoarcere la pagina de start a alegerii"
 
-#: src/web/server/common/mails_voter.ml:128
+#: src/web/server/common/mails_voter.ml:133
 msgid "If the above link does not work:"
 msgstr ""
 
@@ -404,11 +404,11 @@ msgstr "Numărul buletinelor de vot acceptate: "
 msgid "Number of voters"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:145
+#: src/web/server/common/mails_voter.ml:150
 msgid "Number of votes:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:152
+#: src/web/server/common/mails_voter.ml:157
 msgid "Only the last vote counts."
 msgstr "Numai ultimul vot va fi luat în considerare."
 
@@ -436,7 +436,7 @@ msgstr ""
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:114
+#: src/web/server/common/mails_voter.ml:119
 msgid "Please vote here using your personal link:"
 msgstr ""
 
@@ -454,7 +454,7 @@ msgstr "Continuati"
 msgid "Processing ballot"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:131
+#: src/web/server/common/mails_voter.ml:136
 msgid "Public page of the election:"
 msgstr ""
 
@@ -474,7 +474,7 @@ msgstr ""
 msgid "Restricted mode"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:236
+#: src/web/server/common/mails_voter.ml:242
 msgid "Results will be published on the election page"
 msgstr "Rezultatele vor fi publicate pe pagina alegerii"
 
@@ -534,7 +534,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr ""
 
-#: src/web/common/pages_common.ml:248
+#: src/web/common/pages_common.ml:249
 msgid "Thank you for voting!"
 msgstr "Vă mulțumim pentru participare!"
 
@@ -596,7 +596,7 @@ msgstr "Această alegere este arhivată."
 msgid "This election is currently closed."
 msgstr "Această alegere este în prezent închisă."
 
-#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:232 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
 msgstr "Acest vot înlocuiește orice vot precedent."
 
@@ -604,11 +604,11 @@ msgstr "Acest vot înlocuiește orice vot precedent."
 msgid "Tie:"
 msgstr "Egalitate:"
 
-#: src/web/server/common/mails_voter.ml:123
+#: src/web/server/common/mails_voter.ml:128
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr "Pentru a depune votul vostru, vă trebuie o parolă, ce va fi trimisă într-un e-mail separat."
 
-#: src/web/server/common/mails_voter.ml:88
+#: src/web/server/common/mails_voter.ml:93
 msgid "To get more information, please contact:"
 msgstr "Pentru mai multe informatii, va rugam sa contactati:"
 
@@ -624,13 +624,13 @@ msgstr ""
 msgid "Unsupported question type"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:263
+#: src/web/server/common/mails_voter.ml:274
 msgid "Use the following code:"
 msgstr ""
 
 #: src/web/server/common/pages_common.ml:355
 #. src/web/server/common/pages_common.ml:287
-#. src/web/server/common/mails_voter.ml:135
+#. src/web/server/common/mails_voter.ml:140
 msgid "Username:"
 msgstr "Nume utilizator:"
 
@@ -646,11 +646,11 @@ msgstr ""
 msgid "Warning:"
 msgstr "Atentie:"
 
-#: src/web/server/common/mails_voter.ml:284
+#: src/web/server/common/mails_voter.ml:295
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:102
+#: src/web/server/common/mails_voter.ml:107
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 
@@ -666,7 +666,7 @@ msgstr ""
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:151
+#: src/web/server/common/mails_voter.ml:156
 msgid "You are allowed to vote several times."
 msgstr ""
 
@@ -678,7 +678,7 @@ msgstr ""
 msgid "You are authenticating as an administrator."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:107
+#: src/web/server/common/mails_voter.ml:112
 msgid "You are listed as a voter for the election"
 msgstr "Sunteți înregistrat(ă) ca votant(ă) pentru alegerea"
 
@@ -698,11 +698,11 @@ msgstr "Puteti de asemenea "
 msgid "You can also download the "
 msgstr "De asemenea, puteți descărca "
 
-#: src/web/common/pages_common.ml:241
+#: src/web/common/pages_common.ml:242
 msgid "You can check its presence in the "
 msgstr "Puteți verifica prezența sa în "
 
-#: src/web/server/common/mails_voter.ml:230
+#: src/web/server/common/mails_voter.ml:236
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Puteți verifica prezența acestuia în urna de vot, accesibilă la"
 
@@ -718,35 +718,35 @@ msgstr ""
 msgid "You cannot log in now. Please try later."
 msgstr ""
 
-#: src/web/common/pages_common.ml:262
+#: src/web/common/pages_common.ml:263
 msgid "Your ballot for "
 msgstr "Buletinul de vot pentru "
 
-#: src/web/server/common/mails_voter.ml:173
+#: src/web/server/common/mails_voter.ml:178
 msgid "Your credential for election %s"
 msgstr "Codul vostru de votare pentru alegerea %s"
 
-#: src/web/server/common/mails_voter.ml:139
+#: src/web/server/common/mails_voter.ml:144
 msgid "Your credential:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:260
+#: src/web/server/common/mails_voter.ml:271
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:218
+#: src/web/server/common/mails_voter.ml:224
 msgid "Your smart ballot tracker is"
 msgstr "Numărul vostru de identificare este"
 
-#: src/web/common/pages_common.ml:238
+#: src/web/common/pages_common.ml:239
 msgid "Your smart ballot tracker is "
 msgstr "Numărul vostru de identificare este "
 
-#: src/web/server/common/mails_voter.ml:205
+#: src/web/server/common/mails_voter.ml:210
 msgid "Your vote for election"
 msgstr "Votul vostru pentru alegerea"
 
-#: src/web/server/common/mails_voter.ml:199
+#: src/web/server/common/mails_voter.ml:204
 msgid "Your vote for election %s"
 msgstr "Votul vostru pentru alegerea %s"
 
@@ -754,11 +754,11 @@ msgstr "Votul vostru pentru alegerea %s"
 msgid "Your vote was not recorded!"
 msgstr "Votul dvoastra nu a fost inregistrat !"
 
-#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:218
+#: src/web/server/common/mails_voter.ml:222 src/web/common/pages_common.ml:219
 msgid "Your weight is %s."
 msgstr ""
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:230
 msgid "ballot box"
 msgstr "urna de vot"
 
@@ -774,7 +774,7 @@ msgstr "creati un cont"
 msgid "direct link"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:212
+#: src/web/server/common/mails_voter.ml:217
 msgid "has been recorded."
 msgstr "a fost înregistrat."
 

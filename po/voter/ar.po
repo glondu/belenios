@@ -20,15 +20,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (إذا نسيته ، على سبيل المثال)."
 
-#: src/web/common/pages_common.ml:245
+#: src/web/common/pages_common.ml:246
 msgid " A confirmation e-mail has been sent to you."
 msgstr " تم إرسال رسالة على البريد الإلكتروني للتأكيد إليك."
 
-#: src/web/common/pages_common.ml:243
+#: src/web/common/pages_common.ml:244
 msgid " anytime during the election."
 msgstr " في أي وقت خلال الانتخابات."
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:233
 msgid " as user "
 msgstr " بصفتك مستخدمًا "
 
@@ -48,7 +48,7 @@ msgstr " صوت (أو الأصوات) قبلت."
 msgid " for more information."
 msgstr " للمزيد من المعلومات."
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:235
 msgid " has been accepted."
 msgstr " تم قبوله."
 
@@ -60,7 +60,7 @@ msgstr " تم فرزها."
 msgid " in the following box: "
 msgstr " في الخانة التالية: "
 
-#: src/web/common/pages_common.ml:252
+#: src/web/common/pages_common.ml:253
 msgid " is rejected, because "
 msgstr " تم رفضه، لأن "
 
@@ -151,7 +151,7 @@ msgstr "جميع الحكام (مفاتيح التحقق) التالية مطل�
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:275
+#: src/web/server/common/mails_voter.ml:286
 msgid "Alternatively, you can follow the link:"
 msgstr ""
 
@@ -173,7 +173,7 @@ msgstr "التوثيق"
 msgid "Authenticate with %s"
 msgstr "التوثيق باستخدام %s"
 
-#: src/web/server/common/mails_voter.ml:296
+#: src/web/server/common/mails_voter.ml:307
 msgid "Authentication"
 msgstr ""
 
@@ -207,7 +207,7 @@ msgstr "عنوان البريد الإلكتروني غير صحيح!"
 msgid "Bad security code!"
 msgstr "رمز أمان غير صالح!"
 
-#: src/web/server/common/mails_voter.ml:289
+#: src/web/server/common/mails_voter.ml:300
 msgid "Best regards,"
 msgstr "مع أطيب التحيات،"
 
@@ -259,8 +259,8 @@ msgstr "سلطة الاعتماد"
 msgid "Credentials fingerprint"
 msgstr "بصمة الاعتمادات"
 
-#: src/web/server/common/mails_voter.ml:256
-#. src/web/server/common/mails_voter.ml:202
+#: src/web/server/common/mails_voter.ml:267
+#. src/web/server/common/mails_voter.ml:207
 msgid "Dear %s,"
 msgstr "عزيزي/عزيزتي %s,"
 
@@ -306,7 +306,7 @@ msgstr ""
 msgid "Expected fingerprint:"
 msgstr "البصمة المتوقعة:"
 
-#: src/web/common/pages_common.ml:256
+#: src/web/common/pages_common.ml:257
 msgid "FAIL!"
 msgstr "فشل!"
 
@@ -331,11 +331,11 @@ msgid "Get the source code"
 msgstr "احصل على كود المصدر"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:273
+#. src/web/common/pages_common.ml:274
 msgid "Go back to election"
 msgstr "العودة إلى الانتخابات"
 
-#: src/web/server/common/mails_voter.ml:128
+#: src/web/server/common/mails_voter.ml:133
 msgid "If the above link does not work:"
 msgstr "إذا لم يكن الرابط أعلاه يعمل:"
 
@@ -410,11 +410,11 @@ msgstr "عدد بطاقات الإقتراع المقبولة: "
 msgid "Number of voters"
 msgstr "عدد الناخبين"
 
-#: src/web/server/common/mails_voter.ml:145
+#: src/web/server/common/mails_voter.ml:150
 msgid "Number of votes:"
 msgstr "عدد الأصوات:"
 
-#: src/web/server/common/mails_voter.ml:152
+#: src/web/server/common/mails_voter.ml:157
 msgid "Only the last vote counts."
 msgstr "يتم احتساب الصوت الأخير فقط."
 
@@ -443,7 +443,7 @@ msgstr ""
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:114
+#: src/web/server/common/mails_voter.ml:119
 msgid "Please vote here using your personal link:"
 msgstr "الرجاء التصويت هنا باستخدام الرابط الشخصي الخاص بك:"
 
@@ -461,7 +461,7 @@ msgstr "تابع"
 msgid "Processing ballot"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:131
+#: src/web/server/common/mails_voter.ml:136
 msgid "Public page of the election:"
 msgstr "الصفحة العامة للانتخابات:"
 
@@ -481,7 +481,7 @@ msgstr ""
 msgid "Restricted mode"
 msgstr "الوضع المحدود"
 
-#: src/web/server/common/mails_voter.ml:236
+#: src/web/server/common/mails_voter.ml:242
 msgid "Results will be published on the election page"
 msgstr "مراجعة وتشفير"
 
@@ -545,7 +545,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr "شروط الخدمة"
 
-#: src/web/common/pages_common.ml:248
+#: src/web/common/pages_common.ml:249
 msgid "Thank you for voting!"
 msgstr "شكرًا لتصويتك!"
 
@@ -607,7 +607,7 @@ msgstr "تم أرشفة هذا الانتخاب."
 msgid "This election is currently closed."
 msgstr "هذا الانتخاب مغلق حاليًا."
 
-#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:232 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
 msgstr "يحل هذا التصويت محل أي تصويت سابق."
 
@@ -615,13 +615,13 @@ msgstr "يحل هذا التصويت محل أي تصويت سابق."
 msgid "Tie:"
 msgstr "تعادل:"
 
-#: src/web/server/common/mails_voter.ml:123
+#: src/web/server/common/mails_voter.ml:128
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 "للتصويت، ستحتاج أيضًا إلى كلمة مرور، يتم إرسالها في رسالة بريد إلكتروني "
 "منفصلة."
 
-#: src/web/server/common/mails_voter.ml:88
+#: src/web/server/common/mails_voter.ml:93
 msgid "To get more information, please contact:"
 msgstr "للحصول على مزيد من المعلومات، يرجى الاتصال ب:"
 
@@ -637,13 +637,13 @@ msgstr "قام الأمناء بخلط أوراق الاقتراع بالترت�
 msgid "Unsupported question type"
 msgstr "نوع السؤال غير مدعوم"
 
-#: src/web/server/common/mails_voter.ml:263
+#: src/web/server/common/mails_voter.ml:274
 msgid "Use the following code:"
 msgstr "استخدم الرمز التالي:"
 
 #: src/web/server/common/pages_common.ml:355
 #. src/web/server/common/pages_common.ml:287
-#. src/web/server/common/mails_voter.ml:135
+#. src/web/server/common/mails_voter.ml:140
 msgid "Username:"
 msgstr "اسم المستخدم:"
 
@@ -659,13 +659,13 @@ msgstr "إجمالي وزن الناخبين"
 msgid "Warning:"
 msgstr "تحذير:"
 
-#: src/web/server/common/mails_voter.ml:284
+#: src/web/server/common/mails_voter.ml:295
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "تحذير: هذا الرمز صالح لمدة 15 دقيقة، والرموز السابقة التي تم إرسالها إلى هذا "
 "العنوان لم تعد صالحة."
 
-#: src/web/server/common/mails_voter.ml:102
+#: src/web/server/common/mails_voter.ml:107
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 "تحذير: تحتوي هذه الرسالة الإلكترونية على مواد شخصية وسرية ويجب عدم إرسالها."
@@ -682,7 +682,7 @@ msgstr "ترغب في المساعدة في الترجمات؟"
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:151
+#: src/web/server/common/mails_voter.ml:156
 msgid "You are allowed to vote several times."
 msgstr "مسموح لك بالتصويت عدة مرات."
 
@@ -694,7 +694,7 @@ msgstr ""
 msgid "You are authenticating as an administrator."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:107
+#: src/web/server/common/mails_voter.ml:112
 msgid "You are listed as a voter for the election"
 msgstr "لقد تم إدراجك كناخب في الانتخابات"
 
@@ -714,11 +714,11 @@ msgstr "بامكانك ايضا "
 msgid "You can also download the "
 msgstr "يمكنك أيضًا تنزيل "
 
-#: src/web/common/pages_common.ml:241
+#: src/web/common/pages_common.ml:242
 msgid "You can check its presence in the "
 msgstr "يمكنك التحقق من وجودها خلال "
 
-#: src/web/server/common/mails_voter.ml:230
+#: src/web/server/common/mails_voter.ml:236
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "يمكنك التحقق من وجودها في صندوق الاقتراع، ويمكن الوصول إليها على"
 
@@ -734,36 +734,36 @@ msgstr ""
 msgid "You cannot log in now. Please try later."
 msgstr "لا يمكنك تسجيل الدخول الآن. يرجى المحاولة لاحقا."
 
-#: src/web/common/pages_common.ml:262
+#: src/web/common/pages_common.ml:263
 msgid "Your ballot for "
 msgstr "الاقتراع الخاص بك ل "
 
-#: src/web/server/common/mails_voter.ml:173
+#: src/web/server/common/mails_voter.ml:178
 msgid "Your credential for election %s"
 msgstr "بيانات اعتمادك للانتخابات %s"
 
-#: src/web/server/common/mails_voter.ml:139
+#: src/web/server/common/mails_voter.ml:144
 msgid "Your credential:"
 msgstr "بيانات الاعتماد الخاصة بك:"
 
-#: src/web/server/common/mails_voter.ml:260
+#: src/web/server/common/mails_voter.ml:271
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "لقد تم استخدام عنوان بريدك الإلكتروني للمصادقة مع خادم Belenios الخاص بنا."
 
-#: src/web/server/common/mails_voter.ml:218
+#: src/web/server/common/mails_voter.ml:224
 msgid "Your smart ballot tracker is"
 msgstr "متتبع الاقتراع الذكي الخاص بك هو"
 
-#: src/web/common/pages_common.ml:238
+#: src/web/common/pages_common.ml:239
 msgid "Your smart ballot tracker is "
 msgstr "متتبع الاقتراع الذكي الخاص بك هو "
 
-#: src/web/server/common/mails_voter.ml:205
+#: src/web/server/common/mails_voter.ml:210
 msgid "Your vote for election"
 msgstr "صوتك للانتخاب"
 
-#: src/web/server/common/mails_voter.ml:199
+#: src/web/server/common/mails_voter.ml:204
 msgid "Your vote for election %s"
 msgstr "تصويتك للانتخابات %s"
 
@@ -771,11 +771,11 @@ msgstr "تصويتك للانتخابات %s"
 msgid "Your vote was not recorded!"
 msgstr "لم يتم تسجيل صوتك!"
 
-#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:218
+#: src/web/server/common/mails_voter.ml:222 src/web/common/pages_common.ml:219
 msgid "Your weight is %s."
 msgstr "وزنك هو %s."
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:230
 msgid "ballot box"
 msgstr "صندوق الإقتراع"
 
@@ -791,7 +791,7 @@ msgstr "إنشاء حساب"
 msgid "direct link"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:212
+#: src/web/server/common/mails_voter.ml:217
 msgid "has been recorded."
 msgstr "تم تسجيله."
 

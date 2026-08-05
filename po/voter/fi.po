@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (jos esimerkiksi unohdit sen)."
 
-#: src/web/common/pages_common.ml:245
+#: src/web/common/pages_common.ml:246
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Sinulle on lähetetty vahvistusviesti."
 
-#: src/web/common/pages_common.ml:243
+#: src/web/common/pages_common.ml:244
 msgid " anytime during the election."
 msgstr " milloin vain äänestyksen aikana."
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:233
 msgid " as user "
 msgstr " käyttäjänä "
 
@@ -47,7 +47,7 @@ msgstr " äänestyslippua on vastaanotettu."
 msgid " for more information."
 msgstr " saadaksesi lisätietoa."
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:235
 msgid " has been accepted."
 msgstr " on vastaanotettu."
 
@@ -59,7 +59,7 @@ msgstr " on laskettu."
 msgid " in the following box: "
 msgstr " seuraavaan laatikkoob: "
 
-#: src/web/common/pages_common.ml:252
+#: src/web/common/pages_common.ml:253
 msgid " is rejected, because "
 msgstr " ei hyväksytty, koska "
 
@@ -156,7 +156,7 @@ msgstr ""
 "Vaihtoehtoisesti voit myös ulosladata tiedoston, joka sisältää "
 "äänestyslippusi:"
 
-#: src/web/server/common/mails_voter.ml:275
+#: src/web/server/common/mails_voter.ml:286
 msgid "Alternatively, you can follow the link:"
 msgstr ""
 
@@ -178,7 +178,7 @@ msgstr "Tunnistus"
 msgid "Authenticate with %s"
 msgstr "Todenna %s:lla"
 
-#: src/web/server/common/mails_voter.ml:296
+#: src/web/server/common/mails_voter.ml:307
 msgid "Authentication"
 msgstr "Todennus"
 
@@ -213,7 +213,7 @@ msgstr "Väärä sähköpostiosoite!"
 msgid "Bad security code!"
 msgstr "Väärä turvakoodi!"
 
-#: src/web/server/common/mails_voter.ml:289
+#: src/web/server/common/mails_voter.ml:300
 msgid "Best regards,"
 msgstr "Ystävällisin terveisin,"
 
@@ -265,8 +265,8 @@ msgstr "Valtuutuskoodien hallinta"
 msgid "Credentials fingerprint"
 msgstr "Valtuutuskoodien sormenjälki"
 
-#: src/web/server/common/mails_voter.ml:256
-#. src/web/server/common/mails_voter.ml:202
+#: src/web/server/common/mails_voter.ml:267
+#. src/web/server/common/mails_voter.ml:207
 msgid "Dear %s,"
 msgstr "Hyvä %s,"
 
@@ -312,7 +312,7 @@ msgstr "Virhe ladattaessa äänestyslippuja!"
 msgid "Expected fingerprint:"
 msgstr "Oletettu sormenjälki:"
 
-#: src/web/common/pages_common.ml:256
+#: src/web/common/pages_common.ml:257
 msgid "FAIL!"
 msgstr "VIRHE!"
 
@@ -337,11 +337,11 @@ msgid "Get the source code"
 msgstr "Hae lähdekoodi"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:273
+#. src/web/common/pages_common.ml:274
 msgid "Go back to election"
 msgstr "Palaa äänestykseen"
 
-#: src/web/server/common/mails_voter.ml:128
+#: src/web/server/common/mails_voter.ml:133
 msgid "If the above link does not work:"
 msgstr "Jos yllä oleva linkki ei toimi:"
 
@@ -418,11 +418,11 @@ msgstr "Hyväksyttyjen äänestyslippujen likumäärä: "
 msgid "Number of voters"
 msgstr "Äänestäjien lukumäärä"
 
-#: src/web/server/common/mails_voter.ml:145
+#: src/web/server/common/mails_voter.ml:150
 msgid "Number of votes:"
 msgstr "Äänten määrä:"
 
-#: src/web/server/common/mails_voter.ml:152
+#: src/web/server/common/mails_voter.ml:157
 msgid "Only the last vote counts."
 msgstr "Vain viimeinen ääni ratkaisee."
 
@@ -451,7 +451,7 @@ msgstr ""
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr "Liitä salattu äänestyslippu JSON-muodossa seuraavaan laatikkoon:"
 
-#: src/web/server/common/mails_voter.ml:114
+#: src/web/server/common/mails_voter.ml:119
 msgid "Please vote here using your personal link:"
 msgstr "Ole hyvä ja äänestä tästä henkilökohtaisen linkkisi kautta:"
 
@@ -469,7 +469,7 @@ msgstr "Etene"
 msgid "Processing ballot"
 msgstr "Käsitellään äänestyslippua"
 
-#: src/web/server/common/mails_voter.ml:131
+#: src/web/server/common/mails_voter.ml:136
 msgid "Public page of the election:"
 msgstr "Vaalien julkinen sivu:"
 
@@ -489,7 +489,7 @@ msgstr ""
 msgid "Restricted mode"
 msgstr "Rajoitettu tila"
 
-#: src/web/server/common/mails_voter.ml:236
+#: src/web/server/common/mails_voter.ml:242
 msgid "Results will be published on the election page"
 msgstr "Tulokset julkaistaan vaalisivulla"
 
@@ -553,7 +553,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr "Palveluehdot"
 
-#: src/web/common/pages_common.ml:248
+#: src/web/common/pages_common.ml:249
 msgid "Thank you for voting!"
 msgstr "Kiitos äänestämisestä!"
 
@@ -617,7 +617,7 @@ msgstr "Tämä äänestys on arkistoitu."
 msgid "This election is currently closed."
 msgstr "Tämä äänestys on juuri nyt suljettu."
 
-#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:232 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
 msgstr "Tämä äänestyslippu korvaa kaikki edelliset annetut äänestysliput."
 
@@ -625,11 +625,11 @@ msgstr "Tämä äänestyslippu korvaa kaikki edelliset annetut äänestysliput."
 msgid "Tie:"
 msgstr "Tasatilanne:"
 
-#: src/web/server/common/mails_voter.ml:123
+#: src/web/server/common/mails_voter.ml:128
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr "Äänestääksesi tarvitset erillisessä sähköpostissa saamasi salasanan."
 
-#: src/web/server/common/mails_voter.ml:88
+#: src/web/server/common/mails_voter.ml:93
 msgid "To get more information, please contact:"
 msgstr "Saadaksesi lisätietoa, ole yhteydessä:"
 
@@ -645,13 +645,13 @@ msgstr "Vaalivirkailijat sekoittivat äänestysliput seuraavassa järjestyksess�
 msgid "Unsupported question type"
 msgstr "Kysymystyyppiä ei tueta"
 
-#: src/web/server/common/mails_voter.ml:263
+#: src/web/server/common/mails_voter.ml:274
 msgid "Use the following code:"
 msgstr "Käytä seuraavaa koodia:"
 
 #: src/web/server/common/pages_common.ml:355
 #. src/web/server/common/pages_common.ml:287
-#. src/web/server/common/mails_voter.ml:135
+#. src/web/server/common/mails_voter.ml:140
 msgid "Username:"
 msgstr "Käyttäjätunnus:"
 
@@ -667,13 +667,13 @@ msgstr "Äänestäjien kokonaispaino"
 msgid "Warning:"
 msgstr "Varoitus:"
 
-#: src/web/server/common/mails_voter.ml:284
+#: src/web/server/common/mails_voter.ml:295
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Varoitus: tämä koodi on voimassa 15 minuuttia. Edelliset tähän osoitteeseen "
 "lähetetyt koodit eivät ole enää voimassa."
 
-#: src/web/server/common/mails_voter.ml:102
+#: src/web/server/common/mails_voter.ml:107
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 "Varoitus: tämä sähköposti sisältää henkilökohtaista ja luottamuksellista "
@@ -692,7 +692,7 @@ msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 "Olet lähettämässä äänestyslipun, jonka älykäs äänestyslipun tunniste on %s."
 
-#: src/web/server/common/mails_voter.ml:151
+#: src/web/server/common/mails_voter.ml:156
 msgid "You are allowed to vote several times."
 msgstr "Saat äänestää useamman kerran."
 
@@ -704,7 +704,7 @@ msgstr ""
 msgid "You are authenticating as an administrator."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:107
+#: src/web/server/common/mails_voter.ml:112
 msgid "You are listed as a voter for the election"
 msgstr "Olet äänestyksen äänestäjäluettelossa"
 
@@ -724,11 +724,11 @@ msgstr "Voit myös "
 msgid "You can also download the "
 msgstr "Voit myös ladata "
 
-#: src/web/common/pages_common.ml:241
+#: src/web/common/pages_common.ml:242
 msgid "You can check its presence in the "
 msgstr "Voit tarkistaa, onko se läsnä "
 
-#: src/web/server/common/mails_voter.ml:230
+#: src/web/server/common/mails_voter.ml:236
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Voit tarkistaa, onko se läsnä vaaliuurnassa, joka sijaitsee"
 
@@ -744,36 +744,36 @@ msgstr "Et voi tunnistautua juuri nyt."
 msgid "You cannot log in now. Please try later."
 msgstr "Et voi kirjautua sisään juuri nyt. Yritä myöhemmin uudelleen."
 
-#: src/web/common/pages_common.ml:262
+#: src/web/common/pages_common.ml:263
 msgid "Your ballot for "
 msgstr "Äänestyslippusi äänestyksessä "
 
-#: src/web/server/common/mails_voter.ml:173
+#: src/web/server/common/mails_voter.ml:178
 msgid "Your credential for election %s"
 msgstr "Valtuutuskoodisi äänestykseen %s"
 
-#: src/web/server/common/mails_voter.ml:139
+#: src/web/server/common/mails_voter.ml:144
 msgid "Your credential:"
 msgstr "Valtuutuskoodisi:"
 
-#: src/web/server/common/mails_voter.ml:260
+#: src/web/server/common/mails_voter.ml:271
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "Sähköpostiosoitettasi on käytetty tunnistautumiseen Belenios-palvelimellemme."
 
-#: src/web/server/common/mails_voter.ml:218
+#: src/web/server/common/mails_voter.ml:224
 msgid "Your smart ballot tracker is"
 msgstr "Älykäs äänestyslipun tunnisteesi on"
 
-#: src/web/common/pages_common.ml:238
+#: src/web/common/pages_common.ml:239
 msgid "Your smart ballot tracker is "
 msgstr "Älykäs äänestyslipun tunnisteesi on "
 
-#: src/web/server/common/mails_voter.ml:205
+#: src/web/server/common/mails_voter.ml:210
 msgid "Your vote for election"
 msgstr "Valintasi äänestyksessä"
 
-#: src/web/server/common/mails_voter.ml:199
+#: src/web/server/common/mails_voter.ml:204
 msgid "Your vote for election %s"
 msgstr "Valintasi äänestyksessä %s"
 
@@ -781,11 +781,11 @@ msgstr "Valintasi äänestyksessä %s"
 msgid "Your vote was not recorded!"
 msgstr "Äänestyslippuasi ei kirjattu!"
 
-#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:218
+#: src/web/server/common/mails_voter.ml:222 src/web/common/pages_common.ml:219
 msgid "Your weight is %s."
 msgstr "Äänestyslippusi paino on %s."
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:230
 msgid "ballot box"
 msgstr "vaaliuurna"
 
@@ -801,7 +801,7 @@ msgstr "luo käyttäjätili"
 msgid "direct link"
 msgstr "suora linkki"
 
-#: src/web/server/common/mails_voter.ml:212
+#: src/web/server/common/mails_voter.ml:217
 msgid "has been recorded."
 msgstr "on tallennettu."
 

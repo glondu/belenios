@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (εάν το ξεχάσατε, για παράδειγμα)."
 
-#: src/web/common/pages_common.ml:245
+#: src/web/common/pages_common.ml:246
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Σας έχει σταλεί ένα e-mail επιβεβαίωσης."
 
-#: src/web/common/pages_common.ml:243
+#: src/web/common/pages_common.ml:244
 msgid " anytime during the election."
 msgstr " οποιαδήποτε στιγμή κατά την διάρκεια της ψηφοφορίας."
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:233
 msgid " as user "
 msgstr ""
 
@@ -47,7 +47,7 @@ msgstr " ψήφος(ι) έχουν γίνει αποδεκτές."
 msgid " for more information."
 msgstr " για περισσότερες πληροφορίες."
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:235
 msgid " has been accepted."
 msgstr " έχει γίνει αποδεκτό."
 
@@ -59,7 +59,7 @@ msgstr " έχουν καταμετρηθεί."
 msgid " in the following box: "
 msgstr " στο ακόλουθο πεδίο: "
 
-#: src/web/common/pages_common.ml:252
+#: src/web/common/pages_common.ml:253
 msgid " is rejected, because "
 msgstr " απορρίφθηκε, επειδή "
 
@@ -154,7 +154,7 @@ msgstr ""
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:275
+#: src/web/server/common/mails_voter.ml:286
 msgid "Alternatively, you can follow the link:"
 msgstr ""
 
@@ -176,7 +176,7 @@ msgstr "Αυθεντικοποίηση"
 msgid "Authenticate with %s"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:296
+#: src/web/server/common/mails_voter.ml:307
 msgid "Authentication"
 msgstr ""
 
@@ -210,7 +210,7 @@ msgstr ""
 msgid "Bad security code!"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:289
+#: src/web/server/common/mails_voter.ml:300
 msgid "Best regards,"
 msgstr ""
 
@@ -262,8 +262,8 @@ msgstr ""
 msgid "Credentials fingerprint"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:256
-#. src/web/server/common/mails_voter.ml:202
+#: src/web/server/common/mails_voter.ml:267
+#. src/web/server/common/mails_voter.ml:207
 msgid "Dear %s,"
 msgstr "Αγαπητέ/ή %s,"
 
@@ -309,7 +309,7 @@ msgstr ""
 msgid "Expected fingerprint:"
 msgstr "Αναμενόμενο αποτύπωμα:"
 
-#: src/web/common/pages_common.ml:256
+#: src/web/common/pages_common.ml:257
 msgid "FAIL!"
 msgstr "ΑΠΟΤΥΧΙΑ!"
 
@@ -334,11 +334,11 @@ msgid "Get the source code"
 msgstr "Κατεβάστε τον πηγαίο κώδικα"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:273
+#. src/web/common/pages_common.ml:274
 msgid "Go back to election"
 msgstr "Επιστρέψτε στην ψηφοφορία"
 
-#: src/web/server/common/mails_voter.ml:128
+#: src/web/server/common/mails_voter.ml:133
 msgid "If the above link does not work:"
 msgstr ""
 
@@ -414,11 +414,11 @@ msgstr "Αριθμός αποδεκτών ψηφοδελτίων: "
 msgid "Number of voters"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:145
+#: src/web/server/common/mails_voter.ml:150
 msgid "Number of votes:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:152
+#: src/web/server/common/mails_voter.ml:157
 msgid "Only the last vote counts."
 msgstr "Μόνο η τελευταία ψήφος μετράει."
 
@@ -448,7 +448,7 @@ msgstr ""
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:114
+#: src/web/server/common/mails_voter.ml:119
 msgid "Please vote here using your personal link:"
 msgstr ""
 
@@ -466,7 +466,7 @@ msgstr "Προχωρήστε"
 msgid "Processing ballot"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:131
+#: src/web/server/common/mails_voter.ml:136
 msgid "Public page of the election:"
 msgstr ""
 
@@ -486,7 +486,7 @@ msgstr ""
 msgid "Restricted mode"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:236
+#: src/web/server/common/mails_voter.ml:242
 msgid "Results will be published on the election page"
 msgstr "Τα αποτελέσματα θα αναρτηθούν στην σελίδα της ψηφοφορίας"
 
@@ -550,7 +550,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr ""
 
-#: src/web/common/pages_common.ml:248
+#: src/web/common/pages_common.ml:249
 msgid "Thank you for voting!"
 msgstr "Σας ευχαριστούμε για την συμμετοχή σας στην ψηφοφορία!"
 
@@ -612,7 +612,7 @@ msgstr "Η ψηφοφορία έχει αρχειοθετηθεί."
 msgid "This election is currently closed."
 msgstr "Η ψηφοφορία είναι κλειστή αυτή την στιγμή."
 
-#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:232 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
 msgstr "Η ψήφος αυτή αντικαθιστά προηγούμενες ψήφους."
 
@@ -620,13 +620,13 @@ msgstr "Η ψήφος αυτή αντικαθιστά προηγούμενες �
 msgid "Tie:"
 msgstr "Ισοπαλία:"
 
-#: src/web/server/common/mails_voter.ml:123
+#: src/web/server/common/mails_voter.ml:128
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 "Για να ρίξετε την ψήφο σας, θα χρειαστείτε κωδικό πρόσβασης, ο οποίος σας "
 "έχει σταλεί ξεχωριστά."
 
-#: src/web/server/common/mails_voter.ml:88
+#: src/web/server/common/mails_voter.ml:93
 msgid "To get more information, please contact:"
 msgstr "Για περισσότερες πληροφορίες, παρακαλούμε επικοινωνήστε με:"
 
@@ -642,13 +642,13 @@ msgstr "Η επιτροπή ανακάτεψε τα ψηφοδέλτια με τ
 msgid "Unsupported question type"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:263
+#: src/web/server/common/mails_voter.ml:274
 msgid "Use the following code:"
 msgstr ""
 
 #: src/web/server/common/pages_common.ml:355
 #. src/web/server/common/pages_common.ml:287
-#. src/web/server/common/mails_voter.ml:135
+#. src/web/server/common/mails_voter.ml:140
 msgid "Username:"
 msgstr "Όνομα χρήστη:"
 
@@ -664,11 +664,11 @@ msgstr ""
 msgid "Warning:"
 msgstr "Προειδοποίηση:"
 
-#: src/web/server/common/mails_voter.ml:284
+#: src/web/server/common/mails_voter.ml:295
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:102
+#: src/web/server/common/mails_voter.ml:107
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 
@@ -685,7 +685,7 @@ msgstr "Θέλετε να βοηθήσετε με τις μεταφράσεις;
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:151
+#: src/web/server/common/mails_voter.ml:156
 msgid "You are allowed to vote several times."
 msgstr ""
 
@@ -697,7 +697,7 @@ msgstr ""
 msgid "You are authenticating as an administrator."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:107
+#: src/web/server/common/mails_voter.ml:112
 msgid "You are listed as a voter for the election"
 msgstr "Είστε δηλωμένος ώς ψηφοφόρος για αυτή την ψηφοφορία"
 
@@ -717,11 +717,11 @@ msgstr "Μπορείτε επίσης να "
 msgid "You can also download the "
 msgstr "Μπορείτε επίσης να κατεβάσετε το "
 
-#: src/web/common/pages_common.ml:241
+#: src/web/common/pages_common.ml:242
 msgid "You can check its presence in the "
 msgstr "Μπορείτε να ελέγξετε την ύπαρξή του στην "
 
-#: src/web/server/common/mails_voter.ml:230
+#: src/web/server/common/mails_voter.ml:236
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Μπορείτε να ελέγξετε την ύπαρξή του στην κάλπη, προσβάσιμη στο"
 
@@ -737,35 +737,35 @@ msgstr ""
 msgid "You cannot log in now. Please try later."
 msgstr ""
 
-#: src/web/common/pages_common.ml:262
+#: src/web/common/pages_common.ml:263
 msgid "Your ballot for "
 msgstr "To ψηφοδέλτιό σας για το "
 
-#: src/web/server/common/mails_voter.ml:173
+#: src/web/server/common/mails_voter.ml:178
 msgid "Your credential for election %s"
 msgstr "Το διαπιστευτήριό σας για την ψηφοφορία %s"
 
-#: src/web/server/common/mails_voter.ml:139
+#: src/web/server/common/mails_voter.ml:144
 msgid "Your credential:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:260
+#: src/web/server/common/mails_voter.ml:271
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:218
+#: src/web/server/common/mails_voter.ml:224
 msgid "Your smart ballot tracker is"
 msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σας είναι"
 
-#: src/web/common/pages_common.ml:238
+#: src/web/common/pages_common.ml:239
 msgid "Your smart ballot tracker is "
 msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σας είναι "
 
-#: src/web/server/common/mails_voter.ml:205
+#: src/web/server/common/mails_voter.ml:210
 msgid "Your vote for election"
 msgstr "Η ψήφος σας για την ψηφοφορία"
 
-#: src/web/server/common/mails_voter.ml:199
+#: src/web/server/common/mails_voter.ml:204
 msgid "Your vote for election %s"
 msgstr "Η ψήφος σας για την ψηφοφορία %s"
 
@@ -773,11 +773,11 @@ msgstr "Η ψήφος σας για την ψηφοφορία %s"
 msgid "Your vote was not recorded!"
 msgstr "Η ψήφος σας δεν καταγράφηκε!"
 
-#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:218
+#: src/web/server/common/mails_voter.ml:222 src/web/common/pages_common.ml:219
 msgid "Your weight is %s."
 msgstr ""
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:230
 msgid "ballot box"
 msgstr "κάλπη"
 
@@ -793,7 +793,7 @@ msgstr "δημιουργήσετε έναν λογαριασμό"
 msgid "direct link"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:212
+#: src/web/server/common/mails_voter.ml:217
 msgid "has been recorded."
 msgstr "έχει καταγραφεί."
 

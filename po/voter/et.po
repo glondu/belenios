@@ -1,8 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -23,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (näiteks juhul, kui oled selle unustanud)."
 
-#: src/web/common/pages_common.ml:245
+#: src/web/common/pages_common.ml:246
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Teile on saadetud kinnituskiri."
 
-#: src/web/common/pages_common.ml:243
+#: src/web/common/pages_common.ml:244
 msgid " anytime during the election."
 msgstr " valimiste ajal igal ajal."
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:233
 msgid " as user "
 msgstr " kasutajana "
 
@@ -51,7 +47,7 @@ msgstr " hääletussedel(id) on vastu võetud."
 msgid " for more information."
 msgstr " Lisateabe saamiseks."
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:235
 msgid " has been accepted."
 msgstr " on heaks kiidetud."
 
@@ -63,7 +59,7 @@ msgstr " on kokku loetud."
 msgid " in the following box: "
 msgstr " järgmisse lahtrisse: "
 
-#: src/web/common/pages_common.ml:252
+#: src/web/common/pages_common.ml:253
 msgid " is rejected, because "
 msgstr " lükatakse tagasi, sest "
 
@@ -138,8 +134,8 @@ msgstr "Enamusotsuse kohaselt on järjestus järgmine:"
 msgid "Administer elections"
 msgstr "Valimiste korraldamine"
 
-#. src/web/server/common/pages_common.ml:102
 #: src/web/clients/election/common.ml:62
+#. src/web/server/common/pages_common.ml:102
 msgid "Administer this election"
 msgstr "Korraldage need valimised"
 
@@ -163,7 +159,7 @@ msgstr ""
 "Teise võimalusena võite üles laadida ka faili, mis sisaldab teie "
 "hääletussedelit:"
 
-#: src/web/server/common/mails_voter.ml:275
+#: src/web/server/common/mails_voter.ml:286
 msgid "Alternatively, you can follow the link:"
 msgstr "Võid ka klõpsata järgmisel lingil:"
 
@@ -175,9 +171,9 @@ msgstr "Auditiandmed puuduvad."
 msgid "Audit data: "
 msgstr "Audiiti andmed: "
 
+#: src/web/server/common/pages_common.ml:511
 #. src/web/server/common/pages_common.ml:413
 #. src/web/server/common/pages_common.ml:321
-#: src/web/server/common/pages_common.ml:511
 msgid "Authenticate"
 msgstr "Autendi"
 
@@ -185,7 +181,7 @@ msgstr "Autendi"
 msgid "Authenticate with %s"
 msgstr "Logi sisse %s kaudu"
 
-#: src/web/server/common/mails_voter.ml:296
+#: src/web/server/common/mails_voter.ml:307
 msgid "Authentication"
 msgstr "Autentida"
 
@@ -219,7 +215,7 @@ msgstr "Vale e-posti aadress!"
 msgid "Bad security code!"
 msgstr "Vale turvakood!"
 
-#: src/web/server/common/mails_voter.ml:289
+#: src/web/server/common/mails_voter.ml:300
 msgid "Best regards,"
 msgstr "Parimate soovidega,"
 
@@ -271,14 +267,14 @@ msgstr "Sertifikaatide väljastaja"
 msgid "Credentials fingerprint"
 msgstr "Autentimisandmete sõrmejälg"
 
-#. src/web/server/common/mails_voter.ml:202
-#: src/web/server/common/mails_voter.ml:256
+#: src/web/server/common/mails_voter.ml:267
+#. src/web/server/common/mails_voter.ml:207
 msgid "Dear %s,"
 msgstr "Lugupeetud %s,"
 
+#: src/web/server/common/pages_common.ml:540
 #. src/web/server/common/pages_common.ml:356
 #. src/web/server/common/pages_common.ml:288
-#: src/web/server/common/pages_common.ml:540
 msgid "E-mail address:"
 msgstr "E-posti aadress:"
 
@@ -318,7 +314,7 @@ msgstr "Hääletussedelite laadimisel tekkis viga!"
 msgid "Expected fingerprint:"
 msgstr "Oodatav sõrmejälg:"
 
-#: src/web/common/pages_common.ml:256
+#: src/web/common/pages_common.ml:257
 msgid "FAIL!"
 msgstr "EBAÕNNESTUMINE!"
 
@@ -342,12 +338,12 @@ msgstr "Keelatud"
 msgid "Get the source code"
 msgstr "Lae alla lähtekood"
 
-#. src/web/common/pages_common.ml:273
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
+#. src/web/common/pages_common.ml:274
 msgid "Go back to election"
 msgstr "Tagasi valimiste juurde"
 
-#: src/web/server/common/mails_voter.ml:128
+#: src/web/server/common/mails_voter.ml:133
 msgid "If the above link does not work:"
 msgstr "Kui eespool toodud link ei tööta:"
 
@@ -388,10 +384,10 @@ msgstr "Keel:"
 msgid "Loading..."
 msgstr "Laadimine..."
 
+#: src/web/server/common/pages_common.ml:510
 #. src/web/server/common/pages_common.ml:412
 #. src/web/server/common/pages_common.ml:320
 #. src/web/server/common/pages_common.ml:280
-#: src/web/server/common/pages_common.ml:510
 msgid "Log in"
 msgstr "Sisse"
 
@@ -425,11 +421,11 @@ msgstr "Heakskiidetud hääletussedelite arv: "
 msgid "Number of voters"
 msgstr "Valijate arv"
 
-#: src/web/server/common/mails_voter.ml:145
+#: src/web/server/common/mails_voter.ml:150
 msgid "Number of votes:"
 msgstr "Häälte arv:"
 
-#: src/web/server/common/mails_voter.ml:152
+#: src/web/server/common/mails_voter.ml:157
 msgid "Only the last vote counts."
 msgstr "Arvesse läheb ainult viimane hääl."
 
@@ -461,7 +457,7 @@ msgstr ""
 "Palun kleepige oma krüpteeritud hääletussedel JSON-vormingus järgmisesse "
 "lahtrisse:"
 
-#: src/web/server/common/mails_voter.ml:114
+#: src/web/server/common/mails_voter.ml:119
 msgid "Please vote here using your personal link:"
 msgstr "Palun hääletage siin, kasutades oma isiklikku linki:"
 
@@ -469,9 +465,9 @@ msgstr "Palun hääletage siin, kasutades oma isiklikku linki:"
 msgid "Powered by "
 msgstr "Toetab "
 
+#: src/web/clients/election/advanced.ml:222
 #. src/web/server/common/pages_common.ml:233
 #. src/web/server/common/pages_common.ml:225
-#: src/web/clients/election/advanced.ml:222
 msgid "Proceed"
 msgstr "Jätka"
 
@@ -479,7 +475,7 @@ msgstr "Jätka"
 msgid "Processing ballot"
 msgstr "Hääletussedelite töötlemine"
 
-#: src/web/server/common/mails_voter.ml:131
+#: src/web/server/common/mails_voter.ml:136
 msgid "Public page of the election:"
 msgstr "Valimiste avalik lehekülg:"
 
@@ -499,7 +495,7 @@ msgstr "Värskenda staatust"
 msgid "Restricted mode"
 msgstr "Piiratud režiim"
 
-#: src/web/server/common/mails_voter.ml:236
+#: src/web/server/common/mails_voter.ml:242
 msgid "Results will be published on the election page"
 msgstr "Tulemused avaldatakse valimiste lehel"
 
@@ -525,8 +521,8 @@ msgstr ""
 "Kui Condorceti võitjat ei ole, on olemas mitu meetodit, mille abil "
 "otsustada, keda valida."
 
-#. src/web/clients/jslib/belenios_jslib.ml:264
 #: src/web/clients/jslib/belenios_jslib.ml:278
+#. src/web/clients/jslib/belenios_jslib.ml:264
 msgid "Smart ballot tracker"
 msgstr "Nutikas hääletustulemuste jälgija"
 
@@ -538,10 +534,10 @@ msgstr "Tehnilised andmed"
 msgid "Start"
 msgstr "Alusta"
 
+#: src/web/clients/election/advanced.ml:101
 #. src/web/clients/election/advanced.ml:62
 #. src/web/server/common/pages_common.ml:554
 #. src/web/server/common/pages_common.ml:470
-#: src/web/clients/election/advanced.ml:101
 msgid "Submit"
 msgstr "Saada"
 
@@ -563,7 +559,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr "Kasutustingimused"
 
-#: src/web/common/pages_common.ml:248
+#: src/web/common/pages_common.ml:249
 msgid "Thank you for voting!"
 msgstr "Täname hääletamise eest!"
 
@@ -627,7 +623,7 @@ msgstr "Need valimised on arhiveeritud."
 msgid "This election is currently closed."
 msgstr "See hääletus on praegu lõppenud."
 
-#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:232 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
 msgstr "Käesolev hääletus asendab kõik varasemad hääletused."
 
@@ -635,11 +631,11 @@ msgstr "Käesolev hääletus asendab kõik varasemad hääletused."
 msgid "Tie:"
 msgstr "Viik:"
 
-#: src/web/server/common/mails_voter.ml:123
+#: src/web/server/common/mails_voter.ml:128
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr "Hääletamiseks on vaja ka parooli, mis saadetakse teile eraldi e-kirjas."
 
-#: src/web/server/common/mails_voter.ml:88
+#: src/web/server/common/mails_voter.ml:93
 msgid "To get more information, please contact:"
 msgstr "Lisateabe saamiseks võtke ühendust:"
 
@@ -655,13 +651,13 @@ msgstr "Usaldusisikud segasid hääletussedelid järgmises järjekorras:"
 msgid "Unsupported question type"
 msgstr "Toetamata küsimustüüp"
 
-#: src/web/server/common/mails_voter.ml:263
+#: src/web/server/common/mails_voter.ml:274
 msgid "Use the following code:"
 msgstr "Kasuta järgmist koodi:"
 
-#. src/web/server/common/pages_common.ml:287
-#. src/web/server/common/mails_voter.ml:135
 #: src/web/server/common/pages_common.ml:355
+#. src/web/server/common/pages_common.ml:287
+#. src/web/server/common/mails_voter.ml:140
 msgid "Username:"
 msgstr "Kasutajanimi:"
 
@@ -677,13 +673,13 @@ msgstr "Valijate kogukaal"
 msgid "Warning:"
 msgstr "Hoiatus:"
 
-#: src/web/server/common/mails_voter.ml:284
+#: src/web/server/common/mails_voter.ml:295
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Hoiatus: see kood kehtib 15 minutit ning varem sellele aadressile saadetud "
 "koodid ei kehti enam."
 
-#: src/web/server/common/mails_voter.ml:102
+#: src/web/server/common/mails_voter.ml:107
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 "Hoiatus: see e-kiri sisaldab isiklikku ja konfidentsiaalset teavet ning seda "
@@ -701,7 +697,7 @@ msgstr "Kas soovid tõlkimisel kaasa aidata?"
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr "Te olete valmis saatma hääletussedeli koos nutika hääletusjälgijaga %s."
 
-#: src/web/server/common/mails_voter.ml:151
+#: src/web/server/common/mails_voter.ml:156
 msgid "You are allowed to vote several times."
 msgstr "Teil on lubatud hääletada mitu korda."
 
@@ -713,7 +709,7 @@ msgstr "Te logite sisse valijana."
 msgid "You are authenticating as an administrator."
 msgstr "Te logite sisse administraatorina."
 
-#: src/web/server/common/mails_voter.ml:107
+#: src/web/server/common/mails_voter.ml:112
 msgid "You are listed as a voter for the election"
 msgstr "Te olete valimiste valijate nimekirjas"
 
@@ -733,11 +729,11 @@ msgstr "Võite ka "
 msgid "You can also download the "
 msgstr "Samuti saate alla laadida "
 
-#: src/web/common/pages_common.ml:241
+#: src/web/common/pages_common.ml:242
 msgid "You can check its presence in the "
 msgstr "Selle olemasolu saate kontrollida "
 
-#: src/web/server/common/mails_voter.ml:230
+#: src/web/server/common/mails_voter.ml:236
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Saate kontrollida, kas see on valimiskastis olemas, mis asub aadressil"
 
@@ -753,36 +749,36 @@ msgstr "Hetkel ei ole võimalik sisse logida."
 msgid "You cannot log in now. Please try later."
 msgstr "Hetkel ei ole sisselogimine võimalik. Palun proovi hiljem uuesti."
 
-#: src/web/common/pages_common.ml:262
+#: src/web/common/pages_common.ml:263
 msgid "Your ballot for "
 msgstr "Teie hääletussedel "
 
-#: src/web/server/common/mails_voter.ml:173
+#: src/web/server/common/mails_voter.ml:178
 msgid "Your credential for election %s"
 msgstr "Teie valimisõiguse tõend %s"
 
-#: src/web/server/common/mails_voter.ml:139
+#: src/web/server/common/mails_voter.ml:144
 msgid "Your credential:"
 msgstr "Teie kasutajatunnus:"
 
-#: src/web/server/common/mails_voter.ml:260
+#: src/web/server/common/mails_voter.ml:271
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "Teie e-posti aadressi on kasutatud autentimiseks meie Belenios-serveris."
 
-#: src/web/server/common/mails_voter.ml:218
+#: src/web/server/common/mails_voter.ml:224
 msgid "Your smart ballot tracker is"
 msgstr "Teie nutikas hääletusjälgija on"
 
-#: src/web/common/pages_common.ml:238
+#: src/web/common/pages_common.ml:239
 msgid "Your smart ballot tracker is "
 msgstr "Teie nutikas häältelugemise jälgija on "
 
-#: src/web/server/common/mails_voter.ml:205
+#: src/web/server/common/mails_voter.ml:210
 msgid "Your vote for election"
 msgstr "Teie hääl valimistel"
 
-#: src/web/server/common/mails_voter.ml:199
+#: src/web/server/common/mails_voter.ml:204
 msgid "Your vote for election %s"
 msgstr "Teie hääl valimistel %s"
 
@@ -790,11 +786,11 @@ msgstr "Teie hääl valimistel %s"
 msgid "Your vote was not recorded!"
 msgstr "Teie häält ei registreeritud!"
 
-#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:218
+#: src/web/server/common/mails_voter.ml:222 src/web/common/pages_common.ml:219
 msgid "Your weight is %s."
 msgstr "Sinu kaal on %s."
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:230
 msgid "ballot box"
 msgstr "valimiskast"
 
@@ -810,7 +806,7 @@ msgstr "loo konto"
 msgid "direct link"
 msgstr "otselink"
 
-#: src/web/server/common/mails_voter.ml:212
+#: src/web/server/common/mails_voter.ml:217
 msgid "has been recorded."
 msgstr "on registreeritud."
 
@@ -901,3 +897,4 @@ msgstr "Teie kasutajatunnus on kehtetu"
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "su kasutajanimi on vale"
+
