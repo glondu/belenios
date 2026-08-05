@@ -541,7 +541,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
         match Lopt.get_value x with
         | None -> assert false
         | Some x ->
-            let x = SMap.add username (Some date) x in
+            let x = SMap.add username (Some { timestamp = date }) x in
             set Value x
       in
       Lwt.return (Ok (hash, revote))

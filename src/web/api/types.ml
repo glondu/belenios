@@ -368,7 +368,8 @@ type election_auto_dates = {
 }
 [@@deriving yojson]
 
-type election_records = int64 option smap [@@deriving yojson]
+type election_record = { timestamp : int64 } [@@deriving yojson]
+type election_records = election_record option smap [@@deriving yojson]
 
 type admin_request =
   [ `Open

@@ -1025,10 +1025,11 @@ let voters_content () =
     (* Running election *)
     let data =
       records |> SMap.bindings
-      |> List.filter_map (fun (username, date) ->
-          match date with
+      |> List.filter_map (fun (username, (r : election_record option)) ->
+          match r with
           | None -> None
-          | Some date -> Some (datestring_of_int64 date ^ " " ^ username))
+          | Some { timestamp } ->
+              Some (datestring_of_int64 timestamp ^ " " ^ username))
     in
     let uuid = get_current_uuid () |> Uuid.to_string in
     let link =
