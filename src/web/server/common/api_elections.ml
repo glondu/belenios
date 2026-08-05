@@ -377,8 +377,28 @@ let post_shuffle s (election : Election.t) ~token ~shuffle =
   | _ -> Lwt.return @@ Stdlib.Error `Forbidden
 
 let get_records s =
-  let* x = Web_persist.get_records s in
-  match x with None -> assert false | Some x -> Lwt.return x
+  let@ x, set = Storage.E.update s Records in
+  match Lopt.get_value x with
+  | Some x -> Lwt.return x
+  | None ->
+      let* voters = Storage.E.get s Voters in
+      let* dynamic = Storage.E.get s Election_dynamic_records in
+      let records =
+        match (Lopt.get_value voters, Lopt.get_value dynamic) with
+        | Some voters, Some dynamic ->
+            HMap.fold
+              (fun h (v : voter) accu ->
+                let r =
+                  match HMap.find_opt h dynamic with
+                  | Some (Some r) -> Some r
+                  | _ -> None
+                in
+                SMap.add v.login r accu)
+              voters SMap.empty
+        | _ -> assert false
+      in
+      let* () = set Value records in
+      Lwt.return records
 
 let cast_ballot send_confirmation s (election : Election.t) ~ballot ~user
     ~precast_data =

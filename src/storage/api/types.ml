@@ -73,6 +73,8 @@ type credential_dynamic_record = { ballot : hash } [@@deriving yojson]
 type credential_dynamic_records = credential_dynamic_record option hmap
 [@@deriving yojson]
 
+type election_dynamic_records = election_record option hmap [@@deriving yojson]
+
 type election_state =
   [ `Draft
   | `Open

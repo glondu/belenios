@@ -295,6 +295,7 @@ module MakeBackend
   let server_seed_filename = "server_seed.txt"
   let private_keys_filename = "private_keys.jsons"
   let credential_dynamic_records_filename = "credential_dynamic_records.json"
+  let election_dynamic_records_filename = "election_dynamic_records.json"
 
   let get_election_file_props _uuid (type t) :
       t election_file -> t raw_file_props = function
@@ -312,12 +313,13 @@ module MakeBackend
     | Records -> Concrete records_filename
     | Voters -> Concrete voters_filename
     | Confidential_archive -> Concrete "archive.zip"
-    | Credential_dynamic_records -> Concrete credential_dynamic_records_filename
     | Data key -> Abstract (data_ops, key)
     | Roots -> Abstract (roots_ops, ())
     | Voters_config -> Abstract (voters_config_ops, ())
     | Voter key -> Abstract (voters_ops, key)
     | Credential_props (w, key) -> Abstract_credential_props (w, key)
+    | Credential_dynamic_records -> Concrete credential_dynamic_records_filename
+    | Election_dynamic_records -> Concrete election_dynamic_records_filename
 
   let get_trustees_file_props _uuid (type t) :
       t trustees_file -> t raw_file_props = function
@@ -558,7 +560,7 @@ module MakeBackend
       Lwt_list.iter_p
         (fun x ->
           try_copy_file (spool_elections uuid x) (temp_dir // "restricted" // x))
-        [ voters_filename; records_filename ]
+        [ voters_filename; election_dynamic_records_filename ]
     in
     let command =
       Printf.ksprintf Lwt_process.shell
@@ -790,6 +792,7 @@ module MakeBackend
           F Audit_cache;
           F Voters;
           F Confidential_archive;
+          F Election_dynamic_records;
         ]
     in
     let* () =

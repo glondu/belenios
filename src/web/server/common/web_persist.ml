@@ -537,13 +537,16 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
             set Value x
       in
       let* () =
-        let@ x, set = Storage.E.update s Records in
+        let@ x, set = Storage.E.update s Election_dynamic_records in
         match Lopt.get_value x with
         | None -> assert false
         | Some x ->
-            let x = SMap.add username (Some { timestamp = date }) x in
+            let x =
+              HMap.add (Hash.hash_string username) (Some { timestamp = date }) x
+            in
             set Value x
       in
+      let* () = Storage.E.del s Records in
       Lwt.return (Ok (hash, revote))
 
 let cast_ballot s ~ballot ~user ~weight date ~precast_data =
@@ -714,11 +717,11 @@ let init_credential_mapping s (type a b) (w : (a, b) group) =
           (fun _ (x : _ public_credential_props) accu ->
             match x.id with
             | None -> assert false
-            | Some id -> SMap.add id None accu)
-          x SMap.empty
+            | Some id -> HMap.add (Hash.hash_string id) None accu)
+          x HMap.empty
       in
       let xs = x |> HMap.map (fun _ -> None) in
-      let* () = Storage.E.set s Records Value records in
+      let* () = Storage.E.set s Election_dynamic_records Value records in
       let* () = Storage.E.set s Credential_dynamic_records Value xs in
       Lwt.return public_credentials
   | None -> Lwt.fail @@ Election_not_found (uuid, "init_credential_mapping")
@@ -975,11 +978,6 @@ let get_draft_public_credentials s (type a b) (w : (a, b) group) =
   x
   |> HMap.map (fun x -> ({ x with id = None } : _ public_credential_props))
   |> Lwt.return_some
-
-let get_records s =
-  let* x = Storage.E.get s Records in
-  let&* x = Lopt.get_value x in
-  Lwt.return_some x
 
 type credentials_status = [ `None | `Pending | `Done ]
 

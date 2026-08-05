@@ -97,6 +97,11 @@ let get_election (type t) : t election_file -> t serializers = function
         of_string = !*credential_dynamic_records_of_yojson;
         to_string = !+yojson_of_credential_dynamic_records;
       }
+  | Election_dynamic_records ->
+      {
+        of_string = !*election_dynamic_records_of_yojson;
+        to_string = !+yojson_of_election_dynamic_records;
+      }
 
 let get_trustees (type t) : t trustees_file -> t serializers = function
   | Trustees_metadata ->

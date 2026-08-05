@@ -48,6 +48,7 @@ type _ election_file =
       ('a, 'b) spec * hash
       -> 'a public_credential_with_id election_file
   | Credential_dynamic_records : credential_dynamic_records election_file
+  | Election_dynamic_records : election_dynamic_records election_file
 
 type _ credentials_file =
   | Credentials_params : wrapped_credentials_params credentials_file
