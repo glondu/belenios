@@ -29,6 +29,7 @@ function i18n_init(
           "en",
           "es",
           "es_419",
+          "et",
           "fi",
           "fr",
           "it",

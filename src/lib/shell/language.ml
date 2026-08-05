@@ -30,6 +30,7 @@ let available =
     ("en", "English");
     ("es", "Español");
     ("es_419", "Español (Latinoamérica)");
+    ("et", "Eesti");
     ("fi", "Suomi");
     ("fr", "Français");
     ("it", "Italiano");
