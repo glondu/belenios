@@ -797,23 +797,23 @@ let voters_content () =
     if is_draft then Lwt.return SMap.empty
     else Cache.get_until_success Cache.e_records
   in
-  let with_login, with_weight =
-    let rec loop ((with_login, with_weight) as accu) xs =
-      match xs () with
-      | Seq.Nil -> accu
-      | Cons ((_, ({ address; login; weight; _ } : voter)), xs) ->
-          let with_login = with_login || Some login <> address in
-          let with_weight = with_weight || weight <> None in
-          if with_login && with_weight then (true, true)
-          else loop (with_login, with_weight) xs
-    in
-    loop (false, false) (HMap.to_seq voters)
+  let with_address, with_weight =
+    let exception Exit in
+    try
+      HMap.fold
+        (fun _ (v : voter) (with_address, with_weight) ->
+          let with_address = with_address || v.address <> Some v.login in
+          let with_weight = with_weight || v.weight <> None in
+          if with_address && with_weight then raise Exit
+          else (with_address, with_weight))
+        voters (false, false)
+    with Exit -> (true, true)
   in
   let header_row =
     List.flatten
       [
-        [ th [ txt @@ s_ "Identity" ] ];
-        (if with_login then [ th [ txt @@ s_ "Login" ] ] else []);
+        [ th [ txt @@ s_ "Login" ] ];
+        (if with_address then [ th [ txt @@ s_ "Address" ] ] else []);
         (if with_weight then [ th [ txt @@ s_ "Weight" ] ] else []);
         (if is_draft then [] else [ th [ txt @@ s_ "voted?" ] ]);
         [ th [] ];
@@ -842,8 +842,8 @@ let voters_content () =
           else
             List.flatten
               [
-                [ td [ txt address ] ];
-                (if with_login then [ td [ txt login ] ] else []);
+                [ td [ txt login ] ];
+                (if with_address then [ td [ txt address ] ] else []);
                 (if with_weight then [ td [ txt @@ Weight.to_string weight ] ]
                  else []);
                 (if is_draft then []
