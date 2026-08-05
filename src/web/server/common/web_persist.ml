@@ -533,11 +533,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
         match Lopt.get_value x with
         | None -> assert false
         | Some x ->
-            let x =
-              HMap.add credential_hash
-                (Some { ballot = hash; timestamp = date })
-                x
-            in
+            let x = HMap.add credential_hash (Some { ballot = hash }) x in
             set Value x
       in
       let* () =
