@@ -44,6 +44,16 @@
        decrypt
      - Streamline the threshold distributed key generation by
        automating the steps after private key generation
+     - Send trustee link by server (administrator no longer has
+       access to it)
+   + Voter management:
+     - Expose only JSON-formatted voters in the web API
+     - Ignore addresses when computing voters hash
+     - Make exposed records file a proper JSON
+   + Tests:
+     - Fix scaling test and add a scaling scenario to CI
+   + Translations:
+     - Add Estonian
 
 3.3.0 (2026-07-02)
 ==================
