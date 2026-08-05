@@ -334,6 +334,7 @@ let dummy_voters_config =
     has_explicit_weights = false;
     username_or_address = `Username;
     nb_voters = 0;
+    bits = 0;
   }
 
 let get_voters_config s =
@@ -428,7 +429,7 @@ let raw_compute_encrypted_tally s (election : Election.t) =
 
 let get_credential_record s (type a b) (w : (a, b) spec) credential =
   let* cr_ballot =
-    let* x = Storage.E.get s Credential_dynamic_records in
+    let* x = Storage.E.get s @@ Credential_dynamic_records (Some credential) in
     match Lopt.get_value x with
     | None -> assert false
     | Some x -> (
@@ -529,7 +530,10 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
               cont (h, true)
       in
       let* () =
-        let@ x, set = Storage.E.update s Credential_dynamic_records in
+        let@ x, set =
+          Storage.E.update s
+          @@ Credential_dynamic_records (Some credential_hash)
+        in
         match Lopt.get_value x with
         | None -> assert false
         | Some x ->
@@ -537,13 +541,14 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
             set Value x
       in
       let* () =
-        let@ x, set = Storage.E.update s Election_dynamic_records in
+        let username_h = Hash.hash_string username in
+        let@ x, set =
+          Storage.E.update s @@ Election_dynamic_records (Some username_h)
+        in
         match Lopt.get_value x with
         | None -> assert false
         | Some x ->
-            let x =
-              HMap.add (Hash.hash_string username) (Some { timestamp = date }) x
-            in
+            let x = HMap.add username_h (Some { timestamp = date }) x in
             set Value x
       in
       let* () = Storage.E.del s Records in
@@ -721,8 +726,8 @@ let init_credential_mapping s (type a b) (w : (a, b) group) =
           x HMap.empty
       in
       let xs = x |> HMap.map (fun _ -> None) in
-      let* () = Storage.E.set s Election_dynamic_records Value records in
-      let* () = Storage.E.set s Credential_dynamic_records Value xs in
+      let* () = Storage.E.set s (Election_dynamic_records None) Value records in
+      let* () = Storage.E.set s (Credential_dynamic_records None) Value xs in
       Lwt.return public_credentials
   | None -> Lwt.fail @@ Election_not_found (uuid, "init_credential_mapping")
 

@@ -382,7 +382,7 @@ let get_records s =
   | Some x -> Lwt.return x
   | None ->
       let* voters = Storage.E.get s Voters in
-      let* dynamic = Storage.E.get s Election_dynamic_records in
+      let* dynamic = Storage.E.get s @@ Election_dynamic_records None in
       let records =
         match (Lopt.get_value voters, Lopt.get_value dynamic) with
         | Some voters, Some dynamic ->

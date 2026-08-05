@@ -92,12 +92,12 @@ let get_election (type t) : t election_file -> t serializers = function
         of_string = !*(public_credential_with_id_of_yojson !$G.of_string);
         to_string = !+(yojson_of_public_credential_with_id !&G.to_string);
       }
-  | Credential_dynamic_records ->
+  | Credential_dynamic_records _ ->
       {
         of_string = !*credential_dynamic_records_of_yojson;
         to_string = !+yojson_of_credential_dynamic_records;
       }
-  | Election_dynamic_records ->
+  | Election_dynamic_records _ ->
       {
         of_string = !*election_dynamic_records_of_yojson;
         to_string = !+yojson_of_election_dynamic_records;

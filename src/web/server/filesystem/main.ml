@@ -26,6 +26,8 @@ open Belenios_server_core
 open Types
 open Signatures
 
+let voters_bits_threshold = 400
+
 type 'a file = 'a Election_ops.file
 
 let () = Stdlib.Random.self_init ()
@@ -96,6 +98,8 @@ module MakeBackend
 
   type ('key, 'a) abstract_file_ops = {
     mutable get : uuid -> 'key -> 'a lopt Lwt.t;
+    mutable set : uuid -> 'key -> 'a lopt -> unit Lwt.t;
+    mutable del : uuid -> 'key -> unit Lwt.t;
   }
 
   type abstract_credential_props = {
@@ -106,7 +110,11 @@ module MakeBackend
 
   let make_uninitialized_ops what =
     let e x = Lwt.fail @@ Not_implemented (Printf.sprintf "%s.%s" what x) in
-    { get = (fun _ _ -> e "get") }
+    {
+      get = (fun _ _ -> e "get");
+      set = (fun _ _ _ -> e "set");
+      del = (fun _ _ -> e "del");
+    }
 
   (** {1 Forward references} *)
 
@@ -124,6 +132,14 @@ module MakeBackend
 
   let voters_ops : (_, Voter.t) abstract_file_ops =
     make_uninitialized_ops "voters_ops"
+
+  let credential_dynamic_records_ops :
+      (_, credential_dynamic_records) abstract_file_ops =
+    make_uninitialized_ops "credential_dynamic_records_ops"
+
+  let election_dynamic_records_ops :
+      (_, election_dynamic_records) abstract_file_ops =
+    make_uninitialized_ops "election_dynamic_records_ops"
 
   let get_credential_props =
     { get_credential_props = (fun _ _ _ -> assert false) }
@@ -294,8 +310,6 @@ module MakeBackend
   let public_creds_filename = "public_creds.json"
   let server_seed_filename = "server_seed.txt"
   let private_keys_filename = "private_keys.jsons"
-  let credential_dynamic_records_filename = "credential_dynamic_records.json"
-  let election_dynamic_records_filename = "election_dynamic_records.json"
 
   let get_election_file_props _uuid (type t) :
       t election_file -> t raw_file_props = function
@@ -318,8 +332,10 @@ module MakeBackend
     | Voters_config -> Abstract (voters_config_ops, ())
     | Voter key -> Abstract (voters_ops, key)
     | Credential_props (w, key) -> Abstract_credential_props (w, key)
-    | Credential_dynamic_records -> Concrete credential_dynamic_records_filename
-    | Election_dynamic_records -> Concrete election_dynamic_records_filename
+    | Credential_dynamic_records key ->
+        Abstract (credential_dynamic_records_ops, key)
+    | Election_dynamic_records key ->
+        Abstract (election_dynamic_records_ops, key)
 
   let get_trustees_file_props _uuid (type t) :
       t trustees_file -> t raw_file_props = function
@@ -417,7 +433,8 @@ module MakeBackend
             let* () = Filesystem.write_file fname data in
             let () = clear_caches f in
             Lwt.return_unit)
-    | Abstract _ | Abstract_credential_props _ -> failwith "abstract_ops.set"
+    | Abstract (ops, uuid, key) -> ops.set uuid key data
+    | Abstract_credential_props _ -> failwith "abstract_ops.set"
     | Admin_password (file, key) -> set_password_record_admin file key data
 
   let get_group uuid : (module GROUP) option Lwt.t =
@@ -491,8 +508,8 @@ module MakeBackend
   let del (type t) (f : t file) =
     match get_props f with
     | Concrete f -> Filesystem.cleanup_file f
-    | Abstract _ | Abstract_credential_props _ ->
-        Lwt.fail @@ Not_implemented "del"
+    | Abstract (ops, uuid, key) -> ops.del uuid key
+    | Abstract_credential_props _ -> Lwt.fail @@ Not_implemented "del"
     | Admin_password _ -> Lwt.fail @@ Not_implemented "del"
 
   let new_uuid_in_dir dir =
@@ -537,6 +554,9 @@ module MakeBackend
     let* b = Filesystem.file_exists src in
     if b then copy_file src dst else Lwt.return_unit
 
+  (* forward reference set later in this file *)
+  let get_election_dynamic_records_files = ref (fun _ -> assert false)
+
   let make_archive uuid =
     let uuid_s = Uuid.to_string uuid in
     let* temp_dir =
@@ -556,11 +576,14 @@ module MakeBackend
           try_copy_file (spool_elections uuid x) (temp_dir // "public" // x))
         [ archive_filename ]
     in
+    let* election_dynamic_records_files =
+      !get_election_dynamic_records_files uuid
+    in
     let* () =
       Lwt_list.iter_p
         (fun x ->
           try_copy_file (spool_elections uuid x) (temp_dir // "restricted" // x))
-        [ voters_filename; election_dynamic_records_filename ]
+        (voters_filename :: election_dynamic_records_files)
     in
     let command =
       Printf.ksprintf Lwt_process.shell
@@ -679,8 +702,15 @@ module MakeBackend
     let* x = get_voters uuid in
     let&** { has_explicit_weights; username_or_address; voter_map } = x in
     let nb_voters = SMap.cardinal voter_map in
+    let bits =
+      let rec loop bits =
+        if nb_voters asr bits > voters_bits_threshold then loop (bits + 1)
+        else bits
+      in
+      loop 0
+    in
     let x : voters_config =
-      { has_explicit_weights; username_or_address; nb_voters }
+      { has_explicit_weights; username_or_address; nb_voters; bits }
     in
     x |> Lopt.some_value !+yojson_of_voters_config |> Lwt.return
 
@@ -693,6 +723,153 @@ module MakeBackend
   let () =
     voters_config_ops.get <- get_voters_config;
     voters_ops.get <- get_voter
+
+  let binary_of_hex h =
+    let buf = Buffer.create (String.length h * 4) in
+    String.iter
+      (fun c ->
+        Buffer.add_string buf
+          (match c with
+          | '0' -> "0000"
+          | '1' -> "0001"
+          | '2' -> "0010"
+          | '3' -> "0011"
+          | '4' -> "0100"
+          | '5' -> "0101"
+          | '6' -> "0110"
+          | '7' -> "0111"
+          | '8' -> "1000"
+          | '9' -> "1001"
+          | 'a' -> "1010"
+          | 'b' -> "1011"
+          | 'c' -> "1100"
+          | 'd' -> "1101"
+          | 'e' -> "1110"
+          | 'f' -> "1111"
+          | _ -> assert false))
+      h;
+    Buffer.contents buf
+
+  let rec seq_of_bits bits =
+    let open Seq in
+    if bits > 0 then
+      let r = seq_of_bits (bits - 1) in
+      append (map (fun x -> "0" ^ x) r) (map (fun x -> "1" ^ x) r)
+    else singleton ""
+
+  let get_prefix bits h =
+    let x = String.sub (Hash.to_hex h) 0 ((bits / 4) + 1) in
+    String.sub (binary_of_hex x) 0 bits
+
+  let get_bits uuid =
+    let* x = get_voters_config uuid () in
+    match Lopt.get_value x with
+    | None -> assert false
+    | Some x -> Lwt.return x.bits
+
+  let get_dynamic_record file of_yojson yojson_of uuid h =
+    let* bits = get_bits uuid in
+    match (bits, h) with
+    | 0, _ ->
+        let path = spool_elections uuid (file None) in
+        let* x = Filesystem.read_file path in
+        let&** x = x in
+        x |> Lopt.some_string !*of_yojson |> Lwt.return
+    | bits, None ->
+        let* files =
+          seq_of_bits bits |> List.of_seq
+          |> Lwt_list.filter_map_p (fun p ->
+              let path = spool_elections uuid (file (Some p)) in
+              let* x = Filesystem.read_file path in
+              let&* x = x in
+              match !*of_yojson x with
+              | exception _ -> Lwt.return_none
+              | x -> Lwt.return_some x)
+        in
+        files
+        |> List.fold_left (fun accu x -> HMap.fold HMap.add x accu) HMap.empty
+        |> Lopt.some_value !+yojson_of
+        |> Lwt.return
+    | bits, Some h ->
+        let path = spool_elections uuid (file (Some (get_prefix bits h))) in
+        let* x = Filesystem.read_file path in
+        let&** x = x in
+        x |> Lopt.some_string !*of_yojson |> Lwt.return
+
+  let set_dynamic_record file yojson_of uuid h data =
+    let* bits = get_bits uuid in
+    match (bits, h) with
+    | 0, _ -> (
+        let path = spool_elections uuid (file None) in
+        match Lopt.get_string data with
+        | None -> assert false
+        | Some data -> Filesystem.write_file path data)
+    | bits, None -> (
+        match Lopt.get_value data with
+        | None -> assert false
+        | Some data ->
+            HMap.fold
+              (fun h x accu ->
+                let p = get_prefix bits h in
+                let current =
+                  SMap.find_opt p accu |> Option.value ~default:HMap.empty
+                in
+                SMap.add p (HMap.add h x current) accu)
+              data SMap.empty
+            |> SMap.bindings
+            |> Lwt_list.iter_p (fun (p, x) ->
+                let path = spool_elections uuid (file (Some p)) in
+                Filesystem.write_file path (!+yojson_of x)))
+    | bits, Some h -> (
+        let path = spool_elections uuid (file (Some (get_prefix bits h))) in
+        match Lopt.get_string data with
+        | None -> assert false
+        | Some data -> Filesystem.write_file path data)
+
+  let del_dynamic_record file uuid h =
+    let* bits = get_bits uuid in
+    match (bits, h) with
+    | 0, _ ->
+        let path = spool_elections uuid (file None) in
+        Filesystem.cleanup_file path
+    | bits, None ->
+        seq_of_bits bits |> List.of_seq
+        |> Lwt_list.iter_p (fun p ->
+            let path = spool_elections uuid (file (Some p)) in
+            Filesystem.cleanup_file path)
+    | _, Some _ -> failwith __FUNCTION__
+
+  let () =
+    let file = function
+      | None -> "credential_dynamic_records.json"
+      | Some p -> Printf.sprintf "credential_dynamic_records-%s.json" p
+    in
+    credential_dynamic_records_ops.get <-
+      get_dynamic_record file credential_dynamic_records_of_yojson
+        yojson_of_credential_dynamic_records;
+    credential_dynamic_records_ops.set <-
+      set_dynamic_record file yojson_of_credential_dynamic_records;
+    credential_dynamic_records_ops.del <- del_dynamic_record file
+
+  let () =
+    let file = function
+      | None -> "election_dynamic_records.json"
+      | Some p -> Printf.sprintf "election_dynamic_records-%s.json" p
+    in
+    election_dynamic_records_ops.get <-
+      get_dynamic_record file election_dynamic_records_of_yojson
+        yojson_of_election_dynamic_records;
+    election_dynamic_records_ops.set <-
+      set_dynamic_record file yojson_of_election_dynamic_records;
+    election_dynamic_records_ops.del <- del_dynamic_record file;
+    get_election_dynamic_records_files :=
+      fun uuid ->
+        let* bits = get_bits uuid in
+        if bits = 0 then Lwt.return [ file None ]
+        else
+          seq_of_bits bits |> List.of_seq
+          |> List.map (fun p -> file (Some p))
+          |> Lwt.return
 
   module CredCacheTypes = struct
     type key = uuid
@@ -771,13 +948,14 @@ module MakeBackend
       cleanup_files uuid
         [
           `Elections public_creds_filename;
-          `Elections credential_dynamic_records_filename;
           `Elections server_seed_filename;
           `Elections private_keys_filename;
         ]
     in
     let* () =
-      Lwt_list.iter_p (fun (F x) -> del (Election (uuid, x))) [ F State ]
+      Lwt_list.iter_p
+        (fun (F x) -> del (Election (uuid, x)))
+        [ F State; F (Credential_dynamic_records None) ]
     in
     Elections_cache.clear ();
     Lwt.return_unit
@@ -792,7 +970,7 @@ module MakeBackend
           F Audit_cache;
           F Voters;
           F Confidential_archive;
-          F Election_dynamic_records;
+          F (Election_dynamic_records None);
         ]
     in
     let* () =

@@ -201,6 +201,7 @@ type voters_config = {
   has_explicit_weights : bool;
   username_or_address : username_or_address;
   nb_voters : int;
+  bits : int;
 }
 [@@deriving yojson]
 
