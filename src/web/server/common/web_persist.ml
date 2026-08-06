@@ -381,25 +381,20 @@ let raw_compute_encrypted_tally s (election : Election.t) =
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let* ballots =
-    Public_archive.fold_on_ballots s
-      (fun _ b accu ->
-        let ballot = !*[%group_of_yojson: _ ballot] b in
-        let credential = ballot.message.credential in
-        if GMap.mem credential accu then Lwt.return accu
-        else Lwt.return @@ GMap.add credential ballot accu)
-      GMap.empty
-  in
-  let* ballots =
-    ballots |> GMap.to_seq |> Lwt_seq.of_seq
-    |> Lwt_seq.fold_left_s
-         (fun accu (credential, ballot) ->
-           let* x =
-             get_credential_props s G.spec
-               (credential |> G.to_string |> Hash.hash_string)
-           in
-           let weight = x.weight |> Option.value ~default:Weight.one in
-           Lwt.return @@ ((weight, ballot) :: accu))
-         []
+    let* x = Storage.E.get s (Ballot_dynamic_records None) in
+    match Lopt.get_value x with
+    | None -> Lwt.return_nil
+    | Some x ->
+        x |> HMap.to_seq |> Lwt_seq.of_seq
+        |> Lwt_seq.fold_left_s
+             (fun accu (ballot_h, ({ weight } : ballot_dynamic_record)) ->
+               let* ballot = Storage.E.get s (Data ballot_h) in
+               match Lopt.get_value ballot with
+               | None -> assert false
+               | Some ballot ->
+                   let ballot = !*[%group_of_yojson: _ ballot] ballot in
+                   Lwt.return ((weight, ballot) :: accu))
+             []
   in
   let tally = W.E.process_ballots ballots in
   let tally_s = !+(yojson_of_encrypted_tally !&W.G.to_string) tally in
