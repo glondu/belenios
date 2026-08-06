@@ -33,16 +33,10 @@ val get_partial_decryptions :
 val get_public_creds :
   Storage.E.t -> ('a, 'b) group -> 'a public_credentials Lwt.t
 
-val get_ballot_by_hash : Storage.E.t -> string -> string option Lwt.t
 val get_nh_ciphertexts : Storage.E.t -> string Lwt.t
 val get_shuffles : Storage.E.t -> (hash * hash owned * string) list option Lwt.t
 val get_sized_encrypted_tally : Storage.E.t -> string option Lwt.t
 val get_latest_encrypted_tally : Storage.E.t -> string option Lwt.t
-val get_ballot_hashes : Storage.E.t -> ballot_dynamic_records Lwt.t
-val clear_ballot_cache : uuid -> unit
-
-val fold_on_ballots :
-  Storage.E.t -> (hash -> string -> 'a -> 'a Lwt.t) -> 'a -> 'a Lwt.t
 
 val with_election :
   Storage.E.t ->

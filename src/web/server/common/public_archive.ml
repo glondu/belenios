@@ -153,88 +153,6 @@ let get_public_creds s (type a b) (w : (a, b) group) =
       let module G = (val w) in
       Lwt.return @@ !*(public_credentials_of_yojson !$G.of_string) x
 
-let get_credential_weight s (type a b) (w : (a, b) spec) cred =
-  let* x = Storage.E.get s (Credential_props (w, cred)) in
-  match Lopt.get_value x with
-  | Some x -> x.weight |> Option.value ~default:Weight.one |> Lwt.return
-  | None ->
-      let uuid = Storage.E.get_uuid s in
-      Lwt.fail
-        (Failure
-           (Printf.sprintf "could not find credential weight of %s/%s"
-              (Uuid.to_string uuid) (Hash.to_hex cred)))
-
-let get_ballot_weight s (election : Election.t) ballot =
-  let module W = (val election) in
-  let module G = W.G in
-  Lwt.catch
-    (fun () ->
-      let ballot = !*[%group_of_yojson: _ ballot] ballot in
-      let credential = ballot.message.credential in
-      get_credential_weight s G.spec
-        (credential |> G.to_string |> Hash.hash_string))
-    (fun e ->
-      Printf.ksprintf failwith "anomaly in get_ballot_weight (%s)"
-        (Printexc.to_string e))
-
-module BallotsCacheTypes = struct
-  type key = uuid
-  type value = ballot_dynamic_records
-end
-
-module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
-
-let fold_on_ballots s f accu =
-  let* x = get_roots s in
-  match x.last_ballot_event with
-  | None -> Lwt.return accu
-  | Some e -> fold_on_event_payloads s `Ballot e f accu
-
-let fold_on_ballots_weeded s (election : Election.t) f accu =
-  let module W = (val election) in
-  let module G = W.G in
-  let module GSet = Set.Make (W.G) in
-  let* _, accu =
-    fold_on_ballots s
-      (fun _ b ((seen, accu) as x) ->
-        let ballot = !*[%group_of_yojson: _ ballot] b in
-        let credential = ballot.message.credential in
-        if GSet.mem credential seen then Lwt.return x
-        else
-          let seen = GSet.add credential seen in
-          let* accu = f b accu in
-          Lwt.return (seen, accu))
-      (GSet.empty, accu)
-  in
-  Lwt.return accu
-
-let raw_get_ballots s =
-  let@ election = with_election s ~fallback:(fun () -> Lwt.return HMap.empty) in
-  fold_on_ballots_weeded s election
-    (fun b accu ->
-      let hash = Hash.hash_string b in
-      let* weight = get_ballot_weight s election b in
-      Lwt.return (HMap.add hash ({ weight } : ballot_dynamic_record) accu))
-    HMap.empty
-
-let ballots_cache = new BallotsCache.cache not_in_cache ~timer:3600. 10
-
-let get_ballot_hashes s =
-  let uuid = Storage.E.get_uuid s in
-  match ballots_cache#find_in_cache uuid with
-  | x -> Lwt.return x
-  | exception Not_found ->
-      let* x = raw_get_ballots s in
-      ballots_cache#add uuid x;
-      Lwt.return x
-
-let get_ballot_by_hash s hash =
-  Lwt.catch
-    (fun () ->
-      let hash = Hash.of_b64 hash in
-      get_data s hash)
-    (fun _ -> Lwt.return_none)
-
 let get_owned_shuffles s =
   let* x = get_roots s in
   let&* x = x.last_shuffle_event in
@@ -344,5 +262,3 @@ let get_latest_encrypted_tally s =
   let nh = !*(nh_ciphertexts_of_yojson !$W.G.of_string) nh in
   let tally = W.E.merge_nh_ciphertexts nh tally in
   Lwt.return_some @@ !+(yojson_of_encrypted_tally !&W.G.to_string) tally
-
-let clear_ballot_cache uuid = ballots_cache#remove uuid

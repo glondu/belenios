@@ -367,9 +367,7 @@ let add_ballot s (election : Election.t) last ballot =
     Storage.E.append s ~last [ Data ballot; Event (`Ballot, Some hash) ]
   in
   match x with
-  | true ->
-      let () = Public_archive.clear_ballot_cache (Storage.E.get_uuid s) in
-      Lwt.return hash
+  | true -> Lwt.return hash
   | false -> Lwt.fail @@ Failure "race condition in add_ballot"
 
 let raw_compute_encrypted_tally s (election : Election.t) =
