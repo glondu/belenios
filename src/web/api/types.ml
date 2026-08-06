@@ -442,14 +442,6 @@ type shuffler = {
 
 type shuffles = { shufflers : shuffler list } [@@deriving yojson]
 type shuffler_request = [ `Skip | `Select ] [@@deriving yojson]
-type ballots_with_weights = (hash * weight) list
-
-let yojson_of_ballots_with_weights x : json =
-  `Assoc (List.map (fun (k, v) -> (Hash.to_hex k, yojson_of_weight v)) x)
-
-let ballots_with_weights_of_yojson : json -> ballots_with_weights = function
-  | `Assoc o -> List.map (fun (k, v) -> (Hash.of_hex k, weight_of_yojson v)) o
-  | x -> of_yojson_error "object expected" x
 
 type billing_request = {
   admin_id : int;

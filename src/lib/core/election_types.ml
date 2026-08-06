@@ -96,10 +96,5 @@ type audit_cache = {
 }
 [@@deriving yojson]
 
-type ballot_summary_item = {
-  hash : hash;
-  weight : weight option; [@yojson.option]
-}
-[@@deriving yojson]
-
-type ballot_summary = ballot_summary_item list [@@deriving yojson]
+type ballot_dynamic_record = { weight : weight } [@@deriving yojson]
+type ballot_dynamic_records = ballot_dynamic_record hmap [@@deriving yojson]

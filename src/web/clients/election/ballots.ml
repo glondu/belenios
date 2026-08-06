@@ -30,10 +30,10 @@ open Common
 let make_ballots_contents uuid show_weights sized_encrypted_tally ballots =
   let open (val !Belenios_js.I18n.gettext) in
   let ballots =
-    ballots
+    ballots |> HMap.bindings
     |> List.map (fun (h, w) -> (Hash.to_b64 h, h, w))
     |> List.sort (fun (a, _, _) (b, _, _) -> compare_b64 a b)
-    |> List.map (fun (b, h, w) ->
+    |> List.map (fun (b, h, ({ weight } : ballot_dynamic_record)) ->
         let href =
           !/Belenios_web_api.Endpoints.((election_object uuid h).path)
         in
@@ -41,7 +41,7 @@ let make_ballots_contents uuid show_weights sized_encrypted_tally ballots =
           [
             a ~href b;
             (if show_weights then
-               Printf.ksprintf txt " (%s)" (Weight.to_string w)
+               Printf.ksprintf txt " (%s)" (Weight.to_string weight)
              else txt "");
           ])
   in

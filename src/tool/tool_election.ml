@@ -337,21 +337,13 @@ let make file =
       |> Lwt.return
 
     let compute_ballot_summary () =
-      let* has_weights =
-        let* x = Lazy.force public_creds_weights in
-        match x with None -> Lwt.return_false | Some (b, _) -> Lwt.return b
-      in
       let* x = Lazy.force unverified_ballots in
       x
-      |> List.rev_map (fun (hash, _, w, _) ->
-          let weight =
-            if has_weights then Some w
-            else (
-              assert (Weight.(compare w one) = 0);
-              None)
-          in
-          { hash; weight })
-      |> !+yojson_of_ballot_summary |> Lwt.return
+      |> List.fold_left
+           (fun accu (hash, _, weight, _) -> HMap.add hash { weight } accu)
+           HMap.empty
+      |> !+yojson_of_ballot_dynamic_records
+      |> Lwt.return
 
     let compute_encrypted_tally () =
       let* et, sized = Lazy.force raw_encrypted_tally in

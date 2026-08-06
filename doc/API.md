@@ -198,7 +198,7 @@ method.
 
 ## `elections/$UUID/ballots`
 
-### `GET`: unit -> ballots_with_weights (anybody)
+### `GET`: unit -> ballot_dynamic_records (anybody)
 
 ### `POST`: ballot -> json (anybody)
 

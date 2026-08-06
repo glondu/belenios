@@ -92,6 +92,6 @@ val election_roots : uuid -> (nobody, roots, unit) t
 val election_last_event : uuid -> (nobody, last_event, unit) t
 val election_object : uuid -> hash -> (nobody, json, unit) t
 val election_audit_cache : uuid -> (nobody, audit_cache, unit) t
-val election_ballots : uuid -> (nobody, ballots_with_weights, json) t
+val election_ballots : uuid -> (nobody, ballot_dynamic_records, json) t
 val credentials_server : (nobody, unit, credentials_request) t
 val credentials_credits : uuid -> (credauth, credentials_credits, unit) t

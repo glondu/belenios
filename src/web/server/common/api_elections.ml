@@ -585,7 +585,7 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       | `GET ->
           let@ () = handle_generic_error in
           let* x = Public_archive.get_ballot_hashes s in
-          return_json 200 (!+yojson_of_ballots_with_weights x)
+          return_json 200 (!+yojson_of_ballot_dynamic_records x)
       | `POST ->
           let@ () = handle_generic_error in
           let@ state_module cont =

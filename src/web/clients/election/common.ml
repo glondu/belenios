@@ -73,7 +73,7 @@ type cache = {
   audit_cache : audit_cache option;
   result : json option;
   sized_encrypted_tally : hash sized_encrypted_tally option;
-  mutable ballots : ((hash * weight) list, unit) result option;
+  mutable ballots : (ballot_dynamic_records, unit) result option;
 }
 
 let cache = ref None

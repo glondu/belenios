@@ -179,7 +179,7 @@ let get_ballot_weight s (election : Election.t) ballot =
 
 module BallotsCacheTypes = struct
   type key = uuid
-  type value = Weight.t HMap.t
+  type value = ballot_dynamic_records
 end
 
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
@@ -214,12 +214,12 @@ let raw_get_ballots s =
     (fun b accu ->
       let hash = Hash.hash_string b in
       let* weight = get_ballot_weight s election b in
-      Lwt.return (HMap.add hash weight accu))
+      Lwt.return (HMap.add hash ({ weight } : ballot_dynamic_record) accu))
     HMap.empty
 
 let ballots_cache = new BallotsCache.cache not_in_cache ~timer:3600. 10
 
-let ballots_cache_find s =
+let get_ballot_hashes s =
   let uuid = Storage.E.get_uuid s in
   match ballots_cache#find_in_cache uuid with
   | x -> Lwt.return x
@@ -227,10 +227,6 @@ let ballots_cache_find s =
       let* x = raw_get_ballots s in
       ballots_cache#add uuid x;
       Lwt.return x
-
-let get_ballot_hashes s =
-  let* ballots = ballots_cache_find s in
-  HMap.bindings ballots |> Lwt.return
 
 let get_ballot_by_hash s hash =
   Lwt.catch

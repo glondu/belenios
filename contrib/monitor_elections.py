@@ -123,10 +123,10 @@ def download_audit_data(wdir, url, uuid):
     return status, data
 
 def get_new_ballots(old_ballotsfile, new_ballotsfile):
-    old = set([b64_of_hex(x["hash"]) for x in json.loads(old_ballotsfile)])
+    old = set([b64_of_hex(x) for x in json.loads(old_ballotsfile).keys()])
     result = b""
-    for x in json.loads(new_ballotsfile):
-        h = b64_of_hex(x["hash"])
+    for x in json.loads(new_ballotsfile).keys():
+        h = b64_of_hex(x)
         if not h in old:
             result = result + h.encode() + b"\n"
     return result
@@ -181,7 +181,7 @@ def write_and_verify_new_data(wdir, uuid, data):
 
     # ballots of old data
     if fresh:
-        ballot_summary1 = "[]"
+        ballot_summary1 = "{}"
     else:
         ballot_summary1 = subprocess.run(["belenios-tool", "election", "compute-ballot-summary", "--dir={}".format(p)],
                                          stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -237,10 +237,7 @@ def write_and_verify_new_data(wdir, uuid, data):
 # are consistent with the json file.
 def check_hash_ballots(data):
     ballots1 = json.loads(data['ballots'])
-
-    ballots2 = {}
-    for x in json.loads(data['ballot_summary']):
-        ballots2[x["hash"]] = x.get("weight", 1)
+    ballots2 = json.loads(data['ballot_summary'])
 
     if ballots1 != ballots2:
         msg = b"Error: hash of ballots do not correspond!\n"
