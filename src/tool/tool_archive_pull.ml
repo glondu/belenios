@@ -105,7 +105,12 @@ let main base_archive base_dir url uuid =
   in
   match (url, uuid) with
   | Some url, Some uuid ->
-      let url = Printf.sprintf "%sapi/elections/%s" url uuid in
+      let url =
+        if String.ends_with ~suffix:"/" url then
+          String.sub url 0 (String.length url - 1)
+        else url
+      in
+      let url = Printf.sprintf "%s/api/elections/%s" url uuid in
       mkarchive base url Lwt_unix.stdout
   | None, _ -> failwith "missing --url"
   | _, None -> failwith "missing --uuid"

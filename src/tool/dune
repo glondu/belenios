@@ -5,6 +5,7 @@
  (preprocess
   (pps ppx_yojson_conv ppx_yojson_group))
  (libraries
+  re
   cmdliner
   belenios_cohttp
   belenios-platform-native

@@ -365,7 +365,7 @@ server are valid, while monitoring the election identified by UUID:
   ([TOFU](https://en.wikipedia.org/wiki/Trust_on_first_use)
   principle).  Then the monitoring command is as follows:
 
-        ./monitor_elections.py --url PREFIX --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --uuid UUID
+        belenios-tool monitor --url PREFIX --wdir workdir --checkhash --hashref workdir/hashref --outputref workdir/hashref --uuid UUID
 
   Each time the files change (including at the first run), this will
   print a warning message.
@@ -385,7 +385,7 @@ server are valid, while monitoring the election identified by UUID:
   the corresponding command-line, to be adapted for another server or
   another trusted person:
 
-        ./monitor_elections.py --url https://vote.example.org/ --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --sighashref https://vote.example.org/monitoring-reference/reference.json.gpg --keyring workdir/trustdb.gpg --uuid UUID
+        belenios-tool monitor --url https://vote.example.org/ --wdir workdir --checkhash --hashref workdir/hashref --outputref workdir/hashref --sighashref https://vote.example.org/monitoring-reference/reference.json.gpg --keyring workdir/trustdb.gpg --uuid UUID
 
 In all cases, the auditor will regularly execute a monitoring command
 that we call `monitor_elections`.

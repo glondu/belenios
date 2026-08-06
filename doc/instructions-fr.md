@@ -378,7 +378,7 @@ par UUID :
   TOFU](https://en.wikipedia.org/wiki/Trust_on_first_use)). Alors la
   commande d'audit est la suivante :
 
-        ./monitor_elections.py --url PREFIX --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --uuid UUID
+        belenios-tool monitor --url PREFIX --wdir workdir --checkhash --hashref workdir/hashref --outputref workdir/hashref --uuid UUID
 
   Chaque fois qu'un fichier change (y compris lors de la première
   exécution), cela va afficher un message d'alerte.
@@ -400,7 +400,7 @@ par UUID :
   donnons la ligne de commande correspondante, devant être adaptée pour
   un autre serveur ou une autre personne de confiance :
 
-        ./monitor_elections.py --url https://vote.example.org/ --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --sighashref https://vote.example.org/monitoring-reference/reference.json.gpg --keyring workdir/trustdb.gpg --uuid UUID
+        belenios-tool monitor --url https://vote.example.org/ --wdir workdir --checkhash --hashref workdir/hashref --outputref workdir/hashref --sighashref https://vote.example.org/monitoring-reference/reference.json.gpg --keyring workdir/trustdb.gpg --uuid UUID
 
 Dans tous les cas, l'auditeur va régulièrement exécuter une commande
 d'audit que nous appellerons `monitor_elections`.

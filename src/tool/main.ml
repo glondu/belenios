@@ -384,6 +384,7 @@ let cmds =
     Events.cmd;
     Methods.cmd;
     Sealing.cmd;
+    Monitor.cmd;
   ]
 
 let default_cmd =

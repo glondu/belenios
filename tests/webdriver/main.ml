@@ -108,26 +108,36 @@ let monitor x =
         let* b = Lwt_unix.file_exists wdir in
         if not b then Lwt_unix.mkdir wdir 0o755 else Lwt.return_unit
       in
-      let cmd = "contrib/monitor_elections.py" in
+      let cmd = "belenios-tool" in
       let args =
         match x with
         | `Make_reference ->
             [|
               cmd;
-              Printf.sprintf "--url=%s" Config.belenios;
-              Printf.sprintf "--wdir=%s" wdir;
-              "--checkhash=yes";
-              "--hashref=contrib/reference_template.json";
-              Printf.sprintf "--outputref=%s/reference.json" wdir;
+              "monitor";
+              "--url";
+              Config.belenios;
+              "--wdir";
+              wdir;
+              "--checkhash";
+              "--hashref";
+              "contrib/reference_template.json";
+              "--outputref";
+              Filename.concat wdir "reference.json";
             |]
         | `Monitor uuid ->
             [|
               cmd;
-              Printf.sprintf "--url=%s" Config.belenios;
-              Printf.sprintf "--wdir=%s" wdir;
-              "--checkhash=yes";
-              Printf.sprintf "--hashref=%s/reference.json" wdir;
-              Printf.sprintf "--uuid=%s" uuid;
+              "monitor";
+              "--url";
+              Config.belenios;
+              "--wdir";
+              wdir;
+              "--checkhash";
+              "--hashref";
+              Filename.concat wdir "reference.json";
+              "--uuid";
+              uuid;
             |]
       in
       let* x = Lwt_process.exec (cmd, args) in
