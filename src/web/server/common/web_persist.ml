@@ -379,7 +379,7 @@ let raw_compute_encrypted_tally s (election : Election.t) =
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let* ballots =
-    let* x = Storage.E.get s (Ballot_dynamic_records None) in
+    let* x = Storage.E.get s (Ballot_dynamic_records All) in
     match Lopt.get_value x with
     | None -> Lwt.return_nil
     | Some x ->
@@ -422,7 +422,7 @@ let raw_compute_encrypted_tally s (election : Election.t) =
 
 let get_credential_record s (type a b) (w : (a, b) spec) credential =
   let* cr_ballot =
-    let* x = Storage.E.get s @@ Credential_dynamic_records (Some credential) in
+    let* x = Storage.E.get s @@ Credential_dynamic_records (Hash credential) in
     match Lopt.get_value x with
     | None -> assert false
     | Some x -> (
@@ -525,7 +525,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
       let* () =
         let@ x, set =
           Storage.E.update s
-          @@ Credential_dynamic_records (Some credential_hash)
+          @@ Credential_dynamic_records (Hash credential_hash)
         in
         match Lopt.get_value x with
         | None -> assert false
@@ -536,7 +536,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
       let* () =
         let username_h = Hash.hash_string username in
         let@ x, set =
-          Storage.E.update s @@ Election_dynamic_records (Some username_h)
+          Storage.E.update s @@ Election_dynamic_records (Hash username_h)
         in
         match Lopt.get_value x with
         | None -> assert false
@@ -557,11 +557,11 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
                     accepted = x.accepted + 1;
                     accepted_weight = Weight.(x.accepted_weight + weight);
                   })
-        | Some old -> Storage.E.del s @@ Ballot_dynamic_records (Some old)
+        | Some old -> Storage.E.del s @@ Ballot_dynamic_records (Hash old)
       in
       let* () =
         let@ x, set =
-          Storage.E.update s @@ Ballot_dynamic_records (Some hash)
+          Storage.E.update s @@ Ballot_dynamic_records (Hash hash)
         in
         match Lopt.get_value x with
         | None -> assert false
@@ -744,8 +744,8 @@ let init_credential_mapping s (type a b) (w : (a, b) group) =
           x HMap.empty
       in
       let xs = x |> HMap.map (fun _ -> None) in
-      let* () = Storage.E.set s (Election_dynamic_records None) Value records in
-      let* () = Storage.E.set s (Credential_dynamic_records None) Value xs in
+      let* () = Storage.E.set s (Election_dynamic_records All) Value records in
+      let* () = Storage.E.set s (Credential_dynamic_records All) Value xs in
       let* bits =
         let* x = Storage.E.get s Voters_config in
         match Lopt.get_value x with

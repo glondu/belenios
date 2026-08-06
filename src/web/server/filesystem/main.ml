@@ -773,6 +773,9 @@ module MakeBackend
     | None -> assert false
     | Some x -> Lwt.return x.bits
 
+  let check_prefix bits p =
+    String.length p = bits && String.for_all (fun c -> c = '0' || c = '1') p
+
   let get_dynamic_record file of_yojson yojson_of uuid h =
     let* bits = get_bits uuid in
     match (bits, h) with
@@ -782,7 +785,7 @@ module MakeBackend
         match x with
         | None -> HMap.empty |> Lopt.some_value !+yojson_of |> Lwt.return
         | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return)
-    | bits, None ->
+    | bits, All ->
         let* files =
           seq_of_bits bits |> List.of_seq
           |> Lwt_list.filter_map_p (fun p ->
@@ -797,12 +800,20 @@ module MakeBackend
         |> List.fold_left (fun accu x -> HMap.fold HMap.add x accu) HMap.empty
         |> Lopt.some_value !+yojson_of
         |> Lwt.return
-    | bits, Some h -> (
+    | bits, Hash h -> (
         let path = spool_elections uuid (file (Some (get_prefix bits h))) in
         let* x = Filesystem.read_file path in
         match x with
         | None -> HMap.empty |> Lopt.some_value !+yojson_of |> Lwt.return
         | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return)
+    | _, Prefix p ->
+        if check_prefix bits p then
+          let path = spool_elections uuid (file (Some p)) in
+          let* x = Filesystem.read_file path in
+          match x with
+          | None -> HMap.empty |> Lopt.some_value !+yojson_of |> Lwt.return
+          | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return
+        else Lopt.none_lwt
 
   let set_dynamic_record file yojson_of uuid h data =
     let* bits = get_bits uuid in
@@ -812,7 +823,7 @@ module MakeBackend
         match Lopt.get_string data with
         | None -> assert false
         | Some data -> Filesystem.write_file path data)
-    | bits, None -> (
+    | bits, All -> (
         match Lopt.get_value data with
         | None -> assert false
         | Some data ->
@@ -828,8 +839,14 @@ module MakeBackend
             |> Lwt_list.iter_p (fun (p, x) ->
                 let path = spool_elections uuid (file (Some p)) in
                 Filesystem.write_file path (!+yojson_of x)))
-    | bits, Some h -> (
+    | bits, Hash h -> (
         let path = spool_elections uuid (file (Some (get_prefix bits h))) in
+        match Lopt.get_string data with
+        | None -> assert false
+        | Some data -> Filesystem.write_file path data)
+    | _, Prefix p -> (
+        assert (check_prefix bits p);
+        let path = spool_elections uuid (file (Some p)) in
         match Lopt.get_string data with
         | None -> assert false
         | Some data -> Filesystem.write_file path data)
@@ -837,7 +854,7 @@ module MakeBackend
   let del_dynamic_record file of_yojson yojson_of uuid h =
     let* bits = get_bits uuid in
     match (bits, h) with
-    | _, Some h' -> (
+    | _, Hash h' -> (
         let* x = get_dynamic_record file of_yojson yojson_of uuid h in
         match Lopt.get_value x with
         | None -> Lwt.return_unit
@@ -849,15 +866,16 @@ module MakeBackend
               Filesystem.cleanup_file path
             else
               let x = Lopt.some_value !+yojson_of x in
-              set_dynamic_record file yojson_of uuid (Some h') x)
+              set_dynamic_record file yojson_of uuid (Hash h') x)
     | 0, _ ->
         let path = spool_elections uuid (file None) in
         Filesystem.cleanup_file path
-    | bits, None ->
+    | bits, All ->
         seq_of_bits bits |> List.of_seq
         |> Lwt_list.iter_p (fun p ->
             let path = spool_elections uuid (file (Some p)) in
             Filesystem.cleanup_file path)
+    | _, Prefix _ -> assert false
 
   let () =
     let file = function
@@ -993,7 +1011,7 @@ module MakeBackend
     let* () =
       Lwt_list.iter_p
         (fun (F x) -> del (Election (uuid, x)))
-        [ F State; F (Credential_dynamic_records None) ]
+        [ F State; F (Credential_dynamic_records All) ]
     in
     Elections_cache.clear ();
     Lwt.return_unit
@@ -1008,8 +1026,8 @@ module MakeBackend
           F Audit_cache;
           F Voters;
           F Confidential_archive;
-          F (Election_dynamic_records None);
-          F (Ballot_dynamic_records None);
+          F (Election_dynamic_records All);
+          F (Ballot_dynamic_records All);
           F Ballots_info;
         ]
     in

@@ -24,6 +24,7 @@ open Types
 open Extra
 
 type abstract
+type dynamic_records_index = All | Hash of hash | Prefix of string
 
 type _ election_file =
   | State : stored_election_state election_file
@@ -48,12 +49,14 @@ type _ election_file =
       ('a, 'b) spec * hash
       -> 'a public_credential_with_id election_file
   | Credential_dynamic_records :
-      hash option
+      dynamic_records_index
       -> credential_dynamic_records election_file
   | Election_dynamic_records :
-      hash option
+      dynamic_records_index
       -> election_dynamic_records election_file
-  | Ballot_dynamic_records : hash option -> ballot_dynamic_records election_file
+  | Ballot_dynamic_records :
+      dynamic_records_index
+      -> ballot_dynamic_records election_file
   | Ballots_info : Belenios_web_api.ballots_info election_file
 
 type _ credentials_file =
