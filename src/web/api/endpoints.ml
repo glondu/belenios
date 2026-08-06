@@ -295,9 +295,17 @@ let election_audit_cache uuid =
 let election_ballots uuid =
   {
     path = Printf.sprintf "elections/%s/ballots" (Uuid.to_string uuid);
+    of_string = !*ballots_info_of_yojson;
+    to_string = !+yojson_of_ballots_info;
+    to_string_post = !+Fun.id;
+  }
+
+let election_ballots_ uuid prefix =
+  {
+    path = Printf.sprintf "elections/%s/ballots/%s" (Uuid.to_string uuid) prefix;
     of_string = !*ballot_dynamic_records_of_yojson;
     to_string = !+yojson_of_ballot_dynamic_records;
-    to_string_post = !+Fun.id;
+    to_string_post = !+yojson_of_unit;
   }
 
 let credentials_server =

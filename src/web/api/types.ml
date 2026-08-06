@@ -443,6 +443,9 @@ type shuffler = {
 type shuffles = { shufflers : shuffler list } [@@deriving yojson]
 type shuffler_request = [ `Skip | `Select ] [@@deriving yojson]
 
+type ballots_info = { bits : int; accepted : int; accepted_weight : weight }
+[@@deriving yojson]
+
 type billing_request = {
   admin_id : int;
   date : int64;

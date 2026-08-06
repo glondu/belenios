@@ -148,7 +148,7 @@ let get_ballots uuid =
   | Some (Ok x) -> Lwt.return_some x
   | Some (Error ()) -> Lwt.return_none
   | None -> (
-      let* x = Api.(get (election_ballots uuid) `Nobody) in
+      let* x = Api.(get (election_ballots_ uuid "all") `Nobody) in
       match x with
       | Error _ ->
           c.ballots <- Some (Error ());

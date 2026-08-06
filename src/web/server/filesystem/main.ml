@@ -141,6 +141,10 @@ module MakeBackend
       (_, election_dynamic_records) abstract_file_ops =
     make_uninitialized_ops "election_dynamic_records_ops"
 
+  let ballot_dynamic_records_ops : (_, ballot_dynamic_records) abstract_file_ops
+      =
+    make_uninitialized_ops "ballot_dynamic_records_ops"
+
   let get_credential_props =
     { get_credential_props = (fun _ _ _ -> assert false) }
 
@@ -336,6 +340,8 @@ module MakeBackend
         Abstract (credential_dynamic_records_ops, key)
     | Election_dynamic_records key ->
         Abstract (election_dynamic_records_ops, key)
+    | Ballot_dynamic_records key -> Abstract (ballot_dynamic_records_ops, key)
+    | Ballots_info -> Concrete "ballots_info.json"
 
   let get_trustees_file_props _uuid (type t) :
       t trustees_file -> t raw_file_props = function
@@ -770,11 +776,12 @@ module MakeBackend
   let get_dynamic_record file of_yojson yojson_of uuid h =
     let* bits = get_bits uuid in
     match (bits, h) with
-    | 0, _ ->
+    | 0, _ -> (
         let path = spool_elections uuid (file None) in
         let* x = Filesystem.read_file path in
-        let&** x = x in
-        x |> Lopt.some_string !*of_yojson |> Lwt.return
+        match x with
+        | None -> HMap.empty |> Lopt.some_value !+yojson_of |> Lwt.return
+        | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return)
     | bits, None ->
         let* files =
           seq_of_bits bits |> List.of_seq
@@ -790,11 +797,12 @@ module MakeBackend
         |> List.fold_left (fun accu x -> HMap.fold HMap.add x accu) HMap.empty
         |> Lopt.some_value !+yojson_of
         |> Lwt.return
-    | bits, Some h ->
+    | bits, Some h -> (
         let path = spool_elections uuid (file (Some (get_prefix bits h))) in
         let* x = Filesystem.read_file path in
-        let&** x = x in
-        x |> Lopt.some_string !*of_yojson |> Lwt.return
+        match x with
+        | None -> HMap.empty |> Lopt.some_value !+yojson_of |> Lwt.return
+        | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return)
 
   let set_dynamic_record file yojson_of uuid h data =
     let* bits = get_bits uuid in
@@ -826,9 +834,22 @@ module MakeBackend
         | None -> assert false
         | Some data -> Filesystem.write_file path data)
 
-  let del_dynamic_record file uuid h =
+  let del_dynamic_record file of_yojson yojson_of uuid h =
     let* bits = get_bits uuid in
     match (bits, h) with
+    | _, Some h' -> (
+        let* x = get_dynamic_record file of_yojson yojson_of uuid h in
+        match Lopt.get_value x with
+        | None -> Lwt.return_unit
+        | Some x ->
+            let x = HMap.remove h' x in
+            if HMap.is_empty x then
+              let p = if bits = 0 then None else Some (get_prefix bits h') in
+              let path = spool_elections uuid (file p) in
+              Filesystem.cleanup_file path
+            else
+              let x = Lopt.some_value !+yojson_of x in
+              set_dynamic_record file yojson_of uuid (Some h') x)
     | 0, _ ->
         let path = spool_elections uuid (file None) in
         Filesystem.cleanup_file path
@@ -837,7 +858,6 @@ module MakeBackend
         |> Lwt_list.iter_p (fun p ->
             let path = spool_elections uuid (file (Some p)) in
             Filesystem.cleanup_file path)
-    | _, Some _ -> failwith __FUNCTION__
 
   let () =
     let file = function
@@ -849,7 +869,9 @@ module MakeBackend
         yojson_of_credential_dynamic_records;
     credential_dynamic_records_ops.set <-
       set_dynamic_record file yojson_of_credential_dynamic_records;
-    credential_dynamic_records_ops.del <- del_dynamic_record file
+    credential_dynamic_records_ops.del <-
+      del_dynamic_record file credential_dynamic_records_of_yojson
+        yojson_of_credential_dynamic_records
 
   let () =
     let file = function
@@ -861,7 +883,9 @@ module MakeBackend
         yojson_of_election_dynamic_records;
     election_dynamic_records_ops.set <-
       set_dynamic_record file yojson_of_election_dynamic_records;
-    election_dynamic_records_ops.del <- del_dynamic_record file;
+    election_dynamic_records_ops.del <-
+      del_dynamic_record file credential_dynamic_records_of_yojson
+        yojson_of_credential_dynamic_records;
     get_election_dynamic_records_files :=
       fun uuid ->
         let* bits = get_bits uuid in
@@ -870,6 +894,20 @@ module MakeBackend
           seq_of_bits bits |> List.of_seq
           |> List.map (fun p -> file (Some p))
           |> Lwt.return
+
+  let () =
+    let file = function
+      | None -> "ballot_dynamic_records.json"
+      | Some p -> Printf.sprintf "ballot_dynamic_records-%s.json" p
+    in
+    ballot_dynamic_records_ops.get <-
+      get_dynamic_record file ballot_dynamic_records_of_yojson
+        yojson_of_ballot_dynamic_records;
+    ballot_dynamic_records_ops.set <-
+      set_dynamic_record file yojson_of_ballot_dynamic_records;
+    ballot_dynamic_records_ops.del <-
+      del_dynamic_record file credential_dynamic_records_of_yojson
+        yojson_of_credential_dynamic_records
 
   module CredCacheTypes = struct
     type key = uuid
@@ -971,6 +1009,8 @@ module MakeBackend
           F Voters;
           F Confidential_archive;
           F (Election_dynamic_records None);
+          F (Ballot_dynamic_records None);
+          F Ballots_info;
         ]
     in
     let* () =

@@ -53,6 +53,8 @@ type _ election_file =
   | Election_dynamic_records :
       hash option
       -> election_dynamic_records election_file
+  | Ballot_dynamic_records : hash option -> ballot_dynamic_records election_file
+  | Ballots_info : Belenios_web_api.ballots_info election_file
 
 type _ credentials_file =
   | Credentials_params : wrapped_credentials_params credentials_file

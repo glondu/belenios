@@ -102,6 +102,16 @@ let get_election (type t) : t election_file -> t serializers = function
         of_string = !*election_dynamic_records_of_yojson;
         to_string = !+yojson_of_election_dynamic_records;
       }
+  | Ballot_dynamic_records _ ->
+      {
+        of_string = !*ballot_dynamic_records_of_yojson;
+        to_string = !+yojson_of_ballot_dynamic_records;
+      }
+  | Ballots_info ->
+      {
+        of_string = !*Belenios_web_api.ballots_info_of_yojson;
+        to_string = !+Belenios_web_api.yojson_of_ballots_info;
+      }
 
 let get_trustees (type t) : t trustees_file -> t serializers = function
   | Trustees_metadata ->

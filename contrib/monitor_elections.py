@@ -111,6 +111,8 @@ def download_audit_data(wdir, url, uuid):
                 data[f] = get_url(link + '/election')
             elif f == 'election.bel':
                 data[f] = get_archive(wdir, url, uuid)
+            elif f == 'ballots':
+                data[f] = get_url(link + '/ballots/all')
             else:
                 data[f] = get_url (link + '/' + f)
         except urllib.error.URLError as e:

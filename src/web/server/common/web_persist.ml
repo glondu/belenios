@@ -551,6 +551,31 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
             let x = HMap.add username_h (Some { timestamp = date }) x in
             set Value x
       in
+      let* () =
+        match old with
+        | None -> (
+            let@ x, set = Storage.E.update s Ballots_info in
+            match Lopt.get_value x with
+            | None -> assert false
+            | Some x ->
+                set Value
+                  {
+                    x with
+                    accepted = x.accepted + 1;
+                    accepted_weight = Weight.(x.accepted_weight + weight);
+                  })
+        | Some old -> Storage.E.del s @@ Ballot_dynamic_records (Some old)
+      in
+      let* () =
+        let@ x, set =
+          Storage.E.update s @@ Ballot_dynamic_records (Some hash)
+        in
+        match Lopt.get_value x with
+        | None -> assert false
+        | Some x ->
+            let x = HMap.add hash { weight } x in
+            set Value x
+      in
       let* () = Storage.E.del s Records in
       Lwt.return (Ok (hash, revote))
 
@@ -728,6 +753,16 @@ let init_credential_mapping s (type a b) (w : (a, b) group) =
       let xs = x |> HMap.map (fun _ -> None) in
       let* () = Storage.E.set s (Election_dynamic_records None) Value records in
       let* () = Storage.E.set s (Credential_dynamic_records None) Value xs in
+      let* bits =
+        let* x = Storage.E.get s Voters_config in
+        match Lopt.get_value x with
+        | None -> Lwt.return 0
+        | Some { bits; _ } -> Lwt.return bits
+      in
+      let* () =
+        Storage.E.set s Ballots_info Value
+          { bits; accepted = 0; accepted_weight = Weight.zero }
+      in
       Lwt.return public_credentials
   | None -> Lwt.fail @@ Election_not_found (uuid, "init_credential_mapping")
 

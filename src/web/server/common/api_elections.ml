@@ -582,10 +582,12 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       | _ -> method_not_allowed)
   | [ "ballots" ] -> (
       match method_ with
-      | `GET ->
+      | `GET -> (
           let@ () = handle_generic_error in
-          let* x = Public_archive.get_ballot_hashes s in
-          return_json 200 (!+yojson_of_ballot_dynamic_records x)
+          let* x = Storage.E.get s Ballots_info in
+          match Lopt.get_string x with
+          | None -> not_found
+          | Some x -> return_json 200 x)
       | `POST ->
           let@ () = handle_generic_error in
           let@ state_module cont =
@@ -619,6 +621,18 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
             | Some state -> `Assoc [ ("state", `String state) ]
           in
           return_json 401 (Json.to_string json)
+      | _ -> method_not_allowed)
+  | [ "ballots"; prefix ] -> (
+      let@ prefix cont =
+        match prefix with "all" -> cont None | _ -> not_found
+      in
+      match method_ with
+      | `GET -> (
+          let@ () = handle_generic_error in
+          let* x = Storage.E.get s @@ Ballot_dynamic_records prefix in
+          match Lopt.get_string x with
+          | None -> not_found
+          | Some x -> return_json 200 x)
       | _ -> method_not_allowed)
   | [ "objects"; hash ] -> (
       match method_ with

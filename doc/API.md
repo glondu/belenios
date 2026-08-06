@@ -198,9 +198,13 @@ method.
 
 ## `elections/$UUID/ballots`
 
-### `GET`: unit -> ballot_dynamic_records (anybody)
+### `GET`: unit -> ballots_info (anybody)
 
 ### `POST`: ballot -> json (anybody)
+
+## `elections/$UUID/ballots/$PREFIX`
+
+### `GET`: unit -> ballot_dynamic_records (anybody)
 
 ## `elections/$UUID/archive.zip`
 
