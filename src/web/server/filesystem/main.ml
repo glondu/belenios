@@ -96,11 +96,17 @@ module MakeBackend
 
   (** {1 Abstract election-specific file operations} *)
 
-  type ('key, 'a) abstract_file_ops = {
-    mutable get : uuid -> 'key -> 'a lopt Lwt.t;
-    mutable set : uuid -> 'key -> 'a lopt -> unit Lwt.t;
-    mutable del : uuid -> 'key -> unit Lwt.t;
-  }
+  module type ABSTRACT_FILE_OPS = sig
+    type key
+    type value
+
+    val get : uuid -> key -> value lopt Lwt.t
+    val set : uuid -> key -> value lopt -> unit Lwt.t
+    val del : uuid -> key -> unit Lwt.t
+  end
+
+  type ('key, 'a) abstract_file_ops =
+    (module ABSTRACT_FILE_OPS with type key = 'key and type value = 'a) ref
 
   type abstract_credential_props = {
     mutable get_credential_props :
@@ -108,13 +114,19 @@ module MakeBackend
       uuid -> ('a, 'b) spec -> hash -> 'a public_credential_with_id lopt Lwt.t;
   }
 
-  let make_uninitialized_ops what =
+  let make_uninitialized_ops (type key value) what =
     let e x = Lwt.fail @@ Not_implemented (Printf.sprintf "%s.%s" what x) in
-    {
-      get = (fun _ _ -> e "get");
-      set = (fun _ _ _ -> e "set");
-      del = (fun _ _ -> e "del");
-    }
+    let module X = struct
+      type nonrec key = key
+      type nonrec value = value
+
+      let get _ _ = e "get"
+      let set _ _ _ = e "set"
+      let del _ _ = e "del"
+    end in
+    (ref
+       (module X : ABSTRACT_FILE_OPS with type key = key and type value = value)
+      : (_, _) abstract_file_ops)
 
   (** {1 Forward references} *)
 
@@ -423,7 +435,9 @@ module MakeBackend
         let* x = Filesystem.read_file path in
         let&** x = x in
         x |> some_string_or_value f String |> Lwt.return
-    | Abstract (ops, uuid, key) -> ops.get uuid key
+    | Abstract (ops, uuid, key) ->
+        let module X = (val !ops) in
+        X.get uuid key
     | Abstract_credential_props (uuid, w, key) ->
         get_credential_props.get_credential_props uuid w key
     | Admin_password (file, key) -> get_password_record_admin file key
@@ -439,7 +453,9 @@ module MakeBackend
             let* () = Filesystem.write_file fname data in
             let () = clear_caches f in
             Lwt.return_unit)
-    | Abstract (ops, uuid, key) -> ops.set uuid key data
+    | Abstract (ops, uuid, key) ->
+        let module X = (val !ops) in
+        X.set uuid key data
     | Abstract_credential_props _ -> failwith "abstract_ops.set"
     | Admin_password (file, key) -> set_password_record_admin file key data
 
@@ -450,7 +466,9 @@ module MakeBackend
         let module G = (val w) in
         Lwt.return_some (module G : GROUP)
     | None -> (
-        let* x = roots_ops.get uuid () in
+        let module Roots_ops = (val !roots_ops) in
+        let module Data_ops = (val !data_ops) in
+        let* x = Roots_ops.get uuid () in
         match Lopt.get_value x with
         | None -> Lwt.return_none
         | Some roots -> (
@@ -458,12 +476,12 @@ module MakeBackend
             match x with
             | None -> Lwt.return_none
             | Some setup_data -> (
-                let* x = data_ops.get uuid setup_data in
+                let* x = Data_ops.get uuid setup_data in
                 match Lopt.get_value x with
                 | None -> Lwt.return_none
                 | Some setup_data -> (
                     let setup_data = !*setup_data_of_yojson setup_data in
-                    let* x = data_ops.get uuid setup_data.election in
+                    let* x = Data_ops.get uuid setup_data.election in
                     match Lopt.get_value x with
                     | None -> Lwt.return_none
                     | Some election ->
@@ -514,7 +532,9 @@ module MakeBackend
   let del (type t) (f : t file) =
     match get_props f with
     | Concrete f -> Filesystem.cleanup_file f
-    | Abstract (ops, uuid, key) -> ops.del uuid key
+    | Abstract (ops, uuid, key) ->
+        let module X = (val !ops) in
+        X.del uuid key
     | Abstract_credential_props _ -> Lwt.fail @@ Not_implemented "del"
     | Admin_password _ -> Lwt.fail @@ Not_implemented "del"
 
@@ -704,31 +724,47 @@ module MakeBackend
         Lwt.return_some x)
       (fun _ -> Lwt.return_none)
 
-  let get_voters_config uuid () =
-    let* x = get_voters uuid in
-    let&** { has_explicit_weights; username_or_address; voter_map } = x in
-    let nb_voters = SMap.cardinal voter_map in
-    let bits =
-      let rec loop bits =
-        if nb_voters asr bits > voters_bits_threshold then loop (bits + 1)
-        else bits
-      in
-      loop 0
-    in
-    let x : voters_config =
-      { has_explicit_weights; username_or_address; nb_voters; bits }
-    in
-    x |> Lopt.some_value !+yojson_of_voters_config |> Lwt.return
+  module Voters_config_ops = struct
+    type key = unit
+    type value = voters_config
 
-  let get_voter uuid id =
-    let* x = get_voters uuid in
-    let&** { voter_map; _ } = x in
-    let&** x = SMap.find_opt (String.lowercase_ascii id) voter_map in
-    x |> Lopt.some_value !+yojson_of_voter |> Lwt.return
+    let get uuid () =
+      let* x = get_voters uuid in
+      let&** { has_explicit_weights; username_or_address; voter_map } = x in
+      let nb_voters = SMap.cardinal voter_map in
+      let bits =
+        let rec loop bits =
+          if nb_voters asr bits > voters_bits_threshold then loop (bits + 1)
+          else bits
+        in
+        loop 0
+      in
+      let x : voters_config =
+        { has_explicit_weights; username_or_address; nb_voters; bits }
+      in
+      x |> Lopt.some_value !+yojson_of_voters_config |> Lwt.return
+
+    let set _ _ _ = assert false
+    let del _ _ = assert false
+  end
+
+  module Voter_ops = struct
+    type key = string
+    type value = voter
+
+    let get uuid id =
+      let* x = get_voters uuid in
+      let&** { voter_map; _ } = x in
+      let&** x = SMap.find_opt (String.lowercase_ascii id) voter_map in
+      x |> Lopt.some_value !+yojson_of_voter |> Lwt.return
+
+    let set _ _ _ = assert false
+    let del _ _ = assert false
+  end
 
   let () =
-    voters_config_ops.get <- get_voters_config;
-    voters_ops.get <- get_voter
+    voters_config_ops := (module Voters_config_ops);
+    voters_ops := (module Voter_ops)
 
   let binary_of_hex h =
     let buf = Buffer.create (String.length h * 4) in
@@ -768,7 +804,7 @@ module MakeBackend
     String.sub (binary_of_hex x) 0 bits
 
   let get_bits uuid =
-    let* x = get_voters_config uuid () in
+    let* x = Voters_config_ops.get uuid () in
     match Lopt.get_value x with
     | None -> assert false
     | Some x -> Lwt.return x.bits
@@ -776,156 +812,173 @@ module MakeBackend
   let check_prefix bits p =
     String.length p = bits && String.for_all (fun c -> c = '0' || c = '1') p
 
-  let get_dynamic_record file of_yojson yojson_of uuid h =
-    let* bits = get_bits uuid in
-    match (bits, h) with
-    | 0, _ -> (
-        let path = spool_elections uuid (file None) in
-        let* x = Filesystem.read_file path in
-        match x with
-        | None -> HMap.empty |> Lopt.some_value !+yojson_of |> Lwt.return
-        | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return)
-    | bits, All ->
-        let* files =
-          seq_of_bits bits |> List.of_seq
-          |> Lwt_list.filter_map_p (fun p ->
-              let path = spool_elections uuid (file (Some p)) in
-              let* x = Filesystem.read_file path in
-              let&* x = x in
-              match !*of_yojson x with
-              | exception _ -> Lwt.return_none
-              | x -> Lwt.return_some x)
-        in
-        files
-        |> List.fold_left (fun accu x -> HMap.fold HMap.add x accu) HMap.empty
-        |> Lopt.some_value !+yojson_of
-        |> Lwt.return
-    | bits, Hash h -> (
-        let path = spool_elections uuid (file (Some (get_prefix bits h))) in
-        let* x = Filesystem.read_file path in
-        match x with
-        | None -> HMap.empty |> Lopt.some_value !+yojson_of |> Lwt.return
-        | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return)
-    | _, Prefix p ->
-        if check_prefix bits p then
-          let path = spool_elections uuid (file (Some p)) in
+  module type DYNAMIC_INPUT = sig
+    type t
+
+    val file : string option -> string
+    val of_yojson : json -> t hmap
+    val yojson_of : t hmap -> json
+  end
+
+  module Make_dynamic_records_ops (I : DYNAMIC_INPUT) = struct
+    open I
+
+    type key = dynamic_records_index
+    type value = t hmap
+
+    let get uuid h =
+      let* bits = get_bits uuid in
+      match (bits, h) with
+      | 0, _ -> (
+          let path = spool_elections uuid (file None) in
           let* x = Filesystem.read_file path in
           match x with
           | None -> HMap.empty |> Lopt.some_value !+yojson_of |> Lwt.return
-          | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return
-        else Lopt.none_lwt
-
-  let set_dynamic_record file yojson_of uuid h data =
-    let* bits = get_bits uuid in
-    match (bits, h) with
-    | 0, _ -> (
-        let path = spool_elections uuid (file None) in
-        match Lopt.get_string data with
-        | None -> assert false
-        | Some data -> Filesystem.write_file path data)
-    | bits, All -> (
-        match Lopt.get_value data with
-        | None -> assert false
-        | Some data ->
-            HMap.fold
-              (fun h x accu ->
-                let p = get_prefix bits h in
-                let current =
-                  SMap.find_opt p accu |> Option.value ~default:HMap.empty
-                in
-                SMap.add p (HMap.add h x current) accu)
-              data SMap.empty
-            |> SMap.bindings
-            |> Lwt_list.iter_p (fun (p, x) ->
+          | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return)
+      | bits, All ->
+          let* files =
+            seq_of_bits bits |> List.of_seq
+            |> Lwt_list.filter_map_p (fun p ->
                 let path = spool_elections uuid (file (Some p)) in
-                Filesystem.write_file path (!+yojson_of x)))
-    | bits, Hash h -> (
-        let path = spool_elections uuid (file (Some (get_prefix bits h))) in
-        match Lopt.get_string data with
-        | None -> assert false
-        | Some data -> Filesystem.write_file path data)
-    | _, Prefix p -> (
-        assert (check_prefix bits p);
-        let path = spool_elections uuid (file (Some p)) in
-        match Lopt.get_string data with
-        | None -> assert false
-        | Some data -> Filesystem.write_file path data)
-
-  let del_dynamic_record file of_yojson yojson_of uuid h =
-    let* bits = get_bits uuid in
-    match (bits, h) with
-    | _, Hash h' -> (
-        let* x = get_dynamic_record file of_yojson yojson_of uuid h in
-        match Lopt.get_value x with
-        | None -> Lwt.return_unit
-        | Some x ->
-            let x = HMap.remove h' x in
-            if HMap.is_empty x then
-              let p = if bits = 0 then None else Some (get_prefix bits h') in
-              let path = spool_elections uuid (file p) in
-              Filesystem.cleanup_file path
-            else
-              let x = Lopt.some_value !+yojson_of x in
-              set_dynamic_record file yojson_of uuid (Hash h') x)
-    | 0, _ ->
-        let path = spool_elections uuid (file None) in
-        Filesystem.cleanup_file path
-    | bits, All ->
-        seq_of_bits bits |> List.of_seq
-        |> Lwt_list.iter_p (fun p ->
+                let* x = Filesystem.read_file path in
+                let&* x = x in
+                match !*of_yojson x with
+                | exception _ -> Lwt.return_none
+                | x -> Lwt.return_some x)
+          in
+          files
+          |> List.fold_left (fun accu x -> HMap.fold HMap.add x accu) HMap.empty
+          |> Lopt.some_value !+yojson_of
+          |> Lwt.return
+      | bits, Hash h -> (
+          let path = spool_elections uuid (file (Some (get_prefix bits h))) in
+          let* x = Filesystem.read_file path in
+          match x with
+          | None -> HMap.empty |> Lopt.some_value !+yojson_of |> Lwt.return
+          | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return)
+      | _, Prefix p ->
+          if check_prefix bits p then
             let path = spool_elections uuid (file (Some p)) in
-            Filesystem.cleanup_file path)
-    | _, Prefix _ -> assert false
+            let* x = Filesystem.read_file path in
+            match x with
+            | None -> HMap.empty |> Lopt.some_value !+yojson_of |> Lwt.return
+            | Some x -> x |> Lopt.some_string !*of_yojson |> Lwt.return
+          else Lopt.none_lwt
 
-  let () =
+    let set uuid h data =
+      let* bits = get_bits uuid in
+      match (bits, h) with
+      | 0, _ -> (
+          let path = spool_elections uuid (file None) in
+          match Lopt.get_string data with
+          | None -> assert false
+          | Some data -> Filesystem.write_file path data)
+      | bits, All -> (
+          match Lopt.get_value data with
+          | None -> assert false
+          | Some data ->
+              HMap.fold
+                (fun h x accu ->
+                  let p = get_prefix bits h in
+                  let current =
+                    SMap.find_opt p accu |> Option.value ~default:HMap.empty
+                  in
+                  SMap.add p (HMap.add h x current) accu)
+                data SMap.empty
+              |> SMap.bindings
+              |> Lwt_list.iter_p (fun (p, x) ->
+                  let path = spool_elections uuid (file (Some p)) in
+                  Filesystem.write_file path (!+yojson_of x)))
+      | bits, Hash h -> (
+          let path = spool_elections uuid (file (Some (get_prefix bits h))) in
+          match Lopt.get_string data with
+          | None -> assert false
+          | Some data -> Filesystem.write_file path data)
+      | _, Prefix p -> (
+          assert (check_prefix bits p);
+          let path = spool_elections uuid (file (Some p)) in
+          match Lopt.get_string data with
+          | None -> assert false
+          | Some data -> Filesystem.write_file path data)
+
+    let del uuid h =
+      let* bits = get_bits uuid in
+      match (bits, h) with
+      | _, Hash h' -> (
+          let* x = get uuid h in
+          match Lopt.get_value x with
+          | None -> Lwt.return_unit
+          | Some x ->
+              let x = HMap.remove h' x in
+              if HMap.is_empty x then
+                let p = if bits = 0 then None else Some (get_prefix bits h') in
+                let path = spool_elections uuid (file p) in
+                Filesystem.cleanup_file path
+              else
+                let x = Lopt.some_value !+yojson_of x in
+                set uuid (Hash h') x)
+      | 0, _ ->
+          let path = spool_elections uuid (file None) in
+          Filesystem.cleanup_file path
+      | bits, All ->
+          seq_of_bits bits |> List.of_seq
+          |> Lwt_list.iter_p (fun p ->
+              let path = spool_elections uuid (file (Some p)) in
+              Filesystem.cleanup_file path)
+      | _, Prefix _ -> assert false
+  end
+
+  module Credential_dynamic_records_ops = Make_dynamic_records_ops (struct
+    type t = credential_dynamic_record option
+
+    let of_yojson = credential_dynamic_records_of_yojson
+    let yojson_of = yojson_of_credential_dynamic_records
+
     let file = function
       | None -> "credential_dynamic_records.json"
       | Some p -> Printf.sprintf "credential_dynamic_records-%s.json" p
-    in
-    credential_dynamic_records_ops.get <-
-      get_dynamic_record file credential_dynamic_records_of_yojson
-        yojson_of_credential_dynamic_records;
-    credential_dynamic_records_ops.set <-
-      set_dynamic_record file yojson_of_credential_dynamic_records;
-    credential_dynamic_records_ops.del <-
-      del_dynamic_record file credential_dynamic_records_of_yojson
-        yojson_of_credential_dynamic_records
+  end)
 
   let () =
+    credential_dynamic_records_ops := (module Credential_dynamic_records_ops)
+
+  module Election_dynamic_records_input = struct
+    type t = Belenios_web_api.election_record option
+
+    let of_yojson = election_dynamic_records_of_yojson
+    let yojson_of = yojson_of_election_dynamic_records
+
     let file = function
       | None -> "election_dynamic_records.json"
       | Some p -> Printf.sprintf "election_dynamic_records-%s.json" p
-    in
-    election_dynamic_records_ops.get <-
-      get_dynamic_record file election_dynamic_records_of_yojson
-        yojson_of_election_dynamic_records;
-    election_dynamic_records_ops.set <-
-      set_dynamic_record file yojson_of_election_dynamic_records;
-    election_dynamic_records_ops.del <-
-      del_dynamic_record file credential_dynamic_records_of_yojson
-        yojson_of_credential_dynamic_records;
+  end
+
+  module Election_dynamic_records_ops =
+    Make_dynamic_records_ops (Election_dynamic_records_input)
+
+  let () =
+    election_dynamic_records_ops := (module Election_dynamic_records_ops);
     get_election_dynamic_records_files :=
       fun uuid ->
         let* bits = get_bits uuid in
-        if bits = 0 then Lwt.return [ file None ]
+        if bits = 0 then Lwt.return [ Election_dynamic_records_input.file None ]
         else
           seq_of_bits bits |> List.of_seq
-          |> List.map (fun p -> file (Some p))
+          |> List.map (fun p -> Election_dynamic_records_input.file (Some p))
           |> Lwt.return
 
-  let () =
+  module Ballot_dynamic_records_ops = Make_dynamic_records_ops (struct
+    type t = ballot_dynamic_record
+
+    let of_yojson = ballot_dynamic_records_of_yojson
+    let yojson_of = yojson_of_ballot_dynamic_records
+
     let file = function
       | None -> "ballot_dynamic_records.json"
       | Some p -> Printf.sprintf "ballot_dynamic_records-%s.json" p
-    in
-    ballot_dynamic_records_ops.get <-
-      get_dynamic_record file ballot_dynamic_records_of_yojson
-        yojson_of_ballot_dynamic_records;
-    ballot_dynamic_records_ops.set <-
-      set_dynamic_record file yojson_of_ballot_dynamic_records;
-    ballot_dynamic_records_ops.del <-
-      del_dynamic_record file credential_dynamic_records_of_yojson
-        yojson_of_credential_dynamic_records
+  end)
+
+  let () = ballot_dynamic_records_ops := (module Ballot_dynamic_records_ops)
 
   module CredCacheTypes = struct
     type key = uuid
@@ -1223,34 +1276,60 @@ module MakeBackend
         Bytes.to_string buffer |> Lopt.some_value Fun.id |> Lwt.return)
       (fun () -> close fd)
 
-  let get_data uuid x =
-    Lwt.try_bind
-      (fun () -> get_index ~creat:false uuid)
-      (fun r ->
-        let&** r = r in
-        let filename = spool_elections uuid archive_filename in
-        gethash ~index:r.map ~filename x)
-      (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
+  module Data_ops = struct
+    type key = hash
+    type value = string
 
-  let () = data_ops.get <- get_data
+    let get uuid x =
+      Lwt.try_bind
+        (fun () -> get_index ~creat:false uuid)
+        (fun r ->
+          let&** r = r in
+          let filename = spool_elections uuid archive_filename in
+          gethash ~index:r.map ~filename x)
+        (function
+          | Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
 
-  let get_archive_header uuid () =
-    let filename = spool_elections uuid archive_filename in
-    let@ ic = Lwt_io.with_file ~mode:Lwt_io.input filename in
-    let* header = Reader.read_header ic in
-    Lwt.return @@ Lopt.some_value !+Archive.yojson_of_header header
+    let set _ _ _ = assert false
+    let del _ _ = assert false
+  end
 
-  let () = archive_header_ops.get <- get_archive_header
+  let () = data_ops := (module Data_ops)
 
-  let get_roots uuid () =
-    Lwt.try_bind
-      (fun () -> get_index ~creat:false uuid)
-      (fun r ->
-        let&** r = r in
-        r.roots |> Lopt.some_value !+yojson_of_roots |> Lwt.return)
-      (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
+  module Archive_header_ops = struct
+    type key = unit
+    type value = Archive.header
 
-  let () = roots_ops.get <- get_roots
+    let get uuid () =
+      let filename = spool_elections uuid archive_filename in
+      let@ ic = Lwt_io.with_file ~mode:Lwt_io.input filename in
+      let* header = Reader.read_header ic in
+      Lwt.return @@ Lopt.some_value !+Archive.yojson_of_header header
+
+    let set _ _ _ = assert false
+    let del _ _ = assert false
+  end
+
+  let () = archive_header_ops := (module Archive_header_ops)
+
+  module Roots_ops = struct
+    type key = unit
+    type value = roots
+
+    let get uuid () =
+      Lwt.try_bind
+        (fun () -> get_index ~creat:false uuid)
+        (fun r ->
+          let&** r = r in
+          r.roots |> Lopt.some_value !+yojson_of_roots |> Lwt.return)
+        (function
+          | Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
+
+    let set _ _ _ = assert false
+    let del _ _ = assert false
+  end
+
+  let () = roots_ops := (module Roots_ops)
 
   let append uuid ?last ops =
     let@ last cont =
