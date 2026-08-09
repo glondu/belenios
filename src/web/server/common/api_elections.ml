@@ -386,15 +386,16 @@ let get_records s =
       let records =
         match (Lopt.get_value voters, Lopt.get_value dynamic) with
         | Some voters, Some dynamic ->
-            HMap.fold
-              (fun h (v : voter) accu ->
-                let r =
-                  match HMap.find_opt h dynamic with
-                  | Some (Some r) -> Some r
-                  | _ -> None
-                in
-                SMap.add v.login r accu)
-              voters SMap.empty
+            voters |> SMap.to_seq
+            |> Seq.fold_left
+                 (fun accu (l, (v : voter)) ->
+                   let r =
+                     match HMap.find_opt (Hash.hash_string l) dynamic with
+                     | Some (Some r) -> Some r
+                     | _ -> None
+                   in
+                   SMap.add v.login r accu)
+                 SMap.empty
         | _ -> assert false
       in
       let* () = set Value records in

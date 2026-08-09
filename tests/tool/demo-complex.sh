@@ -32,7 +32,7 @@ uuid="--uuid $UUID"
 group="--group Ed25519"
 
 # Generate voters
-VOTERS="{"
+VOTERS="["
 FIRST=y
 for i in $(seq 1 $N); do
     if [ $FIRST = y ]; then
@@ -41,10 +41,9 @@ for i in $(seq 1 $N); do
         VOTERS="$VOTERS,"
     fi
     login="$(printf "voter%05d" $i)"
-    hash="$(echo -n "$login" | sha256sum | awk '{print $1}')"
-    VOTERS="$VOTERS$(printf '"%s":{"login":"%s","address":"%s@example.com"}' $hash $login $login)"
+    VOTERS="$VOTERS$(printf '{"login":"%s","address":"%s@example.com"}' $login $login)"
 done
-VOTERS="$VOTERS}"
+VOTERS="$VOTERS]"
 echo "$VOTERS" > voters.json
 
 # Generate credentials

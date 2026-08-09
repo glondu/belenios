@@ -41,7 +41,7 @@ type 'a public_credential_with_id = ('a, string) public_credential_props
 type 'a public_credentials_with_id = 'a public_credential_with_id hmap
 [@@deriving yojson]
 
-type private_credentials = string hmap [@@deriving yojson]
+type private_credentials = string smap [@@deriving yojson]
 type lang_dir = [ `Ltr | `Rtl ] [@@deriving yojson]
 
 type credential_authority = [ `Server | `External of string ]

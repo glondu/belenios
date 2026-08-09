@@ -171,7 +171,6 @@ end
 module type PARAMS_MASTER = sig
   val prefix : string
   val uuid : uuid
-  val voters : string
   val credentials : string
   val requests : int
   val concurrency : int
@@ -194,20 +193,15 @@ module MakeMaster (P : PARAMS_MASTER) = struct
     | code ->
         Printf.ksprintf failwith "unexpected status %d in get_raw_election" code
 
-  let submit_ballots_sequential ~voters:voters_hmap ~credentials ~vote =
-    let voters = credentials |> HMap.bindings |> Array.of_list in
+  let submit_ballots_sequential ~credentials ~vote =
+    let voters = credentials |> SMap.bindings |> Array.of_list in
     let nb_voters = Array.length voters in
     let remaining = ref nb_voters in
     let requests = min requests nb_voters in
     let rec loop success time n =
       if n > 0 then (
         let i = Stdlib.Random.int !remaining in
-        let username_h, credential = voters.(i) in
-        let username =
-          match HMap.find_opt username_h voters_hmap with
-          | Some (v : voter) -> v.login
-          | None -> assert false
-        in
+        let username, credential = voters.(i) in
         decr remaining;
         voters.(i) <- voters.(!remaining);
         let* success', delta = vote ~username ~credential in
@@ -216,8 +210,8 @@ module MakeMaster (P : PARAMS_MASTER) = struct
     in
     loop true 0. requests
 
-  let submit_ballots_parallel ~raw_election ~voters:voters_hmap ~credentials =
-    let voters = credentials |> HMap.bindings |> Array.of_list in
+  let submit_ballots_parallel ~raw_election ~credentials =
+    let voters = credentials |> SMap.bindings |> Array.of_list in
     let nb_voters = Array.length voters in
     let remaining = ref nb_voters in
     let requests = min requests nb_voters in
@@ -225,12 +219,7 @@ module MakeMaster (P : PARAMS_MASTER) = struct
     let rec loop n t =
       if n > 0 then (
         let i = Stdlib.Random.int !remaining in
-        let username_h, credential = voters.(i) in
-        let username =
-          match HMap.find_opt username_h voters_hmap with
-          | Some (v : voter) -> v.login
-          | None -> assert false
-        in
+        let username, credential = voters.(i) in
         decr remaining;
         voters.(i) <- voters.(!remaining);
         jobs.(t) <- (username, credential) :: jobs.(t);
@@ -287,11 +276,6 @@ module MakeMaster (P : PARAMS_MASTER) = struct
         end)
         ()
     in
-    let* voters =
-      let open Lwt_io in
-      let* x = chars_of_file voters |> Lwt_stream.to_string in
-      x |> !*voters_of_yojson |> Lwt.return
-    in
     let* credentials =
       let open Lwt_io in
       let* x = chars_of_file credentials |> Lwt_stream.to_string in
@@ -300,8 +284,8 @@ module MakeMaster (P : PARAMS_MASTER) = struct
     let* success, time =
       if concurrency < 1 then failwith "concurrency must be >= 1"
       else if concurrency = 1 then
-        submit_ballots_sequential ~voters ~credentials ~vote:X.vote
-      else submit_ballots_parallel ~raw_election ~voters ~credentials
+        submit_ballots_sequential ~credentials ~vote:X.vote
+      else submit_ballots_parallel ~raw_election ~credentials
     in
     Printf.eprintf "%d requests processed in %f seconds\n%!" requests time;
     if success then Lwt.return_unit else failwith "voting phase failed"
@@ -312,10 +296,6 @@ open Cmdliner
 let uuid_t =
   let doc = "Use election $(docv)." in
   Arg.(value & opt (some string) None & info [ "uuid" ] ~docv:"UUID" ~doc)
-
-let voters_t =
-  let doc = "Load voters from file $(docv)." in
-  Arg.(value & opt (some file) None & info [ "voters" ] ~docv:"VOTERS" ~doc)
 
 let credentials_t =
   let doc = "Load credentials from file $(docv)." in
@@ -336,7 +316,7 @@ let slave_t =
   let doc = "Run in slave mode." in
   Arg.(value & flag & info [ "slave" ] ~doc)
 
-let main slave url uuid voters credentials requests concurrency =
+let main slave url uuid credentials requests concurrency =
   let@ () = wrap_main in
   if slave then
     let module X = MakeSlave () in
@@ -345,7 +325,6 @@ let main slave url uuid voters credentials requests concurrency =
     let module X = MakeMaster (struct
       let prefix = get_mandatory "url" url
       let uuid = get_mandatory "uuid" uuid |> Uuid.of_string
-      let voters = get_mandatory "voters" voters
       let credentials = get_mandatory "credentials" credentials
       let requests = requests
       let concurrency = concurrency
@@ -359,5 +338,5 @@ let cmd =
     (Cmd.info "vote" ~doc ~man)
     Term.(
       ret
-        (const main $ slave_t $ url_t $ uuid_t $ voters_t $ credentials_t
-       $ requests_t $ concurrency_t))
+        (const main $ slave_t $ url_t $ uuid_t $ credentials_t $ requests_t
+       $ concurrency_t))

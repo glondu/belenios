@@ -25,8 +25,8 @@ open Belenios_storage_api
 open Belenios_web_api
 open Api_generic
 
-let process_request_new (r : credentials_new_request) (Draft (_, draft))
-    voter_list () =
+let process_request_new (r : credentials_new_request) (Draft (_, draft)) voters
+    () =
   let algorithm = default_algorithm in
   let seed = generate_token 44 in
   let { version; group; _ } : raw_draft = draft in
@@ -47,23 +47,23 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
         let pause = Lwt.pause
         let uuid = r.uuid
       end) in
-  let* creds = Cred.generate voter_list in
+  let* creds = Cred.generate voters in
   let* records =
-    creds.private_creds |> HMap.to_seq |> Lwt_seq.of_seq
-    |> Lwt_seq.map_s (fun (voter_h, x) ->
+    creds.private_creds |> SMap.to_seq |> Lwt_seq.of_seq
+    |> Lwt_seq.map_s (fun (voter, x) ->
         let* credential =
           P.encrypt ~algorithm xch_encrypted_credential encryption_key x
         in
         let login, weight, address =
-          match HMap.find_opt voter_h voter_list with
+          match SMap.find_opt voter voters with
           | None -> assert false
           | Some (v : voter) -> (v.login, v.weight, v.address)
         in
         let x : _ credentials_record = { login; credential; weight; address } in
-        Lwt.return (voter_h, x))
+        Lwt.return (voter, x))
     |> Lwt_seq.to_list
   in
-  let records = HMap.of_list records in
+  let records = SMap.of_list records in
   let public_creds_hash =
     creds.public_creds
     |> yojson_of_public_credentials !&G.to_string
@@ -72,7 +72,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let raw_certificate : (_, _) raw_credentials_certificate =
     {
       uuid = r.uuid;
-      voter_list_length = HMap.cardinal voter_list;
+      voter_list_length = SMap.cardinal voters;
       public_creds_hash;
       verification_key;
       encryption_key;
@@ -196,7 +196,7 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
     let module P = Pki.Make (G) in
     let decryption_key = P.derive_dk seed in
     let { algorithm; records } = credentials_records in
-    records |> HMap.to_seq |> Lwt_seq.of_seq
+    records |> SMap.to_seq |> Lwt_seq.of_seq
     |> Lwt_seq.fold_left_s
          (fun accu (v, c) ->
            let encrypted_msg = c.credential in
@@ -254,12 +254,10 @@ let process_resend_request (r : credentials_resend) (type a b)
     match r.spec with
     | `All_voters ->
         `Some_voters
-          (HMap.fold (fun x _ accu -> HSet.add x accu) records HSet.empty)
+          (SMap.fold (fun x _ accu -> SSet.add x accu) records SSet.empty)
     | `Some_voters xs ->
         `Some_voters
-          (List.fold_left
-             (fun accu x -> HSet.add (Hash.hash_string x) accu)
-             HSet.empty xs)
+          (List.fold_left (fun accu x -> SSet.add x accu) SSet.empty xs)
     | `Missing_voters -> `Missing_voters
   in
   let* credentials_records =
@@ -271,9 +269,9 @@ let process_resend_request (r : credentials_resend) (type a b)
         let module G = (val w) in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk r.seed in
-        records |> HMap.to_seq |> Lwt_seq.of_seq
+        records |> SMap.to_seq |> Lwt_seq.of_seq
         |> Lwt_seq.filter_map_s (fun (v, c) ->
-            if HSet.mem v voters then
+            if SSet.mem v voters then
               let encrypted_msg = c.credential in
               let* x =
                 P.decrypt ~algorithm xch_encrypted_credential decryption_key
@@ -395,12 +393,12 @@ let process_request : credentials_request -> _ = function
         match Lopt.get_value x with Some x -> cont x | None -> not_found
       in
       let { algorithm; records } = credentials_records in
-      let n = HMap.cardinal records in
+      let n = SMap.cardinal records in
       let* credentials_records =
         let module G = (val w) in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk seed in
-        records |> HMap.to_seq |> Lwt_seq.of_seq
+        records |> SMap.to_seq |> Lwt_seq.of_seq
         |> Lwt_seq.filter_map_s (fun (v, (c : _ credentials_record)) ->
             let encrypted_msg = c.credential in
             let* x =

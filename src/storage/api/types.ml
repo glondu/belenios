@@ -268,7 +268,7 @@ type ('a, 'b) credentials_records_item =
 [@@deriving yojson]
 
 type ('a, 'b) credentials_records_object =
-  ('a, 'b) credentials_records_item hmap
+  ('a, 'b) credentials_records_item smap
 [@@deriving yojson]
 
 type ('a, 'b) credentials_records = {

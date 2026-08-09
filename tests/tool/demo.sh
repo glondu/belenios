@@ -30,7 +30,7 @@ uuid="--uuid $UUID"
 group="--group Ed25519"
 
 # Generate voters
-VOTERS="{"
+VOTERS="["
 FIRST=y
 while read login weight; do
     if [ $FIRST = y ]; then
@@ -38,8 +38,7 @@ while read login weight; do
     else
         VOTERS="$VOTERS,"
     fi
-    hash="$(echo -n "$login" | sha256sum | awk '{print $1}')"
-    VOTERS="$VOTERS$(printf '"%s":{"login":"%s","address":"%s@example.com","weight":%s}' $hash $login $login $weight)"
+    VOTERS="$VOTERS$(printf '{"login":"%s","address":"%s@example.com","weight":%s}' $login $login $weight)"
 done <<EOF
 voter1 1000000000
 voter2 2000000000
@@ -47,7 +46,7 @@ voter3 3000000000
 voter4 4000000000
 voter5 90000000000
 EOF
-VOTERS="$VOTERS}"
+VOTERS="$VOTERS]"
 echo "$VOTERS" > voters.json
 
 # Generate credentials
@@ -92,7 +91,7 @@ voter5 [[0,0],[0,1,0]]
 EOF
 
 cat votes.txt | while read login vote; do
-    cred="$(jq --raw-output .[\""$(echo -n "$login" | sha256sum | awk '{print $1}')"\"] private_creds.json)"
+    cred="$(jq --raw-output .[\""$login"\"] private_creds.json)"
     BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --choice <(echo "$vote"))"
     belenios-tool election verify-ballot --ballot <(echo "$BALLOT")
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
@@ -114,7 +113,7 @@ header "Simulate revotes and verify diff"
 tdir="$(mktemp -d)"
 cp $UUID.bel "$tdir"
 head -n 3 votes.txt | while read login vote; do
-    cred="$(jq --raw-output .[\""$(echo -n "$login" | sha256sum | awk '{print $1}')"\"] private_creds.json)"
+    cred="$(jq --raw-output .[\""$login"\"] private_creds.json)"
     BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --choice <(echo "$vote"))"
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
     echo "$BALLOT" | belenios-tool archive add-event --type=Ballot

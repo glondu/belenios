@@ -168,7 +168,7 @@ let tabs x =
           if curr_tab = x then Lwt.return `Doing
           else
             let* voter_list = Cache.get_until_success Cache.voters in
-            Lwt.return (if HMap.is_empty voter_list then `Todo else `Done)
+            Lwt.return (if SMap.is_empty voter_list then `Todo else `Done)
         else Lwt.return `DDone
       in
       {
@@ -676,7 +676,7 @@ let title_content () =
 let erase_voter_elt v () =
   let onclick () =
     let* voters = Cache.get_until_success Cache.voters in
-    let voters = HMap.filter (fun _ x -> x <> v) voters in
+    let voters = SMap.remove v voters in
     let () = Cache.set Cache.voters voters in
     !update_election_main ()
   in
@@ -700,17 +700,11 @@ let parse_voter_csv x : voter =
   | _ -> raise @@ Invalid_identity x
 
 let parse_voters voters =
-  if voters = "" then HMap.empty
+  if voters = "" then []
   else
     match voters.[0] with
-    | '{' -> !*voters_of_yojson voters
-    | _ ->
-        voters |> split_lines
-        |> List.fold_left
-             (fun accu line ->
-               let v = parse_voter_csv line in
-               HMap.add Hash.(hash_string v.login) v accu)
-             HMap.empty
+    | '[' -> !*voter_list_of_yojson voters
+    | _ -> voters |> split_lines |> List.map parse_voter_csv
 
 let try_voters voters =
   let open (val !Belenios_js.I18n.gettext) in
@@ -726,19 +720,17 @@ let try_voters voters =
       let msg = s_ "There is an unexpected syntax error in the voter list!" in
       alert msg;
       Lwt.return_unit
-  | x when HMap.is_empty x -> Lwt.return_unit
+  | [] -> Lwt.return_unit
   | newvoters -> (
       let* voters = Cache.get_until_success Cache.voters in
       let newvoters =
-        HMap.merge
-          (fun _ (a : voter option) (b : voter option) ->
-            match (a, b) with
-            | None, None -> None
-            | Some a, None -> Some a
-            | None, Some b -> Some b
-            | Some a, Some b ->
-                Printf.ksprintf failwith "%s and %s have same hash" a.login
-                  b.login)
+        List.fold_left
+          (fun accu (v : voter) ->
+            match SMap.find_opt v.login accu with
+            | None -> SMap.add v.login v accu
+            | Some _ ->
+                let msg = Printf.sprintf "duplicate %s" v.login in
+                failwith msg)
           voters newvoters
       in
       let () = Cache.set Cache.voters newvoters in
@@ -790,13 +782,14 @@ let voters_content () =
   let with_address, with_weight =
     let exception Exit in
     try
-      HMap.fold
-        (fun _ (v : voter) (with_address, with_weight) ->
-          let with_address = with_address || v.address <> Some v.login in
-          let with_weight = with_weight || v.weight <> None in
-          if with_address && with_weight then raise Exit
-          else (with_address, with_weight))
-        voters (false, false)
+      voters |> SMap.to_seq
+      |> Seq.fold_left
+           (fun (with_address, with_weight) (_, (v : voter)) ->
+             let with_address = with_address || v.address <> Some v.login in
+             let with_weight = with_weight || v.weight <> None in
+             if with_address && with_weight then raise Exit
+             else (with_address, with_weight))
+           (false, false)
     with Exit -> (true, true)
   in
   let header_row =
@@ -814,34 +807,36 @@ let voters_content () =
     if is_draft && not is_frozen then [ erase_voter_elt v () ] else []
   in
   let nbvoters =
-    Printf.ksprintf txt (f_ "%d registered voter(s)") (HMap.cardinal voters)
+    Printf.ksprintf txt (f_ "%d registered voter(s)") (SMap.cardinal voters)
   in
   let make_rows_of_voters show_only_missing =
     let rows_of_voters =
-      HMap.fold
-        (fun _ (v : voter) accu ->
-          let login = v.login in
-          let weight = Voter.get_weight v in
-          let address = Option.value ~default:"" v.address in
-          let voted =
-            match SMap.find_opt login records with
-            | Some (Some _) -> true
-            | _ -> false
-          in
-          if show_only_missing && voted then accu
-          else
-            List.flatten
-              [
-                [ td [ txt login ] ];
-                (if with_address then [ td [ txt address ] ] else []);
-                (if with_weight then [ td [ txt @@ Weight.to_string weight ] ]
-                 else []);
-                (if is_draft then []
-                 else [ td [ txt (if voted then "X" else "—") ] ]);
-                [ td ~a:[ a_class [ "clickable" ] ] (erv v ()) ];
-              ]
-            |> fun x -> SMap.add login (tr x) accu)
-        voters SMap.empty
+      voters |> SMap.to_seq
+      |> Seq.fold_left
+           (fun accu (_, (v : voter)) ->
+             let login = v.login in
+             let weight = Voter.get_weight v in
+             let address = Option.value ~default:"" v.address in
+             let voted =
+               match SMap.find_opt login records with
+               | Some (Some _) -> true
+               | _ -> false
+             in
+             if show_only_missing && voted then accu
+             else
+               List.flatten
+                 [
+                   [ td [ txt login ] ];
+                   (if with_address then [ td [ txt address ] ] else []);
+                   (if with_weight then
+                      [ td [ txt @@ Weight.to_string weight ] ]
+                    else []);
+                   (if is_draft then []
+                    else [ td [ txt (if voted then "X" else "—") ] ]);
+                   [ td ~a:[ a_class [ "clickable" ] ] (erv v.login ()) ];
+                 ]
+               |> fun x -> SMap.add login (tr x) accu)
+           SMap.empty
       |> SMap.bindings |> List.map snd
     in
     if rows_of_voters = [] then
@@ -860,7 +855,7 @@ let voters_content () =
     button (s_ "Delete all") (fun () ->
         let confirm = confirm @@ s_ "Warning, this action is irreversible" in
         if confirm then
-          let newvoters = HMap.empty in
+          let newvoters = SMap.empty in
           let () = Cache.set Cache.voters newvoters in
           !update_election_main ()
         else Lwt.return_unit)
@@ -1025,7 +1020,7 @@ let voters_content () =
       let filename = Printf.sprintf "voters-%s.json" uuid_s in
       a ~a:[ a_download (Some filename) ] ~href (s_ "Voter list")
     in
-    let nv = HMap.cardinal voters in
+    let nv = SMap.cardinal voters in
     let n = SMap.cardinal records in
     let turnout =
       Printf.sprintf
@@ -1773,7 +1768,7 @@ let voterspwd_content_draft () =
   let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   let* voters = Cache.get_until_success Cache.voters in
   let curr_auth = draft.authentication in
-  if HMap.is_empty voters then
+  if SMap.is_empty voters then
     Lwt.return [ div [ txt @@ s_ "Please fill-in the voter list first." ] ]
   else
     let* config = Cache.get Cache.config in

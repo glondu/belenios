@@ -326,7 +326,7 @@ let add_partial_decryption s (owner, pd) =
 let get_all_voters s =
   let* x = Storage.E.get s Voters in
   match Lopt.get_value x with
-  | None -> Lwt.return HMap.empty
+  | None -> Lwt.return SMap.empty
   | Some x -> Lwt.return x
 
 let dummy_voters_config =
@@ -653,16 +653,16 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
   let* voters =
     let* x = Storage.E.get s Voters in
     match Lopt.get_value x with
-    | None -> Lwt.return HMap.empty
+    | None -> Lwt.return SMap.empty
     | Some x -> Lwt.return x
   in
   let* metadata = Mails_voter.get_metadata s ~admin_id in
   let send = Mails_voter.generate_credential_email metadata in
   let* jobs =
-    private_creds |> HMap.to_seq |> Lwt_seq.of_seq
+    private_creds |> SMap.to_seq |> Lwt_seq.of_seq
     |> Lwt_seq.fold_left_s
-         (fun jobs (login_h, credential) ->
-           match HMap.find_opt login_h voters with
+         (fun jobs (login, credential) ->
+           match SMap.find_opt login voters with
            | None -> Lwt.return jobs
            | Some (v : voter) ->
                let login = v.login in

@@ -370,13 +370,11 @@ module Voter = struct
 
   exception Bad_voter of t
 
-  let validate (xs : voters) =
+  let validate voters =
     try
-      HMap.iter
-        (fun hash x ->
-          if not (hash = Hash.hash_string x.login && validate_one x) then
-            raise @@ Bad_voter x)
-        xs;
+      voters |> SMap.to_seq
+      |> Seq.iter (fun (k, (x : voter)) ->
+          if not (k = x.login && validate_one x) then raise @@ Bad_voter x);
       Ok ()
     with Bad_voter x -> Error x
 
@@ -395,16 +393,17 @@ module Voter = struct
       else
         let login = string_of_int last in
         let x : t = { address = None; login; weight = None } in
-        let accu = HMap.add Hash.(hash_string login) x accu in
+        let accu = SMap.add login x accu in
         loop (last - 1) accu
     in
-    loop last HMap.empty
+    loop last SMap.empty
 
   let has_explicit_weights voters =
-    HMap.exists (fun _ ({ weight; _ } : t) -> weight <> None) voters
+    voters |> SMap.to_seq
+    |> Seq.exists (fun (_, ({ weight; _ } : t)) -> weight <> None)
 
   let hash voters =
-    voters
-    |> HMap.map (fun (v : voter) -> { v with address = None })
-    |> yojson_of_voters |> Hash.hash_yojson
+    voters |> SMap.to_seq
+    |> Seq.map (fun (_, (v : voter)) -> { v with address = None })
+    |> List.of_seq |> yojson_of_voter_list |> Hash.hash_yojson
 end

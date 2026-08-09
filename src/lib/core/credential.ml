@@ -105,19 +105,19 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
 
   let generate voters =
     let* privs, pubs =
-      voters |> HMap.to_seq
+      voters |> SMap.to_seq
       |> monadic_fold_left
            (fun (privs, pubs) (_, v) ->
              let username = v.login in
              let weight = v.weight in
              let { private_credential; private_key } = generate_one () in
              let credential = G.(g **~ private_key) in
-             ( HMap.add (Hash.hash_string username) private_credential privs,
+             ( SMap.add username private_credential privs,
                HMap.add
                  (credential |> G.to_string |> Hash.hash_string)
                  { credential; weight; id = Some username }
                  pubs ))
-           (HMap.empty, HMap.empty)
+           (SMap.empty, HMap.empty)
     in
     {
       private_creds = privs;

@@ -306,9 +306,9 @@ module Credgen : CMDLINER_MODULE = struct
     in
     Lwt_io.printlf "%d %s saved to %s" count info fname
 
-  let as_json to_string things oc =
+  let as_json cardinal to_string things oc =
     let* () = Lwt_io.write oc (to_string things) in
-    Lwt.return @@ HMap.cardinal things
+    Lwt.return @@ cardinal things
 
   let main version group dir uuid count file derive =
     let@ () = wrap_main in
@@ -322,7 +322,11 @@ module Credgen : CMDLINER_MODULE = struct
           else Lwt.return @@ `Generate (Voter.generate n)
       | None, Some f, None ->
           let* x = string_of_file f in
-          Lwt.return @@ `Generate (x |> !*voters_of_yojson)
+          let x =
+            x |> !*voter_list_of_yojson
+            |> List.fold_left (fun accu v -> SMap.add v.login v accu) SMap.empty
+          in
+          Lwt.return @@ `Generate x
       | None, None, Some c -> Lwt.return @@ `Derive c
       | _, _, _ -> failcmd "--count, --file and --derive are mutually exclusive"
     in
@@ -343,11 +347,13 @@ module Credgen : CMDLINER_MODULE = struct
       let base = dir // timestamp in
       let* () =
         save params_priv base
-          (as_json !+yojson_of_private_credentials c.private_creds)
+          (as_json SMap.cardinal
+             !+yojson_of_private_credentials
+             c.private_creds)
       in
       let* () =
         save params_pub base
-          (as_json
+          (as_json HMap.cardinal
              !+(yojson_of_public_credentials_with_id !&G.to_string)
              c.public_with_ids)
       in

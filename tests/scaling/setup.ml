@@ -123,11 +123,11 @@ module Make (P : PARAMS) = struct
       if n > 0 then
         let login = Printf.sprintf "voter%0*d@example.org" nb_length n in
         let v : voter = { address = Some login; login; weight = None } in
-        let accu = HMap.add Hash.(hash_string login) v accu in
+        let accu = SMap.add login v accu in
         loop (n - 1) accu
       else accu
     in
-    let voters = loop nb_voters HMap.empty in
+    let voters = loop nb_voters SMap.empty in
     let body = voters |> !+yojson_of_voters |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.put ~headers ~body
