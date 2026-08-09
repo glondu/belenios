@@ -470,8 +470,10 @@ type confirmation = {
 }
 [@@deriving yojson]
 
-type cast_result = [ `Ok of confirmation | `Error of cast_error ]
+type ('a, 'b) result = ('a, 'b) Stdlib.result = Ok of 'a | Error of 'b
 [@@deriving yojson]
+
+type cast_result = (confirmation, cast_error) result [@@deriving yojson]
 
 (** {1 Authentication API} *)
 

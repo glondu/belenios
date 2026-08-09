@@ -200,7 +200,7 @@ module Make (Base : BASE) = struct
     let name = template.name in
     let result, step_title, final_step_class =
       match result with
-      | `Ok
+      | Ok
           ({ voter; name; hash; revote; weight; email } :
             Belenios_web_api.confirmation) ->
           let this_is_a_revote =
@@ -248,7 +248,7 @@ module Make (Base : BASE) = struct
             ],
             s_ "Thank you for voting!",
             "final_step_ok" )
-      | `Error e ->
+      | Error e ->
           ( [
               txt (s_ " is rejected, because ");
               txt (Confirmation.explain_cast_error l e);

@@ -110,9 +110,9 @@ struct
                     Api_elections.cast_ballot send_confirmation_email s election
                       ~ballot ~user ~precast_data
                   in
-                  return (`Ok hash))
+                  Lwt.return_ok hash)
                 (function
-                  | BeleniosWebError e -> return (`Error e) | e -> Lwt.fail e)
+                  | BeleniosWebError e -> Lwt.return_error e | e -> Lwt.fail e)
             in
             let () = Web_auth.State.set_result ~state result in
             Lwt.return_ok uuid)

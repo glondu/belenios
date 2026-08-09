@@ -203,7 +203,7 @@ let submit configuration uuid =
                   Dom_html.window##.location##.href := Js.string target;
                   Lwt.return_unit
               | Error e ->
-                  process_result configuration election container_dom (`Error e)
+                  process_result configuration election container_dom (Error e)
             in
             [
               div
