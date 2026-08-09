@@ -34,7 +34,13 @@ val admin_cont :
 
 val election_cast_confirm_handler_ref :
   (state:string ->
-  (uuid, [ `ElectionNotFound | `EmptyState | `NoUser | `StateNotFound ]) result
+  ( uuid,
+    [ `ElectionNotFound
+    | `EmptyState
+    | `NoUser
+    | `StateNotFound
+    | `Cast_error of cast_error ] )
+  result
   Lwt.t)
   ref
 

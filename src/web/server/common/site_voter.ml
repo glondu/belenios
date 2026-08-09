@@ -102,7 +102,7 @@ struct
     | Some { ballot; precast_data; _ } -> (
         match env.user with
         | None -> Lwt.return_error `NoUser
-        | Some user ->
+        | Some user -> (
             let* result =
               Lwt.catch
                 (fun () ->
@@ -115,7 +115,9 @@ struct
                   | BeleniosWebError e -> Lwt.return_error e | e -> Lwt.fail e)
             in
             let () = Web_auth.State.set_result ~state result in
-            Lwt.return_ok uuid)
+            match result with
+            | Ok _ -> Lwt.return_ok uuid
+            | Error e -> Lwt.return_error @@ `Cast_error e))
 
   let () =
     Any.register ~service:election_cast_confirm (fun state () ->

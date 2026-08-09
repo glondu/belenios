@@ -93,7 +93,7 @@ let main () =
   let* () =
     match status with
     | WEXITED 0 -> Lwt_io.eprintlf "Scenario succeeded in %f s" delta
-    | _ -> Lwt_io.eprintf "Scenario failed in %f s" delta
+    | _ -> Lwt_io.eprintlf "Scenario failed in %f s" delta
   in
   match status with
   | WEXITED 0 -> Lwt.return_unit

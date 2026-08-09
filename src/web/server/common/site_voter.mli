@@ -25,7 +25,11 @@ module Make (_ : Pages_sig.S) (_ : Web_auth_sig.S) (_ : Site_common_sig.S) : sig
   val election_cast_confirm_handler :
     state:string ->
     ( uuid,
-      [> `ElectionNotFound | `EmptyState | `NoUser | `StateNotFound ] )
+      [> `ElectionNotFound
+      | `EmptyState
+      | `NoUser
+      | `StateNotFound
+      | `Cast_error of cast_error ] )
     result
     Lwt.t
 end

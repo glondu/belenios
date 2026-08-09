@@ -102,7 +102,7 @@ module Make (P : PARAMS) () = struct
         let@ state cont =
           let fail () =
             Printf.eprintf "no state in response to POST .../ballots\n%!";
-            Lwt.return delta
+            Lwt.return (false, delta)
           in
           match state with
           | `Assoc o -> (
@@ -114,14 +114,14 @@ module Make (P : PARAMS) () = struct
         let* x = voter_login ~username ~state in
         let delta = Unix.gettimeofday () -. start in
         match x with
-        | Ok () -> Lwt.return delta
+        | Ok () -> Lwt.return (true, delta)
         | Error code ->
-            Printf.eprintf "voter login returned %d\n%!" code;
-            Lwt.return delta)
+            Printf.eprintf "voter login for %s returned %d\n%!" username code;
+            Lwt.return (false, delta))
     | code ->
         Printf.eprintf "unexpected status %d in submit_ballot for %s\n%!" code
           username;
-        Lwt.return delta
+        Lwt.return (false, delta)
 
   let vote ~username ~credential =
     let* x = Cred.derive credential in
@@ -147,10 +147,10 @@ module MakeSlave () = struct
         end)
         ()
     in
-    let rec loop time =
+    let rec loop success time =
       let* x = read_line_opt stdin in
       match x with
-      | None -> Lwt.return time
+      | None -> Lwt.return (success, time)
       | Some x -> (
           match Json.of_string x with
           | `Assoc o -> (
@@ -158,14 +158,14 @@ module MakeSlave () = struct
                 (List.assoc_opt "username" o, List.assoc_opt "credential" o)
               with
               | Some (`String username), Some (`String credential) ->
-                  let* delta = X.vote ~username ~credential in
-                  loop (time +. delta)
+                  let* success', delta = X.vote ~username ~credential in
+                  loop (success && success') (time +. delta)
               | _ -> failwith "unexpected content in JSON")
           | _ | (exception _) -> failwith "unexpected data")
     in
-    let* time = loop 0. in
+    let* success, time = loop true 0. in
     let* () = write_line stdout (string_of_float time) in
-    Lwt.return_unit
+    if success then Lwt.return_unit else exit 1
 end
 
 module type PARAMS_MASTER = sig
@@ -199,7 +199,7 @@ module MakeMaster (P : PARAMS_MASTER) = struct
     let nb_voters = Array.length voters in
     let remaining = ref nb_voters in
     let requests = min requests nb_voters in
-    let rec loop time n =
+    let rec loop success time n =
       if n > 0 then (
         let i = Stdlib.Random.int !remaining in
         let username_h, credential = voters.(i) in
@@ -210,11 +210,11 @@ module MakeMaster (P : PARAMS_MASTER) = struct
         in
         decr remaining;
         voters.(i) <- voters.(!remaining);
-        let* delta = vote ~username ~credential in
-        loop (time +. delta) (n - 1))
-      else Lwt.return time
+        let* success', delta = vote ~username ~credential in
+        loop (success && success') (time +. delta) (n - 1))
+      else Lwt.return (success, time)
     in
-    loop 0. requests
+    loop true 0. requests
 
   let submit_ballots_parallel ~raw_election ~voters:voters_hmap ~credentials =
     let voters = credentials |> HMap.bindings |> Array.of_list in
@@ -264,11 +264,17 @@ module MakeMaster (P : PARAMS_MASTER) = struct
           let* time = read_line p#stdout in
           let* status = p#close in
           match status with
-          | Unix.WEXITED 0 -> Lwt.return (float_of_string time)
-          | _ -> failwith "slave exited with non-zero status")
+          | WEXITED 0 -> Lwt.return (true, float_of_string time)
+          | WEXITED 1 -> Lwt.return (false, float_of_string time)
+          | _ -> failwith "slave exited with unexpected status")
         jobs
     in
-    let total_time = List.fold_left ( +. ) 0. times in
+    let total_time =
+      List.fold_left
+        (fun (success, time) (success', time') ->
+          (success && success', time +. time'))
+        (true, 0.) times
+    in
     Lwt.return total_time
 
   let main () =
@@ -291,14 +297,14 @@ module MakeMaster (P : PARAMS_MASTER) = struct
       let* x = chars_of_file credentials |> Lwt_stream.to_string in
       x |> !*private_credentials_of_yojson |> Lwt.return
     in
-    let* time =
+    let* success, time =
       if concurrency < 1 then failwith "concurrency must be >= 1"
       else if concurrency = 1 then
         submit_ballots_sequential ~voters ~credentials ~vote:X.vote
       else submit_ballots_parallel ~raw_election ~voters ~credentials
     in
-    Printf.eprintf "%d requests processed in %f seconds\n" requests time;
-    Lwt.return_unit
+    Printf.eprintf "%d requests processed in %f seconds\n%!" requests time;
+    if success then Lwt.return_unit else failwith "voting phase failed"
 end
 
 open Cmdliner
