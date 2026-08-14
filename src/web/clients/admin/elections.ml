@@ -757,23 +757,8 @@ let try_voters uuid voters =
       Cache.invalidate Cache.voters;
       !update_election_main ()
 
-let voters_content () =
+let voters_table ~is_draft ~is_frozen ~show_only_missing voters records =
   let open (val !Belenios_js.I18n.gettext) in
-  let is_draft = is_draft () in
-  let* is_frozen =
-    if is_draft then
-      let* status = Cache.get_until_success Cache.status in
-      Lwt.return status.credentials_ready
-    else Lwt.return false
-  in
-  let* voters =
-    if is_draft then Cache.get_until_success Cache.voters
-    else Cache.get_until_success Cache.e_voters
-  in
-  let* records =
-    if is_draft then Lwt.return SMap.empty
-    else Cache.get_until_success Cache.e_records
-  in
   let with_address, with_weight =
     let exception Exit in
     try
@@ -796,15 +781,11 @@ let voters_content () =
         (if is_draft then [] else [ th [ txt @@ s_ "voted?" ] ]);
         [ th [] ];
       ]
-    |> tr
   in
   let erv v () =
     if is_draft && not is_frozen then [ erase_voter_elt v () ] else []
   in
-  let nbvoters =
-    Printf.ksprintf txt (f_ "%d registered voter(s)") (SMap.cardinal voters)
-  in
-  let make_rows_of_voters show_only_missing =
+  let rows_of_voters =
     let rows_of_voters =
       voters |> SMap.to_seq
       |> Seq.fold_left
@@ -835,8 +816,37 @@ let voters_content () =
       |> SMap.bindings |> List.map snd
     in
     if rows_of_voters = [] then
-      [ tr [ td [ em [ txt @@ s_ "empty list" ] ]; td [] ] ]
+      [
+        tr
+          [
+            td
+              ~a:[ a_colspan (List.length header_row) ]
+              [ em [ txt @@ s_ "empty list" ] ];
+          ];
+      ]
     else rows_of_voters
+  in
+  tablex [ tbody (tr header_row :: rows_of_voters) ]
+
+let voters_content () =
+  let open (val !Belenios_js.I18n.gettext) in
+  let is_draft = is_draft () in
+  let* is_frozen =
+    if is_draft then
+      let* status = Cache.get_until_success Cache.status in
+      Lwt.return status.credentials_ready
+    else Lwt.return false
+  in
+  let* voters =
+    if is_draft then Cache.get_until_success Cache.voters
+    else Cache.get_until_success Cache.e_voters
+  in
+  let* records =
+    if is_draft then Lwt.return SMap.empty
+    else Cache.get_until_success Cache.e_records
+  in
+  let nbvoters =
+    Printf.ksprintf txt (f_ "%d registered voter(s)") (SMap.cardinal voters)
   in
   let placeholder =
     "bart.simpson@example.com              # " ^ s_ "typical use"
@@ -937,7 +947,8 @@ let voters_content () =
                   credentials are created. Voters with invalid e-mail \
                   addresses won't be able to vote.");
           ];
-        tablex [ tbody (header_row :: make_rows_of_voters false) ];
+        voters_table ~is_draft ~is_frozen ~show_only_missing:false voters
+          records;
         (if is_frozen then div []
          else
            div
@@ -1026,15 +1037,24 @@ let voters_content () =
         (100. *. (float_of_int n /. float_of_int nv))
     in
     let voter_table =
-      let tbody_elt = tbody [] in
+      let container = div [] in
+      let container_dom = Tyxml_js.To_dom.of_node container in
+      let tablex_ref = ref (tablex [] |> Tyxml_js.To_dom.of_node) in
       let check_elt = Tyxml_js.Html.input ~a:[ a_input_type `Checkbox ] () in
-      let tbody_dom = Tyxml_js.To_dom.of_tbody tbody_elt in
+      Dom.appendChild container_dom !tablex_ref;
+      Dom.appendChild container_dom
+        (label [ check_elt; txt " "; txt @@ s_ "Show only missing voters" ]
+        |> Tyxml_js.To_dom.of_node);
       let check_dom = Tyxml_js.To_dom.of_input check_elt in
       let update () =
-        tbody_dom##.innerHTML := Js.string "";
-        List.iter
-          (fun x -> Dom.appendChild tbody_dom (Tyxml_js.To_dom.of_node x))
-          (header_row :: make_rows_of_voters (Js.to_bool check_dom##.checked))
+        let tablex_new =
+          voters_table ~is_draft:false ~is_frozen:true
+            ~show_only_missing:(Js.to_bool check_dom##.checked)
+            voters records
+          |> Tyxml_js.To_dom.of_node
+        in
+        Dom.replaceChild container_dom tablex_new !tablex_ref;
+        tablex_ref := tablex_new
       in
       let () =
         check_dom##.onchange :=
@@ -1042,11 +1062,7 @@ let voters_content () =
           finally Js._false update
       in
       update ();
-      div
-        [
-          tablex [ tbody_elt ];
-          label [ check_elt; txt " "; txt @@ s_ "Show only missing voters" ];
-        ]
+      container
     in
     Lwt.return
       [
