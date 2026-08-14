@@ -837,17 +837,6 @@ let voters_content () =
       Lwt.return status.credentials_ready
     else Lwt.return false
   in
-  let* voters =
-    if is_draft then Cache.get_until_success Cache.voters
-    else Cache.get_until_success Cache.e_voters
-  in
-  let* records =
-    if is_draft then Lwt.return SMap.empty
-    else Cache.get_until_success Cache.e_records
-  in
-  let nbvoters =
-    Printf.ksprintf txt (f_ "%d registered voter(s)") (SMap.cardinal voters)
-  in
   let placeholder =
     "bart.simpson@example.com              # " ^ s_ "typical use"
     ^ "\nalbert.einstein@example.com,albert_e  # "
@@ -906,6 +895,116 @@ let voters_content () =
         let* text = read_full file in
         try_voters uuid @@ Js.to_string text)
   in
+  let voters_table show_only_missing =
+    Belenios_js.Prefix_viewer.make
+      {
+        placeholder = s_ "Filter voters by username prefix";
+        lookup =
+          (fun prefix ->
+            let* voters =
+              if is_draft then Cache.get_until_success Cache.voters
+              else Cache.get_until_success Cache.e_voters
+            in
+            let nbvoters = SMap.cardinal voters in
+            let total_weight =
+              SMap.fold
+                (fun _ (v : voter) accu ->
+                  Weight.(accu + Option.value ~default:one v.weight))
+                voters Weight.zero
+            in
+            let* records =
+              if is_draft then Lwt.return SMap.empty
+              else Cache.get_until_success Cache.e_records
+            in
+            let turnout =
+              SMap.fold
+                (fun _ x accu -> if x = None then accu else accu + 1)
+                records 0
+            in
+            let weights =
+              if Weight.(compare (of_int nbvoters) total_weight) = 0 then None
+              else
+                let weighted_turnout =
+                  SMap.fold
+                    (fun u x accu ->
+                      let w =
+                        if x = None then Weight.zero
+                        else
+                          match SMap.find_opt u voters with
+                          | Some { weight = Some w; _ } -> w
+                          | _ -> Weight.one
+                      in
+                      Weight.(accu + w))
+                    records Weight.zero
+                in
+                Some (total_weight, weighted_turnout)
+            in
+            let voters =
+              voters |> SMap.filter (fun l _ -> String.starts_with ~prefix l)
+            in
+            Lwt.return (nbvoters, turnout, weights, voters, records));
+        before =
+          (fun (nbvoters, turnout, weights, _, _) ->
+            if is_draft then
+              let nbvoters_html =
+                div
+                  [
+                    txt @@ s_ "Number of voters:";
+                    txt " ";
+                    txt @@ string_of_int nbvoters;
+                  ]
+              in
+              let weights_html =
+                match weights with
+                | None -> []
+                | Some (total_weight, _) ->
+                    [
+                      div
+                        [
+                          txt @@ s_ "Total weight:";
+                          txt " ";
+                          txt @@ Weight.to_string total_weight;
+                        ];
+                    ]
+              in
+              nbvoters_html :: weights_html
+            else
+              let nbvoters_html =
+                div
+                  [
+                    txt @@ s_ "Current turnout:";
+                    txt " ";
+                    Printf.ksprintf txt "%d / %d = %.2f %%" turnout nbvoters
+                      (100. *. (float_of_int turnout /. float_of_int nbvoters));
+                  ]
+              in
+              let weights_html =
+                match weights with
+                | None -> []
+                | Some (total_weight, weighted_turnout) ->
+                    [
+                      div
+                        [
+                          txt @@ s_ "Current weighted turnout:";
+                          txt " ";
+                          Printf.ksprintf txt "%s / %s = %.2f %%"
+                            (Weight.to_string weighted_turnout)
+                            (Weight.to_string total_weight)
+                            (100.
+                            *. (Weight.to_float weighted_turnout
+                               /. Weight.to_float total_weight));
+                        ];
+                    ]
+              in
+              nbvoters_html :: weights_html);
+        after =
+          (fun (_, _, _, voters, records) ->
+            [
+              voters_table ~is_draft ~is_frozen ~show_only_missing voters
+                records;
+            ]);
+      }
+  in
   if is_draft then
     let* max_voters =
       let* config = Cache.get Cache.config in
@@ -947,14 +1046,11 @@ let voters_content () =
                   credentials are created. Voters with invalid e-mail \
                   addresses won't be able to vote.");
           ];
-        voters_table ~is_draft ~is_frozen ~show_only_missing:false voters
-          records;
+        voters_table false;
         (if is_frozen then div []
          else
            div
              [
-               nbvoters;
-               txt " ";
                rm_button;
                div
                  ~a:[ a_id "addtolist" ]
@@ -1026,16 +1122,6 @@ let voters_content () =
       let filename = Printf.sprintf "voters-%s.json" uuid_s in
       a ~a:[ a_download (Some filename) ] ~href (s_ "Voter list")
     in
-    let nv = SMap.cardinal voters in
-    let n =
-      SMap.fold (fun _ x accu -> if x = None then accu else accu + 1) records 0
-    in
-    let turnout =
-      Printf.sprintf
-        (f_ "Current turnout: %d / %d = %.2f %%")
-        n nv
-        (100. *. (float_of_int n /. float_of_int nv))
-    in
     let voter_table =
       let container = div [] in
       let container_dom = Tyxml_js.To_dom.of_node container in
@@ -1048,9 +1134,7 @@ let voters_content () =
       let check_dom = Tyxml_js.To_dom.of_input check_elt in
       let update () =
         let tablex_new =
-          voters_table ~is_draft:false ~is_frozen:true
-            ~show_only_missing:(Js.to_bool check_dom##.checked)
-            voters records
+          voters_table (Js.to_bool check_dom##.checked)
           |> Tyxml_js.To_dom.of_node
         in
         Dom.replaceChild container_dom tablex_new !tablex_ref;
@@ -1068,7 +1152,6 @@ let voters_content () =
       [
         h2 [ txt @@ s_ "Voter list (not editable):" ];
         voter_table;
-        div [ txt turnout ];
         div
           ~a:[ a_class [ "txt_with_a" ] ]
           [ txt (s_ "Link to the "); link2; txt @@ s_ " in txt format." ];

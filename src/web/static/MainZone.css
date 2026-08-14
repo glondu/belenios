@@ -517,3 +517,8 @@ tbody tr:hover {
 .trustee-links {
     line-height: 3ex;
 }
+
+.prefix-input {
+    width: 100%;
+    box-sizing: border-box;
+}
