@@ -742,6 +742,23 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ request = body.run !*voters_request_of_yojson in
           let@ () = handle_generic_error in
           match request with
+          | `Add voters ->
+              let* current =
+                let* x = Storage.E.get s Voters in
+                (match Lopt.get_value x with None -> SMap.empty | Some x -> x)
+                |> Lwt.return
+              in
+              let newvoters =
+                List.fold_left
+                  (fun accu (v : voter) ->
+                    match SMap.find_opt v.login accu with
+                    | None -> SMap.add v.login v accu
+                    | Some _ ->
+                        raise @@ Error (`VoterListError (`Duplicate v.login)))
+                  current voters
+              in
+              let* () = put_draft_voters s newvoters in
+              ok
           | `Import from -> (
               let@ from = Storage.E.with_transaction from in
               let@ _ = check_owner account from in

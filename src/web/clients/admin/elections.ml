@@ -706,7 +706,7 @@ let parse_voters voters =
     | '[' -> !*voter_list_of_yojson voters
     | _ -> voters |> split_lines |> List.map parse_voter_csv
 
-let try_voters voters =
+let try_voters uuid voters =
   let open (val !Belenios_js.I18n.gettext) in
   match parse_voters voters with
   | exception Invalid_identity id ->
@@ -721,46 +721,36 @@ let try_voters voters =
       alert msg;
       Lwt.return_unit
   | [] -> Lwt.return_unit
-  | newvoters -> (
-      let* voters = Cache.get_until_success Cache.voters in
-      let newvoters =
-        List.fold_left
-          (fun accu (v : voter) ->
-            match SMap.find_opt v.login accu with
-            | None -> SMap.add v.login v accu
-            | Some _ ->
-                let msg = Printf.sprintf "duplicate %s" v.login in
-                failwith msg)
-          voters newvoters
+  | newvoters ->
+      let* x = Api.(post (draft_voters uuid) !user @@ `Add newvoters) in
+      let () =
+        match x.code with
+        | 200 -> ()
+        | 400 -> (
+            match !*request_status_of_yojson x.content with
+            | { error = `VoterListError e; _ } ->
+                let detail =
+                  match e with
+                  | `Duplicate login ->
+                      Printf.sprintf (f_ "duplicate voter: %s") login
+                  | `BadVoter v ->
+                      Printf.sprintf (f_ "bad voter: %s") (!+yojson_of_voter v)
+                  | `TotalWeightTooBig (x, y) ->
+                      Printf.sprintf
+                        (f_ "total weight too big: %s/%s")
+                        (Weight.to_string x) (Weight.to_string y)
+                in
+                let msg =
+                  Printf.sprintf
+                    (f_ "There is an error in the voter list! (%s)")
+                    detail
+                in
+                alert msg
+            | _ | (exception _) -> alert "Unexpected error 400")
+        | code -> Printf.ksprintf alert "Unexpected error %d" code
       in
-      let () = Cache.set Cache.voters newvoters in
-      let* r = Cache.sync () in
-      match r with
-      | Ok () -> !update_election_main ()
-      | Error (`Structured { code = 400; error = `VoterListError e; _ }) ->
-          let detail =
-            match e with
-            | `Duplicate login ->
-                Printf.sprintf (f_ "duplicate voter: %s") login
-            | `BadVoter v ->
-                Printf.sprintf (f_ "bad voter: %s") (!+yojson_of_voter v)
-            | `TotalWeightTooBig (x, y) ->
-                Printf.sprintf
-                  (f_ "total weight too big: %s/%s")
-                  (Weight.to_string x) (Weight.to_string y)
-          in
-          let msg =
-            Printf.sprintf
-              (f_ "There is an error in the voter list! (%s)")
-              detail
-          in
-          alert msg;
-          Cache.set Cache.voters voters;
-          !update_election_main ()
-      | Error _ ->
-          alert @@ s_ "There is an unexpected error in the voter list!";
-          Cache.set Cache.voters voters;
-          !update_election_main ())
+      Cache.invalidate Cache.voters;
+      !update_election_main ()
 
 let voters_content () =
   let open (val !Belenios_js.I18n.gettext) in
@@ -860,11 +850,12 @@ let voters_content () =
           !update_election_main ()
         else Lwt.return_unit)
   in
+  let uuid = get_current_uuid () in
   let add_button =
     button
       ~a:[ a_id "add_voters" ]
       (s_ "Add")
-      (fun () -> try_voters @@ ttget ())
+      (fun () -> try_voters uuid @@ ttget ())
   in
   let import_but =
     button (s_ "from another election") (fun () ->
@@ -875,10 +866,9 @@ let voters_content () =
             let* voters = Cache.get_until_success Cache.voters in
             let ifmatch = sha256_b64 @@ !+yojson_of_voters voters in
             let* () =
-              let target_uuid = get_current_uuid () in
-              let@ from_uuid = popup_choose_elec target_uuid in
+              let@ from_uuid = popup_choose_elec uuid in
               let r = `Import from_uuid in
-              let* x = Api.(post ~ifmatch (draft_voters target_uuid) !user r) in
+              let* x = Api.(post ~ifmatch (draft_voters uuid) !user r) in
               if x.code <> 200 then
                 Printf.ksprintf alert "Failed with error code %d" x.code;
               Cache.invalidate Cache.voters;
@@ -899,7 +889,7 @@ let voters_content () =
           | Some x -> cont x
         in
         let* text = read_full file in
-        try_voters @@ Js.to_string text)
+        try_voters uuid @@ Js.to_string text)
   in
   if is_draft then
     let* max_voters =
