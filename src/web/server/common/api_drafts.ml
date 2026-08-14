@@ -759,6 +759,15 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
               in
               let* () = put_draft_voters s newvoters in
               ok
+          | `Remove voter ->
+              let* current =
+                let* x = Storage.E.get s Voters in
+                (match Lopt.get_value x with None -> SMap.empty | Some x -> x)
+                |> Lwt.return
+              in
+              let newvoters = SMap.remove voter current in
+              let* () = put_draft_voters s newvoters in
+              ok
           | `Import from -> (
               let@ from = Storage.E.with_transaction from in
               let@ _ = check_owner account from in

@@ -675,9 +675,14 @@ let title_content () =
 
 let erase_voter_elt v () =
   let onclick () =
-    let* voters = Cache.get_until_success Cache.voters in
-    let voters = SMap.remove v voters in
-    let () = Cache.set Cache.voters voters in
+    let uuid = get_current_uuid () in
+    let* x = Api.(post (draft_voters uuid) !user @@ `Remove v) in
+    let () =
+      match x.code with
+      | 200 -> ()
+      | code -> Printf.ksprintf alert "Unexpected error %d" code
+    in
+    Cache.invalidate Cache.voters;
     !update_election_main ()
   in
   div ~a:[ a_class [ "del_sym" ]; a_onclick_lwt onclick ] []

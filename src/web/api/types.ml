@@ -348,7 +348,8 @@ type trustees_request =
   | `Reset ]
 [@@deriving yojson]
 
-type voters_request = [ `Add of voter_list | `Import of uuid ]
+type voters_request =
+  [ `Add of voter_list | `Remove of string | `Import of uuid ]
 [@@deriving yojson]
 
 type election_status = {
