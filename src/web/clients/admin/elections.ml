@@ -1127,10 +1127,10 @@ let voters_content () =
       let container_dom = Tyxml_js.To_dom.of_node container in
       let tablex_ref = ref (tablex [] |> Tyxml_js.To_dom.of_node) in
       let check_elt = Tyxml_js.Html.input ~a:[ a_input_type `Checkbox ] () in
-      Dom.appendChild container_dom !tablex_ref;
       Dom.appendChild container_dom
         (label [ check_elt; txt " "; txt @@ s_ "Show only missing voters" ]
         |> Tyxml_js.To_dom.of_node);
+      Dom.appendChild container_dom !tablex_ref;
       let check_dom = Tyxml_js.To_dom.of_input check_elt in
       let update () =
         let tablex_new =
@@ -1151,13 +1151,14 @@ let voters_content () =
     Lwt.return
       [
         h2 [ txt @@ s_ "Voter list (not editable):" ];
+        h3 [ txt @@ s_ "Download full lists in JSON format" ];
+        ul
+          [
+            li ~a:[ a_class [ "txt_with_a" ] ] [ link2 ];
+            li ~a:[ a_class [ "txt_with_a" ] ] [ link ];
+          ];
+        h3 [ txt @@ s_ "View voter list" ];
         voter_table;
-        div
-          ~a:[ a_class [ "txt_with_a" ] ]
-          [ txt (s_ "Link to the "); link2; txt @@ s_ " in txt format." ];
-        div
-          ~a:[ a_class [ "txt_with_a" ] ]
-          [ txt (s_ "Link to the "); link; txt @@ s_ " in txt format." ];
       ]
 
 let is_openable () =
