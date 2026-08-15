@@ -1016,7 +1016,9 @@ let voters_content () =
       a ~a:[ a_download (Some filename) ] ~href (s_ "Voter list")
     in
     let nv = SMap.cardinal voters in
-    let n = SMap.cardinal records in
+    let n =
+      SMap.fold (fun _ x accu -> if x = None then accu else accu + 1) records 0
+    in
     let turnout =
       Printf.sprintf
         (f_ "Current turnout: %d / %d = %.2f %%")
