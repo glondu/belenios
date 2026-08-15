@@ -66,6 +66,7 @@ module Weight : sig
   val zero : t
   val one : t
   val of_int : int -> t
+  val to_float : t -> float
   val to_Z : t -> Z.t
   val of_Z : Z.t -> t
   val ( + ) : t -> t -> t

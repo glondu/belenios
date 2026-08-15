@@ -144,6 +144,7 @@ module Weight = struct
 
   let to_string = Int64.to_string
   let to_Z = Z.of_int64
+  let to_float = Int64.to_float
   let ( + ) = Int64.add
   let max_weight = 100000000000L
   let min = Int64.min
