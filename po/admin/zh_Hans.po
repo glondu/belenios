@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-10-05 08:44+0000\n"
-"PO-Revision-Date: 2026-08-07 07:57+0000\n"
+"PO-Revision-Date: 2026-08-18 02:51+0000\n"
 "Last-Translator: reducedradius "
 "<137701630+flytothehighest@users.noreply.github.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.8.1.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: src/web/clients/admin/trustees_tab.ml:262
 msgid " (server is not counted)"
@@ -261,7 +261,6 @@ msgid "Best regards,"
 msgstr "致以最诚挚的问候，"
 
 #: src/web/clients/admin/elections.ml:1241
-#, fuzzy
 msgid "By a third-party of your choice"
 msgstr "由您选择的第三方"
 
@@ -349,11 +348,11 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:228
 msgid "Contact"
-msgstr ""
+msgstr "联系我们"
 
 #: src/web/clients/admin/elections.ml:1122
 msgid "Contact:"
-msgstr ""
+msgstr "联系："
 
 #: src/web/clients/admin/admin.ml:400
 msgid "Could not get configuration from server! (%s)"
