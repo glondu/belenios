@@ -248,3 +248,11 @@ module A = struct
     let module T = (val tx : TX) in
     T.S.new_account_id T.tx
 end
+
+(** {1 Convenience helpers} *)
+
+let get_all_voters s =
+  let* x = E.get s Voters in
+  match Lopt.get_value x with
+  | None -> Lwt.return SMap.empty
+  | Some x -> Lwt.return x

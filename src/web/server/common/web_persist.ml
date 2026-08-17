@@ -323,12 +323,6 @@ let add_partial_decryption s (owner, pd) =
   | true -> Lwt.return_unit
   | false -> Lwt.fail @@ Failure "race condition in add_partial_decryption"
 
-let get_all_voters s =
-  let* x = Storage.E.get s Voters in
-  match Lopt.get_value x with
-  | None -> Lwt.return SMap.empty
-  | Some x -> Lwt.return x
-
 let dummy_voters_config =
   {
     has_explicit_weights = false;
@@ -586,7 +580,7 @@ let compute_audit_cache s =
   | None -> Lwt.return_none
   | Some election ->
       let module W = (val election) in
-      let* voters = get_all_voters s in
+      let* voters = Storage.get_all_voters s in
       let voters_hash = Voter.hash voters in
       let* shuffles =
         let* x = Public_archive.get_shuffles s in
@@ -650,12 +644,7 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
   let@ () =
    fun cont -> if se.pending_credentials then cont () else Lwt.return_unit
   in
-  let* voters =
-    let* x = Storage.E.get s Voters in
-    match Lopt.get_value x with
-    | None -> Lwt.return SMap.empty
-    | Some x -> Lwt.return x
-  in
+  let* voters = Storage.get_all_voters s in
   let* metadata = Mails_voter.get_metadata s ~admin_id in
   let send = Mails_voter.generate_credential_email metadata in
   let* jobs =

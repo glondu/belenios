@@ -73,10 +73,7 @@ let get_metadata s ~admin_id =
             (Uuid.to_string uuid)
       | Some (W (_, Draft (_, se))) ->
           let* has_weights =
-            let* x = Storage.E.get s Voters in
-            match Lopt.get_value x with
-            | None -> Lwt.return_false
-            | Some x -> Lwt.return @@ Voter.has_explicit_weights x
+            Storage.get_all_voters s |> Lwt.map Voter.has_explicit_weights
           in
           Lwt.return
           @@ extract_metadata ~admin_id ~has_weights uuid se.questions metadata)

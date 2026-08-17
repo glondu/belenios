@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
 open Signatures
 include STORAGE
 
@@ -26,3 +27,7 @@ val register_backend :
   string -> (Xml.xml list -> (module STORAGE) Lwt.t) -> unit
 
 val init_backend : string -> Xml.xml list -> unit Lwt.t
+
+(** {1 Convenience helpers} *)
+
+val get_all_voters : E.t -> voters Lwt.t

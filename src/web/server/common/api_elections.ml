@@ -381,11 +381,11 @@ let get_records s =
   match Lopt.get_value x with
   | Some x -> Lwt.return x
   | None ->
-      let* voters = Storage.E.get s Voters in
+      let* voters = Storage.get_all_voters s in
       let* dynamic = Storage.E.get s @@ Election_dynamic_records All in
       let records =
-        match (Lopt.get_value voters, Lopt.get_value dynamic) with
-        | Some voters, Some dynamic ->
+        match Lopt.get_value dynamic with
+        | Some dynamic ->
             voters |> SMap.to_seq
             |> Seq.fold_left
                  (fun accu (l, (v : voter)) ->
@@ -520,7 +520,7 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       match method_ with
       | `GET ->
           let@ () = handle_generic_error in
-          let* x = Web_persist.get_all_voters s in
+          let* x = Storage.get_all_voters s in
           return_json 200 (!+yojson_of_voters x)
       | _ -> method_not_allowed)
   | [ "records" ] -> (

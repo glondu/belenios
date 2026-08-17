@@ -265,12 +265,7 @@ type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
 
 let generate_credentials_on_server s account uuid (Draft (_, se) as draft) =
-  let* voters =
-    let* x = Storage.E.get s Voters in
-    match Lopt.get_value x with
-    | None -> Lwt.return SMap.empty
-    | Some x -> Lwt.return x
-  in
+  let* voters = Storage.get_all_voters s in
   let nvoters = SMap.cardinal voters in
   if nvoters > Accounts.max_voters account then
     Lwt.return (Stdlib.Error `TooManyVoters)
@@ -295,12 +290,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
     ((Draft (v, se), set) : _ updatable_with_billing)
     ?(certificate : (a, b) credentials_certificate option)
     (credentials : a public_credentials_with_id) =
-  let* voters =
-    let* x = Storage.E.get s Voters in
-    match Lopt.get_value x with
-    | None -> Lwt.return SMap.empty
-    | Some x -> Lwt.return x
-  in
+  let* voters = Storage.get_all_voters s in
   let module G = (val w) in
   let () =
     if SMap.is_empty voters then raise (Error (`ValidationError `NoVoters))
@@ -391,12 +381,7 @@ let get_draft_status s uuid (Draft (v, se)) (metadata : metadata) =
       Lwt.return_some se.private_creds_downloaded
     else Lwt.return_none
   in
-  let* voters =
-    let* x = Storage.E.get s Voters in
-    match Lopt.get_value x with
-    | None -> Lwt.return SMap.empty
-    | Some x -> Lwt.return x
-  in
+  let* voters = Storage.get_all_voters s in
   let num_voters = SMap.cardinal voters in
   let credentials_ready, credentials_left =
     match Web_persist.get_credentials_status uuid (Draft (v, se)) with
@@ -495,7 +480,7 @@ let import_voters s uuid draft from =
     | None -> Lwt.return (SMap.empty, set)
     | Some x -> Lwt.return (x, set)
   in
-  let* new_voters = Web_persist.get_all_voters from in
+  let* new_voters = Storage.get_all_voters from in
   if Web_persist.get_credentials_status uuid draft <> `None then
     Lwt.return @@ Stdlib.Error `Forbidden
   else
@@ -722,11 +707,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       | _ -> method_not_allowed)
   | [ "voters" ] -> (
       let@ who = with_administrator_or_credential_authority token se metadata in
-      let get () =
-        let* x = Storage.E.get s Voters in
-        (match Lopt.get_value x with None -> SMap.empty | Some x -> x)
-        |> yojson_of_voters |> Lwt.return
-      in
+      let get () = Storage.get_all_voters s |> Lwt.map yojson_of_voters in
       match (method_, who) with
       | `GET, _ -> handle_get get
       | `PUT, `Administrator _ ->
@@ -743,11 +724,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_generic_error in
           match request with
           | `Add voters ->
-              let* current =
-                let* x = Storage.E.get s Voters in
-                (match Lopt.get_value x with None -> SMap.empty | Some x -> x)
-                |> Lwt.return
-              in
+              let* current = Storage.get_all_voters s in
               let newvoters =
                 List.fold_left
                   (fun accu (v : voter) ->
@@ -760,11 +737,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
               let* () = put_draft_voters s newvoters in
               ok
           | `Remove voter ->
-              let* current =
-                let* x = Storage.E.get s Voters in
-                (match Lopt.get_value x with None -> SMap.empty | Some x -> x)
-                |> Lwt.return
-              in
+              let* current = Storage.get_all_voters s in
               let newvoters = SMap.remove voter current in
               let* () = put_draft_voters s newvoters in
               ok

@@ -51,8 +51,6 @@ val set_election_automatic_dates :
 
 (** {1 Voter-specific stuff} *)
 
-val get_all_voters : Storage.E.t -> voters Lwt.t
-
 val get_draft_public_credentials :
   Storage.E.t -> ('a, 'b) group -> 'a public_credentials option Lwt.t
 
