@@ -156,17 +156,21 @@ let compress (x, y) =
 
 let mask255 = Z.(shift_left one 255 - one)
 
-let modsqrt_check, modsqrt =
+let five = Z.of_int 5
+and eight = Z.of_int 8
+
+let%test [%name Printf.sprintf "modsqrt_check(%s)" Common.backend_type] =
+  Z.(compare (q mod eight) five = 0)
+
+let modsqrt =
   (* https://www.rieselprime.de/ziki/Modular_square_root *)
   let open Z in
-  let five = of_int 5 and eight = of_int 8 in
   let exp = (q - five) / eight in
-  ( (fun () -> Z.(compare (q mod eight) five = 0)),
-    fun a ->
-      let a = F.to_Z a in
-      let v = powm (shift_left a 1) exp q in
-      let i = erem (shift_left (a * v * v) 1) q in
-      F.reduce (a * v * (i - one)) )
+  fun a ->
+    let a = F.to_Z a in
+    let v = powm (shift_left a 1) exp q in
+    let i = erem (shift_left (a * v * v) 1) q in
+    F.reduce (a * v * (i - one))
 
 let uncompress raw =
   let open Z in
@@ -277,5 +281,6 @@ let get_generator i =
   assert (compare h g <> 0);
   h
 
-let selfcheck () =
-  check one && is_base_point g && raw_pow g F.q =~ one && modsqrt_check ()
+let%test [%name Printf.sprintf "Ed25519_pure.selfcheck(%s)" Common.backend_type]
+    =
+  check one && is_base_point g && raw_pow g l =~ one

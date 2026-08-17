@@ -23,6 +23,7 @@ open Belenios_platform
 open Common_types
 open Signatures_core
 
+val backend_type : string
 val dst_prefix : string
 val default_algorithm : string
 val ( >> ) : ('a -> 'b) -> ('b -> 'c) -> 'a -> 'c

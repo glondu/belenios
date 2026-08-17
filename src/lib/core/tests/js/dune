@@ -1,0 +1,29 @@
+(copy_files#
+ (files ../../*.{ml,mli})
+ (only_sources))
+
+(rule
+ (action
+  (copy# ../libsodium_test.ml libsodium_test.ml)))
+
+(library
+ (name belenios_core_tests_js)
+ (libraries
+  belenios_platform_js
+  base64
+  hex
+  digestif
+  yojson
+  ppx_yojson_conv_lib
+  re
+  lwt)
+ (preprocess
+  (pps ppx_inline_test ppx_yojson_conv ppx_yojson_group))
+ (inline_tests
+  (flags -verbose)
+  (modes js)
+  (deps ../../../../../vendor/libsodium/libsodium.wasm))
+ (js_of_ocaml
+  (javascript_files node_libsodium_shim.js)
+  (flags
+   (:standard --effects=cps))))

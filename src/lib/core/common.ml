@@ -23,6 +23,12 @@ open Belenios_platform
 open Common_types
 open Signatures_core
 
+let backend_type =
+  match Sys.backend_type with
+  | Native -> "Native"
+  | Bytecode -> "Bytecode"
+  | Other x -> x
+
 let dst_prefix = "BELENIOS-V2"
 let default_algorithm = "AES-GCM"
 let ( >> ) f g x = g (f x)

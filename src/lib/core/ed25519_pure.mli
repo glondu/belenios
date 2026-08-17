@@ -20,5 +20,3 @@
 (**************************************************************************)
 
 include Signatures_core.GROUP
-
-val selfcheck : unit -> bool

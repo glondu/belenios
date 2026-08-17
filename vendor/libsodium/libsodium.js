@@ -2,7 +2,7 @@
 // Copyright © 2023 Inria, uses libsodium by Frank Denis
 // See "LICENSE" for details.
 
-function memset(dst, c, n) {
+belenios_platform.memset = function (dst, c, n) {
     var limit = dst + n;
     for (var i = dst; i < limit; i++) {
         belenios_platform.libsodium.buffer[i] = c;
@@ -12,7 +12,7 @@ function memset(dst, c, n) {
 const base = globalThis.document?.currentScript?.src || globalThis.location?.href;
 
 if (typeof WebAssembly !== "undefined" && WebAssembly.instantiateStreaming && base) {
-    var env = {memset: memset};
+    var env = {memset: belenios_platform.memset};
     var importObject = {env: env};
     const url = new URL("libsodium.wasm", base);
     WebAssembly.instantiateStreaming(fetch(url), importObject).then(function (obj) {

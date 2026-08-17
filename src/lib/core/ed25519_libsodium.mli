@@ -24,6 +24,4 @@ open Signatures_core
 
 module Make (_ : LIBSODIUM_STUBS) : sig
   include GROUP
-
-  val selfcheck : unit -> bool
 end

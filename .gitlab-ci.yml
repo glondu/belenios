@@ -14,6 +14,9 @@ stages:
     - echo $first_access_index_page_output
     - if [ "$(echo \"$first_access_index_page_output\" | grep '>Belenios</a>' | wc -l)" != "1" ]; then echo "[First page access] First page access does not show a single '>Belenios</a>' text, but it should" && exit 1; else echo "[First page access] First page access shows a single '>Belenios</a>' text, as expected"; fi
 
+.fixup-opam-install: &fixup-opam-install
+    - opam install -y ppx_yojson_conv ppx_inline_test
+
 ocamlformat:
   extends: .base
   stage: build
@@ -26,7 +29,7 @@ release-server:
   stage: build
   script:
     - source ~/env.sh
-    - opam install -y ppx_yojson_conv
+    - *fixup-opam-install
     - make build-release-server
   artifacts:
     paths:
@@ -39,13 +42,12 @@ basic-server:
   script:
     - *basic-server-test-script
 
-tool:
+check:
   extends: .base
   stage: test
   script:
     - source ~/env.sh
-    - opam install -y ppx_yojson_conv
-    # Run command-line tool tests
+    - *fixup-opam-install
     - make check
 
 scaling:
@@ -53,7 +55,7 @@ scaling:
   stage: test
   script:
     - source ~/env.sh
-    - opam install -y ppx_yojson_conv
+    - *fixup-opam-install
     - dune exec -- tests/scaling/main.exe scenario
 
 scenarios:

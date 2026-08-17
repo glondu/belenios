@@ -112,5 +112,9 @@ module Make (B : LIBSODIUM_STUBS) = struct
 
   let hash_to_int = G.hash_to_int
   let spec = G.spec
-  let selfcheck () = (g **~ Zq.(zero - one)) *~ g =~ one && g *~ invert g =~ one
+
+  let%test
+      [%name
+        Printf.sprintf "Ed25519_libsodium.selfcheck(%s)" Common.backend_type] =
+    (g **~ Zq.(zero - one)) *~ g =~ one && g *~ invert g =~ one
 end
