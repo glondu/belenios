@@ -23,7 +23,7 @@
 
 open Js_of_ocaml
 
-let belenios = Js.Unsafe.pure_js_expr "belenios"
+let belenios = Js.Unsafe.pure_js_expr "belenios_platform"
 
 let datetime_now () =
   Int64.of_float (Js.to_float (new%js Js.date_now)##valueOf /. 1000.)

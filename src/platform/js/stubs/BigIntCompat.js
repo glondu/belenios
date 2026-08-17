@@ -89,7 +89,7 @@ function getNative () {
 var hasNativeBigInt = typeof BigInt !== 'undefined';
 
 if (hasNativeBigInt) {
-    belenios.BigIntCompat = getNative();
+    belenios_platform.BigIntCompat = getNative();
 } else {
     alert("Missing BigInt feature!");
 }

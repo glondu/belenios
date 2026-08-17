@@ -4,6 +4,7 @@
  (implements belenios_platform)
  (js_of_ocaml
   (javascript_files
+   stubs/belenios_platform.js
    stubs/BigIntCompat.js
    stubs/crypto.js
    ../../../vendor/libsodium/libsodium.js))

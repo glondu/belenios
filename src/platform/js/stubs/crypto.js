@@ -4,7 +4,7 @@
 // The following is an implementation of crypto operations needed by Belenios
 
 if (crypto) {
-  belenios.crypto = {
+  belenios_platform.crypto = {
     getRandomBytes: function(len) {
       const buf = new Uint8Array(len);
       crypto.getRandomValues(buf);
@@ -13,7 +13,7 @@ if (crypto) {
   }
   const subtle = crypto.subtle;
   if (subtle) {
-    belenios.crypto.aesgcm = {
+    belenios_platform.crypto.aesgcm = {
       encrypt: function(keyData, iv, data, onFulfilled, onRejected) {
         const params = { name: "AES-GCM", iv };
         subtle.importKey("raw", keyData, "AES-GCM", false, ["encrypt"])
