@@ -51,6 +51,8 @@ module type BACKEND_ARCHIVE = sig
   type t
 
   val append : t -> ?last:last_event -> append_operation list -> bool Lwt.t
+  val get_roots : t -> roots option Lwt.t
+  val get_object : t -> hash -> string option Lwt.t
   val append_sealing : t -> sealing_event -> bool Lwt.t
 end
 

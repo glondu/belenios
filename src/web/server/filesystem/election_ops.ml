@@ -42,6 +42,8 @@ module type BACKEND = sig
     'r Lwt.t
 
   val append : uuid -> ?last:last_event -> append_operation list -> bool Lwt.t
+  val get_roots : uuid -> roots option Lwt.t
+  val get_object : uuid -> hash -> string option Lwt.t
   val append_sealing : uuid -> sealing_event -> bool Lwt.t
   val new_election : unit -> uuid Lwt.t
   val delete_sensitive_data : uuid -> unit Lwt.t
@@ -59,17 +61,22 @@ let delete_live_election s uuid roots =
     let&! x = Lopt.get_value x in
     f x
   in
+  let ( let&?? ) x f =
+    let* x = S.get_object uuid x in
+    let&! x = x in
+    f x
+  in
   let@ setup_data cont =
     let&! x = roots.setup_data in
-    let&? x = Data x in
+    let&?? x = x in
     cont (!*setup_data_of_yojson x)
   in
   let@ election cont =
-    let&? x = Data setup_data.election in
+    let&?? x = setup_data.election in
     cont (!*Election.t_of_yojson x)
   in
   let@ trustees cont =
-    let&? x = Data setup_data.trustees in
+    let&?? x = setup_data.trustees in
     cont (!*(trustees_of_yojson Fun.id Fun.id) x)
   in
   let module W = (val election) in
@@ -123,16 +130,16 @@ let delete_live_election s uuid roots =
     | Some e ->
         let rec loop seen accu e =
           let@ event cont =
-            let* x = S.get (Election (uuid, Data e)) in
-            match Lopt.get_value x with
+            let* x = S.get_object uuid e in
+            match x with
             | None -> Lwt.return accu
             | Some x -> cont (!*event_of_yojson x)
           in
           match (event.typ, event.payload, event.parent) with
           | `Ballot, Some b, Some p ->
               let@ ballot cont =
-                let* x = S.get (Election (uuid, Data b)) in
-                match Lopt.get_value x with
+                let* x = S.get_object uuid b in
+                match x with
                 | None -> Lwt.return accu
                 | Some b -> cont (!*[%group_of_yojson: _ ballot] b)
               in
@@ -169,8 +176,8 @@ let delete_live_election s uuid roots =
 
 let delete_election s uuid =
   let module S = (val s : BACKEND) in
-  let* x = S.get (Election (uuid, Roots)) in
-  match Lopt.get_value x with
+  let* x = S.get_roots uuid in
+  match x with
   | None -> S.delete_draft_election uuid
   | Some roots -> delete_live_election s uuid roots
 

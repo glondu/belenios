@@ -130,11 +130,10 @@ module MakeBackend
 
   (** {1 Forward references} *)
 
-  let data_ops : (_, string) abstract_file_ops =
-    make_uninitialized_ops "data_ops"
+  let get_roots : (uuid -> roots option Lwt.t) ref = ref (fun _ -> assert false)
 
-  let roots_ops : (_, roots) abstract_file_ops =
-    make_uninitialized_ops "roots_ops"
+  let get_object : (uuid -> hash -> string option Lwt.t) ref =
+    ref (fun _ _ -> assert false)
 
   let voters_config_ops : (_, voters_config) abstract_file_ops =
     make_uninitialized_ops "voters_config_ops"
@@ -339,8 +338,6 @@ module MakeBackend
     | Records -> Concrete records_filename
     | Voters -> Concrete voters_filename
     | Confidential_archive -> Concrete "archive.zip"
-    | Data key -> Abstract (data_ops, key)
-    | Roots -> Abstract (roots_ops, ())
     | Voters_config -> Abstract (voters_config_ops, ())
     | Voter key -> Abstract (voters_ops, key)
     | Credential_props (w, key) -> Abstract_credential_props (w, key)
@@ -462,23 +459,21 @@ module MakeBackend
         let module G = (val w) in
         Lwt.return_some (module G : GROUP)
     | None -> (
-        let module Roots_ops = (val !roots_ops) in
-        let module Data_ops = (val !data_ops) in
-        let* x = Roots_ops.get uuid () in
-        match Lopt.get_value x with
+        let* x = !get_roots uuid in
+        match x with
         | None -> Lwt.return_none
         | Some roots -> (
             let x = roots.setup_data in
             match x with
             | None -> Lwt.return_none
             | Some setup_data -> (
-                let* x = Data_ops.get uuid setup_data in
-                match Lopt.get_value x with
+                let* x = !get_object uuid setup_data in
+                match x with
                 | None -> Lwt.return_none
                 | Some setup_data -> (
                     let setup_data = !*setup_data_of_yojson setup_data in
-                    let* x = Data_ops.get uuid setup_data.election in
-                    match Lopt.get_value x with
+                    let* x = !get_object uuid setup_data.election in
+                    match x with
                     | None -> Lwt.return_none
                     | Some election ->
                         let election = !*Election.t_of_yojson election in
@@ -627,11 +622,9 @@ module MakeBackend
         Lwt.return_unit
 
   let get_archive uuid =
-    let* roots = get (Election (uuid, Roots)) in
+    let* roots = !get_roots uuid in
     let final =
-      match Lopt.get_value roots with
-      | Some roots -> roots.result <> None
-      | _ -> false
+      match roots with Some roots -> roots.result <> None | _ -> false
     in
     if final then
       let archive_name : _ file = Election (uuid, Confidential_archive) in
@@ -1001,14 +994,14 @@ module MakeBackend
             Lwt.fail (Election_not_found (uuid, "raw_get_credential_cache"))
           in
           let ( let& ) x f = match x with None -> fail () | Some x -> f x in
-          let* x = get (Election (uuid, Roots)) in
-          let& roots = Lopt.get_value x in
+          let* x = !get_roots uuid in
+          let& roots = x in
           let& h = roots.setup_data in
-          let* x = get (Election (uuid, Data h)) in
-          let& x = Lopt.get_value x in
+          let* x = !get_object uuid h in
+          let& x = x in
           let setup_data = x |> !*setup_data_of_yojson in
-          let* x = get (Election (uuid, Data setup_data.credentials)) in
-          let& x = Lopt.get_value x in
+          let* x = !get_object uuid setup_data.credentials in
+          let& x = x in
           let public_creds =
             x |> !*(public_credentials_of_yojson !$G.of_string)
           in
@@ -1258,14 +1251,15 @@ module MakeBackend
       (fun () -> close fd)
 
   let gethash ~index ~filename x =
-    let&** i = Hashtbl.find_opt index x in
+    let&* i = Hashtbl.find_opt index x in
     let open Lwt_unix in
     let@ fd cont =
       Lwt.try_bind
         (fun () -> openfile filename [ O_RDONLY ] 0o644)
         cont
         (function
-          | Unix.Unix_error (ENOENT, _, _) -> Lopt.none_lwt | e -> Lwt.reraise e)
+          | Unix.Unix_error (ENOENT, _, _) -> Lwt.return_none
+          | e -> Lwt.reraise e)
     in
     Lwt.finalize
       (fun () ->
@@ -1275,47 +1269,31 @@ module MakeBackend
         let buffer = Bytes.create length in
         let ic = Lwt_io.of_fd ~mode:Input fd in
         let* () = Lwt_io.read_into_exactly ic buffer 0 length in
-        Bytes.to_string buffer |> Lopt.some_value Fun.id |> Lwt.return)
+        Bytes.to_string buffer |> Lwt.return_some)
       (fun () -> close fd)
 
-  module Data_ops = struct
-    type key = hash
-    type value = string
+  let () =
+    get_object :=
+      fun uuid x ->
+        Lwt.try_bind
+          (fun () -> get_index ~creat:false uuid)
+          (fun r ->
+            let&* r = r in
+            let filename = spool_elections uuid archive_filename in
+            gethash ~index:r.map ~filename x)
+          (function
+            | Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
 
-    let get uuid x =
-      Lwt.try_bind
-        (fun () -> get_index ~creat:false uuid)
-        (fun r ->
-          let&** r = r in
-          let filename = spool_elections uuid archive_filename in
-          gethash ~index:r.map ~filename x)
-        (function
-          | Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
-
-    let set _ _ _ = assert false
-    let del _ _ = assert false
-  end
-
-  let () = data_ops := (module Data_ops)
-
-  module Roots_ops = struct
-    type key = unit
-    type value = roots
-
-    let get uuid () =
-      Lwt.try_bind
-        (fun () -> get_index ~creat:false uuid)
-        (fun r ->
-          let&** r = r in
-          r.roots |> Lopt.some_value !+yojson_of_roots |> Lwt.return)
-        (function
-          | Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
-
-    let set _ _ _ = assert false
-    let del _ _ = assert false
-  end
-
-  let () = roots_ops := (module Roots_ops)
+  let () =
+    get_roots :=
+      fun uuid ->
+        Lwt.try_bind
+          (fun () -> get_index ~creat:false uuid)
+          (fun r ->
+            let&* r = r in
+            r.roots |> Lwt.return_some)
+          (function
+            | Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
 
   let append uuid ?last ops =
     let@ last cont =
@@ -1391,6 +1369,8 @@ module MakeBackend
     let del = del
     let update = update
     let append = append
+    let get_roots uuid = !get_roots uuid
+    let get_object uuid h = !get_object uuid h
     let append_sealing = append_sealing
     let new_election = new_election
     let delete_sensitive_data = delete_sensitive_data
@@ -1455,6 +1435,11 @@ module MakeBackend
       let append uuid ?last ops =
         with_lock (Election uuid) (fun () -> append uuid ?last ops)
 
+      let get_roots uuid = with_lock (Election uuid) (fun () -> !get_roots uuid)
+
+      let get_object uuid h =
+        with_lock (Election uuid) (fun () -> !get_object uuid h)
+
       let append_sealing uuid event =
         with_lock (Election uuid) (fun () -> append_sealing uuid event)
     end in
@@ -1500,6 +1485,14 @@ module Make (Config : CONFIG) : STORAGE = struct
     let get s f =
       let module S = (val s : BACKEND0) in
       S.get () f
+
+    let get_roots s uuid =
+      let module S = (val s : BACKEND0) in
+      S.get_roots uuid
+
+    let get_object s uuid h =
+      let module S = (val s : BACKEND0) in
+      S.get_object uuid h
 
     let list_elections s =
       let module S = (val s : BACKEND0) in
@@ -1563,6 +1556,14 @@ module Make (Config : CONFIG) : STORAGE = struct
     let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
     T.append u ?last ops
+
+  let get_roots tx u =
+    let module T = (val tx : BACKEND) in
+    T.get_roots u
+
+  let get_object tx u h =
+    let module T = (val tx : BACKEND) in
+    T.get_object u h
 
   let append_sealing tx u event =
     let@ () = check_readonly in
@@ -1650,6 +1651,8 @@ module Make (Config : CONFIG) : STORAGE = struct
     let del (uuid, x) f = del x (Election (uuid, f))
     let update (uuid, x) f = update x (Election (uuid, f))
     let append (uuid, x) ?last ops = append x uuid ?last ops
+    let get_roots (uuid, x) = get_roots x uuid
+    let get_object (uuid, x) h = get_object x uuid h
     let append_sealing (uuid, x) e = append_sealing x uuid e
     let get_uuid (uuid, _) = uuid
     let archive_election (uuid, x) = archive_election x uuid

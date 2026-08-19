@@ -104,6 +104,14 @@ module E = struct
     let module T = (val tx : TX) in
     T.S.append T.tx ?last ops
 
+  let get_roots tx =
+    let module T = (val tx : TX) in
+    T.S.get_roots T.tx
+
+  let get_object tx h =
+    let module T = (val tx : TX) in
+    T.S.get_object T.tx h
+
   let append_sealing tx sealing =
     let module T = (val tx : TX) in
     T.S.append_sealing T.tx sealing

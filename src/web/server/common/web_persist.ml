@@ -380,8 +380,8 @@ let raw_compute_encrypted_tally s (election : Election.t) =
         x |> HMap.to_seq |> Lwt_seq.of_seq
         |> Lwt_seq.fold_left_s
              (fun accu (ballot_h, ({ weight } : ballot_dynamic_record)) ->
-               let* ballot = Storage.E.get s (Data ballot_h) in
-               match Lopt.get_value ballot with
+               let* ballot = Storage.E.get_object s ballot_h in
+               match ballot with
                | None -> assert false
                | Some ballot ->
                    let ballot = !*[%group_of_yojson: _ ballot] ballot in

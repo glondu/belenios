@@ -28,6 +28,8 @@ module type INPUT = sig
   type session
 
   val get : session -> 'a Election_ops.file -> 'a Lopt.t Lwt.t
+  val get_roots : session -> uuid -> roots option Lwt.t
+  val get_object : session -> uuid -> hash -> string option Lwt.t
   val list_elections : session -> uuid list Lwt.t
   val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
 end
@@ -51,27 +53,36 @@ module Make (I : INPUT) () = struct
           | None -> Lwt.return `Archived)
       | Some x -> Lwt.return @@ to_election_state x
     in
-    let get of_string file =
+    let get file =
       let* x = I.get s (Election (uuid, file)) in
       match Lopt.get_value x with
       | None -> Lwt.fail Exit
+      | Some x -> Lwt.return x
+    in
+    let get_object of_string h =
+      let* x = I.get_object s uuid h in
+      match x with
+      | None -> Lwt.fail Exit
       | Some x -> x |> of_string |> Lwt.return
     in
-    let* metadata = get Fun.id Metadata in
-    let* roots = get Fun.id Roots in
+    let* metadata = get Metadata in
+    let* roots =
+      let* x = I.get_roots s uuid in
+      match x with None -> Lwt.fail Exit | Some x -> Lwt.return x
+    in
     let* name =
       match roots.setup_data with
       | None -> Lwt.fail Exit
       | Some setup_data ->
-          let* setup_data = get !*setup_data_of_yojson (Data setup_data) in
+          let* setup_data = get_object !*setup_data_of_yojson setup_data in
           let* election =
-            get !*Election.t_of_yojson (Data setup_data.election)
+            get_object !*Election.t_of_yojson setup_data.election
           in
           let module W = (val election) in
           Lwt.return W.template.name
     in
     let* date =
-      let* dates = get Fun.id Dates in
+      let* dates = get Dates in
       match state with
       | `Draft -> Lwt.return dates.creation
       | `Open | `Closed | `Shuffling | `EncryptedTally ->

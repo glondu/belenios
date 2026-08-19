@@ -27,6 +27,8 @@ module type INPUT = sig
   type session
 
   val get : session -> 'a Election_ops.file -> 'a Lopt.t Lwt.t
+  val get_roots : session -> uuid -> roots option Lwt.t
+  val get_object : session -> uuid -> hash -> string option Lwt.t
   val list_elections : session -> uuid list Lwt.t
   val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
 end

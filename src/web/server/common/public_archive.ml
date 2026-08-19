@@ -29,14 +29,10 @@ exception Not_in_cache
 let not_in_cache _ = Lwt.fail Not_in_cache
 
 let get_roots s =
-  let* x = Storage.E.get s Roots in
-  match Lopt.get_value x with
-  | None -> Lwt.return Events.empty_roots
-  | Some x -> Lwt.return x
+  let* x = Storage.E.get_roots s in
+  match x with None -> Lwt.return Events.empty_roots | Some x -> Lwt.return x
 
-let get_data s x =
-  let* x = Storage.E.get s (Data x) in
-  x |> Lopt.get_value |> Lwt.return
+let get_data = Storage.E.get_object
 
 let get_event s x =
   let* x = get_data s x in
