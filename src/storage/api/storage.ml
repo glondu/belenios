@@ -120,6 +120,10 @@ module E = struct
     let module T = (val tx : TX) in
     T.S.get_uuid T.tx
 
+  let get_credential_props tx w h =
+    let module T = (val tx : TX) in
+    T.S.get_credential_props T.tx w h
+
   let archive_election tx =
     let module T = (val tx : TX) in
     T.S.archive_election T.tx

@@ -79,12 +79,6 @@ let get_election (type t) : t election_file -> t serializers = function
         to_string = !+yojson_of_voters_config;
       }
   | Voter _ -> { of_string = !*voter_of_yojson; to_string = !+yojson_of_voter }
-  | Credential_props (w, _) ->
-      let module G = (val Group.coerce w) in
-      {
-        of_string = !*(public_credential_with_id_of_yojson !$G.of_string);
-        to_string = !+(yojson_of_public_credential_with_id !&G.to_string);
-      }
   | Credential_dynamic_records _ ->
       {
         of_string = !*credential_dynamic_records_of_yojson;

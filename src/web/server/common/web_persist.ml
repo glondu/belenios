@@ -351,8 +351,8 @@ let get_voter s id =
   Lwt.return_some x
 
 let get_credential_props s (type a b) (w : (a, b) spec) cred =
-  let* x = Storage.E.get s (Credential_props (w, cred)) in
-  match Lopt.get_value x with Some x -> Lwt.return x | None -> assert false
+  let* x = Storage.E.get_credential_props s w cred in
+  match x with Some x -> Lwt.return x | None -> assert false
 
 let add_ballot s (election : Election.t) last ballot =
   let module W = (val election) in

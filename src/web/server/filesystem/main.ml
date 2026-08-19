@@ -60,6 +60,9 @@ module type BACKEND = sig
   val add_election_to_trustees : trustees:uuid -> election:uuid -> unit Lwt.t
   val get_trustees_elections : uuid -> uuid list Lwt.t
 
+  val get_credential_props :
+    uuid -> ('a, 'b) spec -> hash -> 'a public_credential_with_id option Lwt.t
+
   include BACKEND_GENERIC with type t := unit and type 'a file := 'a file
   include BACKEND_ARCHIVE with type t := uuid
   include BACKEND_ELECTIONS with type t := uuid
@@ -108,12 +111,6 @@ module MakeBackend
   type ('key, 'a) abstract_file_ops =
     (module ABSTRACT_FILE_OPS with type key = 'key and type value = 'a) ref
 
-  type abstract_credential_props = {
-    mutable get_credential_props :
-      'a 'b.
-      uuid -> ('a, 'b) spec -> hash -> 'a public_credential_with_id lopt Lwt.t;
-  }
-
   let make_uninitialized_ops (type key value) what =
     let e x = Lwt.fail @@ Not_implemented (Printf.sprintf "%s.%s" what x) in
     let module X = struct
@@ -152,9 +149,6 @@ module MakeBackend
   let ballot_dynamic_records_ops : (_, ballot_dynamic_records) abstract_file_ops
       =
     make_uninitialized_ops "ballot_dynamic_records_ops"
-
-  let get_credential_props =
-    { get_credential_props = (fun _ _ _ -> assert false) }
 
   module PasswordRecordsCacheTypes = struct
     type key = Admin of string
@@ -310,9 +304,6 @@ module MakeBackend
   type _ raw_file_props =
     | Concrete : string -> 'a raw_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a raw_file_props
-    | Abstract_credential_props :
-        ('a, 'b) spec * hash
-        -> 'a public_credential_with_id raw_file_props
 
   let draft_filename = "draft.json"
   let dates_filename = "dates.json"
@@ -340,7 +331,6 @@ module MakeBackend
     | Confidential_archive -> Concrete "archive.zip"
     | Voters_config -> Abstract (voters_config_ops, ())
     | Voter key -> Abstract (voters_ops, key)
-    | Credential_props (w, key) -> Abstract_credential_props (w, key)
     | Credential_dynamic_records key ->
         Abstract (credential_dynamic_records_ops, key)
     | Election_dynamic_records key ->
@@ -371,9 +361,6 @@ module MakeBackend
   type _ file_props =
     | Concrete : string -> 'a file_props
     | Abstract : ('key, 'a) abstract_file_ops * uuid * 'key -> 'a file_props
-    | Abstract_credential_props :
-        uuid * ('a, 'b) spec * hash
-        -> 'a public_credential_with_id file_props
     | Admin_password :
         string * admin_password_kind
         -> password_record file_props
@@ -384,19 +371,15 @@ module MakeBackend
     | Election (uuid, f) -> (
         match get_election_file_props uuid f with
         | Concrete fname -> Concrete (spool_elections uuid fname)
-        | Abstract (ops, key) -> Abstract (ops, uuid, key)
-        | Abstract_credential_props (w, key) ->
-            Abstract_credential_props (uuid, w, key))
+        | Abstract (ops, key) -> Abstract (ops, uuid, key))
     | Trustees (uuid, f) -> (
         match get_trustees_file_props uuid f with
         | Concrete fname -> Concrete (spool_trustees uuid fname)
-        | Abstract (ops, key) -> Abstract (ops, uuid, key)
-        | Abstract_credential_props _ -> assert false)
+        | Abstract (ops, key) -> Abstract (ops, uuid, key))
     | Credentials (uuid, f) -> (
         match get_credentials_file_props uuid f with
         | Concrete fname -> Concrete (spool_credentials uuid fname)
-        | Abstract (ops, key) -> Abstract (ops, uuid, key)
-        | Abstract_credential_props _ -> assert false)
+        | Abstract (ops, key) -> Abstract (ops, uuid, key))
     | Account (Auth_db f) -> Concrete (SMap.find f Config.maps)
     | Account (Admin_password (file, key)) ->
         Admin_password (SMap.find file Config.maps, key)
@@ -404,8 +387,7 @@ module MakeBackend
   let file_exists (type t) (x : t file) =
     match get_props x with
     | Concrete path -> Filesystem.file_exists path
-    | Abstract _ | Abstract_credential_props _ | Admin_password _ ->
-        Lwt.fail @@ Not_implemented "file_exists"
+    | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "file_exists"
 
   let deleted_filename = "deleted.json"
 
@@ -431,8 +413,6 @@ module MakeBackend
     | Abstract (ops, uuid, key) ->
         let module X = (val !ops) in
         X.get uuid key
-    | Abstract_credential_props (uuid, w, key) ->
-        get_credential_props.get_credential_props uuid w key
     | Admin_password (file, key) -> get_password_record_admin file key
 
   let set (type t u) (f : t file) (spec : (t, u) string_or_value_spec)
@@ -449,7 +429,6 @@ module MakeBackend
     | Abstract (ops, uuid, key) ->
         let module X = (val !ops) in
         X.set uuid key data
-    | Abstract_credential_props _ -> failwith "abstract_ops.set"
     | Admin_password (file, key) -> set_password_record_admin file key data
 
   let get_group uuid : (module GROUP) option Lwt.t =
@@ -526,7 +505,6 @@ module MakeBackend
     | Abstract (ops, uuid, key) ->
         let module X = (val !ops) in
         X.del uuid key
-    | Abstract_credential_props _ -> Lwt.fail @@ Not_implemented "del"
     | Admin_password _ -> Lwt.fail @@ Not_implemented "del"
 
   let new_uuid_in_dir dir =
@@ -1016,22 +994,17 @@ module MakeBackend
   let credential_cache =
     new CredCache.cache raw_get_credential_cache ~timer:3600. 10
 
-  let () =
-    get_credential_props.get_credential_props <-
-      (fun (type a b) uuid (w : (a, b) spec) cred ->
-        Lwt.catch
-          (fun () ->
-            let module G = (val Group.coerce w) in
-            let* (W (w', x)) = credential_cache#find uuid in
-            match Type.Id.provably_equal w.element w'.element with
-            | None -> assert false
-            | Some Equal ->
-                let&** x = HMap.find_opt cred x in
-                (x : (a, string) public_credential_props)
-                |> Lopt.some_value
-                     !+(yojson_of_public_credential_with_id !&G.to_string)
-                |> Lwt.return)
-          (fun _ -> Lopt.none_lwt))
+  let get_credential_props uuid (type a b) (w : (a, b) spec) cred =
+    Lwt.catch
+      (fun () ->
+        let module G = (val Group.coerce w) in
+        let* (W (w', x)) = credential_cache#find uuid in
+        match Type.Id.provably_equal w.element w'.element with
+        | None -> assert false
+        | Some Equal ->
+            let&* x = HMap.find_opt cred x in
+            (x : (a, string) public_credential_props) |> Lwt.return_some)
+      (fun _ -> Lwt.return_none)
 
   (** {1 Cleaning operations} *)
 
@@ -1442,6 +1415,9 @@ module MakeBackend
 
       let append_sealing uuid event =
         with_lock (Election uuid) (fun () -> append_sealing uuid event)
+
+      let get_credential_props uuid w h =
+        with_lock (Election uuid) (fun () -> get_credential_props uuid w h)
     end in
     (module X : BACKEND0)
 end
@@ -1570,6 +1546,10 @@ module Make (Config : CONFIG) : STORAGE = struct
     let module T = (val tx : BACKEND) in
     T.append_sealing u event
 
+  let get_credential_props tx u w h =
+    let module T = (val tx : BACKEND) in
+    T.get_credential_props u w h
+
   let new_election () =
     let@ () = check_readonly in
     let@ tx = with_transaction in
@@ -1655,6 +1635,7 @@ module Make (Config : CONFIG) : STORAGE = struct
     let get_object (uuid, x) h = get_object x uuid h
     let append_sealing (uuid, x) e = append_sealing x uuid e
     let get_uuid (uuid, _) = uuid
+    let get_credential_props (uuid, x) w h = get_credential_props x uuid w h
     let archive_election (uuid, x) = archive_election x uuid
     let delete_election (uuid, x) = delete_election x uuid
   end
