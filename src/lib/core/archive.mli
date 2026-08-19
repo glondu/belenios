@@ -29,7 +29,7 @@ type data_or_event = Data | Event of event
 type record = { typ : data_or_event; hash : hash; location : location }
 
 val block_size : int
-val new_header : timestamp:int64 -> header
+val make_header : timestamp:int64 -> header
 
 module type IO_READER = sig
   include MONAD

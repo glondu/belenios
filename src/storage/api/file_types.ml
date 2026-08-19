@@ -32,7 +32,6 @@ type _ election_file =
   | Metadata : metadata election_file
   | Server_seed : string election_file
   | Audit_cache : audit_cache election_file
-  | Archive_header : Archive.header election_file
   | Last_event : last_event election_file
   | Draft : wrapped_draft_election election_file
   | Public_creds : ('a, 'b) spec -> 'a public_credentials_with_id election_file

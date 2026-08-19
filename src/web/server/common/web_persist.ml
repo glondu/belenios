@@ -883,6 +883,14 @@ let validate_election ~admin_id storage
   in
   (* initialize credentials *)
   let* public_creds = init_credential_mapping storage w in
+  (* set finalization date *)
+  let* () =
+    let@ dates, set = Storage.E.update storage Dates in
+    match Lopt.get_value dates with
+    | None -> assert false
+    | Some dates ->
+        set Value { dates with finalization = Some (datetime_now ()) }
+  in
   (* initialize events *)
   let* () = initialize_events storage w se raw_election trustees public_creds in
   (* create file with private keys *)
@@ -892,15 +900,7 @@ let validate_election ~admin_id storage
   (* clean up private credentials, if any *)
   let* () = Storage.E.del storage Private_creds in
   (* finish *)
-  let* () = Storage.E.set storage State Value `Closed in
-  let@ dates, set_dates =
-   fun cont ->
-    let@ dates, set = Storage.E.update storage Dates in
-    match Lopt.get_value dates with
-    | None -> assert false
-    | Some dates -> cont (dates, set)
-  in
-  set_dates Value { dates with finalization = Some (datetime_now ()) }
+  Storage.E.set storage State Value `Closed
 
 let create_draft s se = Storage.E.set s Draft Value se
 let transition_to_encrypted_tally set_state = set_state `EncryptedTally

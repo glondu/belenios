@@ -130,9 +130,6 @@ module MakeBackend
 
   (** {1 Forward references} *)
 
-  let archive_header_ops : (_, Archive.header) abstract_file_ops =
-    make_uninitialized_ops "archive_header_ops"
-
   let data_ops : (_, string) abstract_file_ops =
     make_uninitialized_ops "data_ops"
 
@@ -337,7 +334,6 @@ module MakeBackend
     | Metadata -> Concrete "metadata.json"
     | Server_seed -> Concrete server_seed_filename
     | Audit_cache -> Concrete "audit_cache.json"
-    | Archive_header -> Abstract (archive_header_ops, ())
     | Last_event -> Concrete "last_event.json"
     | Sealing_log -> Concrete "sealing.log"
     | Records -> Concrete records_filename
@@ -1167,14 +1163,19 @@ module MakeBackend
         Lwt_io.flush oc.channel)
       (fun () -> close fd)
 
-  let build_roots ~size ~pos filename =
+  let build_roots ~size ~pos ~uuid filename =
     let r = Hashtbl.create size in
     let@ () =
      fun cont ->
       if pos > 0L then cont ()
       else
-        let timestamp = Unix.time () |> Int64.of_float in
-        let header = Archive.new_header ~timestamp in
+        let* timestamp =
+          let* x = get (Election (uuid, Dates)) in
+          match Lopt.get_value x with
+          | Some { finalization = Some x; _ } -> Lwt.return x
+          | _ -> assert false
+        in
+        let header = Archive.make_header ~timestamp in
         let* () = write_header ~filename ~header in
         Lwt.return_some (r, Events.empty_roots, header.timestamp)
     in
@@ -1215,7 +1216,7 @@ module MakeBackend
       | Some x -> (x.height + 100, x.pos)
     in
     let filename = spool_elections uuid archive_filename in
-    let*& map, roots, timestamp = build_roots ~size ~pos filename in
+    let*& map, roots, timestamp = build_roots ~size ~pos ~uuid filename in
     let remove () = Hashtbl.remove indexes uuid in
     let timeout = Lwt_timeout.create 3600 remove in
     let r = { timeout; map; roots; timestamp } in
@@ -1296,22 +1297,6 @@ module MakeBackend
   end
 
   let () = data_ops := (module Data_ops)
-
-  module Archive_header_ops = struct
-    type key = unit
-    type value = Archive.header
-
-    let get uuid () =
-      let filename = spool_elections uuid archive_filename in
-      let@ ic = Lwt_io.with_file ~mode:Lwt_io.input filename in
-      let* header = Reader.read_header ic in
-      Lwt.return @@ Lopt.some_value !+Archive.yojson_of_header header
-
-    let set _ _ _ = assert false
-    let del _ _ = assert false
-  end
-
-  let () = archive_header_ops := (module Archive_header_ops)
 
   module Roots_ops = struct
     type key = unit

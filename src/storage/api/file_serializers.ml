@@ -43,11 +43,6 @@ let get_election (type t) : t election_file -> t serializers = function
         of_string = !*audit_cache_of_yojson;
         to_string = !+yojson_of_audit_cache;
       }
-  | Archive_header ->
-      {
-        of_string = !*Archive.header_of_yojson;
-        to_string = !+Archive.yojson_of_header;
-      }
   | Last_event ->
       { of_string = !*last_event_of_yojson; to_string = !+yojson_of_last_event }
   | Draft ->

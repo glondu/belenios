@@ -646,10 +646,12 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       match method_ with
       | `GET -> (
           let@ () = handle_generic_error in
-          let* x = Storage.E.get s Archive_header in
-          match Lopt.get_string x with
-          | Some x -> return_json 200 x
-          | None -> not_found)
+          let* x = Storage.E.get s Dates in
+          match Lopt.get_value x with
+          | Some { finalization = Some timestamp; _ } ->
+              Archive.make_header ~timestamp
+              |> Archive.yojson_of_header |> return_yojson 200
+          | _ -> not_found)
       | _ -> method_not_allowed)
   | [ "last-event" ] -> (
       match method_ with
