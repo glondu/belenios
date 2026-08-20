@@ -40,16 +40,12 @@ type _ election_file =
   | Records : Belenios_web_api.election_records election_file
   | Voters : voters election_file
   | Confidential_archive : abstract election_file
-  | Credential_dynamic_records :
-      dynamic_records_index
-      -> credential_dynamic_records election_file
-  | Election_dynamic_records :
-      dynamic_records_index
-      -> election_dynamic_records election_file
-  | Ballot_dynamic_records :
-      dynamic_records_index
-      -> ballot_dynamic_records election_file
   | Ballots_info : Belenios_web_api.ballots_info election_file
+
+type _ dynamic_record_file =
+  | Credential : credential_dynamic_record option dynamic_record_file
+  | Election : Belenios_web_api.election_record option dynamic_record_file
+  | Ballot : ballot_dynamic_record dynamic_record_file
 
 type _ credentials_file =
   | Credentials_params : wrapped_credentials_params credentials_file

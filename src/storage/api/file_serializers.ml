@@ -73,21 +73,6 @@ let get_election (type t) : t election_file -> t serializers = function
         of_string = (fun _ -> invalid_arg "Confidential_archive.of_string");
         to_string = (fun _ -> invalid_arg "Confidential_archive.to_string");
       }
-  | Credential_dynamic_records _ ->
-      {
-        of_string = !*credential_dynamic_records_of_yojson;
-        to_string = !+yojson_of_credential_dynamic_records;
-      }
-  | Election_dynamic_records _ ->
-      {
-        of_string = !*election_dynamic_records_of_yojson;
-        to_string = !+yojson_of_election_dynamic_records;
-      }
-  | Ballot_dynamic_records _ ->
-      {
-        of_string = !*ballot_dynamic_records_of_yojson;
-        to_string = !+yojson_of_ballot_dynamic_records;
-      }
   | Ballots_info ->
       {
         of_string = !*Belenios_web_api.ballots_info_of_yojson;

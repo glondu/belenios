@@ -139,6 +139,22 @@ module E = struct
   let get_voter tx x =
     let module T = (val tx : TX) in
     T.S.get_voter T.tx x
+
+  let get_dynamic_records tx x p =
+    let module T = (val tx : TX) in
+    T.S.get_dynamic_records T.tx x p
+
+  let set_dynamic_records tx x v =
+    let module T = (val tx : TX) in
+    T.S.set_dynamic_records T.tx x v
+
+  let set_dynamic_record tx x h v =
+    let module T = (val tx : TX) in
+    T.S.set_dynamic_record T.tx x h v
+
+  let del_dynamic_record tx x h =
+    let module T = (val tx : TX) in
+    T.S.del_dynamic_record T.tx x h
 end
 
 module T = struct

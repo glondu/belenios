@@ -382,21 +382,18 @@ let get_records s =
   | Some x -> Lwt.return x
   | None ->
       let* voters = Storage.get_all_voters s in
-      let* dynamic = Storage.E.get s @@ Election_dynamic_records All in
+      let* dynamic = Storage.E.get_dynamic_records s Election All in
       let records =
-        match Lopt.get_value dynamic with
-        | Some dynamic ->
-            voters |> SMap.to_seq
-            |> Seq.fold_left
-                 (fun accu (l, (v : voter)) ->
-                   let r =
-                     match HMap.find_opt (Hash.hash_string l) dynamic with
-                     | Some (Some r) -> Some r
-                     | _ -> None
-                   in
-                   SMap.add v.login r accu)
-                 SMap.empty
-        | _ -> assert false
+        voters |> SMap.to_seq
+        |> Seq.fold_left
+             (fun accu (l, (v : voter)) ->
+               let r =
+                 match HMap.find_opt (Hash.hash_string l) dynamic with
+                 | Some (Some r) -> Some r
+                 | _ -> None
+               in
+               SMap.add v.login r accu)
+             SMap.empty
       in
       let* () = set Value records in
       Lwt.return records
@@ -628,12 +625,10 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
         match prefix with "all" -> cont All | p -> cont (Prefix p)
       in
       match method_ with
-      | `GET -> (
+      | `GET ->
           let@ () = handle_generic_error in
-          let* x = Storage.E.get s @@ Ballot_dynamic_records prefix in
-          match Lopt.get_string x with
-          | None -> not_found
-          | Some x -> return_json 200 x)
+          let* x = Storage.E.get_dynamic_records s Ballot prefix in
+          x |> yojson_of_ballot_dynamic_records |> return_yojson 200
       | _ -> method_not_allowed)
   | [ "objects"; hash ] -> (
       match method_ with

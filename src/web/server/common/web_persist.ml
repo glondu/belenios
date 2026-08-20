@@ -371,20 +371,17 @@ let raw_compute_encrypted_tally s (election : Election.t) =
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let* ballots =
-    let* x = Storage.E.get s (Ballot_dynamic_records All) in
-    match Lopt.get_value x with
-    | None -> Lwt.return_nil
-    | Some x ->
-        x |> HMap.to_seq |> Lwt_seq.of_seq
-        |> Lwt_seq.fold_left_s
-             (fun accu (ballot_h, ({ weight } : ballot_dynamic_record)) ->
-               let* ballot = Storage.E.get_object s ballot_h in
-               match ballot with
-               | None -> assert false
-               | Some ballot ->
-                   let ballot = !*[%group_of_yojson: _ ballot] ballot in
-                   Lwt.return ((weight, ballot) :: accu))
-             []
+    let* x = Storage.E.get_dynamic_records s Ballot All in
+    x |> HMap.to_seq |> Lwt_seq.of_seq
+    |> Lwt_seq.fold_left_s
+         (fun accu (ballot_h, ({ weight } : ballot_dynamic_record)) ->
+           let* ballot = Storage.E.get_object s ballot_h in
+           match ballot with
+           | None -> assert false
+           | Some ballot ->
+               let ballot = !*[%group_of_yojson: _ ballot] ballot in
+               Lwt.return ((weight, ballot) :: accu))
+         []
   in
   let tally = W.E.process_ballots ballots in
   let tally_s = !+(yojson_of_encrypted_tally !&W.G.to_string) tally in
@@ -414,14 +411,10 @@ let raw_compute_encrypted_tally s (election : Election.t) =
 
 let get_credential_record s (type a b) (w : (a, b) spec) credential =
   let* cr_ballot =
-    let* x = Storage.E.get s @@ Credential_dynamic_records (Hash credential) in
-    match Lopt.get_value x with
-    | None -> assert false
-    | Some x -> (
-        let x = HMap.find_opt credential x in
-        match x with
-        | Some (Some { ballot; _ }) -> Lwt.return_some ballot
-        | _ -> Lwt.return_none)
+    let* x = Storage.E.get_dynamic_records s Credential (Hash credential) in
+    match HMap.find_opt credential x with
+    | Some (Some { ballot; _ }) -> Lwt.return_some ballot
+    | _ -> Lwt.return_none
   in
   let* x = get_credential_props s w credential in
   let cr_username = x.id in
@@ -515,26 +508,13 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
               cont (h, true)
       in
       let* () =
-        let@ x, set =
-          Storage.E.update s
-          @@ Credential_dynamic_records (Hash credential_hash)
-        in
-        match Lopt.get_value x with
-        | None -> assert false
-        | Some x ->
-            let x = HMap.add credential_hash (Some { ballot = hash }) x in
-            set Value x
+        Storage.E.set_dynamic_record s Credential credential_hash
+          (Some { ballot = hash })
       in
       let* () =
         let username_h = Hash.hash_string username in
-        let@ x, set =
-          Storage.E.update s @@ Election_dynamic_records (Hash username_h)
-        in
-        match Lopt.get_value x with
-        | None -> assert false
-        | Some x ->
-            let x = HMap.add username_h (Some { timestamp = date }) x in
-            set Value x
+        Storage.E.set_dynamic_record s Election username_h
+          (Some { timestamp = date })
       in
       let* () =
         match old with
@@ -549,18 +529,9 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
                     accepted = x.accepted + 1;
                     accepted_weight = Weight.(x.accepted_weight + weight);
                   })
-        | Some old -> Storage.E.del s @@ Ballot_dynamic_records (Hash old)
+        | Some old -> Storage.E.del_dynamic_record s Ballot old
       in
-      let* () =
-        let@ x, set =
-          Storage.E.update s @@ Ballot_dynamic_records (Hash hash)
-        in
-        match Lopt.get_value x with
-        | None -> assert false
-        | Some x ->
-            let x = HMap.add hash { weight } x in
-            set Value x
-      in
+      let* () = Storage.E.set_dynamic_record s Ballot hash { weight } in
       let* () = Storage.E.del s Records in
       Lwt.return (Ok (hash, revote))
 
@@ -731,8 +702,8 @@ let init_credential_mapping s (type a b) (w : (a, b) group) =
           x HMap.empty
       in
       let xs = x |> HMap.map (fun _ -> None) in
-      let* () = Storage.E.set s (Election_dynamic_records All) Value records in
-      let* () = Storage.E.set s (Credential_dynamic_records All) Value xs in
+      let* () = Storage.E.set_dynamic_records s Election records in
+      let* () = Storage.E.set_dynamic_records s Credential xs in
       let* bits =
         let* x = Storage.E.get_voters_config s in
         match x with

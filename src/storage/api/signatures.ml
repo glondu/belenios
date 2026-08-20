@@ -95,6 +95,16 @@ module type ELECTION_TRANSACTION = sig
   val delete_election : t -> unit Lwt.t
   val get_voters_config : t -> voters_config option Lwt.t
   val get_voter : t -> string -> voter option Lwt.t
+
+  val get_dynamic_records :
+    t -> 'a dynamic_record_file -> dynamic_records_index -> 'a hmap Lwt.t
+
+  val set_dynamic_records : t -> 'a dynamic_record_file -> 'a hmap -> unit Lwt.t
+
+  val set_dynamic_record :
+    t -> 'a dynamic_record_file -> hash -> 'a -> unit Lwt.t
+
+  val del_dynamic_record : t -> 'a dynamic_record_file -> hash -> unit Lwt.t
 end
 
 module type TRUSTEES_TRANSACTION = sig
