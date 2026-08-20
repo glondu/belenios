@@ -332,10 +332,8 @@ let dummy_voters_config =
   }
 
 let get_voters_config s =
-  let* x = Storage.E.get s Voters_config in
-  match Lopt.get_value x with
-  | None -> Lwt.return dummy_voters_config
-  | Some x -> Lwt.return x
+  let* x = Storage.E.get_voters_config s in
+  match x with None -> Lwt.return dummy_voters_config | Some x -> Lwt.return x
 
 let get_has_explicit_weights s =
   let* { has_explicit_weights; _ } = get_voters_config s in
@@ -346,8 +344,8 @@ let get_username_or_address s =
   Lwt.return username_or_address
 
 let get_voter s id =
-  let* x = Storage.E.get s (Voter id) in
-  let&* x = Lopt.get_value x in
+  let* x = Storage.E.get_voter s id in
+  let&* x = x in
   Lwt.return_some x
 
 let get_credential_props s (type a b) (w : (a, b) spec) cred =
@@ -736,8 +734,8 @@ let init_credential_mapping s (type a b) (w : (a, b) group) =
       let* () = Storage.E.set s (Election_dynamic_records All) Value records in
       let* () = Storage.E.set s (Credential_dynamic_records All) Value xs in
       let* bits =
-        let* x = Storage.E.get s Voters_config in
-        match Lopt.get_value x with
+        let* x = Storage.E.get_voters_config s in
+        match x with
         | None -> Lwt.return 0
         | Some { bits; _ } -> Lwt.return bits
       in

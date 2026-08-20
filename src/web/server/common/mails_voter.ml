@@ -57,8 +57,8 @@ let get_metadata s ~admin_id =
   match Lopt.get_value election with
   | Some election ->
       let* has_weights =
-        let* x = Storage.E.get s Voters_config in
-        match Lopt.get_value x with
+        let* x = Storage.E.get_voters_config s in
+        match x with
         | None -> Lwt.return_true
         | Some x -> Lwt.return x.has_explicit_weights
       in

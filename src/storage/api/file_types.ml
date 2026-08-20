@@ -40,8 +40,6 @@ type _ election_file =
   | Records : Belenios_web_api.election_records election_file
   | Voters : voters election_file
   | Confidential_archive : abstract election_file
-  | Voters_config : voters_config election_file
-  | Voter : string -> Voter.t election_file
   | Credential_dynamic_records :
       dynamic_records_index
       -> credential_dynamic_records election_file

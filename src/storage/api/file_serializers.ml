@@ -73,12 +73,6 @@ let get_election (type t) : t election_file -> t serializers = function
         of_string = (fun _ -> invalid_arg "Confidential_archive.of_string");
         to_string = (fun _ -> invalid_arg "Confidential_archive.to_string");
       }
-  | Voters_config ->
-      {
-        of_string = !*voters_config_of_yojson;
-        to_string = !+yojson_of_voters_config;
-      }
-  | Voter _ -> { of_string = !*voter_of_yojson; to_string = !+yojson_of_voter }
   | Credential_dynamic_records _ ->
       {
         of_string = !*credential_dynamic_records_of_yojson;

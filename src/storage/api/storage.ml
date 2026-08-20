@@ -131,6 +131,14 @@ module E = struct
   let delete_election tx =
     let module T = (val tx : TX) in
     T.S.delete_election T.tx
+
+  let get_voters_config tx =
+    let module T = (val tx : TX) in
+    T.S.get_voters_config T.tx
+
+  let get_voter tx x =
+    let module T = (val tx : TX) in
+    T.S.get_voter T.tx x
 end
 
 module T = struct

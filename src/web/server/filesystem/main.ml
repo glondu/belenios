@@ -63,6 +63,9 @@ module type BACKEND = sig
   val get_credential_props :
     uuid -> ('a, 'b) spec -> hash -> 'a public_credential_with_id option Lwt.t
 
+  val get_voters_config : uuid -> voters_config option Lwt.t
+  val get_voter : uuid -> string -> voter option Lwt.t
+
   include BACKEND_GENERIC with type t := unit and type 'a file := 'a file
   include BACKEND_ARCHIVE with type t := uuid
   include BACKEND_ELECTIONS with type t := uuid
@@ -131,12 +134,6 @@ module MakeBackend
 
   let get_object : (uuid -> hash -> string option Lwt.t) ref =
     ref (fun _ _ -> assert false)
-
-  let voters_config_ops : (_, voters_config) abstract_file_ops =
-    make_uninitialized_ops "voters_config_ops"
-
-  let voters_ops : (_, Voter.t) abstract_file_ops =
-    make_uninitialized_ops "voters_ops"
 
   let credential_dynamic_records_ops :
       (_, credential_dynamic_records) abstract_file_ops =
@@ -329,8 +326,6 @@ module MakeBackend
     | Records -> Concrete records_filename
     | Voters -> Concrete voters_filename
     | Confidential_archive -> Concrete "archive.zip"
-    | Voters_config -> Abstract (voters_config_ops, ())
-    | Voter key -> Abstract (voters_ops, key)
     | Credential_dynamic_records key ->
         Abstract (credential_dynamic_records_ops, key)
     | Election_dynamic_records key ->
@@ -692,47 +687,27 @@ module MakeBackend
         Lwt.return_some x)
       (fun _ -> Lwt.return_none)
 
-  module Voters_config_ops = struct
-    type key = unit
-    type value = voters_config
-
-    let get uuid () =
-      let* x = get_voters uuid in
-      let&** { has_explicit_weights; username_or_address; voter_map } = x in
-      let nb_voters = SMap.cardinal voter_map in
-      let bits =
-        let rec loop bits =
-          if nb_voters asr bits > voters_bits_threshold then loop (bits + 1)
-          else bits
-        in
-        loop 0
+  let get_voters_config uuid =
+    let* x = get_voters uuid in
+    let&* { has_explicit_weights; username_or_address; voter_map } = x in
+    let nb_voters = SMap.cardinal voter_map in
+    let bits =
+      let rec loop bits =
+        if nb_voters asr bits > voters_bits_threshold then loop (bits + 1)
+        else bits
       in
-      let x : voters_config =
-        { has_explicit_weights; username_or_address; nb_voters; bits }
-      in
-      x |> Lopt.some_value !+yojson_of_voters_config |> Lwt.return
+      loop 0
+    in
+    let x : voters_config =
+      { has_explicit_weights; username_or_address; nb_voters; bits }
+    in
+    x |> Lwt.return_some
 
-    let set _ _ _ = assert false
-    let del _ _ = assert false
-  end
-
-  module Voter_ops = struct
-    type key = string
-    type value = voter
-
-    let get uuid id =
-      let* x = get_voters uuid in
-      let&** { voter_map; _ } = x in
-      let&** x = SMap.find_opt (String.lowercase_ascii id) voter_map in
-      x |> Lopt.some_value !+yojson_of_voter |> Lwt.return
-
-    let set _ _ _ = assert false
-    let del _ _ = assert false
-  end
-
-  let () =
-    voters_config_ops := (module Voters_config_ops);
-    voters_ops := (module Voter_ops)
+  let get_voter uuid id =
+    let* x = get_voters uuid in
+    let&* { voter_map; _ } = x in
+    let&* x = SMap.find_opt (String.lowercase_ascii id) voter_map in
+    x |> Lwt.return_some
 
   let binary_of_hex h =
     let buf = Buffer.create (String.length h * 4) in
@@ -772,10 +747,8 @@ module MakeBackend
     String.sub (binary_of_hex x) 0 bits
 
   let get_bits uuid =
-    let* x = Voters_config_ops.get uuid () in
-    match Lopt.get_value x with
-    | None -> assert false
-    | Some x -> Lwt.return x.bits
+    let* x = get_voters_config uuid in
+    match x with None -> assert false | Some x -> Lwt.return x.bits
 
   let check_prefix bits p =
     String.length p = bits && String.for_all (fun c -> c = '0' || c = '1') p
@@ -1356,6 +1329,8 @@ module MakeBackend
       |> Filesystem.write_file (spool_elections uuid deleted_filename)
 
     let delete_draft_election = delete_draft_election
+    let get_voters_config = get_voters_config
+    let get_voter = get_voter
   end
 
   let make set_ =
@@ -1418,6 +1393,12 @@ module MakeBackend
 
       let get_credential_props uuid w h =
         with_lock (Election uuid) (fun () -> get_credential_props uuid w h)
+
+      let get_voters_config uuid =
+        with_lock (Election uuid) (fun () -> get_voters_config uuid)
+
+      let get_voter uuid x =
+        with_lock (Election uuid) (fun () -> get_voter uuid x)
     end in
     (module X : BACKEND0)
 end
@@ -1572,6 +1553,14 @@ module Make (Config : CONFIG) : STORAGE = struct
     let module T = (val tx : BACKEND) in
     T.delete_election u
 
+  let get_voters_config tx u =
+    let module T = (val tx : BACKEND) in
+    T.get_voters_config u
+
+  let get_voter tx u x =
+    let module T = (val tx : BACKEND) in
+    T.get_voter u x
+
   let new_account_id tx =
     let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
@@ -1638,6 +1627,8 @@ module Make (Config : CONFIG) : STORAGE = struct
     let get_credential_props (uuid, x) w h = get_credential_props x uuid w h
     let archive_election (uuid, x) = archive_election x uuid
     let delete_election (uuid, x) = delete_election x uuid
+    let get_voters_config (uuid, x) = get_voters_config x uuid
+    let get_voter (uuid, x) id = get_voter x uuid id
   end
 
   module T : TRUSTEES_TRANSACTION = struct

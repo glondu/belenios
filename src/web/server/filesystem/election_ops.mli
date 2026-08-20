@@ -49,6 +49,8 @@ module type BACKEND = sig
   val delete_live_data : uuid -> unit Lwt.t
   val write_deleted_file : uuid -> deleted_election -> unit Lwt.t
   val delete_draft_election : uuid -> unit Lwt.t
+  val get_voters_config : uuid -> voters_config option Lwt.t
+  val get_voter : uuid -> string -> voter option Lwt.t
 end
 
 val delete_live_election : (module BACKEND) -> uuid -> roots -> unit Lwt.t

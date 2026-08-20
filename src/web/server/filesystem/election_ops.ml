@@ -50,6 +50,8 @@ module type BACKEND = sig
   val delete_live_data : uuid -> unit Lwt.t
   val write_deleted_file : uuid -> deleted_election -> unit Lwt.t
   val delete_draft_election : uuid -> unit Lwt.t
+  val get_voters_config : uuid -> voters_config option Lwt.t
+  val get_voter : uuid -> string -> voter option Lwt.t
 end
 
 let ( let&! ) x f = match x with None -> Lwt.return_unit | Some x -> f x
@@ -151,8 +153,8 @@ let delete_live_election s uuid roots =
         loop CredSet.empty 0 e
   in
   let* de_nb_voters, de_has_weights =
-    let* x = S.get (Election (uuid, Voters_config)) in
-    match Lopt.get_value x with
+    let* x = S.get_voters_config uuid in
+    match x with
     | None -> Lwt.return (0, false)
     | Some { has_explicit_weights; nb_voters; _ } ->
         Lwt.return (nb_voters, has_explicit_weights)

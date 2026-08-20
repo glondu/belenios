@@ -93,6 +93,8 @@ module type ELECTION_TRANSACTION = sig
   val get_unixfilename : t -> 'a election_file -> string Lwt.t
   val archive_election : t -> unit Lwt.t
   val delete_election : t -> unit Lwt.t
+  val get_voters_config : t -> voters_config option Lwt.t
+  val get_voter : t -> string -> voter option Lwt.t
 end
 
 module type TRUSTEES_TRANSACTION = sig
