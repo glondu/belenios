@@ -7,860 +7,872 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-16 10:10+0000\n"
-"PO-Revision-Date: 2026-08-21 11:52+0000\n"
-"Last-Translator: RANDRIAMBOLOLONA <yves@fimpima.be>\n"
-"Language-Team: Malagasy <https://hosted.weblate.org/projects/belenios/voter/"
-"mg/>\n"
+"POT-Creation-Date: 2026-08-05 06:26+0000\n"
+"PO-Revision-Date: 2026-09-03 10:51+0000\n"
+"Last-Translator: Erel Segal-Halevi <erelsgl@gmail.com>\n"
+"Language-Team: Hebrew <https://hosted.weblate.org/projects/belenios/voter/"
+"he/>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n > 1;\n"
-"Language: mg\n"
-"X-Generator: Weblate 2026.9.dev0\n"
+"Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
+"n % 10 == 0) ? 2 : 3));\n"
+"Language: he\n"
+"X-Generator: Weblate 2026.9\n"
 
 #: src/web/server/common/pages_common.ml:349
 msgid " (if you forgot it, for example)."
-msgstr " (raha adinonao, ohatra)."
+msgstr " (למשל, אם שכחתם אותה)."
 
-#: src/web/common/pages_common.ml:245
+#: src/web/common/pages_common.ml:246
 msgid " A confirmation e-mail has been sent to you."
-msgstr " Nisy mailaka fanamafisana nalefa taminao."
+msgstr " הודעת אישור נשלחה אליך בדואל."
 
-#: src/web/common/pages_common.ml:243
+#: src/web/common/pages_common.ml:244
 msgid " anytime during the election."
-msgstr " amin'ny fotoana rehetra mandritra ny fifidianana."
+msgstr " בכל עת במהלך הבחירות."
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:233
 msgid " as user "
-msgstr " amin’ny maha-mpampiasa azy (as user) "
+msgstr " בתור המשתמש "
 
 #: src/web/clients/election/ballots.ml:59
 msgid " ballot(s) have been accepted so far."
-msgstr " ny vatom-pifidianana dia efa nekena hatreto."
+msgstr " פתקי הצבעה התקבלו עד כה."
 
 #: src/web/clients/election/ballots.ml:69
 msgid " ballot(s) have been accepted, and "
-msgstr ""
+msgstr " פתקי הצבעה התקבלו, וכן "
 
 #: src/web/clients/election/ballots.ml:63
 msgid " ballot(s) have been accepted."
-msgstr ""
+msgstr " פתקי הצבעה התקבלו."
 
 #: src/web/clients/election/home.ml:403
 msgid " for more information."
-msgstr ""
+msgstr " למידע נוסף."
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:235
 msgid " has been accepted."
-msgstr ""
+msgstr " התקבל."
 
 #: src/web/clients/election/ballots.ml:71
 msgid " have been tallied."
-msgstr ""
+msgstr " נספרו."
 
 #: src/web/server/common/pages_common.ml:551
 msgid " in the following box: "
-msgstr ""
+msgstr " בתיבה הבאה: "
 
-#: src/web/common/pages_common.ml:252
+#: src/web/common/pages_common.ml:253
 msgid " is rejected, because "
-msgstr ""
+msgstr " נדחה. הסיבה: "
 
 #: src/web/clients/election/home.ml:363 src/web/clients/election/home.ml:332
 msgid "%d blank ballot(s)"
-msgstr ""
+msgstr "%d פתקי הצבעה ריקים"
 
 #: src/web/clients/election/home.ml:429 src/web/clients/election/home.ml:339
 msgid "%d invalid ballot(s)"
-msgstr ""
+msgstr "%d פתקי הצבעה פסולים"
 
 #: src/web/clients/election/home.ml:206
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
 msgstr ""
+"%d מתוך %d הנאמנים הבאים [מפתחות ציבוריים] נדרשים כדי לפענח את תוצאות "
+"הבחירות:"
 
 #: src/web/clients/election/home.ml:357 src/web/clients/election/home.ml:326
 msgid "%d valid (non-blank) ballot(s)"
-msgstr ""
+msgstr "%d פתקי הצבעה תקפים (לא ריקים)"
 
 #: src/web/clients/election/home.ml:358 src/web/clients/election/home.ml:327
 msgid "%d valid ballot(s)"
-msgstr ""
+msgstr "%d פתקי הצבעה תקפים"
 
 #: src/web/clients/election/advanced.ml:136
 msgid "(available in the "
-msgstr ""
+msgstr "(זמין בקישור "
 
 #: src/web/clients/election/advanced.ml:138
 msgid "), or any compatible booth."
-msgstr ""
+msgstr "), או בכל תא הצבעה תואם."
 
 #: src/web/server/common/pages_common.ml:345
 msgid ", or "
-msgstr ""
+msgstr ", או "
 
 #: src/web/clients/election/home.ml:391
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
-msgstr ""
+msgstr "מנצח קונדורסה הוא מועמד המנצח כל מועמד אחר בהצבעת רוב."
 
 #: src/web/clients/election/home.ml:436
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
-msgstr ""
+msgstr "פתק הצבעה נפסל אם שני מועמדים קיבלו את אותה דרגת העדפה או אם חסרה דרגה."
 
 #: src/web/clients/election/advanced.ml:141
 msgid "A specification of encrypted ballots is also available in the sources."
-msgstr ""
+msgstr "מפרט של פתקי ההצבעה המוצפנים זמין גם בקוד המקור."
 
 #: src/web/server/common/pages_common.ml:500
 msgid "A verification code has been sent to %s."
-msgstr ""
+msgstr "קוד אימות נשלח אל %s."
 
 #: src/web/clients/election/home.ml:279
 msgid "About this election"
-msgstr ""
+msgstr "אודות בחירות אלה"
 
 #: src/web/clients/election/ballots.ml:109
 msgid "Accepted ballots"
-msgstr ""
+msgstr "פתקי הצבעה שהתקבלו"
 
 #: src/web/clients/election/home.ml:345
 msgid "According to Majority Judgment, the ranking is:"
-msgstr ""
+msgstr "לפי כלל שיפוט רוב, הדירוג הוא:"
 
 #: src/web/server/common/pages_common.ml:96
 msgid "Administer elections"
-msgstr ""
+msgstr "ניהול בחירות"
 
 #. src/web/server/common/pages_common.ml:102
 #: src/web/clients/election/common.ml:62
 msgid "Administer this election"
-msgstr ""
+msgstr "ניהול בחירות אלה"
 
 #: src/web/clients/election/home.ml:103
 msgid "Administrator"
-msgstr ""
+msgstr "מנהל הבחירות"
 
 #: src/web/clients/election/advanced.ml:52 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
-msgstr ""
+msgstr "מצב מתקדם"
 
 #: src/web/clients/election/home.ml:178
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
-msgstr ""
+msgstr "כל הנאמנים הבאים (מפתחות אימות) נדרשים כדי לפענח את התוצאה:"
 
 #: src/web/clients/election/advanced.ml:108
 msgid "Alternatively, you can also upload a file containing your ballot:"
-msgstr ""
+msgstr "לחלופין, תוכלו גם להעלות קובץ המכיל את פתק ההצבעה שלכם:"
 
-#: src/web/server/common/mails_voter.ml:275
+#: src/web/server/common/mails_voter.ml:286
 msgid "Alternatively, you can follow the link:"
-msgstr ""
+msgstr "לחלופין, תוכלו ללחוץ על הקישור:"
 
 #: src/web/clients/election/home.ml:800
 msgid "Audit data not available."
-msgstr ""
+msgstr "נתוני הביקורת אינם זמינים."
 
 #: src/web/clients/election/common.ml:53
 msgid "Audit data: "
-msgstr ""
+msgstr "נתוני ביקורת: "
 
 #. src/web/server/common/pages_common.ml:413
 #. src/web/server/common/pages_common.ml:321
 #: src/web/server/common/pages_common.ml:511
 msgid "Authenticate"
-msgstr ""
+msgstr "אימות"
 
 #: src/web/server/common/pages_common.ml:252
 msgid "Authenticate with %s"
-msgstr ""
+msgstr "אימות באמצעות %s"
 
-#: src/web/server/common/mails_voter.ml:296
+#: src/web/server/common/mails_voter.ml:307
 msgid "Authentication"
-msgstr ""
+msgstr "אימות"
 
 #: src/web/server/common/pages_common.ml:427
 msgid "Authentication failed"
-msgstr ""
+msgstr "האימות נכשל"
 
 #: src/web/server/common/pages_common.ml:433
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
+"האימות נכשל, כנראה בגלל שם משתמש או סיסמה שגויים, או משום שאינכם רשאים לבצע "
+"פעולה זו."
 
 #: src/web/server/common/pages_common.ml:576
 msgid "Authentication impossible"
-msgstr ""
+msgstr "לא ניתן לבצע אימות"
 
 #: src/web/server/common/pages_common.ml:571
 msgid "Authentication is impossible."
-msgstr ""
+msgstr "לא ניתן לבצע אימות."
 
 #: src/web/clients/election/advanced.ml:150
 msgid "Back to election home"
-msgstr ""
+msgstr "חזרה לעמוד הבחירות"
 
 #: src/web/server/common/pages_common.ml:527
 msgid "Bad e-mail address!"
-msgstr ""
+msgstr "כתובת דואל שגויה!"
 
 #: src/web/server/common/pages_common.ml:526
 msgid "Bad security code!"
-msgstr ""
+msgstr "קוד אבטחה שגוי!"
 
-#: src/web/server/common/mails_voter.ml:289
+#: src/web/server/common/mails_voter.ml:300
 msgid "Best regards,"
-msgstr ""
+msgstr "בברכה,"
 
 #: src/web/clients/election/home.ml:498
 msgid "Blank vote"
-msgstr ""
+msgstr "הצבעה ריקה"
 
 #: src/web/clients/election/advanced.ml:145
 msgid "Booths available on this server:"
-msgstr ""
+msgstr "תאי ההצבעה הזמינים בשרת זה:"
 
 #: src/web/clients/common/secondary_ui.ml:70
 msgid "By using this site, you accept our "
-msgstr ""
+msgstr "אם אתם בוחרים להשתמש באתר זה, אתם מקבלים את "
 
 #: src/web/server/common/pages_common.ml:586
 msgid "Click here"
-msgstr ""
+msgstr "לחצו כאן"
 
 #: src/web/clients/common/secondary_ui.ml:80
 msgid "Close"
-msgstr ""
+msgstr "סגירה"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:92
 msgid "Compare"
-msgstr ""
+msgstr "השוואה"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:74
 msgid "Compute fingerprint"
-msgstr ""
+msgstr "חישוב טביעת אצבע"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:35
 msgid "Computed fingerprint:"
-msgstr ""
+msgstr "טביעת האצבע שחושבה:"
 
 #: src/web/server/common/pages_common.ml:486
 msgid "Confirm"
-msgstr ""
+msgstr "אישור"
 
 #: src/web/clients/jslib/belenios_jslib.ml:143
 msgid "Could not get server configuration!"
-msgstr ""
+msgstr "לא הצלחתי לקבל את תצורת השרת!"
 
 #: src/web/clients/election/home.ml:224
 msgid "Credentials authority"
-msgstr ""
+msgstr "מנפיק קודי הצבעה"
 
 #: src/web/clients/election/home.ml:229
 msgid "Credentials fingerprint"
-msgstr ""
+msgstr "טביעת אצבע של קודי ההצבעה"
 
-#. src/web/server/common/mails_voter.ml:202
-#: src/web/server/common/mails_voter.ml:256
+#. src/web/server/common/mails_voter.ml:207
+#: src/web/server/common/mails_voter.ml:267
 msgid "Dear %s,"
-msgstr ""
+msgstr "שלום %s,"
 
 #. src/web/server/common/pages_common.ml:356
 #. src/web/server/common/pages_common.ml:288
 #: src/web/server/common/pages_common.ml:540
 msgid "E-mail address:"
-msgstr ""
+msgstr "כתובת דואל:"
 
 #: src/web/clients/election/home.ml:94
 msgid "Election fingerprint"
-msgstr ""
+msgstr "טביעת אצבע של הבחירות"
 
 #: src/web/clients/election/main.ml:36
 msgid "Election home"
-msgstr ""
+msgstr "עמוד הבחירות"
 
 #: src/web/clients/election/home.ml:89
 msgid "Election identifier"
-msgstr ""
+msgstr "מזהה הבחירות"
 
 #: src/web/clients/jslib/belenios_jslib.ml:273
 msgid "Election public URL"
-msgstr ""
+msgstr "כתובת ציבורית של הבחירות"
 
 #: src/web/common/pages_common.ml:143 src/web/common/pages_common.ml:134
 msgid "Election server"
-msgstr ""
+msgstr "שרת הבחירות"
 
 #: src/web/clients/election/advanced.ml:57
 msgid "Encrypted ballot in JSON format"
-msgstr ""
+msgstr "פתק הצבעה מוצפן בתבנית JSON"
 
 #: src/web/clients/election/main.ml:70
 msgid "Error"
-msgstr ""
+msgstr "שגיאה"
 
 #: src/web/clients/election/ballots.ml:97
 msgid "Error while loading ballots!"
-msgstr ""
+msgstr "שגיאה בטעינת פתקי ההצבעה!"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:83
 msgid "Expected fingerprint:"
-msgstr ""
+msgstr "טביעת האצבע הצפויה:"
 
-#: src/web/common/pages_common.ml:256
+#: src/web/common/pages_common.ml:257
 msgid "FAIL!"
-msgstr ""
+msgstr "נכשל!"
 
 #: src/web/clients/election/advanced.ml:112
 msgid "File:"
-msgstr ""
+msgstr "קובץ:"
 
 #: src/web/clients/election/home.ml:269
 msgid "Final fingerprint"
-msgstr ""
+msgstr "טביעת אצבע סופית"
 
 #: src/web/clients/election/home.ml:257
 msgid "Fingerprint of the encrypted tally"
-msgstr ""
+msgstr "טביעת אצבע של ספירת הקולות המוצפנת"
 
 #: src/web/server/common/site_common.ml:114
 msgid "Forbidden"
-msgstr ""
+msgstr "הגישה אסורה"
 
 #: src/web/common/pages_common.ml:69
 msgid "Get the source code"
-msgstr ""
+msgstr "הורדת קוד המקור"
 
-#. src/web/common/pages_common.ml:273
+#. src/web/common/pages_common.ml:274
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
-msgstr ""
+msgstr "חזרה לבחירות"
 
-#: src/web/server/common/mails_voter.ml:128
+#: src/web/server/common/mails_voter.ml:133
 msgid "If the above link does not work:"
-msgstr ""
+msgstr "אם הקישור שלמעלה אינו עובד:"
 
 #: src/web/server/common/pages_voter.ml:55
 msgid "If you want to vote, you must "
-msgstr ""
+msgstr "אם ברצונכם להצביע, עליכם "
 
 #: src/web/clients/election/home.ml:464
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
+"במימוש שלנו, כאשר למספר מועמדים יש אותו מספר קולות בעת בחירתם או הדחתם, אנו "
+"פועלים לפי הסדר שבו הופיעו המועמדים בבחירות."
 
 #: src/web/clients/election/home.ml:572
 msgid "It contains all submitted ballots in clear, in random order."
-msgstr ""
+msgstr "הוא מכיל את כל פתקי ההצבעה שהוגשו, גלויים ובסדר אקראי."
 
 #: src/web/clients/election/home.ml:553
 msgid "It is up to you to apply your favorite counting method."
 msgstr ""
+"לאחר מכן תצטרכו בעצמכם לחשב את תוצאות הבחירות בעזרת כלל הבחירה המועדף עליכם."
 
 #: src/web/clients/election/home.ml:704
 msgid "It will open at %s (time left: %s)."
-msgstr ""
+msgstr "הן ייפתחו ב-%s (הזמן שנותר: %s)."
 
 #: src/web/clients/election/home.ml:569
 msgid "JSON result"
-msgstr ""
+msgstr "תוצאה בתבנית JSON"
 
 #: src/web/server/common/pages_common.ml:174 src/web/common/pages_common.ml:94
 msgid "Language:"
-msgstr ""
+msgstr "שפה:"
 
 #: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
-msgstr ""
+msgstr "טוען..."
 
 #. src/web/server/common/pages_common.ml:412
 #. src/web/server/common/pages_common.ml:320
 #. src/web/server/common/pages_common.ml:280
 #: src/web/server/common/pages_common.ml:510
 msgid "Log in"
-msgstr ""
+msgstr "התחברות"
 
 #: src/web/server/common/pages_common.ml:251
 msgid "Log in with %s"
-msgstr ""
+msgstr "התחברות באמצעות %s"
 
 #: src/web/clients/election/home.ml:475
 msgid "Look at the raw events for more details."
-msgstr ""
+msgstr "לפרטים נוספים עיינו באירועים הגולמיים."
 
 #: src/web/clients/election/home.ml:459
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
+"קיימות גרסאות רבות של שיטת קול יחיד נייד, הנבדלות למשל באופן שבו שוברים "
+"שיוויון."
 
 #: src/web/server/common/pages_common.ml:573
 msgid "Maybe cookies are blocked."
-msgstr ""
+msgstr "ייתכן שהדפדפן שלך חוסם עוגיות."
 
 #: src/web/server/common/site_common.ml:37
 msgid "Not found"
-msgstr ""
+msgstr "לא נמצא"
 
 #: src/web/clients/election/home.ml:642
 msgid "Number of accepted ballots: "
-msgstr ""
+msgstr "מספר פתקי ההצבעה שהתקבלו: "
 
 #: src/web/clients/election/home.ml:112
 msgid "Number of voters"
-msgstr ""
+msgstr "מספר הבוחרים"
 
-#: src/web/server/common/mails_voter.ml:145
+#: src/web/server/common/mails_voter.ml:150
 msgid "Number of votes:"
-msgstr ""
+msgstr "מספר הקולות:"
 
-#: src/web/server/common/mails_voter.ml:152
+#: src/web/server/common/mails_voter.ml:157
 msgid "Only the last vote counts."
-msgstr ""
+msgstr "רק ההצבעה האחרונה נספרת."
 
 #: src/web/server/common/pages_common.ml:392
 msgid "Password:"
-msgstr ""
+msgstr "סיסמה:"
 
 #: src/web/server/common/pages_common.ml:549
 msgid "Please enter "
-msgstr ""
+msgstr "אנא הזינו "
 
 #: src/web/server/common/pages_common.ml:466
 msgid "Please enter the verification code received by e-mail:"
-msgstr ""
+msgstr "אנא הזינו את קוד האימות שהתקבל בדואל:"
 
 #: src/web/server/common/pages_common.ml:274
 msgid "Please log in:"
-msgstr ""
+msgstr "אנא התחברו:"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:61
 msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
-msgstr ""
+msgstr "אנא הדביקו בתיבת הטקסט שלהלן את הנתונים שעבורם ברצונכם לחשב טביעת אצבע:"
 
 #: src/web/clients/election/advanced.ml:69
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
-msgstr ""
+msgstr "אנא הדביקו את פתק ההצבעה המוצפן שלכם בתבנית JSON בתיבה הבאה:"
 
-#: src/web/server/common/mails_voter.ml:114
+#: src/web/server/common/mails_voter.ml:119
 msgid "Please vote here using your personal link:"
-msgstr ""
+msgstr "אנא הצביעו כאן באמצעות הקישור האישי שלכם:"
 
 #: src/web/common/pages_common.ml:65
 msgid "Powered by "
-msgstr ""
+msgstr "מופעל על ידי "
 
 #. src/web/server/common/pages_common.ml:233
 #. src/web/server/common/pages_common.ml:225
 #: src/web/clients/election/advanced.ml:222
 msgid "Proceed"
-msgstr ""
+msgstr "המשך"
 
 #: src/web/clients/election/advanced.ml:182
 msgid "Processing ballot"
-msgstr ""
+msgstr "מעבד את פתק ההצבעה"
 
-#: src/web/server/common/mails_voter.ml:131
+#: src/web/server/common/mails_voter.ml:136
 msgid "Public page of the election:"
-msgstr ""
+msgstr "העמוד הציבורי של הבחירות:"
 
 #: src/web/clients/election/home.ml:446
 msgid "Raw events"
-msgstr ""
+msgstr "אירועים גולמיים"
 
 #: src/web/server/common/pages_common.ml:589
 msgid "Redirection"
-msgstr ""
+msgstr "הפניה"
 
 #: src/web/clients/election/home.ml:682
 msgid "Refresh status"
-msgstr ""
+msgstr "רענון הסטטוס"
 
 #: src/web/common/pages_common.ml:54
 msgid "Restricted mode"
-msgstr ""
+msgstr "מצב מוגבל"
 
-#: src/web/server/common/mails_voter.ml:236
+#: src/web/server/common/mails_voter.ml:242
 msgid "Results will be published on the election page"
-msgstr ""
+msgstr "התוצאות יפורסמו בעמוד הבחירות"
 
 #: src/web/clients/election/home.ml:129
 msgid "Sealing log fingerprint"
-msgstr ""
+msgstr "טביעת אצבע של לוג נעילת הבחירות"
 
 #: src/web/clients/election/home.ml:794
 msgid "See accepted ballots"
-msgstr ""
+msgstr "הצגת פתקי ההצבעה שהתקבלו"
 
 #: src/web/clients/jslib/belenios_jslib.ml:341
 msgid "Session expired"
-msgstr ""
+msgstr "פג תוקף ההתחברות"
 
 #: src/web/server/common/pages_common.ml:181
 msgid "Set"
-msgstr ""
+msgstr "הגדרה"
 
 #: src/web/clients/election/home.ml:396
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
-msgstr ""
+msgstr "קיימות מספר שיטות להכריע איזה מועמד ייבחר כאשר אין מנצח קונדורסה."
 
 #. src/web/clients/jslib/belenios_jslib.ml:264
 #: src/web/clients/jslib/belenios_jslib.ml:278
 msgid "Smart ballot tracker"
-msgstr ""
+msgstr "עוקב פתק-הצבעה חכם"
 
 #: src/web/common/pages_common.ml:71
 msgid "Specification"
-msgstr ""
+msgstr "מפרט"
 
 #: src/web/clients/election/home.ml:767
 msgid "Start"
-msgstr ""
+msgstr "התחלה"
 
 #. src/web/clients/election/advanced.ml:62
 #. src/web/server/common/pages_common.ml:554
 #. src/web/server/common/pages_common.ml:470
 #: src/web/clients/election/advanced.ml:101
 msgid "Submit"
-msgstr ""
+msgstr "שליחה"
 
 #: src/web/clients/election/advanced.ml:157
 msgid "Submit by copy/paste"
-msgstr ""
+msgstr "שליחה באמצעות העתקה והדבקה"
 
 #: src/web/clients/election/advanced.ml:159
 msgid "Submit by file"
-msgstr ""
+msgstr "שליחה באמצעות קובץ"
 
 #: src/web/clients/election/home.ml:471
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
-msgstr ""
+msgstr "מועמדים כאלה מסומנים כ-\"TieWin\" אם נבחרו וכ-\"TieLose\" אם הפסידו."
 
 #: src/web/common/pages_common.ml:73
 msgid "Terms of service"
-msgstr ""
+msgstr "תנאי השימוש"
 
-#: src/web/common/pages_common.ml:248
+#: src/web/common/pages_common.ml:249
 msgid "Thank you for voting!"
-msgstr ""
+msgstr "תודה שהצבעתם!"
 
 #: src/web/clients/election/home.ml:408
 msgid "The Schulze winners are:"
-msgstr ""
+msgstr "המנצחים בשיטת שולצה הם:"
 
 #: src/web/clients/election/home.ml:480
 msgid "The Single Transferable Vote winners are:"
-msgstr ""
+msgstr "המנצחים בשיטת קול יחיד נייד הם:"
 
 #: src/web/clients/election/home.ml:691
 msgid "The election is being prepared. Please come back later."
-msgstr ""
+msgstr "הבחירות בהכנה. אנא חזרו מאוחר יותר."
 
 #: src/web/clients/election/home.ml:738 src/web/clients/election/home.ml:732
 msgid "The election is closed and being tallied."
-msgstr ""
+msgstr "הבחירות נסגרו וספירת הקולות מתבצעת."
 
 #: src/web/clients/election/home.ml:723
 msgid "The election will close at %s (time left: %s)."
-msgstr ""
+msgstr "הבחירות ייסגרו ב-%s (הזמן שנותר: %s)."
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:47
 msgid "The fingerprints differ!"
-msgstr ""
+msgstr "טביעות האצבע שונות זו מזו!"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:46
 msgid "The fingerprints match!"
-msgstr ""
+msgstr "טביעות האצבע תואמות!"
 
 #: src/web/clients/election/home.ml:564
 msgid "The raw results can be viewed in the "
-msgstr ""
+msgstr "ניתן לצפות בתוצאות הגולמיות בקישור "
 
 #: src/web/clients/election/home.ml:456
 msgid "There has been at least one tie."
-msgstr ""
+msgstr "היה לפחות מקרה אחד של שוויון."
 
 #: src/web/server/common/pages_common.ml:459
 msgid "This code is composed of 6 digits. It can take up to 15 minutes to be delivered, please be patient."
 msgstr ""
+"הקוד מורכב משש ספרות. מסירתו עשויה להימשך עד 15 דקות, אנא המתינו בסבלנות."
 
 #: src/web/server/common/site_common.ml:38
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
-msgstr ""
+msgstr "בחירות אלה אינן קיימות. ייתכן שהבחירות טרם נפתחו, או שנמחקו."
 
 #: src/web/clients/election/home.ml:742
 msgid "This election has been tallied."
-msgstr ""
+msgstr "ספירת הקולות בבחירות אלה הושלמה."
 
 #: src/web/clients/election/home.ml:743
 msgid "This election is archived."
-msgstr ""
+msgstr "בחירות אלה נשמרו בארכיון."
 
 #: src/web/clients/election/home.ml:712
 msgid "This election is currently closed."
-msgstr ""
+msgstr "בחירות אלה סגורות כעת."
 
-#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:232 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
-msgstr ""
+msgstr "הצבעה זו מחליפה כל הצבעה קודמת."
 
 #: src/web/clients/election/home.ml:381 src/web/clients/election/home.ml:319
 msgid "Tie:"
-msgstr ""
+msgstr "שוויון:"
 
-#: src/web/server/common/mails_voter.ml:123
+#: src/web/server/common/mails_voter.ml:128
 msgid "To cast a vote, you will also need a password, sent in a separate email."
-msgstr ""
+msgstr "כדי להצביע תזדקקו גם לסיסמה, שנשלחה בדואל נפרד."
 
-#: src/web/server/common/mails_voter.ml:88
+#: src/web/server/common/mails_voter.ml:93
 msgid "To get more information, please contact:"
-msgstr ""
+msgstr "לקבלת מידע נוסף, אנא פנו אל:"
 
 #: src/web/clients/election/home.ml:622
 msgid "Total weight of accepted ballots:"
-msgstr ""
+msgstr "המשקל הכולל של פתקי ההצבעה שהתקבלו:"
 
 #: src/web/clients/election/home.ml:244
 msgid "Trustees shuffled the ballots in the following order:"
-msgstr ""
+msgstr "הנאמנים ערבבו את פתקי ההצבעה בסדר הבא:"
 
 #: src/web/clients/election/home.ml:608
 msgid "Unsupported question type"
-msgstr ""
+msgstr "סוג שאלה זה אינו נתמך"
 
-#: src/web/server/common/mails_voter.ml:263
+#: src/web/server/common/mails_voter.ml:274
 msgid "Use the following code:"
-msgstr ""
+msgstr "השתמשו בקוד הבא:"
 
 #. src/web/server/common/pages_common.ml:287
-#. src/web/server/common/mails_voter.ml:135
+#. src/web/server/common/mails_voter.ml:140
 #: src/web/server/common/pages_common.ml:355
 msgid "Username:"
-msgstr ""
+msgstr "שם משתמש:"
 
 #: src/web/clients/election/home.ml:117
 msgid "Voter list fingerprint"
-msgstr ""
+msgstr "טביעת אצבע של רשימת הבוחרים"
 
 #: src/web/clients/election/home.ml:140
 msgid "Voters' total weight"
-msgstr ""
+msgstr "המשקל הכולל של הבוחרים"
 
 #: src/web/server/common/pages_voter.ml:66
 msgid "Warning:"
-msgstr ""
+msgstr "אזהרה:"
 
-#: src/web/server/common/mails_voter.ml:284
+#: src/web/server/common/mails_voter.ml:295
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
+"אזהרה: תוקף הקוד הוא 15 דקות, וקודים קודמים שנשלחו לכתובת זו אינם תקפים עוד."
 
-#: src/web/server/common/mails_voter.ml:102
+#: src/web/server/common/mails_voter.ml:107
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
-msgstr ""
+msgstr "אזהרה: הודעה זו מכילה מידע אישי וסודי ואין להעבירה הלאה."
 
 #: src/web/clients/election/home.ml:400
 msgid "We use here the Schulze method and we refer voters to "
-msgstr ""
+msgstr "אנו משתמשים כאן בשיטת שולצה ומפנים את הבוחרים אל "
 
 #: src/web/server/common/pages_common.ml:194 src/web/common/pages_common.ml:108
 msgid "Wish to help with translations?"
-msgstr ""
+msgstr "רוצים לעזור בתרגום?"
 
 #: src/web/clients/election/advanced.ml:213
 msgid "You are about to submit a ballot with smart ballot tracker %s."
-msgstr ""
+msgstr "אתם עומדים לשלוח פתק הצבעה שהעוקב החכם שלו הוא %s."
 
-#: src/web/server/common/mails_voter.ml:151
+#: src/web/server/common/mails_voter.ml:156
 msgid "You are allowed to vote several times."
-msgstr ""
+msgstr "אתם רשאים להצביע מספר פעמים."
 
 #: src/web/server/common/pages_common.ml:480
 msgid "You are authenticating as a voter."
-msgstr ""
+msgstr "אתם מבצעים אימות כבוחרים."
 
 #: src/web/server/common/pages_common.ml:479
 msgid "You are authenticating as an administrator."
-msgstr ""
+msgstr "אתם מבצעים אימות כמנהלי בחירות."
 
-#: src/web/server/common/mails_voter.ml:107
+#: src/web/server/common/mails_voter.ml:112
 msgid "You are listed as a voter for the election"
-msgstr ""
+msgstr "אתם מופיעים כבוחרים בבחירות"
 
 #: src/web/server/common/site_common.ml:113
 msgid "You are not allowed to access this page!"
-msgstr ""
+msgstr "אינכם רשאים לגשת לעמוד זה!"
 
 #: src/web/server/common/pages_common.ml:439
 msgid "You can "
-msgstr ""
+msgstr "תוכלו "
 
 #: src/web/server/common/pages_common.ml:343
 msgid "You can also "
-msgstr ""
+msgstr "תוכלו גם "
 
 #: src/web/clients/election/home.ml:644
 msgid "You can also download the "
-msgstr ""
+msgstr "תוכלו גם להוריד את "
 
-#: src/web/common/pages_common.ml:241
+#: src/web/common/pages_common.ml:242
 msgid "You can check its presence in the "
-msgstr ""
+msgstr "תוכלו לוודא את הימצאותו בתוך "
 
-#: src/web/server/common/mails_voter.ml:230
+#: src/web/server/common/mails_voter.ml:236
 msgid "You can check its presence in the ballot box, accessible at"
-msgstr ""
+msgstr "תוכלו לוודא את הימצאותו בתיבת הקלפי, הזמינה בכתובת"
 
 #: src/web/clients/election/advanced.ml:133
 msgid "You can create an encrypted ballot by using the command-line tool "
-msgstr ""
+msgstr "תוכלו ליצור פתק הצבעה מוצפן באמצעות כלי שורת הפקודה "
 
 #: src/web/server/common/pages_common.ml:506
 msgid "You cannot authenticate right now."
-msgstr ""
+msgstr "לא ניתן לבצע אימות כעת."
 
 #: src/web/server/common/pages_common.ml:564
 msgid "You cannot log in now. Please try later."
-msgstr ""
+msgstr "לא ניתן להתחבר כעת. אנא נסו מאוחר יותר."
 
-#: src/web/common/pages_common.ml:262
+#: src/web/common/pages_common.ml:263
 msgid "Your ballot for "
-msgstr ""
+msgstr "פתק ההצבעה שלכם עבור "
 
-#: src/web/server/common/mails_voter.ml:173
+#: src/web/server/common/mails_voter.ml:178
 msgid "Your credential for election %s"
-msgstr ""
+msgstr "קוד ההצבעה שלכם לבחירות %s"
 
-#: src/web/server/common/mails_voter.ml:139
+#: src/web/server/common/mails_voter.ml:144
 msgid "Your credential:"
-msgstr ""
+msgstr "קוד ההצבעה שלכם:"
 
-#: src/web/server/common/mails_voter.ml:260
+#: src/web/server/common/mails_voter.ml:271
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
-msgstr ""
+msgstr "כתובת הדואל שלכם שימשה לאימות מול שרת Belenios שלנו."
 
-#: src/web/server/common/mails_voter.ml:218
+#: src/web/server/common/mails_voter.ml:224
 msgid "Your smart ballot tracker is"
-msgstr ""
+msgstr "עוקב פתק-ההצבעה החכם שלכם הוא"
 
-#: src/web/common/pages_common.ml:238
+#: src/web/common/pages_common.ml:239
 msgid "Your smart ballot tracker is "
-msgstr ""
+msgstr "עוקב פתק-ההצבעה החכם שלכם הוא "
 
-#: src/web/server/common/mails_voter.ml:205
+#: src/web/server/common/mails_voter.ml:210
 msgid "Your vote for election"
-msgstr ""
+msgstr "ההצבעה שלכם בבחירות"
 
-#: src/web/server/common/mails_voter.ml:199
+#: src/web/server/common/mails_voter.ml:204
 msgid "Your vote for election %s"
-msgstr ""
+msgstr "ההצבעה שלכם בבחירות %s"
 
 #: src/web/server/common/pages_voter.ml:68
 msgid "Your vote was not recorded!"
-msgstr ""
+msgstr "ההצבעה שלכם לא נרשמה!"
 
-#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:218
+#: src/web/server/common/mails_voter.ml:222 src/web/common/pages_common.ml:219
 msgid "Your weight is %s."
-msgstr ""
+msgstr "המשקל שלכם הוא %s."
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:230
 msgid "ballot box"
-msgstr ""
+msgstr "תיבת הקלפי"
 
 #: src/web/server/common/pages_common.ml:347
 msgid "change your password"
-msgstr ""
+msgstr "לשנות את הסיסמה שלכם"
 
 #: src/web/server/common/pages_common.ml:344
 msgid "create an account"
-msgstr ""
+msgstr "ליצור חשבון"
 
 #: src/web/clients/election/advanced.ml:120
 msgid "direct link"
-msgstr ""
+msgstr "קישור ישיר"
 
-#: src/web/server/common/mails_voter.ml:212
+#: src/web/server/common/mails_voter.ml:217
 msgid "has been recorded."
-msgstr ""
+msgstr "נרשם."
 
 #: src/web/clients/election/common.ml:54
 msgid "parameters"
-msgstr ""
+msgstr "פרמטרים"
 
 #: src/web/clients/election/common.ml:56
 msgid "public data"
-msgstr ""
+msgstr "נתונים ציבוריים"
 
 #: src/web/clients/election/home.ml:632
 msgid "raw result"
-msgstr ""
+msgstr "תוצאה גולמית"
 
 #: src/web/common/confirmation.ml:30
 msgid "some proofs failed verification"
-msgstr ""
+msgstr "האימות של חלק מההוכחות נכשל"
 
 #: src/web/clients/election/advanced.ml:137
 msgid "sources"
-msgstr ""
+msgstr "קוד המקור"
 
 #: src/web/server/common/pages_voter.ml:57
 msgid "start from the beginning"
-msgstr ""
+msgstr "להתחיל מההתחלה"
 
 #: src/web/clients/common/secondary_ui.ml:71
 msgid "terms of service"
-msgstr ""
+msgstr "תנאי השימוש"
 
 #: src/web/clients/election/home.ml:402
 msgid "the Wikipedia page"
-msgstr ""
+msgstr "עמוד הוויקיפדיה"
 
 #: src/web/common/confirmation.ml:25
 msgid "the election is closed"
-msgstr ""
+msgstr "הבחירות סגורות"
 
 #: src/web/common/confirmation.ml:39
 msgid "the server responded unexpectedly"
-msgstr ""
+msgstr "השרת הגיב באופן בלתי צפוי"
 
 #: src/web/common/confirmation.ml:36
 msgid "this ballot has already been accepted"
-msgstr ""
+msgstr "פתק הצבעה זה כבר התקבל"
 
 #: src/web/common/confirmation.ml:37
 msgid "this ballot has expired"
-msgstr ""
+msgstr "תוקפו של פתק הצבעה זה פג"
 
 #: src/web/server/common/pages_common.ml:440
 msgid "try to log in again"
-msgstr ""
+msgstr "לנסות להתחבר שוב"
 
 #: src/web/common/confirmation.ml:32
 msgid "you are not allowed to revote"
-msgstr ""
+msgstr "אינכם רשאים להצביע שוב"
 
 #: src/web/common/confirmation.ml:26
 msgid "you are not allowed to vote"
-msgstr ""
+msgstr "אינכם רשאים להצביע"
 
 #: src/web/common/confirmation.ml:34
 msgid "you are not allowed to vote with this credential"
-msgstr ""
+msgstr "אינכם רשאים להצביע עם קוד הצבעה זה"
 
 #: src/web/common/confirmation.ml:28
 msgid "your ballot has a syntax error (%s)"
-msgstr ""
+msgstr "בפתק ההצבעה שלכם יש שגיאת תחביר (%s)"
 
 #: src/web/common/confirmation.ml:29
 msgid "your ballot is not in canonical form"
-msgstr ""
+msgstr "פתק ההצבעה שלכם אינו בנוי בצורה המקובלת"
 
 #: src/web/common/confirmation.ml:35
 msgid "your credential has a bad weight"
-msgstr ""
+msgstr "לקוד ההצבעה שלכם יש משקל שגוי"
 
 #: src/web/common/confirmation.ml:33
 msgid "your credential has already been used"
-msgstr ""
+msgstr "קוד ההצבעה שלכם כבר נוצל"
 
 #: src/web/common/confirmation.ml:31
 msgid "your credential is invalid"
-msgstr ""
+msgstr "קוד ההצבעה שלכם אינו תקף"
 
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
-msgstr ""
+msgstr "שם המשתמש שלכם שגוי"
