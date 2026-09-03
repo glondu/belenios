@@ -32,6 +32,7 @@ function i18n_init(
           "et",
           "fi",
           "fr",
+          "he",
           "it",
           "jpn_JP",
           "lt",
@@ -49,7 +50,6 @@ function i18n_init(
           // In order to not download the fallback language translation file when it won't be needed, languages in which the application is fully translated should have an empty array for their key here
           fr: [],
           en: [],
-          pt: [],
           default: ["en"],
         },
         load: "currentOnly",

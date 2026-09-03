@@ -33,6 +33,7 @@ let available =
     ("et", "Eesti");
     ("fi", "Suomi");
     ("fr", "Français");
+    ("he", "עברית");
     ("it", "Italiano");
     ("jpn_JP", "日本語");
     ("lt", "Lietuvių");
