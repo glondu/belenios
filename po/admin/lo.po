@@ -8,283 +8,291 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-05 06:26+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2026-09-05 22:51+0000\n"
+"Last-Translator: Bone NI <bounkirdni@gmail.com>\n"
+"Language-Team: Lao <https://hosted.weblate.org/projects/belenios/admin/lo/>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Language: lo\n"
+"X-Generator: Weblate 2026.9.1.dev0\n"
 
 #: src/web/clients/admin/trustees_tab.ml:222
 msgid " (server is not counted)"
-msgstr ""
+msgstr " (ບໍ່ໄດ້ນັບລວມເຊີເວີ)"
 
 #: src/web/common/pages_common.ml:246
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " ອີເມວຢືນຢັນໄດ້ຖືກສົ່ງໃຫ້ທ່ານແລ້ວ."
 
 #: src/web/server/common/pages_admin.ml:338
 msgid " and a password: "
-msgstr ""
+msgstr " ແລະ ລະຫັດຜ່ານ: "
 
 #: src/web/clients/trustee/generate.ml:181
 msgid " and save it to a secure location."
-msgstr ""
+msgstr " ແລະ ບັນທຶກມັນໄວ້ໃນບ່ອນທີ່ປອດໄພ."
 
 #: src/web/clients/credauth/generate.ml:121
 msgid " and save the file to a secure location."
-msgstr ""
+msgstr " ແລະ ບັນທຶກໄຟລ໌ໄວ້ໃນບ່ອນທີ່ປອດໄພ."
 
 #: src/web/clients/admin/elections.ml:1716
 msgid " and save them in a secure location."
-msgstr ""
+msgstr " ແລະ ບັນທຶກພວກມັນໄວ້ໃນບ່ອນທີ່ປອດໄພ."
 
 #: src/web/server/common/pages_admin.ml:388
 msgid " and your e-mail address is: "
-msgstr ""
+msgstr " ແລະ ທີ່ຢູ່ອີເມວຂອງທ່ານແມ່ນ: "
 
 #: src/web/common/pages_common.ml:244
 msgid " anytime during the election."
-msgstr ""
+msgstr " ຕະຫຼອດໄລຍະເວລາຂອງການເລືອກຕັ້ງ."
 
 #: src/web/common/pages_common.ml:233
 msgid " as user "
-msgstr ""
+msgstr " ໃນນາມຜູ້ໃຊ້ "
 
 #. src/web/server/common/pages_admin.ml:324
 #: src/web/server/common/pages_admin.ml:375
 msgid " because "
-msgstr ""
+msgstr " ເພາະວ່າ "
 
 #: src/web/common/pages_common.ml:235
 msgid " has been accepted."
-msgstr ""
+msgstr " ໄດ້ຖືກຍອມຮັບແລ້ວ."
 
 #. src/web/server/common/pages_admin.ml:224
 #: src/web/server/common/pages_admin.ml:257
 msgid " in the following box: "
-msgstr ""
+msgstr " ໃນຊ່ອງຕໍ່ໄປນີ້: "
 
 #. src/web/clients/admin/elections.ml:1066
 #: src/web/clients/admin/elections.ml:1069
 msgid " in txt format."
-msgstr ""
+msgstr " ໃນຮູບແບບ txt."
 
 #: src/web/common/pages_common.ml:253
 msgid " is rejected, because "
-msgstr ""
+msgstr " ຖືກປະຕິເສດ, ເນື່ອງຈາກວ່າ "
 
 #: src/web/clients/admin/elections.ml:1553
 msgid " or send them manually this link:"
-msgstr ""
+msgstr " ຫຼື ສົ່ງລິ້ງນີ້ໃຫ້ພວກເຂົາດ້ວຍຕົນເອງ:"
 
 #: src/web/server/common/pages_admin.ml:247
 msgid " or username: "
-msgstr ""
+msgstr " ຫຼື ຊື່ຜູ້ໃຊ້: "
 
 #: src/web/clients/trustee/decrypt.ml:140
 msgid " your contribution to decryption."
-msgstr ""
+msgstr " ການມີສ່ວນຮ່ວມຂອງທ່ານໃນການຖອດລະຫັດ."
 
 #: src/web/clients/admin/elections.ml:817
 msgid "%d registered voter(s)"
-msgstr ""
+msgstr "ຜູ້ມີສິດເລືອກຕັ້ງທີ່ລົງທະບຽນແລ້ວ %d ທ່ານ"
 
 #: src/web/clients/admin/admin.ml:167
 msgid "(no title)"
-msgstr ""
+msgstr "(ບໍ່ມີຫົວຂໍ້)"
 
 #: src/web/clients/trustee/trustee.ml:186
 msgid "(none)"
-msgstr ""
+msgstr "(ບໍ່ມີ)"
 
 #. src/web/server/common/pages_admin.ml:326
 #: src/web/server/common/pages_admin.ml:377
 msgid ". Please try again with a different one."
-msgstr ""
+msgstr ". ກະລຸນາລອງໃໝ່ດ້ວຍອັນອື່ນ."
 
 #: src/web/common/mails_admin.ml:46
 msgid "1. Click on the link."
-msgstr ""
+msgstr "1. ຄລິກໃສ່ລິ້ງ."
 
 #: src/web/common/mails_admin.ml:48
 msgid "2. Click on \"Generate\"."
-msgstr ""
+msgstr "2. ຄລິກໃສ່ \"ສ້າງ (Generate)\"."
 
 #: src/web/common/mails_admin.ml:51
 msgid "3. Download the private credentials (creds.txt) and save the file to a secure location."
 msgstr ""
+"3. ດາວໂຫຼດສິດເຂົ້າໃຊ້ສ່ວນຕົວ (creds.txt) ແລະ ບັນທຶກໄຟລ໌ໄວ້ໃນບ່ອນທີ່ປອດໄພ."
 
 #: src/web/clients/admin/elections.ml:1155
 msgid "30 minutes"
-msgstr ""
+msgstr "30 ນາທີ"
 
 #: src/web/common/mails_admin.ml:57
 msgid "4. Download the list of voters (voters.txt)."
-msgstr ""
+msgstr "4. ດາວໂຫຼດລາຍຊື່ຜູ້ມີສິດເລືອກຕັ້ງ (voters.txt)."
 
 #: src/web/common/mails_admin.ml:63
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
 msgstr ""
+"5. ບັນທຶກລາຍນິ້ວມືທັງສອງ: ລາຍນິ້ວມືຂອງຜູ້ມີສິດເລືອກຕັ້ງ ແລະ ລາຍນິ້ວມືຂອງສິດເຂົ້າໃຊ້ສາທາລະນະ"
 
 #: src/web/common/mails_admin.ml:72
 msgid "6. Click on \"Submit the public credentials\"."
-msgstr ""
+msgstr "6. ຄລິກໃສ່ \"ສົ່ງສິດເຂົ້າໃຊ້ສາທາລະນະ\"."
 
 #: src/web/server/common/pages_admin.ml:282
 msgid "A verification code has been sent to %s."
-msgstr ""
+msgstr "ລະຫັດຢືນຢັນໄດ້ຖືກສົ່ງໄປຫາ %s ແລ້ວ."
 
 #: src/web/server/common/pages_admin.ml:63
 msgid "Accept"
-msgstr ""
+msgstr "ຍອມຮັບ"
 
 #: src/web/server/common/pages_admin.ml:298
 msgid "Account management"
-msgstr ""
+msgstr "ການຈັດການບັນຊີ"
 
 #: src/web/server/common/site_admin.ml:395
 msgid "Account not found"
-msgstr ""
+msgstr "ບໍ່ພົບບັນຊີ"
 
 #: src/web/clients/admin/elections.ml:871
 msgid "Add"
-msgstr ""
+msgstr "ເພີ່ມ"
 
 #: src/web/clients/admin/questions.ml:595
 msgid "Add a grade"
-msgstr ""
+msgstr "ເພີ່ມລະດັບ"
 
 #. src/web/clients/admin/trustees_tab.ml:119
 #: src/web/clients/admin/trustees_tab.ml:158
 msgid "Add a trustee"
-msgstr ""
+msgstr "ເພີ່ມຜູ້ຮັກສາລະຫັດ"
 
 #: src/web/clients/admin/elections.ml:806
 msgid "Address"
-msgstr ""
+msgstr "ທີ່ຢູ່"
 
 #. src/web/clients/admin/admin.ml:62
 #: src/web/clients/admin/admin.ml:73 src/web/clients/admin/admin.ml:72
 msgid "Administration"
-msgstr ""
+msgstr "ການບໍລິຫານ"
 
 #: src/web/clients/admin/account.ml:138
 msgid "Administrator's profile: "
-msgstr ""
+msgstr "ໂປຣໄຟລ໌ຂອງຜູ້ດູແລລະບົບ: "
 
 #: src/web/clients/credop/credop.ml:265
 msgid "All voters"
-msgstr ""
+msgstr "ຜູ້ມີສິດເລືອກຕັ້ງທັງໝົດ"
 
 #: src/web/clients/admin/questions.ml:629
 msgid "Allow blank vote"
-msgstr ""
+msgstr "ອະນຸຍາດໃຫ້ບໍ່ລົງຄະແນນ (ບັດເປົ່າ)"
 
 #: src/web/server/common/pages_admin.ml:459
 msgid "An e-mail with a code has been sent to %s."
-msgstr ""
+msgstr "ອີເມວພ້ອມລະຫັດໄດ້ຖືກສົ່ງໄປຫາ %s ແລ້ວ."
 
 #: src/web/clients/admin/trustees_tab.ml:382
 msgid "An e-mail with a link has been sent to %s."
-msgstr ""
+msgstr "ອີເມວພ້ອມລິ້ງໄດ້ຖືກສົ່ງໄປຫາ %s ແລ້ວ."
 
 #: src/web/clients/trustee/shuffle.ml:169
 msgid "An error occurred while applying the shuffle."
-msgstr ""
+msgstr "ເກີດຂໍ້ຜິດພາດໃນຂະນະທີ່ກຳລັງດຳເນີນການສັບປ່ຽນ (shuffle)."
 
 #: src/web/clients/admin/common.ml:125
 msgid "An error occurred while retrieving elections: %s"
-msgstr ""
+msgstr "ເກີດຂໍ້ຜິດພາດໃນຂະນະທີ່ດຶງຂໍ້ມູນການເລືອກຕັ້ງ: %s"
 
 #: src/web/clients/credauth/generate.ml:74
 msgid "An error occurred while submitting credentials!"
-msgstr ""
+msgstr "ເກີດຂໍ້ຜິດພາດໃນຂະນະທີ່ສົ່ງສິດເຂົ້າໃຊ້!"
 
 #: src/web/clients/admin/elections.ml:982
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
+"ຕົວຕົນແມ່ນ \"ທີ່ຢູ່\", ຫຼື \"ທີ່ຢູ່,ຊື່ຜູ້ໃຊ້\", ຫຼື \"ທີ່ຢູ່,ຊື່ຜູ້ໃຊ້,ນ້ຳໜັກຄະແນນ\", ຫຼື \"ທີ່ຢູ່,,ນ້ຳໜັກຄະແນນ\" ໂ"
+"ດຍທີ່ \"ທີ່ຢູ່\" ແມ່ນທີ່ຢູ່ອີເມວ, \"ຊື່ຜູ້ໃຊ້\" ແມ່ນຊື່ຜູ້ໃຊ້ທີ່ກ່ຽວຂ້ອງເພື່ອໃຊ້ໃນການຢືນຢັນຕົວຕົນ, ແລະ \"ນ້ຳໜັກຄະ"
+"ແນນ\" ແມ່ນຈຳນວນຄະແນນສຽງຂອງຜູ້ມີສິດເລືອກຕັ້ງ (ໃນກໍລະນີທີ່ຜູ້ມີສິດເລືອກຕັ້ງມີຈຳນວນຄະແນນສຽງບໍ່ເທົ່າກັນ)."
 
 #: src/web/clients/basic/admin_basic.ml:217
 msgid "Archived elections"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງທີ່ຈັດເກັບແລ້ວ"
 
 #: src/web/clients/admin/admin.ml:211
 msgid "Archived elections:"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງທີ່ຈັດເກັບແລ້ວ:"
 
 #: src/web/clients/admin/elections.ml:413
 msgid "Are you sure you want to delete this election?"
-msgstr ""
+msgstr "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບການເລືອກຕັ້ງນີ້?"
 
 #: src/web/clients/admin/questions.ml:923
 msgid "Are you sure you want to delete this question?"
-msgstr ""
+msgstr "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບຄຳຖາມນີ້?"
 
 #: src/web/clients/admin/trustees_tab.ml:257
 msgid "Are you sure you want to restart from scratch?"
-msgstr ""
+msgstr "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການເລີ່ມຕົ້ນໃໝ່ທັງໝົດ?"
 
 #: src/web/clients/admin/elections.ml:335
 msgid "Are you sure you want to tally this election?"
-msgstr ""
+msgstr "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການນັບຄະແນນການເລືອກຕັ້ງນີ້?"
 
 #: src/web/clients/admin/trustees_tab.ml:268
 msgid "Are you sure you want to validate the board? Changes will no longer be possible."
-msgstr ""
+msgstr "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການຢືນຢັນຄະນະກຳມະການ? ຈະບໍ່ສາມາດປ່ຽນແປງຂໍ້ມູນໄດ້ອີກ."
 
 #: src/web/clients/trustee/shuffle.ml:99
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
 msgstr ""
+"ໃນນາມຜູ້ຮັກສາລະຫັດ, ບົດບາດທຳອິດຂອງທ່ານແມ່ນການສັບປ່ຽນ (shuffle) ບັດເລືອກຕັ້ງທີ່ຖືກເຂົ້າລະຫັດໄວ້."
 
 #: src/web/clients/admin/account.ml:144
 msgid "Authentication method: "
-msgstr ""
+msgstr "ວິທີການຢືນຢັນຕົວຕົນ: "
 
 #: src/web/clients/admin/elections.ml:2081
 msgid "Automatic cleaning"
-msgstr ""
+msgstr "ການລ້າງຂໍ້ມູນອັດຕະໂນມັດ"
 
 #: src/web/clients/admin/elections.ml:1092
 msgid "Automatic dates"
-msgstr ""
+msgstr "ວັນທີອັດຕະໂນມັດ"
 
 #. src/web/server/common/mails_admin.ml:117
 #. src/web/server/common/mails_admin.ml:83
 #. src/web/server/common/mails_admin.ml:49
 #: src/web/server/common/mails_admin.ml:168
 msgid "Best regards,"
-msgstr ""
+msgstr "ດ້ວຍຄວາມເຄົາລົບ,"
 
 #: src/web/clients/admin/elections.ml:1519
 msgid "By a third-party of your choice"
-msgstr ""
+msgstr "ໂດຍບຸກຄົນທີສາມທີ່ທ່ານເລືອກ"
 
 #: src/web/clients/admin/elections.ml:1463
 msgid "By our server (not ideal for decentralized security)"
-msgstr ""
+msgstr "ໂດຍເຊີເວີຂອງພວກເຮົາ (ບໍ່ເໝາະສົມປານໃດສຳລັບຄວາມປອດໄພແບບກະຈາຍສູນ)"
 
 #: src/web/server/common/pages_admin.ml:519
 msgid "By proceeding, you authorize:"
-msgstr ""
+msgstr "ໂດຍການດຳເນີນການຕໍ່, ທ່ານອະນຸຍາດໃຫ້:"
 
 #: src/web/clients/common/secondary_ui.ml:70
 msgid "By using this site, you accept our "
-msgstr ""
+msgstr "ໂດຍການນຳໃຊ້ເວັບໄຊນີ້, ທ່ານຍອມຮັບ "
 
 #: src/web/clients/admin/elections.ml:1822
 msgid "CAS (external authentication server, offers better security guarantees when applicable)"
 msgstr ""
+"CAS (ເຊີເວີຢືນຢັນຕົວຕົນພາຍນອກ, ໃຫ້ການຮັບປະກັນຄວາມປອດໄພທີ່ດີກວ່າເມື່ອສາມາດນຳໃຊ້ໄດ້)"
 
 #: src/web/clients/admin/trustees_tab.ml:111 src/web/clients/admin/common.ml:151
 msgid "Cancel"
-msgstr ""
+msgstr "ຍົກເລີກ"
 
 #: src/web/server/common/mails_admin.ml:124
 msgid "Change e-mail address"
-msgstr ""
+msgstr "ປ່ຽນທີ່ຢູ່ອີເມວ"
 
 #. src/web/server/common/site_admin.ml:244
 #. src/web/server/common/mails_admin.ml:90
@@ -292,1049 +300,1076 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:266
 #: src/web/server/common/site_admin.ml:359
 msgid "Change password"
-msgstr ""
+msgstr "ປ່ຽນລະຫັດຜ່ານ"
 
 #: src/web/clients/credop/credop.ml:272 src/web/clients/credop/credop.ml:111
 msgid "Check certificate"
-msgstr ""
+msgstr "ກວດສອບໃບຢັ້ງຢືນ"
 
 #: src/web/clients/admin/elections.ml:641
 msgid "Clear logo"
-msgstr ""
+msgstr "ລຶບໂລໂກ້ອອກ"
 
 #. src/web/clients/common/secondary_ui.ml:80
 #: src/web/clients/admin/elections.ml:1973
 msgid "Close"
-msgstr ""
+msgstr "ປິດ"
 
 #: src/web/clients/admin/elections.ml:1180
 msgid "Close: "
-msgstr ""
+msgstr "ປິດ: "
 
 #: src/web/clients/admin/elections.ml:1305
 msgid "Code"
-msgstr ""
+msgstr "ລະຫັດ"
 
 #: src/web/clients/trustee/generate.ml:332
 msgid "Collaborative key generation"
-msgstr ""
+msgstr "ການສ້າງກະແຈແບບຮ່ວມມື"
 
 #: src/web/server/common/pages_admin.ml:420
 msgid "Compute fingerprint"
-msgstr ""
+msgstr "ຄິດໄລ່ລາຍນິ້ວມື (fingerprint)"
 
 #: src/web/clients/trustee/shuffle.ml:106
 msgid "Compute shuffle"
-msgstr ""
+msgstr "ຄິດໄລ່ການສັບປ່ຽນ (shuffle)"
 
 #: src/web/clients/admin/questions.ml:506
 msgid "Condorcet-Schulze method"
-msgstr ""
+msgstr "ວິທີການ Condorcet-Schulze"
 
 #: src/web/clients/admin/elections.ml:208
 msgid "Contact"
-msgstr ""
+msgstr "ຕິດຕໍ່"
 
 #: src/web/clients/admin/elections.ml:1391
 msgid "Contact:"
-msgstr ""
+msgstr "ຕິດຕໍ່:"
 
 #: src/web/clients/admin/admin.ml:381
 msgid "Could not get configuration from server! (%s)"
-msgstr ""
+msgstr "ບໍ່ສາມາດດຶງຂໍ້ມູນການຕັ້ງຄ່າຈາກເຊີເວີໄດ້! (%s)"
 
 #: src/web/clients/credop/credop.ml:39
 msgid "Could not get credit history!"
-msgstr ""
+msgstr "ບໍ່ສາມາດດຶງປະຫວັດການໃຊ້ເຄຣດິດໄດ້!"
 
 #: src/web/clients/trustee/trustee.ml:55
 msgid "Could not get parameters!"
-msgstr ""
+msgstr "ບໍ່ສາມາດດຶງພາລາມິເຕີໄດ້!"
 
 #: src/web/clients/admin/elections.ml:1911
 msgid "Create"
-msgstr ""
+msgstr "ສ້າງ"
 
 #: src/web/clients/admin/trustees_tab.ml:279
 msgid "Create a new board"
-msgstr ""
+msgstr "ສ້າງຄະນະກຳມະການໃໝ່"
 
 #: src/web/clients/admin/admin.ml:270
 msgid "Create a new election"
-msgstr ""
+msgstr "ສ້າງການເລືອກຕັ້ງໃໝ່"
 
 #. src/web/server/common/site_admin.ml:200
 #. src/web/server/common/mails_admin.ml:56
 #: src/web/server/common/site_admin.ml:329
 msgid "Create account"
-msgstr ""
+msgstr "ສ້າງບັນຊີ"
 
 #. src/web/server/common/pages_admin.ml:233
 #: src/web/server/common/pages_admin.ml:353
 msgid "Create an account"
-msgstr ""
+msgstr "ສ້າງບັນຊີ"
 
 #: src/web/clients/admin/elections.ml:309
 msgid "Create the election"
-msgstr ""
+msgstr "ສ້າງການເລືອກຕັ້ງ"
 
 #: src/web/clients/admin/trustees_tab.ml:307
 msgid "Creating board failed with code %d!"
-msgstr ""
+msgstr "ການສ້າງຄະນະກຳມະການລົ້ມເຫຼວດ້ວຍລະຫັດ %d!"
 
 #: src/web/clients/admin/elections.ml:254
 msgid "Credential authority"
-msgstr ""
+msgstr "ອົງກອນອອກສິດເຂົ້າໃຊ້"
 
 #: src/web/common/mails_admin.ml:110
 msgid "Credential authority link"
-msgstr ""
+msgstr "ລິ້ງອົງກອນອອກສິດເຂົ້າໃຊ້"
 
 #: src/web/clients/credauth/credauth.ml:32
 msgid "Credential authority management"
-msgstr ""
+msgstr "ການຈັດການອົງກອນອອກສິດເຂົ້າໃຊ້"
 
 #: src/web/server/common/mails_admin.ml:175
 msgid "Credential authority protocol"
-msgstr ""
+msgstr "ໂປຣໂຕຄໍອົງກອນອອກສິດເຂົ້າໃຊ້"
 
 #: src/web/clients/credauth/generate.ml:176
 msgid "Credential generation"
-msgstr ""
+msgstr "ການສ້າງສິດເຂົ້າໃຊ້"
 
 #: src/web/clients/admin/elections.ml:1589
 msgid "Credential operator"
-msgstr ""
+msgstr "ຜູ້ດຳເນີນການສິດເຂົ້າໃຊ້"
 
 #: src/web/clients/credop/credop.ml:81
 msgid "Credential operator interface"
-msgstr ""
+msgstr "ອິນເຕີເຟດຜູ້ດຳເນີນການສິດເຂົ້າໃຊ້"
 
 #: src/web/clients/admin/elections.ml:1580
 msgid "Credential server"
-msgstr ""
+msgstr "ເຊີເວີສິດເຂົ້າໃຊ້"
 
 #: src/web/server/common/mails_admin.ml:162
 msgid "Credential server:"
-msgstr ""
+msgstr "ເຊີເວີສິດເຂົ້າໃຊ້:"
 
 #: src/web/clients/admin/elections.ml:1737
 msgid "Credentials are being generated on the server."
-msgstr ""
+msgstr "ກຳລັງສ້າງສິດເຂົ້າໃຊ້ຢູ່ເທິງເຊີເວີ."
 
 #: src/web/clients/credauth/generate.ml:73
 msgid "Credentials have been received and checked!"
-msgstr ""
+msgstr "ໄດ້ຮັບ ແລະ ກວດສອບສິດເຂົ້າໃຊ້ແລ້ວ!"
 
 #: src/web/clients/admin/elections.ml:1726
 msgid "Credentials have been received from the external credential authority."
-msgstr ""
+msgstr "ໄດ້ຮັບສິດເຂົ້າໃຊ້ຈາກອົງກອນອອກສິດເຂົ້າໃຊ້ພາຍນອກແລ້ວ."
 
 #: src/web/clients/credop/credop.ml:62
 msgid "Credit variation"
-msgstr ""
+msgstr "ການປ່ຽນແປງເຄຣດິດ"
 
 #: src/web/clients/admin/elections.ml:1032
 msgid "Current turnout: %d / %d = %.2f %%"
-msgstr ""
+msgstr "ຈຳນວນຜູ້ມາໃຊ້ສິດປັດຈຸບັນ: %d / %d = %.2f %%"
 
 #: src/web/clients/trustee/generate.ml:225
 msgid "Data submission failed! Please refresh and/or restart from the beginning."
-msgstr ""
+msgstr "ການສົ່ງຂໍ້ມູນລົ້ມເຫຼວ! ກະລຸນາໂຫຼດໜ້າໃໝ່ ແລະ/ຫຼື ເລີ່ມຕົ້ນໃໝ່ແຕ່ຕົ້ນ."
 
 #: src/web/clients/trustee/generate.ml:214
 msgid "Data submission succeeded!"
-msgstr ""
+msgstr "ສົ່ງຂໍ້ມູນສຳເລັດແລ້ວ!"
 
 #: src/web/clients/credop/credop.ml:61
 msgid "Date and time"
-msgstr ""
+msgstr "ວັນທີ ແລະ ເວລາ"
 
 #: src/web/clients/admin/elections.ml:186
 msgid "Dates"
-msgstr ""
+msgstr "ວັນທີ"
 
 #: src/web/clients/admin/elections.ml:1226
 msgid "Dates can no longer be defined for this election."
-msgstr ""
+msgstr "ບໍ່ສາມາດກຳນົດວັນທີສຳລັບການເລືອກຕັ້ງນີ້ໄດ້ອີກ."
 
 #. src/web/server/common/mails_admin.ml:97
 #. src/web/server/common/mails_admin.ml:63
 #. src/web/server/common/mails_admin.ml:29
 #: src/web/server/common/mails_admin.ml:147
 msgid "Dear %s,"
-msgstr ""
+msgstr "ຮຽນ %s,"
 
 #: src/web/common/mails_admin.ml:31
 msgid "Dear credential authority,"
-msgstr ""
+msgstr "ຮຽນ ອົງກອນອອກສິດເຂົ້າໃຊ້,"
 
 #: src/web/common/mails_admin.ml:117
 msgid "Dear trustee,"
-msgstr ""
+msgstr "ຮຽນ ຜູ້ຮັກສາລະຫັດ,"
 
 #: src/web/clients/trustee/trustee.ml:158
 msgid "Decrypt"
-msgstr ""
+msgstr "ຖອດລະຫັດ"
 
 #: src/web/clients/admin/elections.ml:232
 msgid "Decryption trustees"
-msgstr ""
+msgstr "ຜູ້ຮັກສາລະຫັດຖອດລະຫັດ"
 
 #: src/web/clients/admin/account.ml:170
 msgid "Default contact for new elections: "
-msgstr ""
+msgstr "ຜູ້ຕິດຕໍ່ເລີ່ມຕົ້ນສຳລັບການເລືອກຕັ້ງໃໝ່: "
 
 #: src/web/clients/admin/account.ml:178
 msgid "Default languages for new elections:"
-msgstr ""
+msgstr "ພາສາເລີ່ມຕົ້ນສຳລັບການເລືອກຕັ້ງໃໝ່:"
 
 #: src/web/clients/admin/elections.ml:1891
 msgid "Default mode:"
-msgstr ""
+msgstr "ໂໝດເລີ່ມຕົ້ນ:"
 
 #: src/web/clients/admin/elections.ml:1210
 msgid "Defining this date will block finalization of the tallying process until this date. By default, when not set, results are published as soon as possible."
 msgstr ""
+"ການກຳນົດວັນທີນີ້ຈະຂັດຂວາງການສິ້ນສຸດຂະບວນການນັບຄະແນນຈົນກວ່າຈະຮອດວັນທີນີ້. ຕາມຄ່າເລີ່ມຕົ້ນ, ຖ້າບໍ່ໄດ້ກຳນົ"
+"ດໄວ້, ຜົນການເລືອກຕັ້ງຈະຖືກເຜີຍແຜ່ໃຫ້ໄວທີ່ສຸດເທົ່າທີ່ຈະເປັນໄປໄດ້."
 
 #: src/web/clients/admin/elections.ml:860
 msgid "Delete all"
-msgstr ""
+msgstr "ລຶບທັງໝົດ"
 
 #: src/web/clients/admin/elections.ml:429
 msgid "Delete the election"
-msgstr ""
+msgstr "ລຶບການເລືອກຕັ້ງ"
 
 #: src/web/clients/admin/elections.ml:672 src/web/clients/admin/elections.ml:657
 msgid "Description:"
-msgstr ""
+msgstr "ຄຳອະທິບາຍ:"
 
 #: src/web/clients/admin/elections.ml:1331
 msgid "Direction: "
-msgstr ""
+msgstr "ທິດທາງ: "
 
 #. src/web/clients/admin/trustees_tab.ml:524
 #: src/web/clients/admin/trustees_tab.ml:621
 msgid "Done?"
-msgstr ""
+msgstr "ສຳເລັດແລ້ວບໍ?"
 
 #. src/web/clients/credauth/generate.ml:119
 #: src/web/clients/credauth/generate.ml:127
 msgid "Download "
-msgstr ""
+msgstr "ດາວໂຫຼດ "
 
 #: src/web/clients/admin/elections.ml:2027
 msgid "Download sealing log"
-msgstr ""
+msgstr "ດາວໂຫຼດບັນທຶກການຜະນຶກ (sealing log)"
 
 #: src/web/clients/trustee/generate.ml:179
 msgid "Download your "
-msgstr ""
+msgstr "ດາວໂຫຼດຂອງທ່ານ "
 
 #: src/web/common/mails_admin.ml:133
 msgid "Download your private key. Make sure you SAVE IT properly otherwise it will not be possible to tally and the election will be canceled."
 msgstr ""
+"ດາວໂຫຼດກະແຈສ່ວນຕົວຂອງທ່ານ. ໃຫ້ແນ່ໃຈວ່າທ່ານໄດ້ ບັນທຶກມັນໄວ້ ຢ່າງຖືກຕ້ອງ ຖ້າບໍ່ດັ່ງນັ້ນຈະບໍ່ສາມາດນັບຄະແນນ"
+"ໄດ້ ແລະ ການເລືອກຕັ້ງຈະຖືກຍົກເລີກ."
 
 #: src/web/clients/admin/elections.ml:1846
 msgid "Dummy auth (should not be used in production): "
-msgstr ""
+msgstr "ການຢືນຢັນຕົວຕົນແບບສົມມຸດ (ບໍ່ຄວນໃຊ້ໃນລະບົບຈິງ): "
 
 #. src/web/server/common/pages_admin.ml:214
 #: src/web/server/common/pages_admin.ml:244
 msgid "E-mail address:"
-msgstr ""
+msgstr "ທີ່ຢູ່ອີເມວ:"
 
 #: src/web/clients/admin/account.ml:151
 msgid "E-mail: "
-msgstr ""
+msgstr "ອີເມວ: "
 
 #: src/web/clients/admin/account.ml:218
 msgid "Edit profile"
-msgstr ""
+msgstr "ແກ້ໄຂໂປຣໄຟລ໌"
 
 #: src/web/server/common/mails_admin.ml:158
 msgid "Election identifier:"
-msgstr ""
+msgstr "ຕົວລະບຸການເລືອກຕັ້ງ:"
 
 #: src/web/clients/admin/elections.ml:1974
 msgid "Election is currently closed"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງຖືກປິດຢູ່ໃນຂະນະນີ້"
 
 #: src/web/clients/admin/elections.ml:1973
 msgid "Election is currently open"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງຖືກເປີດຢູ່ໃນຂະນະນີ້"
 
 #: src/web/clients/admin/elections.ml:284
 msgid "Election main page"
-msgstr ""
+msgstr "ໜ້າຫຼັກການເລືອກຕັ້ງ"
 
 #. src/web/server/common/pages_admin.ml:45
 #. src/web/common/pages_common.ml:143
 #. src/web/common/pages_common.ml:134
 #: src/web/server/common/pages_admin.ml:190
 msgid "Election server"
-msgstr ""
+msgstr "ເຊີເວີການເລືອກຕັ້ງ"
 
 #: src/web/server/common/mails_admin.ml:156
 msgid "Election server:"
-msgstr ""
+msgstr "ເຊີເວີການເລືອກຕັ້ງ:"
 
 #: src/web/clients/admin/elections.ml:2097
 msgid "Election status"
-msgstr ""
+msgstr "ສະຖານະການເລືອກຕັ້ງ"
 
 #: src/web/clients/trustee/trustee.ml:184
 msgid "Elections associated to this electoral board"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງທີ່ກ່ຽວຂ້ອງກັບຄະນະກຳມະການເລືອກຕັ້ງນີ້"
 
 #: src/web/clients/basic/admin_basic.ml:211
 msgid "Elections being prepared"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງທີ່ກຳລັງກຽມການ"
 
 #: src/web/clients/admin/admin.ml:179
 msgid "Elections being setup:"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງທີ່ກຳລັງຕັ້ງຄ່າ:"
 
 #: src/web/clients/basic/admin_basic.ml:213
 msgid "Elections you can administer"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງທີ່ທ່ານສາມາດບໍລິຫານໄດ້"
 
 #: src/web/clients/admin/elections.ml:1124
 msgid "Erase"
-msgstr ""
+msgstr "ລຶບ"
 
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/server/common/site_admin.ml:146
 #: src/web/clients/credop/credop.ml:89 src/web/clients/credauth/generate.ml:163
 msgid "Error"
-msgstr ""
+msgstr "ຂໍ້ຜິດພາດ"
 
 #: src/web/clients/trustee/trustee.ml:202
 msgid "Error in URL!"
-msgstr ""
+msgstr "URL ຜິດພາດ!"
 
 #: src/web/clients/admin/account.ml:85
 msgid "Error in languages: %S is not available"
-msgstr ""
+msgstr "ພາສາຜິດພາດ: %S ບໍ່ມີໃຫ້ໃຊ້"
 
 #: src/web/clients/trustee/shuffle.ml:82 src/web/clients/trustee/decrypt.ml:66
 msgid "Error while loading election parameters!"
-msgstr ""
+msgstr "ເກີດຂໍ້ຜິດພາດໃນຂະນະທີ່ໂຫຼດພາລາມິເຕີການເລືອກຕັ້ງ!"
 
 #: src/web/clients/trustee/common.ml:131
 msgid "Error while processing the private key. Did you load the right file?"
 msgstr ""
+"ເກີດຂໍ້ຜິດພາດໃນຂະນະທີ່ປະມວນຜົນກະແຈສ່ວນຕົວ. ທ່ານໄດ້ໂຫຼດໄຟລ໌ທີ່ຖືກຕ້ອງແລ້ວບໍ?"
 
 #: src/web/clients/credop/credop.ml:118
 msgid "Error while retrieving election!"
-msgstr ""
+msgstr "ເກີດຂໍ້ຜິດພາດໃນຂະນະທີ່ດຶງຂໍ້ມູນການເລືອກຕັ້ງ!"
 
 #: src/web/clients/admin/elections.ml:1784
 msgid "Error while retrieving server configuration: %s"
-msgstr ""
+msgstr "ເກີດຂໍ້ຜິດພາດໃນຂະນະທີ່ດຶງຂໍ້ມູນການຕັ້ງຄ່າເຊີເວີ: %s"
 
 #: src/web/clients/trustee/shuffle.ml:65
 msgid "Estimated remaining time: %d second(s)"
-msgstr ""
+msgstr "ເວລາທີ່ຄາດວ່າຈະຍັງເຫຼືອ: %d ວິນາທີ"
 
 #: src/web/clients/trustee/shuffle.ml:116
 msgid "Estimating computation time…"
-msgstr ""
+msgstr "ກຳລັງຄາດຄະເນເວລາໃນການຄິດໄລ່…"
 
 #: src/web/common/pages_common.ml:257
 msgid "FAIL!"
-msgstr ""
+msgstr "ລົ້ມເຫຼວ!"
 
 #. src/web/clients/admin/trustees_tab.ml:516
 #: src/web/clients/admin/trustees_tab.ml:612
 msgid "Failed to connect; please reload"
-msgstr ""
+msgstr "ເຊື່ອມຕໍ່ບໍ່ສຳເລັດ; ກະລຸນາໂຫຼດໜ້າໃໝ່"
 
 #: src/web/clients/admin/common.ml:91
 msgid "Failed to sync data to server, code %d"
-msgstr ""
+msgstr "ຊິງຄ໌ຂໍ້ມູນກັບເຊີເວີບໍ່ສຳເລັດ, ລະຫັດ %d"
 
 #: src/web/clients/admin/trustees_tab.ml:742
 msgid "Failed with error %d!"
-msgstr ""
+msgstr "ລົ້ມເຫຼວດ້ວຍຂໍ້ຜິດພາດ %d!"
 
 #: src/web/clients/credop/credop.ml:258
 msgid "Failure"
-msgstr ""
+msgstr "ລົ້ມເຫຼວ"
 
 #: src/web/clients/credauth/generate.ml:106
 msgid "Fingerprint of public credentials:"
-msgstr ""
+msgstr "ລາຍນິ້ວມືຂອງສິດເຂົ້າໃຊ້ສາທາລະນະ:"
 
 #: src/web/clients/trustee/generate.ml:170
 msgid "Fingerprint of the public key:"
-msgstr ""
+msgstr "ລາຍນິ້ວມືຂອງກະແຈສາທາລະນະ:"
 
 #: src/web/clients/credauth/generate.ml:206
 msgid "Fingerprint of voters:"
-msgstr ""
+msgstr "ລາຍນິ້ວມືຂອງຜູ້ມີສິດເລືອກຕັ້ງ:"
 
 #: src/web/clients/credauth/generate.ml:211
 msgid "Generate"
-msgstr ""
+msgstr "ສ້າງ (Generate)"
 
 #: src/web/clients/trustee/generate.ml:121
 msgid "Generate a key"
-msgstr ""
+msgstr "ສ້າງກະແຈ"
 
 #: src/web/clients/admin/elections.ml:1469
 msgid "Generate and send the credentials"
-msgstr ""
+msgstr "ສ້າງ ແລະ ສົ່ງສິດເຂົ້າໃຊ້"
 
 #: src/web/clients/trustee/decrypt.ml:98
 msgid "Generate your contribution to decryption"
-msgstr ""
+msgstr "ສ້າງການມີສ່ວນຮ່ວມຂອງທ່ານໃນການຖອດລະຫັດ"
 
 #: src/web/common/pages_common.ml:69
 msgid "Get the source code"
-msgstr ""
+msgstr "ດຶງເອົາຊອດໂຄ້ດ (source code)"
 
 #: src/web/common/pages_common.ml:274
 msgid "Go back to election"
-msgstr ""
+msgstr "ກັບຄືນສູ່ການເລືອກຕັ້ງ"
 
 #: src/web/clients/admin/elections.ml:1170
 msgid "Grace period: "
-msgstr ""
+msgstr "ໄລຍະເວລາຜ່ອນຜັນ: "
 
 #: src/web/clients/admin/questions.ml:353
 msgid "Grade propositions"
-msgstr ""
+msgstr "ຂໍ້ສະເໜີລະດັບ"
 
 #: src/web/common/mails_admin.ml:44
 msgid "Here are the instructions:"
-msgstr ""
+msgstr "ນີ້ແມ່ນຄຳແນະນຳ:"
 
 #: src/web/clients/admin/admin.ml:325 src/web/server/common/pages_admin.ml:91
 msgid "Home"
-msgstr ""
+msgstr "ໜ້າຫຼັກ"
 
 #: src/web/clients/admin/account.ml:141
 msgid "ID: "
-msgstr ""
+msgstr "ID: "
 
 #: src/web/server/common/pages_admin.ml:141
 msgid "If you do not have any account, you may "
-msgstr ""
+msgstr "ຖ້າທ່ານຍັງບໍ່ມີບັນຊີ, ທ່ານສາມາດ "
 
 #: src/web/server/common/pages_admin.ml:497
 msgid "Impersonate a user"
-msgstr ""
+msgstr "ປອມຕົວເປັນຜູ້ໃຊ້"
 
 #: src/web/clients/admin/elections.ml:999
 msgid "Import voters "
-msgstr ""
+msgstr "ນຳເຂົ້າຜູ້ມີສິດເລືອກຕັ້ງ "
 
 #: src/web/clients/admin/elections.ml:1142
 msgid "In %d minutes"
-msgstr ""
+msgstr "ໃນອີກ %d ນາທີ"
 
 #: src/web/clients/trustee/generate.ml:249
 msgid "Inconsistent state!"
-msgstr ""
+msgstr "ສະຖານະບໍ່ສອດຄ່ອງກັນ!"
 
 #: src/web/server/common/site_admin.ml:177
 msgid "Incorrect code"
-msgstr ""
+msgstr "ລະຫັດບໍ່ຖືກຕ້ອງ"
 
 #: src/web/clients/admin/elections.ml:1605
 msgid "Initiate protocol"
-msgstr ""
+msgstr "ເລີ່ມຕົ້ນໂປຣໂຕຄໍ"
 
 #: src/web/clients/admin/questions.ml:806
 msgid "Insert a list"
-msgstr ""
+msgstr "ແຊກລາຍຊື່"
 
 #: src/web/clients/admin/questions.ml:1036
 msgid "Insert a question"
-msgstr ""
+msgstr "ແຊກຄຳຖາມ"
 
 #: src/web/clients/admin/questions.ml:877
 msgid "Insert an answer"
-msgstr ""
+msgstr "ແຊກຄຳຕອບ"
 
 #. src/web/clients/trustee/decrypt.ml:125
 #. src/web/clients/trustee/generate.ml:174
 #: src/web/clients/credauth/generate.ml:114
 msgid "Instructions:"
-msgstr ""
+msgstr "ຄຳແນະນຳ:"
 
 #: src/web/clients/trustee/trustee.ml:49
 msgid "Invalid board identifier!"
-msgstr ""
+msgstr "ຕົວລະບຸຄະນະກຳມະການບໍ່ຖືກຕ້ອງ!"
 
 #: src/web/clients/trustee/decrypt.ml:114
 msgid "It is now time to compute your partial decryption factors."
-msgstr ""
+msgstr "ເຖິງເວລາຄິດໄລ່ປັດໄຈການຖອດລະຫັດບາງສ່ວນຂອງທ່ານແລ້ວ."
 
 #: src/web/clients/admin/elections.ml:1305
 msgid "Language"
-msgstr ""
+msgstr "ພາສາ"
 
 #: src/web/clients/admin/account.ml:162
 msgid "Language for administrator interface:"
-msgstr ""
+msgstr "ພາສາສຳລັບອິນເຕີເຟດຜູ້ດູແລລະບົບ:"
 
 #: src/web/clients/admin/elections.ml:1312
 msgid "Language of metadata"
-msgstr ""
+msgstr "ພາສາຂອງຂໍ້ມູນເມຕາ (metadata)"
 
 #: src/web/common/pages_common.ml:94
 msgid "Language:"
-msgstr ""
+msgstr "ພາສາ:"
 
 #: src/web/clients/admin/elections.ml:1326
 msgid "Language: "
-msgstr ""
+msgstr "ພາສາ: "
 
 #: src/web/clients/admin/elections.ml:197
 msgid "Languages"
-msgstr ""
+msgstr "ພາສາ"
 
 #: src/web/clients/admin/elections.ml:1335
 msgid "Languages of spontaneous e-mails"
-msgstr ""
+msgstr "ພາສາຂອງອີເມວທີ່ສົ່ງໂດຍອັດຕະໂນມັດ"
 
 #: src/web/clients/admin/elections.ml:1311
 msgid "Languages:"
-msgstr ""
+msgstr "ພາສາ:"
 
 #: src/web/clients/admin/elections.ml:1277
 msgid "Left to right"
-msgstr ""
+msgstr "ຈາກຊ້າຍຫາຂວາ"
 
 #. src/web/clients/admin/trustees_tab.ml:414
 #: src/web/clients/admin/trustees_tab.ml:523
 msgid "Link to send"
-msgstr ""
+msgstr "ລິ້ງທີ່ຈະສົ່ງ"
 
 #. src/web/clients/admin/elections.ml:1066
 #: src/web/clients/admin/elections.ml:1069
 msgid "Link to the "
-msgstr ""
+msgstr "ລິ້ງໄປຫາ "
 
 #: src/web/common/mails_admin.ml:167
 msgid "Link to trustee interface"
-msgstr ""
+msgstr "ລິ້ງໄປຫາອິນເຕີເຟດຜູ້ຮັກສາລະຫັດ"
 
 #: src/web/clients/admin/questions.ml:702
 msgid "List name:"
-msgstr ""
+msgstr "ຊື່ລາຍຊື່:"
 
 #: src/web/clients/admin/elections.ml:1351
 msgid "List of available languages, with their code:"
-msgstr ""
+msgstr "ລາຍຊື່ພາສາທີ່ມີໃຫ້ໃຊ້, ພ້ອມກັບລະຫັດ:"
 
 #: src/web/clients/admin/questions.ml:354
 msgid "Lists"
-msgstr ""
+msgstr "ລາຍຊື່"
 
 #: src/web/clients/admin/admin.ml:372
 msgid "Loading..."
-msgstr ""
+msgstr "ກຳລັງໂຫຼດ..."
 
 #: src/web/server/common/pages_admin.ml:158
 msgid "Log in with"
-msgstr ""
+msgstr "ເຂົ້າສູ່ລະບົບດ້ວຍ"
 
 #: src/web/server/common/pages_admin.ml:127
 msgid "Log in:"
-msgstr ""
+msgstr "ເຂົ້າສູ່ລະບົບ:"
 
 #. src/web/server/common/pages_admin.ml:110
 #: src/web/clients/admin/admin.ml:348 src/web/clients/admin/account.ml:207
 msgid "Log out"
-msgstr ""
+msgstr "ອອກຈາກລະບົບ"
 
 #: src/web/clients/admin/elections.ml:805
 msgid "Login"
-msgstr ""
+msgstr "ຊື່ເຂົ້າລະບົບ"
 
 #: src/web/clients/admin/elections.ml:659
 msgid "Logo:"
-msgstr ""
+msgstr "ໂລໂກ້:"
 
 #: src/web/clients/admin/preview.ml:78
 msgid "Main election page will open in a new tab."
-msgstr ""
+msgstr "ໜ້າຫຼັກການເລືອກຕັ້ງຈະຖືກເປີດໃນແທັບໃໝ່."
 
 #: src/web/clients/admin/elections.ml:514
 msgid "Management"
-msgstr ""
+msgstr "ການຈັດການ"
 
 #: src/web/clients/admin/elections.ml:1766
 msgid "Management of credentials:"
-msgstr ""
+msgstr "ການຈັດການສິດເຂົ້າໃຊ້:"
 
 #: src/web/clients/admin/questions.ml:410
 msgid "Maximal number of choices to select"
-msgstr ""
+msgstr "ຈຳນວນຕົວເລືອກສູງສຸດທີ່ສາມາດເລືອກໄດ້"
 
 #: src/web/clients/admin/questions.ml:403
 msgid "Minimal number of choices to select"
-msgstr ""
+msgstr "ຈຳນວນຕົວເລືອກຕ່ຳສຸດທີ່ຕ້ອງເລືອກ"
 
 #: src/web/clients/credop/credop.ml:100
 msgid "Missing secret key. You must come to this page by following the full link that has been sent to you by e-mail."
 msgstr ""
+"ຂາດກະແຈລັບ. ທ່ານຕ້ອງເຂົ້າຫາໜ້ານີ້ໂດຍຜ່ານລິ້ງເຕັມທີ່ຖືກສົ່ງໃຫ້ທ່ານທາງອີເມວ."
 
 #: src/web/clients/credop/credop.ml:266
 msgid "Missing voters"
-msgstr ""
+msgstr "ຜູ້ມີສິດເລືອກຕັ້ງທີ່ຍັງບໍ່ມີຂໍ້ມູນ"
 
 #: src/web/clients/admin/admin.ml:249
 msgid "My archived elections"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງທີ່ຈັດເກັບແລ້ວຂອງຂ້ອຍ"
 
 #: src/web/clients/admin/admin.ml:247
 msgid "My draft elections"
-msgstr ""
+msgstr "ຮ່າງການເລືອກຕັ້ງຂອງຂ້ອຍ"
 
 #: src/web/clients/admin/admin.ml:248
 msgid "My running elections"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງທີ່ກຳລັງດຳເນີນການຂອງຂ້ອຍ"
 
 #: src/web/clients/admin/elections.ml:1660
 msgid "Name of the credential authority"
-msgstr ""
+msgstr "ຊື່ອົງກອນອອກສິດເຂົ້າໃຊ້"
 
 #: src/web/clients/admin/account.ml:155
 msgid "Name: "
-msgstr ""
+msgstr "ຊື່: "
 
 #: src/web/clients/admin/account.ml:113
 msgid "Navigator's default"
-msgstr ""
+msgstr "ຄ່າເລີ່ມຕົ້ນຂອງບຣາວເຊີ"
 
 #: src/web/clients/admin/questions.ml:861 src/web/clients/admin/questions.ml:850
 msgid "New answer"
-msgstr ""
+msgstr "ຄຳຕອບໃໝ່"
 
 #. src/web/clients/admin/questions.ml:688
 #: src/web/clients/admin/questions.ml:787 src/web/clients/admin/questions.ml:764
 msgid "New candidate"
-msgstr ""
+msgstr "ຜູ້ສະໝັກໃໝ່"
 
 #: src/web/clients/admin/questions.ml:578 src/web/clients/admin/questions.ml:561
 msgid "New grade"
-msgstr ""
+msgstr "ລະດັບໃໝ່"
 
 #: src/web/clients/admin/questions.ml:787 src/web/clients/admin/questions.ml:688
 msgid "New list"
-msgstr ""
+msgstr "ລາຍຊື່ໃໝ່"
 
 #: src/web/clients/credop/credop.ml:147
 msgid "No certificate for this election!"
-msgstr ""
+msgstr "ບໍ່ມີໃບຢັ້ງຢືນສຳລັບການເລືອກຕັ້ງນີ້!"
 
 #: src/web/clients/admin/trustees_tab.ml:397
 msgid "No external trustee were set. Do you confirm that you trust the server for privacy?"
 msgstr ""
+"ບໍ່ມີການກຳນົດຜູ້ຮັກສາລະຫັດພາຍນອກ. ທ່ານຢືນຢັນບໍວ່າທ່ານໄວ້ວາງໃຈເຊີເວີໃນເລື່ອງຄວາມເປັນສ່ວນຕົວ?"
 
 #: src/web/clients/admin/elections.ml:625
 msgid "No logo set."
-msgstr ""
+msgstr "ຍັງບໍ່ໄດ້ຕັ້ງໂລໂກ້."
 
 #: src/web/clients/admin/trustees_tab.ml:798
 msgid "Nothing to show here. Try going to the Status tab."
-msgstr ""
+msgstr "ບໍ່ມີຫຍັງສະແດງຢູ່ນີ້. ລອງໄປທີ່ແທັບ ສະຖານະ."
 
 #: src/web/clients/admin/elections.ml:1739
 msgid "Number of credentials left: %d."
-msgstr ""
+msgstr "ຈຳນວນສິດເຂົ້າໃຊ້ທີ່ຍັງເຫຼືອ: %d."
 
 #: src/web/clients/admin/questions.ml:447
 msgid "Number of seats:"
-msgstr ""
+msgstr "ຈຳນວນທີ່ນັ່ງ:"
 
 #: src/web/common/mails_admin.ml:131
 msgid "On first connection, you will generate a private key."
-msgstr ""
+msgstr "ໃນການເຊື່ອມຕໍ່ຄັ້ງທຳອິດ, ທ່ານຈະຕ້ອງສ້າງກະແຈສ່ວນຕົວ."
 
 #: src/web/common/mails_admin.ml:146
 msgid "On subsequent connections, you will be able to check your private key, and perform various actions related to elections where you play a role."
 msgstr ""
+"ໃນການເຊື່ອມຕໍ່ຄັ້ງຕໍ່ໆໄປ, ທ່ານຈະສາມາດກວດສອບກະແຈສ່ວນຕົວຂອງທ່ານ ແລະ ດຳເນີນການຕ່າງໆທີ່ກ່ຽວຂ້ອງກັບກາ"
+"ນເລືອກຕັ້ງທີ່ທ່ານມີບົດບາດ."
 
 #: src/web/common/mails_admin.ml:98
 msgid "Once the election is finished and validated, you are expected to destroy the file creds.txt for stronger privacy guarantees."
 msgstr ""
+"ເມື່ອການເລືອກຕັ້ງສິ້ນສຸດ ແລະ ຖືກຢືນຢັນແລ້ວ, ທ່ານຄວນທຳລາຍໄຟລ໌ creds.txt ເພື່ອການຮັບປະກັນຄວາມເປັນສ່"
+"ວນຕົວທີ່ດີກວ່າ."
 
 #: src/web/clients/trustee/generate.ml:190
 msgid "Once the election is open, you must check that it is present in the set of public keys published by the server."
 msgstr ""
+"ເມື່ອການເລືອກຕັ້ງເປີດແລ້ວ, ທ່ານຕ້ອງກວດສອບວ່າມັນມີຢູ່ໃນຊຸດຂອງກະແຈສາທາລະນະທີ່ເຜີຍແຜ່ໂດຍເຊີເວີ."
 
 #: src/web/clients/credauth/generate.ml:147 src/web/common/mails_admin.ml:68
 msgid "Once the election is open, you must check that they match with what is published by the server."
 msgstr ""
+"ເມື່ອການເລືອກຕັ້ງເປີດແລ້ວ, ທ່ານຕ້ອງກວດສອບວ່າມັນກົງກັບສິ່ງທີ່ເຊີເວີເຜີຍແຜ່."
 
 #: src/web/clients/admin/elections.ml:1974
 msgid "Open"
-msgstr ""
+msgstr "ເປີດ"
 
 #: src/web/clients/admin/elections.ml:309
 msgid "Open / Close"
-msgstr ""
+msgstr "ເປີດ / ປິດ"
 
 #: src/web/common/mails_admin.ml:128
 msgid "Open the link and follow the instructions."
-msgstr ""
+msgstr "ເປີດລິ້ງ ແລະ ປະຕິບັດຕາມຄຳແນະນຳ."
 
 #: src/web/clients/admin/elections.ml:1177
 msgid "Open: "
-msgstr ""
+msgstr "ເປີດ: "
 
 #: src/web/server/common/mails_admin.ml:165
 msgid "Operator interface:"
-msgstr ""
+msgstr "ອິນເຕີເຟດຜູ້ຄວບຄຸມ:"
 
 #: src/web/clients/admin/elections.ml:1893
 msgid "Other authentication modes:"
-msgstr ""
+msgstr "ໂໝດການຢືນຢັນຕົວຕົນອື່ນໆ:"
 
 #: src/web/clients/trustee/decrypt.ml:109
 msgid "Partial decryption"
-msgstr ""
+msgstr "ການຖອດລະຫັດບາງສ່ວນ"
 
 #: src/web/clients/trustee/decrypt.ml:89
 msgid "Partial decryption submission failed unexpectedly!"
-msgstr ""
+msgstr "ການສົ່ງການຖອດລະຫັດບາງສ່ວນລົ້ມເຫຼວຢ່າງບໍ່ຄາດຄິດ!"
 
 #: src/web/clients/admin/elections.ml:1861
 msgid "Password sent by e-mail when voting (a short password, renewed for each vote)"
 msgstr ""
+"ລະຫັດຜ່ານຖືກສົ່ງຜ່ານອີເມວໃນເວລາລົງຄະແນນສຽງ (ລະຫັດຜ່ານສັ້ນ, ປ່ຽນໃໝ່ທຸກໆຄັ້ງທີ່ລົງຄະແນນສຽງ)"
 
 #: src/web/clients/credop/credop.ml:240
 msgid "Please check certificate first!"
-msgstr ""
+msgstr "ກະລຸນາກວດສອບໃບຢັ້ງຢືນກ່ອນ!"
 
 #: src/web/server/common/pages_admin.ml:394
 msgid "Please choose a password: "
-msgstr ""
+msgstr "ກະລຸນາເລືອກລະຫັດຜ່ານ: "
 
 #: src/web/server/common/pages_admin.ml:336
 msgid "Please choose a username: "
-msgstr ""
+msgstr "ກະລຸນາເລືອກຊື່ຜູ້ໃຊ້: "
 
 #: src/web/clients/admin/elections.ml:1714
 msgid "Please download "
-msgstr ""
+msgstr "ກະລຸນາດາວໂຫຼດ "
 
 #. src/web/server/common/pages_admin.ml:222
 #: src/web/server/common/pages_admin.ml:255
 msgid "Please enter "
-msgstr ""
+msgstr "ກະລຸນາປ້ອນ "
 
 #: src/web/server/common/pages_admin.ml:462
 msgid "Please enter the code here:"
-msgstr ""
+msgstr "ກະລຸນາປ້ອນລະຫັດໃສ່ນີ້:"
 
 #: src/web/clients/admin/elections.ml:965
 msgid "Please enter the identities of voters to add, one per line (max %s)."
-msgstr ""
+msgstr "ກະລຸນາປ້ອນຕົວຕົນຂອງຜູ້ລົງຄະແນນສຽງທີ່ຈະເພີ່ມ, ໜຶ່ງຄົນຕໍ່ແຖວ (ສູງສຸດ %s)."
 
 #: src/web/server/common/pages_admin.ml:286
 msgid "Please enter the verification code received by e-mail:"
-msgstr ""
+msgstr "ກະລຸນາປ້ອນລະຫັດຢືນຢັນທີ່ໄດ້ຮັບຜ່ານອີເມວ:"
 
 #: src/web/clients/admin/elections.ml:1777
 msgid "Please fill-in the voter list first."
-msgstr ""
+msgstr "ກະລຸນາຕື່ມລາຍຊື່ຜູ້ລົງຄະແນນສຽງກ່ອນ."
 
 #: src/web/clients/trustee/common.ml:96
 msgid "Please load your private key from a file:"
-msgstr ""
+msgstr "ກະລຸນາໂຫຼດຄີສ່ວນຕົວຂອງທ່ານຈາກໄຟລ໌:"
 
 #: src/web/server/common/pages_admin.ml:433
 msgid "Please provide one:"
-msgstr ""
+msgstr "ກະລຸນາລະບຸໜຶ່ງລາຍການ:"
 
 #: src/web/clients/admin/common.ml:163
 msgid "Please select the election from which you want to import data:"
-msgstr ""
+msgstr "ກະລຸນາເລືອກການເລືອກຕັ້ງທີ່ທ່ານຕ້ອງການນຳເຂົ້າຂໍ້ມູນ:"
 
 #: src/web/clients/trustee/shuffle.ml:122
 msgid "Please wait…"
-msgstr ""
+msgstr "ກະລຸນາລໍຖ້າ…"
 
 #: src/web/clients/trustee/shuffle.ml:121
 msgid "Please wait… "
-msgstr ""
+msgstr "ກະລຸນາລໍຖ້າ… "
 
 #: src/web/clients/admin/elections.ml:481
 msgid "Poll"
-msgstr ""
+msgstr "ການຢັ່ງຫາງສຽງ"
 
 #: src/web/common/pages_common.ml:65
 msgid "Powered by "
-msgstr ""
+msgstr "ຂັບເຄື່ອນໂດຍ "
 
 #: src/web/clients/admin/elections.ml:282
 msgid "Preview"
-msgstr ""
+msgstr "ເບິ່ງຕົວຢ່າງ"
 
 #: src/web/clients/admin/questions.ml:1029
 msgid "Preview voter's interface"
-msgstr ""
+msgstr "ເບິ່ງຕົວຢ່າງອິນເຕີເຟດຂອງຜູ້ລົງຄະແນນສຽງ"
 
 #: src/web/clients/admin/preview.ml:49
 msgid "Preview will open in a new tab"
-msgstr ""
+msgstr "ຕົວຢ່າງຈະເປີດໃນແທັບໃໝ່"
 
 #: src/web/clients/trustee/shuffle.ml:110
 msgid "Private key is missing!"
-msgstr ""
+msgstr "ຄີສ່ວນຕົວຫາຍສາບສູນ!"
 
 #. src/web/server/common/pages_admin.ml:492
 #. src/web/server/common/pages_admin.ml:466
 #. src/web/server/common/pages_admin.ml:437
 #: src/web/server/common/pages_admin.ml:505
 msgid "Proceed"
-msgstr ""
+msgstr "ດຳເນີນການຕໍ່"
 
 #: src/web/clients/admin/trustees_tab.ml:229
 msgid "Proceed to key generation"
-msgstr ""
+msgstr "ດຳເນີນການສ້າງຄີ"
 
 #: src/web/clients/admin/trustees_tab.ml:238
 msgid "Proceed to next step? This will freeze the list of trustees."
 msgstr ""
+"ດຳເນີນການຂັ້ນຕອນຕໍ່ໄປບໍ? ນີ້ຈະເຮັດໃຫ້ລາຍຊື່ຜູ້ຮັກສາລະຫັດຖືກຄົງທີ່ (ບໍ່ສາມາດແກ້ໄຂໄດ້)."
 
 #: src/web/clients/admin/questions.ml:901
 msgid "Proposed answers:"
-msgstr ""
+msgstr "ຄຳຕອບທີ່ສະເໜີ:"
 
 #: src/web/clients/admin/questions.ml:603
 msgid "Proposed grades:"
-msgstr ""
+msgstr "ເກຣດທີ່ສະເໜີ:"
 
 #: src/web/clients/credauth/generate.ml:97
 msgid "Public credentials:"
-msgstr ""
+msgstr "ຂໍ້ມູນປະຈຳຕົວສາທາລະນະ:"
 
 #: src/web/clients/trustee/generate.ml:149
 msgid "Public key registration failed! Please refresh and/or restart from the beginning."
 msgstr ""
+"ການລົງທະບຽນຄີສາທາລະນະທົ່ວໄປລົ້ມເຫຼວ! ກະລຸນາໂຫຼດຄືນໃໝ່ ແລະ/ຫຼື ເລີ່ມຕົ້ນໃໝ່ແຕ່ຕົ້ນ."
 
 #: src/web/clients/trustee/generate.ml:139
 msgid "Public key registration succeeded!"
-msgstr ""
+msgstr "ການລົງທະບຽນຄີສາທາລະນະສຳເລັດແລ້ວ!"
 
 #: src/web/clients/admin/elections.ml:1404
 msgid "Public name of the administrator:"
-msgstr ""
+msgstr "ຊື່ສາທາລະນະຂອງຜູ້ບໍລິຫານ:"
 
 #: src/web/clients/admin/elections.ml:1397
 msgid "Public name of the administrator: "
-msgstr ""
+msgstr "ຊື່ສາທາລະນະຂອງຜູ້ບໍລິຫານ: "
 
 #: src/web/clients/admin/elections.ml:1199
 msgid "Publish: "
-msgstr ""
+msgstr "ເຜີຍແຜ່: "
 
 #: src/web/clients/admin/questions.ml:890
 msgid "Question "
-msgstr ""
+msgstr "ຄຳຖາມ "
 
 #: src/web/clients/admin/questions.ml:276
 msgid "Question #%d has too many choices, voting will fail!"
-msgstr ""
+msgstr "ຄຳຖາມທີ #%d ມີຕົວເລືອກຫຼາຍເກີນໄປ, ການລົງຄະແນນສຽງຈະລົ້ມເຫຼວ!"
 
 #: src/web/clients/admin/elections.ml:159
 msgid "Questions"
-msgstr ""
+msgstr "ຄຳຖາມ"
 
 #: src/web/clients/admin/questions.ml:1042
 msgid "Questions:"
-msgstr ""
+msgstr "ຄຳຖາມ:"
 
 #: src/web/clients/admin/questions.ml:1063
 msgid "Questions (non editable):"
-msgstr ""
+msgstr "ຄຳຖາມ (ບໍ່ສາມາດແກ້ໄຂໄດ້):"
 
 #: src/web/clients/admin/elections.ml:1958
 msgid "Ready to create:"
-msgstr ""
+msgstr "ພ້ອມທີ່ຈະສ້າງ:"
 
 #. src/web/clients/admin/trustees_tab.ml:699
 #. src/web/clients/admin/trustees_tab.ml:544
 #. src/web/clients/admin/trustees_tab.ml:438
 #: src/web/clients/trustee/trustee.ml:197
 msgid "Refresh status"
-msgstr ""
+msgstr "ໂຫຼດສະຖານະຄືນໃໝ່"
 
 #: src/web/common/mails_admin.ml:153
 msgid "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it in a secure location (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed)."
 msgstr ""
+"ກ່ຽວກັບຄີສ່ວນຕົວຂອງທ່ານ, ມັນສຳຄັນຫຼາຍທີ່ທ່ານຕ້ອງບັນທຶກມັນໄວ້ (ບໍ່ດັ່ງນັ້ນການເລືອກຕັ້ງຈະຖືກຍົກເລີກ) ແລະ ເກັບ"
+"ຮັກສາໄວ້ໃນບ່ອນທີ່ປອດໄພ (ຖ້າຄີສ່ວນຕົວຂອງທ່ານຖືກເປີດເຜີຍພ້ອມກັບຄີສ່ວນຕົວຂອງຜູ້ຮັກສາລະຫັດຄົນອື່ນ, ຄວາມເປັນ"
+"ສ່ວນຕົວຂອງການລົງຄະແນນສຽງຈະບໍ່ຖືກຮັບປະກັນອີກຕໍ່ໄປ)."
 
 #: src/web/clients/admin/trustees_tab.ml:551
 msgid "Release tally"
-msgstr ""
+msgstr "ເຜີຍແຜ່ຜົນການນັບຄະແນນ"
 
 #: src/web/clients/credop/credop.ml:72
 msgid "Remaining resend credits:"
-msgstr ""
+msgstr "ເຄຣດິດໃນການສົ່ງຄືນຄົງເຫຼືອ:"
 
 #: src/web/clients/credop/credop.ml:268
 msgid "Resend"
-msgstr ""
+msgstr "ສົ່ງຄືນໃໝ່"
 
 #: src/web/clients/credop/credop.ml:274
 msgid "Resend private credentials"
-msgstr ""
+msgstr "ສົ່ງຂໍ້ມູນປະຈຳຕົວສ່ວນຕົວຄືນໃໝ່"
 
 #: src/web/clients/admin/trustees_tab.ml:256
 msgid "Reset and start from scratch"
-msgstr ""
+msgstr "ລ້າງຂໍ້ມູນ ແລະ ເລີ່ມຕົ້ນໃໝ່ແຕ່ຕົ້ນ"
 
 #: src/web/common/pages_common.ml:54
 msgid "Restricted mode"
-msgstr ""
+msgstr "ໂໝດຈຳກັດ"
 
 #: src/web/clients/admin/elections.ml:2125 src/web/clients/admin/elections.ml:283
 msgid "Results page"
-msgstr ""
+msgstr "ໜ້າຜົນການເລືອກຕັ້ງ"
 
 #: src/web/clients/admin/elections.ml:1278
 msgid "Right to left"
-msgstr ""
+msgstr "ຂວາຫາຊ້າຍ"
 
 #: src/web/clients/admin/admin.ml:207
 msgid "Running or finished elections:"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງທີ່ກຳລັງດຳເນີນຢູ່ ຫຼື ສິ້ນສຸດແລ້ວ:"
 
 #: src/web/clients/admin/questions.ml:513
 msgid "STV method"
-msgstr ""
+msgstr "ວິທີການ STV"
 
 #: src/web/clients/trustee/generate.ml:187
 msgid "Save the fingerprint above."
-msgstr ""
+msgstr "ບັນທຶກລາຍນິ້ວມື (Fingerprint) ດ້ານເທິງໄວ້."
 
 #: src/web/common/mails_admin.ml:139
 msgid "Save the fingerprint of your verification key. Once the election is open, you must check that it is present in the set of verification keys published by the server."
 msgstr ""
+"ບັນທຶກລາຍນິ້ວມືຂອງຄີຢືນຢັນຂອງທ່ານໄວ້. ເມື່ອການເລືອກຕັ້ງເປີດແລ້ວ, ທ່ານຕ້ອງກວດສອບວ່າມັນມີຢູ່ໃນຊຸດຂອງຄີຢືນຢັ"
+"ນທີ່ເຜີຍແຜ່ໂດຍເຊີເວີ."
 
 #: src/web/clients/credauth/generate.ml:144
 msgid "Save the two fingerprints above."
-msgstr ""
+msgstr "ບັນທຶກທັງສອງລາຍນິ້ວມືດ້ານເທິງໄວ້."
 
 #: src/web/clients/admin/elections.ml:2011
 msgid "Seal"
-msgstr ""
+msgstr "ປິດຜະນຶກ"
 
 #: src/web/clients/admin/elections.ml:2037
 msgid "Sealing"
-msgstr ""
+msgstr "ກຳລັງປິດຜະນຶກ"
 
 #: src/web/clients/admin/elections.ml:2043
 msgid "Sealing allows you to freeze some election properties such as automatic dates."
 msgstr ""
+"ການປິດຜະນຶກຊ່ວຍໃຫ້ທ່ານສາມາດຄົງທີ່ຄຸນສົມບັດບາງຢ່າງຂອງການເລືອກຕັ້ງ ເຊັ່ນ ວັນທີອັດຕະໂນມັດ."
 
 #: src/web/clients/admin/elections.ml:2048
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
 msgstr ""
+"ການປະຕິບັດການປິດຜະນຶກ/ເປີດຜະນຶກຈະຖືກບັນທຶກໄວ້, ແລະ ລາຍນິ້ວມືຂອງບັນທຶກຈະຖືກເຜີຍແຜ່ໃນໜ້າທຳອິດຂອງການ"
+"ເລືອກຕັ້ງເພື່ອໃຫ້ທຸກຄົນ (ເຊັ່ນ: ຜູ້ກວດສອບອິດສະຫຼະ) ສາມາດເຫັນໄດ້."
 
 #: src/web/server/common/mails_admin.ml:159
 msgid "Secret key:"
-msgstr ""
+msgstr "ຄີລັບ:"
 
 #: src/web/clients/admin/elections.ml:501
 msgid "Security"
-msgstr ""
+msgstr "ຄວາມປອດໄພ"
 
 #: src/web/clients/admin/questions.ml:351
 msgid "Select propositions"
-msgstr ""
+msgstr "ເລືອກຂໍ້ສະເໜີ"
 
 #: src/web/clients/admin/trustees_tab.ml:661
 msgid "Select this trustee"
-msgstr ""
+msgstr "ເລືອກຜູ້ຮັກສາລະຫັດຜູ້ນີ້"
 
 #: src/web/clients/admin/elections.ml:86
 msgid "Selecting CAS authentication requires setting a valid CAS server"
-msgstr ""
+msgstr "ການເລືອກການຢືນຢັນຕົວຕົນຜ່ານ CAS ຕ້ອງການການຕັ້ງຄ່າເຊີເວີ CAS ທີ່ຖືກຕ້ອງ"
 
 #: src/web/clients/admin/elections.ml:1552
 msgid "Send an e-mail to the credential authority"
-msgstr ""
+msgstr "ສົ່ງອີເມວຫາໜ່ວຍງານອອກຂໍ້ມູນປະຈຳຕົວ"
 
 #: src/web/clients/admin/trustees_tab.ml:374
 msgid "Send link"
-msgstr ""
+msgstr "ສົ່ງລິ້ງ"
 
 #: src/web/clients/admin/elections.ml:626
 msgid "Set a logo (.png, max. 10 KB): "
-msgstr ""
+msgstr "ຕັ້ງຄ່າໂລໂກ້ (.png, ສູງສຸດ 10 KB): "
 
 #: src/web/clients/admin/elections.ml:1596
 msgid "Set credential authority info"
-msgstr ""
+msgstr "ຕັ້ງຄ່າຂໍ້ມູນໜ່ວຍງານອອກຂໍ້ມູນປະຈຳຕົວ"
 
 #: src/web/clients/admin/trustees_tab.ml:301
 msgid "Setting board failed with code %d!"
-msgstr ""
+msgstr "ການຕັ້ງຄ່າຄະນະກຳມະການລົ້ມເຫຼວດ້ວຍລະຫັດ %d!"
 
 #: src/web/clients/admin/elections.ml:545 src/web/clients/admin/admin.ml:60
 msgid "Setup: "
-msgstr ""
+msgstr "ການຕັ້ງຄ່າ: "
 
 #: src/web/clients/admin/elections.ml:1056
 msgid "Show only missing voters"
-msgstr ""
+msgstr "ສະແດງສະເພາະຜູ້ລົງຄະແນນສຽງທີ່ຍັງຕົກຄ້າງ"
 
 #: src/web/clients/trustee/shuffle.ml:181 src/web/clients/trustee/trustee.ml:140
 msgid "Shuffle"
-msgstr ""
+msgstr "ສັບປ່ຽນ"
 
 #: src/web/clients/admin/trustees_tab.ml:618
 msgid "Shuffler's e-mail"
-msgstr ""
+msgstr "ອີເມວຂອງຜູ້ສັບປ່ຽນ"
 
 #: src/web/clients/admin/trustees_tab.ml:662
 msgid "Skip"
-msgstr ""
+msgstr "ຂ້າມ"
 
 #: src/web/clients/admin/trustees_tab.ml:704
 msgid "Skip all remaining trustees"
-msgstr ""
+msgstr "ຂ້າມຜູ້ຮັກສາລະຫັດທີ່ເຫຼືອທັງໝົດ"
 
 #: src/web/clients/admin/elections.ml:1252
 msgid "Some language in the list is not available"
-msgstr ""
+msgstr "ບາງພາສາໃນລາຍການແມ່ນບໍ່ພ້ອມໃຊ້ງານ"
 
 #: src/web/clients/credop/credop.ml:230
 msgid "Some voters:"
-msgstr ""
+msgstr "ຜູ້ລົງຄະແນນສຽງບາງຄົນ:"
 
 #: src/web/server/common/mails_admin.ml:101
 msgid "Someone is trying to associate your e-mail address to an account on our Belenios server."
 msgstr ""
+"ມີຄົນພະຍາຍາມເຊື່ອມໂຍງທີ່ຢູື່ອີເມວຂອງທ່ານກັບບັນຊີໃນເຊີເວີ Belenios ຂອງພວກເຮົາ."
 
 #: src/web/clients/admin/elections.ml:1948
 msgid "Something is wrong with the configuration of voter authentication! Maybe an invalid CAS server was given?"
 msgstr ""
+"ມີບາງຢ່າງຜິດພາດກັບການຕັ້ງຄ່າການຢືນຢັນຕົວຕົນຂອງຜູ້ລົງຄະແນນສຽງ! ອາດຈະເປັນຍ້ອນການລະບຸເຊີເວີ CAS ບໍ່ຖືກ"
+"ຕ້ອງ?"
 
 #: src/web/clients/admin/questions.ml:352
 msgid "Sort propositions"
-msgstr ""
+msgstr "ຈັດລຽງຂໍ້ສະເໜີ"
 
 #: src/web/common/pages_common.ml:71
 msgid "Specification"
-msgstr ""
+msgstr "ຂໍ້ມູນຈຳເພາະ"
 
 #. src/web/clients/admin/elections.ml:403
 #: src/web/clients/admin/trustees_tab.ml:415
 msgid "Status"
-msgstr ""
+msgstr "ສະຖານະ"
 
 #: src/web/clients/trustee/generate.ml:329
 msgid "Step %d/7"
-msgstr ""
+msgstr "ຂັ້ນຕອນ %d/7"
 
 #. src/web/server/common/pages_admin.ml:404
 #. src/web/server/common/pages_admin.ml:348
@@ -1343,747 +1378,774 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:227
 #: src/web/clients/trustee/shuffle.ml:159 src/web/clients/trustee/decrypt.ml:76
 msgid "Submit"
-msgstr ""
+msgstr "ສົ່ງ"
 
 #: src/web/clients/credauth/generate.ml:62
 msgid "Submit public credentials"
-msgstr ""
+msgstr "ສົ່ງຂໍ້ມູນປະຈຳຕົວສາທາລະນະ"
 
 #: src/web/clients/credauth/generate.ml:153
 msgid "Submit public credentials using the button below."
-msgstr ""
+msgstr "ສົ່ງຂໍ້ມູນປະຈຳຕົວສາທາລະນະໂດຍໃຊ້ປຸ່ມດ້ານລຸ່ມ."
 
 #: src/web/clients/trustee/generate.ml:129
 msgid "Submit public key"
-msgstr ""
+msgstr "ສົ່ງຄີສາທາລະນະ"
 
 #: src/web/clients/trustee/generate.ml:195
 msgid "Submit your public key using the button below."
-msgstr ""
+msgstr "ສົ່ງຄີສາທາລະນະຂອງທ່ານໂດຍໃຊ້ປຸ່ມດ້ານລຸ່ມ."
 
 #: src/web/clients/credop/credop.ml:258
 msgid "Success"
-msgstr ""
+msgstr "ສຳເລັດ"
 
 #: src/web/clients/credop/credop.ml:64
 msgid "Success?"
-msgstr ""
+msgstr "ສຳເລັດຫຼືບໍ່?"
 
 #: src/web/clients/basic/admin_basic.ml:215
 msgid "Tallied elections"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງທີ່ນັບຄະແນນແລ້ວ"
 
 #: src/web/clients/admin/elections.ml:395
 msgid "Tally the election"
-msgstr ""
+msgstr "ນັບຄະແນນການເລືອກຕັ້ງ"
 
 #: src/web/clients/admin/trustees_tab.ml:574
 msgid "Tallying"
-msgstr ""
+msgstr "ກຳລັງນັບຄະແນນ"
 
 #: src/web/clients/admin/trustees_tab.ml:728
 msgid "Tallying: shuffling step"
-msgstr ""
+msgstr "ກຳລັງນັບຄະແນນ: ຂັ້ນຕອນການສັບປ່ຽນ"
 
 #: src/web/server/common/pages_admin.ml:45 src/web/common/pages_common.ml:73
 msgid "Terms of service"
-msgstr ""
+msgstr "ເງື່ອນໄຂການໃຫ້ບໍລິການ"
 
 #: src/web/common/pages_common.ml:249
 msgid "Thank you for voting!"
-msgstr ""
+msgstr "ຂອບໃຈທີ່ມາລົງຄະແນນສຽງ!"
 
 #: src/web/common/mails_admin.ml:160 src/web/common/mails_admin.ml:103
 msgid "Thank you for your help,"
-msgstr ""
+msgstr "ຂອບໃຈສຳລັບຄວາມຊ່ວຍເຫຼືອຂອງທ່ານ,"
 
 #: src/web/server/common/pages_admin.ml:322
 msgid "The account creation "
-msgstr ""
+msgstr "ການສ້າງບັນຊີ "
 
 #: src/web/server/common/site_admin.ml:331
 msgid "The account has been created."
-msgstr ""
+msgstr "ບັນຊີຖືກສ້າງຂຶ້ນແລ້ວ."
 
 #: src/web/clients/admin/elections.ml:2132
 msgid "The archive can be downloaded at: "
-msgstr ""
+msgstr "ສາມາດດາວໂຫຼດໄຟລ໌ເກັບມ້ຽນໄດ້ທີ່: "
 
 #: src/web/clients/credop/credop.ml:113
 msgid "The certificate for %s is valid!"
-msgstr ""
+msgstr "ໃບຢັ້ງຢືນສຳລັບ %s ຖືກຕ້ອງ!"
 
 #: src/web/clients/credop/credop.ml:175
 msgid "The certificate is not valid!"
-msgstr ""
+msgstr "ໃບຢັ້ງຢືນບໍ່ຖືກຕ້ອງ!"
 
 #: src/web/server/common/pages_admin.ml:373
 msgid "The change "
-msgstr ""
+msgstr "ການປ່ຽນແປງ "
 
 #: src/web/common/mails_admin.ml:176 src/web/common/mails_admin.ml:108
 msgid "The election administrator"
-msgstr ""
+msgstr "ຜູ້ບໍລິຫານການເລືອກຕັ້ງ"
 
 #: src/web/clients/admin/elections.ml:2011
 msgid "The election is not sealed."
-msgstr ""
+msgstr "ການເລືອກຕັ້ງບໍ່ໄດ້ຖືກປິດຜະນຶກ."
 
 #: src/web/clients/trustee/decrypt.ml:88
 msgid "The election result is already published!"
-msgstr ""
+msgstr "ຜົນການເລືອກຕັ້ງຖືກເຜີຍແຜ່ແລ້ວ!"
 
 #: src/web/clients/admin/elections.ml:613
 msgid "The file is too large! It must be < 10 KB."
-msgstr ""
+msgstr "ໄຟລ໌ໃຫຍ່ເກີນໄປ! ມັນຕ້ອງມີຂະໜາດໜ້ອຍກວ່າ 10 KB."
 
 #: src/web/clients/trustee/decrypt.ml:118
 msgid "The fingerprint of the encrypted tally is "
-msgstr ""
+msgstr "ລາຍນິ້ວມືຂອງການນັບຄະແນນທີ່ຖືກເຂົ້າລະຫັດແມ່ນ "
 
 #: src/web/clients/trustee/shuffle.ml:143
 msgid "The fingerprint of your shuffle is:"
-msgstr ""
+msgstr "ລາຍນິ້ວມືຂອງການສັບປ່ຽນຂອງທ່ານແມ່ນ:"
 
 #: src/web/clients/credauth/generate.ml:184
 msgid "The link to the election will be:"
-msgstr ""
+msgstr "ລິ້ງໄປຫາການເລືອກຕັ້ງຈະແມ່ນ:"
 
 #: src/web/clients/admin/questions.ml:267
 msgid "The min of question #%d is greater than its max, voting will be impossible!"
 msgstr ""
+"ຄ່າຕ່ຳສຸດຂອງຄຳຖາມ #%d ແມ່ນຫຼາຍກວ່າຄ່າສູງສຸດ, ການລົງຄະແນນສຽງຈະບໍ່ສາມາດເຮັດໄດ້!"
 
 #: src/web/common/mails_admin.ml:88
 msgid "The page also contains instructions for checking the voting record, after the tally."
-msgstr ""
+msgstr "ໜ້ານີ້ຍັງມີຄຳແນະນຳໃນການກວດສອບບັນທຶກການລົງຄະແນນສຽງ, ຫຼັງຈາກການນັບຄະແນນ."
 
 #: src/web/clients/trustee/decrypt.ml:86
 msgid "The partial decryption didn't pass validation!"
-msgstr ""
+msgstr "ການຖອດລະຫັດບາງສ່ວນບໍ່ຜ່ານການກວດສອບ!"
 
 #: src/web/server/common/site_admin.ml:361
 msgid "The password has been changed."
-msgstr ""
+msgstr "ລະຫັດຜ່ານຖືກປ່ຽນແປງແລ້ວ."
 
 #: src/web/server/common/site_admin.ml:173
 msgid "The provided code is incorrect. Please go back and try again."
-msgstr ""
+msgstr "ລະຫັດທີ່ລະບຸບໍ່ຖືກຕ້ອງ. ກະລຸນາກັບຄືນ ແລະ ລອງໃໝ່ອີກຄັ້ງ."
 
 #: src/web/clients/credop/credop.ml:188
 msgid "The secret key is not valid!"
-msgstr ""
+msgstr "ຄີລັບບໍ່ຖືກຕ້ອງ!"
 
 #. src/web/clients/admin/trustees_tab.ml:83
 #: src/web/clients/admin/trustees_tab.ml:334
 msgid "The server is always one of the trustees"
-msgstr ""
+msgstr "ເຊີເວີແມ່ນໜຶ່ງໃນຜູ້ຮັກສາລະຫັດສະເໝີ"
 
 #: src/web/clients/admin/common.ml:100
 msgid "The server is in readonly mode, you cannot perform changes. Please reload the page to discard pending changes."
 msgstr ""
+"ເຊີເວີຢູ່ໃນໂໝດອ່ານຢ່າງດຽວ, ທ່ານບໍ່ສາມາດເຮັດການປ່ຽນແປງໄດ້. ກະລຸນາໂຫຼດໜ້າຄືນໃໝ່ເພື່ອຍົກເລີກການປ່ຽນແປງ"
+"ທີ່ຄ້າງຢູ່."
 
 #: src/web/clients/trustee/shuffle.ml:168
 msgid "The shuffle has been successfully applied!"
-msgstr ""
+msgstr "ການສັບປ່ຽນຖືກນຳໃຊ້ຢ່າງສຳເລັດແລ້ວ!"
 
 #: src/web/clients/admin/elections.ml:2106
 msgid "The tally for this election has started."
-msgstr ""
+msgstr "ການນັບຄະແນນສຳລັບການເລືອກຕັ້ງນີ້ໄດ້ເລີ່ມຂຶ້ນແລ້ວ."
 
 #: src/web/clients/admin/elections.ml:1479
 msgid "The voter list is empty!"
-msgstr ""
+msgstr "ລາຍຊື່ຜູ້ລົງຄະແນນສຽງຫວ່າງເປົ່າ!"
 
 #: src/web/server/common/mails_admin.ml:67
 msgid "There has been a request to change the password of your account on our Belenios server."
 msgstr ""
+"ມີການຮ້ອງຂໍເພື່ອປ່ຽນລະຫັດຜ່ານຂອງບັນຊີຂອງທ່ານໃນເຊີເວີ Belenios ຂອງພວກເຮົາ."
 
 #: src/web/clients/admin/elections.ml:762 src/web/clients/admin/elections.ml:721
 msgid "There is an error in the voter list! (%s)"
-msgstr ""
+msgstr "ມີຂໍ້ຜິດພາດໃນລາຍຊື່ຜູ້ລົງຄະແນນສຽງ! (%s)"
 
 #: src/web/clients/admin/elections.ml:769
 msgid "There is an unexpected error in the voter list!"
-msgstr ""
+msgstr "ມີຂໍ້ຜິດພາດທີ່ບໍ່ຄາດຄິດໃນລາຍຊື່ຜູ້ລົງຄະແນນສຽງ!"
 
 #: src/web/clients/admin/elections.ml:726
 msgid "There is an unexpected syntax error in the voter list!"
-msgstr ""
+msgstr "ມີຂໍ້ຜິດພາດທາງໄວຍາກອນທີ່ບໍ່ຄາດຄິດໃນລາຍຊື່ຜູ້ລົງຄະແນນສຽງ!"
 
 #: src/web/server/common/pages_admin.ml:431
 msgid "There is no e-mail address attached to your account."
-msgstr ""
+msgstr "ບໍ່ມີທີ່ຢູື່ອີເມວທີ່ເຊື່ອມຕໍ່ກັບບັນຊີຂອງທ່ານ."
 
 #: src/web/clients/admin/trustees_tab.ml:755
 msgid "There is no electoral board at the moment."
-msgstr ""
+msgstr "ບໍ່ມີຄະນະກຳມະການການເລືອກຕັ້ງໃນຂະນະນີ້."
 
 #: src/web/server/common/site_admin.ml:394
 msgid "This account does not exist"
-msgstr ""
+msgstr "ບັນຊີນີ້ບໍ່ມີຢູ່"
 
 #: src/web/clients/admin/elections.ml:1394
 msgid "This contact will be added to e-mails sent to the voters."
-msgstr ""
+msgstr "ຜູ້ຕິດຕໍ່ນີ້ຈະຖືກເພີ່ມເຂົ້າໃນອີເມວທີ່ສົ່ງໃຫ້ຜູ້ລົງຄະແນນສຽງ."
 
 #: src/web/server/common/site_admin.ml:145
 msgid "This e-mail address is invalid!"
-msgstr ""
+msgstr "ທີ່ຢູື່ອີເມວນີ້ບໍ່ຖືກຕ້ອງ!"
 
 #: src/web/clients/admin/elections.ml:2114
 msgid "This election has been tallied"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງນີ້ໄດ້ຖືກນັບຄະແນນແລ້ວ"
 
 #: src/web/clients/admin/elections.ml:2100
 msgid "This election is a draft."
-msgstr ""
+msgstr "ການເລືອກຕັ້ງນີ້ແມ່ນສະບັບຮ່າງ."
 
 #: src/web/clients/admin/elections.ml:2115
 msgid "This election is archived"
-msgstr ""
+msgstr "ການເລືອກຕັ້ງນີ້ຖືກເກັບມ້ຽນແລ້ວ"
 
 #: src/web/clients/admin/elections.ml:2110
 msgid "This election is in shuffling phase."
-msgstr ""
+msgstr "ການເລືອກຕັ້ງນີ້ຢູ່ໃນຂັ້ນຕອນການສັບປ່ຽນ."
 
 #: src/web/clients/admin/elections.ml:2102
 msgid "This election is running."
-msgstr ""
+msgstr "ການເລືອກຕັ້ງນີ້ກຳລັງດຳເນີນຢູ່."
 
 #: src/web/clients/admin/elections.ml:2010
 msgid "This election is sealed."
-msgstr ""
+msgstr "ການເລືອກຕັ້ງນີ້ຖືກປິດຜະນຶກແລ້ວ."
 
 #: src/web/clients/admin/elections.ml:2074
 msgid "This election will be automatically archived after %s."
-msgstr ""
+msgstr "ການເລືອກຕັ້ງນີ້ຈະຖືກເກັບມ້ຽນໂດຍອັດຕະໂນມັດຫຼັງຈາກ %s."
 
 #: src/web/clients/admin/elections.ml:2088
 msgid "This election will be automatically deleted after %s."
-msgstr ""
+msgstr "ການເລືອກຕັ້ງນີ້ຈະຖືກລຶບໂດຍອັດຕະໂນມັດຫຼັງຈາກ %s."
 
 #: src/web/clients/admin/elections.ml:1342
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
-msgstr ""
+msgstr "ນີ້ແມ່ນລາຍຊື່ພາສາທີ່ແຍກດ້ວຍຍະຫວ່າງທີ່ຈະຖືກນຳໃຊ້ໃນອີເມວທີ່ສົ່ງໂດຍເຊີເວີ."
 
 #: src/web/clients/admin/elections.ml:1318
 msgid "This is the language of election title, description and questions."
-msgstr ""
+msgstr "ນີ້ແມ່ນພາສາຂອງຫົວຂໍ້ການເລືອກຕັ້ງ, ຄຳອະທິບາຍ ແລະ ຄຳຖາມ."
 
 #: src/web/clients/credauth/generate.ml:138 src/web/common/mails_admin.ml:60
 msgid "This list must be the one approved by the election commission."
-msgstr ""
+msgstr "ລາຍຊື່ນີ້ຕ້ອງແມ່ນລາຍຊື່ທີ່ໄດ້ຮັບການອະນຸມັດຈາກຄະນະກຳມະການການເລືອກຕັ້ງ."
 
 #: src/web/clients/admin/elections.ml:1399
 msgid "This name will be published on the election result page."
-msgstr ""
+msgstr "ຊື່ນີ້ຈະຖືກເຜີຍແຜ່ໃນໜ້າຜົນການເລືອກຕັ້ງ."
 
 #: src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
-msgstr ""
+msgstr "ການລົງຄະແນນສຽງນີ້ຈະປ່ຽນແທນການລົງຄະແນນສຽງກ່ອນໜ້ານີ້ທັງໝົດ."
 
 #: src/web/clients/admin/trustees_tab.ml:192
 msgid "Threshold mode"
-msgstr ""
+msgstr "ໂໝດກຳນົດເກນ (Threshold)"
 
 #: src/web/clients/admin/elections.ml:142
 msgid "Title"
-msgstr ""
+msgstr "ຫົວຂໍ້"
 
 #: src/web/clients/admin/elections.ml:670 src/web/clients/admin/elections.ml:655
 msgid "Title:"
-msgstr ""
+msgstr "ຫົວຂໍ້:"
 
 #: src/web/server/common/pages_admin.ml:185
 msgid "To administer an election, you need to log in."
-msgstr ""
+msgstr "ເພື່ອບໍລິຫານການເລືອກຕັ້ງ, ທ່ານຈຳເປັນຕ້ອງເຂົ້າສູ່ລະບົບ."
 
 #: src/web/server/common/mails_admin.ml:36
 msgid "To confirm this creation, please use the following code:"
-msgstr ""
+msgstr "ເພື່ອຢືນຢັນການສ້າງນີ້, ກະລຸນາໃຊ້ລະຫັດຕໍ່ໄປນີ້:"
 
 #. src/web/server/common/mails_admin.ml:70
 #: src/web/server/common/mails_admin.ml:104
 msgid "To confirm this, please use the following code:"
-msgstr ""
+msgstr "ເພື່ອຢືນຢັນສິ່ງນີ້, ກະລຸນາໃຊ້ລະຫັດຕໍ່ໄປນີ້:"
 
 #: src/web/server/common/pages_admin.ml:50
 msgid "To use this site, you must accept our "
-msgstr ""
+msgstr "ເພື່ອໃຊ້ເວັບໄຊນີ້, ທ່ານຕ້ອງຍອມຮັບ "
 
 #: src/web/clients/admin/cache.ml:285
 msgid "Too many errors while synchronizing with the server! State is probably inconsistent. You should reload the page now."
 msgstr ""
+"ມີຂໍ້ຜິດພາດຫຼາຍເກີນໄປໃນຂະນະທີ່ກຳລັງຊິງໂຄໄນກັບເຊີເວີ! ສະຖານະອາດຈະບໍ່ສອດຄ່ອງກັນ. ທ່ານຄວນໂຫຼດໜ້າຄືນໃໝ່"
+"ດຽວນີ້."
 
 #: src/web/clients/admin/questions.ml:1001
 msgid "Total complexity:"
-msgstr ""
+msgstr "ຄວາມຊັບຊ້ອນທັງໝົດ:"
 
 #: src/web/clients/trustee/generate.ml:322
 msgid "Trustee key generation"
-msgstr ""
+msgstr "ການສ້າງຄີຂອງຜູ້ຮັກສາລະຫັດ"
 
 #: src/web/clients/trustee/trustee.ml:44
 msgid "Trustee management"
-msgstr ""
+msgstr "ການຈັດການຜູ້ຮັກສາລະຫັດ"
 
 #: src/web/clients/admin/trustees_tab.ml:349
 msgid "Trustee setup - Done"
-msgstr ""
+msgstr "ການຕັ້ງຄ່າຜູ້ຮັກສາລະຫັດ - ສຳເລັດແລ້ວ"
 
 #: src/web/clients/admin/trustees_tab.ml:247
 msgid "Trustee setup - Step 1: choose the trustees"
-msgstr ""
+msgstr "ການຕັ້ງຄ່າຜູ້ຮັກສາລະຫັດ - ຂັ້ນຕອນທີ 1: ເລືອກຜູ້ຮັກສາລະຫັດ"
 
 #: src/web/clients/admin/trustees_tab.ml:442
 msgid "Trustee setup - Step 2: key generation"
-msgstr ""
+msgstr "ການຕັ້ງຄ່າຜູ້ຮັກສາລະຫັດ - ຂັ້ນຕອນທີ 2: ການສ້າງຄີ"
 
 #. src/web/clients/admin/trustees_tab.ml:412
 #. src/web/clients/admin/trustees_tab.ml:324
 #. src/web/clients/admin/trustees_tab.ml:73
 #: src/web/clients/admin/trustees_tab.ml:522
 msgid "Trustee's e-mail"
-msgstr ""
+msgstr "ອີເມວຂອງຜູ້ຮັກສາລະຫັດ"
 
 #: src/web/clients/admin/trustees_tab.ml:103
 msgid "Trustee's e-mail "
-msgstr ""
+msgstr "ອີເມວຂອງຜູ້ຮັກສາລະຫັດ "
 
 #: src/web/clients/admin/trustees_tab.ml:413
 msgid "Trustee's name"
-msgstr ""
+msgstr "ຊື່ຂອງຜູ້ຮັກສາລະຫັດ"
 
 #. src/web/clients/admin/trustees_tab.ml:74
 #: src/web/clients/admin/trustees_tab.ml:325
 msgid "Trustee's public name"
-msgstr ""
+msgstr "ຊື່ສາທາລະນະຂອງຜູ້ຮັກສາລະຫັດ"
 
 #: src/web/clients/admin/trustees_tab.ml:107
 msgid "Trustee's public name "
-msgstr ""
+msgstr "ຊື່ສາທາລະນະຂອງຜູ້ຮັກສາລະຫັດ "
 
 #: src/web/clients/admin/questions.ml:894
 msgid "Type of answer:"
-msgstr ""
+msgstr "ປະເພດຂອງຄຳຕອບ:"
 
 #. src/web/server/common/pages_admin.ml:344
 #: src/web/server/common/pages_admin.ml:400
 msgid "Type the password again: "
-msgstr ""
+msgstr "ພິມລະຫັດຜ່ານອີຄັ້ງ: "
 
 #: src/web/clients/trustee/trustee.ml:75
 msgid "Unknown state!"
-msgstr ""
+msgstr "ສະຖານະທີ່ບໍ່ຮູ້ຈັກ!"
 
 #: src/web/clients/admin/admin.ml:459
 msgid "Unknown uuid"
-msgstr ""
+msgstr "uuid ທີ່ບໍ່ຮູ້ຈັກ"
 
 #: src/web/clients/admin/elections.ml:2010
 msgid "Unseal"
-msgstr ""
+msgstr "ເປີດຜະນຶກ"
 
 #: src/web/clients/admin/elections.ml:898
 msgid "Upload voter file"
-msgstr ""
+msgstr "ອັບໂຫຼດໄຟລ໌ຜູ້ລົງຄະແນນສຽງ"
 
 #: src/web/clients/admin/elections.ml:1573
 msgid "Use an external server"
-msgstr ""
+msgstr "ໃຊ້ເຊີເວີພາຍນອກ"
 
 #: src/web/clients/admin/trustees_tab.ml:732
 msgid "Use board from another election"
-msgstr ""
+msgstr "ໃຊ້ຄະນະກຳມະການຈາກການເລືອກຕັ້ງອື່ນ"
 
 #: src/web/clients/admin/trustees_tab.ml:265
 msgid "Validate board"
-msgstr ""
+msgstr "ຢືນຢັນຄະນະກຳມະການ"
 
 #: src/web/clients/credop/credop.ml:63
 msgid "Variation kind"
-msgstr ""
+msgstr "ປະເພດການປ່ຽນແປງ"
 
 #: src/web/clients/admin/elections.ml:1026 src/web/clients/admin/elections.ml:175
 msgid "Voter list"
-msgstr ""
+msgstr "ລາຍຊື່ຜູ້ລົງຄະແນນສຽງ"
 
 #: src/web/clients/admin/elections.ml:930
 msgid "Voter list (not editable):"
-msgstr ""
+msgstr "ລາຍຊື່ຜູ້ລົງຄະແນນສຽງ (ບໍ່ສາມາດແກ້ໄຂໄດ້):"
 
 #. src/web/clients/admin/elections.ml:931
 #: src/web/clients/credauth/generate.ml:199
 msgid "Voter list:"
-msgstr ""
+msgstr "ລາຍຊື່ຜູ້ລົງຄະແນນສຽງ:"
 
 #: src/web/clients/admin/elections.ml:1061
 msgid "Voter list (not editable):"
-msgstr ""
+msgstr "ລາຍຊື່ຜູ້ລົງຄະແນນສຽງ (ບໍ່ສາມາດແກ້ໄຂໄດ້):"
 
 #: src/web/clients/admin/elections.ml:274
 msgid "Voter's authentication"
-msgstr ""
+msgstr "ການຢືນຢັນຕົວຕົນຂອງຜູ້ລົງຄະແນນສຽງ"
 
 #. src/web/clients/admin/elections.ml:1789
 #: src/web/clients/admin/elections.ml:1897
 msgid "Voter's authentication:"
-msgstr ""
+msgstr "ການຢືນຢັນຕົວຕົນຂອງຜູ້ລົງຄະແນນສຽງ:"
 
 #: src/web/clients/admin/elections.ml:1021
 msgid "Voting records"
-msgstr ""
+msgstr "ບັນທຶກການລົງຄະແນນສຽງ"
 
 #: src/web/clients/trustee/generate.ml:276
 msgid "Waiting for the election administrator to set the threshold..."
-msgstr ""
+msgstr "ກຳລັງລໍຖ້າຜູ້ບໍລິຫານການເລືອກຕັ້ງຕັ້ງຄ່າເກນ (Threshold)..."
 
 #. src/web/clients/trustee/generate.ml:233
 #. src/web/clients/trustee/generate.ml:215
 #: src/web/clients/trustee/generate.ml:297
 msgid "Waiting for the other trustees..."
-msgstr ""
+msgstr "ກຳລັງລໍຖ້າຜູ້ຮັກສາລະຫັດຄົນອື່ນໆ..."
 
 #: src/web/clients/admin/elections.ml:861
 msgid "Warning, this action is irreversible"
-msgstr ""
+msgstr "ຄຳເຕືອນ, ການປະຕິບັດນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້"
 
 #: src/web/clients/admin/trustees_tab.ml:173
 msgid "Warning, this will delete the current list of trustees"
-msgstr ""
+msgstr "ຄຳເຕືອນ, ສິ່ງນີ້ຈະລຶບລາຍຊື່ຜູ້ຮັກສາລະຫັດປະຈຸບັນ"
 
 #: src/web/clients/admin/elections.ml:936
 msgid "Warning:"
-msgstr ""
+msgstr "ຄຳເຕືອນ:"
 
 #. src/web/server/common/mails_admin.ml:78
 #. src/web/server/common/mails_admin.ml:44
 #: src/web/server/common/mails_admin.ml:112
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
+"ຄຳເຕືອນ: ລະຫັດນີ້ມີອາຍຸ 15 ນາທີ, ແລະ ລະຫັດກ່ອນໜ້ານີ້ທີ່ສົ່ງຫາທີ່ຢູ່ນີ້ຈະບໍ່ສາມາດໃຊ້ໄດ້ອີກຕໍ່ໄປ."
 
 #: src/web/clients/admin/elections.ml:1959
 msgid "Warning: this is irreversible!"
-msgstr ""
+msgstr "ຄຳເຕືອນ: ສິ່ງນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້!"
 
 #. src/web/clients/admin/elections.ml:1556
 #. src/web/clients/admin/elections.ml:1490
 #: src/web/clients/admin/elections.ml:1621
 msgid "Warning: this will freeze the voter list!"
 msgstr ""
+"ຄຳເຕືອນ: ສິ່ງນີ້ຈະເຮັດໃຫ້ລາຍຊື່ຜູ້ລົງຄະແນນສຽງຖືກຄົງທີ່ (ບໍ່ສາມາດແກ້ໄຂໄດ້)!"
 
 #: src/web/clients/admin/elections.ml:807
 msgid "Weight"
-msgstr ""
+msgstr "ນ້ຳໜັກ"
 
 #: src/web/common/pages_common.ml:108
 msgid "Wish to help with translations?"
-msgstr ""
+msgstr "ຕ້ອງການຊ່ວຍໃນການແປພາສາບໍ?"
 
 #: src/web/server/common/pages_admin.ml:171
 msgid "You can also log in with"
-msgstr ""
+msgstr "ທ່ານຍັງສາມາດເຂົ້າສູ່ລະບົບດ້ວຍ"
 
 #: src/web/common/pages_common.ml:242
 msgid "You can check its presence in the "
-msgstr ""
+msgstr "ທ່ານສາມາດກວດສອບວ່າມັນມີຢູ່ຫຼືບໍ່ໃນ "
 
 #: src/web/server/common/pages_admin.ml:472
 msgid "You cannot change your e-mail address right now."
-msgstr ""
+msgstr "ທ່ານບໍ່ສາມາດປ່ຽນທີ່ຢູື່ອີເມວຂອງທ່ານໄດ້ໃນເວລານີ້."
 
 #: src/web/server/common/site_admin.ml:245
 msgid "You cannot change your password now. Please try later."
-msgstr ""
+msgstr "ທ່ານບໍ່ສາມາດປ່ຽນລະຫັດຜ່ານໄດ້ໃນເວລານີ້. ກະລຸນາລອງໃໝ່ພາຍຫຼັງ."
 
 #: src/web/server/common/site_admin.ml:201
 msgid "You cannot create an account now. Please try later."
-msgstr ""
+msgstr "ທ່ານບໍ່ສາມາດສ້າງບັນຊີໄດ້ໃນເວລານີ້. ກະລຸນາລອງໃໝ່ພາຍຫຼັງ."
 
 #: src/web/server/common/pages_admin.ml:296
 msgid "You cannot sign up right now."
-msgstr ""
+msgstr "ທ່ານບໍ່ສາມາດລົງທະບຽນໄດ້ໃນເວລານີ້."
 
 #: src/web/clients/trustee/decrypt.ml:87
 msgid "You have already submitted a valid partial decryption!"
-msgstr ""
+msgstr "ທ່ານໄດ້ສົ່ງການຖອດລະຫັດບາງສ່ວນທີ່ຖືກຕ້ອງແລ້ວ!"
 
 #: src/web/server/common/mails_admin.ml:151
 msgid "You have been designated as the operator in the credential authority protocol for the following Belenios election:"
 msgstr ""
+"ທ່ານໄດ້ຮັບການແຕ່ງຕັ້ງໃຫ້ເປັນຜູ້ຄວບຄຸມໃນໂປຣໂຕຄໍໜ່ວຍງານອອກຂໍ້ມູນປະຈຳຕົວສຳລັບການເລືອກຕັ້ງ Belenios ຕໍ່ໄ"
+"ປນີ້:"
 
 #: src/web/common/mails_admin.ml:94
 msgid "You may need to resend credentials to voters who have lost them."
 msgstr ""
+"ທ່ານອາດຈະຕ້ອງໄດ້ສົ່ງຂໍ້ມູນປະຈຳຕົວຄືນໃໝ່ໃຫ້ກັບຜູ້ລົງຄະແນນສຽງທີ່ເຮັດມັນຫາຍ."
 
 #: src/web/common/mails_admin.ml:81
 msgid "You may use a script of your own or the one provided in the Belenios distribution, see instructions here:"
 msgstr ""
+"ທ່ານອາດຈະໃຊ້ສະຄຣິບຂອງທ່ານເອງ ຫຼື ສະຄຣິບທີ່ມີໃຫ້ໃນ Belenios, ເບິ່ງຄຳແນະນຳທີ່ນີ້:"
 
 #: src/web/clients/trustee/shuffle.ml:151
 msgid "You must record this fingerprint and check that it appears on the election result page."
 msgstr ""
+"ທ່ານຕ້ອງບັນທຶກລາຍນິ້ວມືນີ້ ແລະ ກວດສອບວ່າມັນປະກົດຢູ່ໃນໜ້າຜົນການເລືອກຕັ້ງ."
 
 #: src/web/clients/admin/trustees_tab.ml:716
 msgid "You must select each trustee in turn, and send them a link so that they perform their shuffle. You can also skip a trustee, but keep in mind that this reduces security."
 msgstr ""
+"ທ່ານຕ້ອງເລືອກຜູ້ຮັກສາລະຫັດແຕ່ລະຄົນຕາມລຳດັບ, ແລະ ສົ່ງລິ້ງໃຫ້ພວກເຂົາເພື່ອໃຫ້ພວກເຂົາເຮັດການສັບປ່ຽນ. ທ່ານ"
+"ຍັງສາມາດຂ້າມຜູ້ຮັກສາລະຫັດໄດ້, ແຕ່ໃຫ້ຈື່ໄວ້ວ່ານີ້ຈະເຮັດໃຫ້ຄວາມປອດໄພຫຼຸດລົງ."
 
 #: src/web/clients/admin/trustees_tab.ml:448
 msgid "You must send each trustee their link (from the table below) so that they initialize their key for this election."
 msgstr ""
+"ທ່ານຕ້ອງສົ່ງລິ້ງໃຫ້ຜູ້ຮັກສາລະຫັດແຕ່ລະຄົນ (ຈາກຕາຕະລາງດ້ານລຸ່ມ) ເພື່ອໃຫ້ພວກເຂົາເລີ່ມຕົ້ນສ້າງຄີສຳລັບການເລືອກ"
+"ຕັ້ງນີ້."
 
 #: src/web/clients/admin/trustees_tab.ml:563
 msgid "You must send each trustee their link (from the table below) so that they perform their share of the decryption."
 msgstr ""
+"ທ່ານຕ້ອງສົ່ງລິ້ງໃຫ້ຜູ້ຮັກສາລະຫັດແຕ່ລະຄົນ (ຈາກຕາຕະລາງດ້ານລຸ່ມ) ເພື່ອໃຫ້ພວກເຂົາເຮັດການຖອດລະຫັດໃນສ່ວນຂອ"
+"ງພວກເຂົາ."
 
 #: src/web/common/mails_admin.ml:35
 msgid "You will find below the link to generate the voters' credentials, one for each voter."
 msgstr ""
+"ທ່ານຈະເຫັນລິ້ງດ້ານລຸ່ມເພື່ອສ້າງຂໍ້ມູນປະຈຳຕົວຂອງຜູ້ລົງຄະແນນສຽງ, ໜຶ່ງຊຸດຕໍ່ຜູ້ລົງຄະແນນສຽງແຕ່ລະຄົນ."
 
 #: src/web/common/mails_admin.ml:121
 msgid "You will find below the link to your dedicated trustee interface."
-msgstr ""
+msgstr "ທ່ານຈະເຫັນລິ້ງດ້ານລຸ່ມເພື່ອໄປຫາອິນເຕີເຟດຜູ້ຮັກສາລະຫັດສະເພາະຂອງທ່ານ."
 
 #: src/web/common/mails_admin.ml:76
 msgid "You will then need to send (typically by email) each private credential to the associated voter as written in the file creds.txt."
 msgstr ""
+"ຫຼັງຈາກນັ້ນ ທ່ານຈະຕ້ອງສົ່ງ (ໂດຍປົກກະຕິຜ່ານອີເມວ) ຂໍ້ມູນປະຈຳຕົວສ່ວນຕົວແຕ່ລະອັນໃຫ້ກັບຜູ້ລົງຄະແນນສຽງທີ່ກ່ຽວຂ້"
+"ອງ ຕາມທີ່ລະບຸໄວ້ໃນໄຟລ໌ creds.txt."
 
 #: src/web/clients/trustee/generate.ml:183
 msgid "You will use it to decrypt the final result."
-msgstr ""
+msgstr "ທ່ານຈະໃຊ້ມັນເພື່ອຖອດລະຫັດຜົນສຸດທ້າຍ."
 
 #: src/web/clients/credauth/generate.ml:123 src/web/common/mails_admin.ml:55
 msgid "You will use it to send credentials to voters."
-msgstr ""
+msgstr "ທ່ານຈະໃຊ້ມັນເພື່ອສົ່ງຂໍ້ມູນປະຈຳຕົວໃຫ້ຜູ້ລົງຄະແນນສຽງ."
 
 #: src/web/clients/admin/elections.ml:945
 msgid "You won't be able to change the e-mail addresses once the credentials are created. Voters with invalid e-mail addresses won't be able to vote."
 msgstr ""
+"ທ່ານຈະບໍ່ສາມາດປ່ຽນທີ່ຢູື່ອີເມວໄດ້ເມື່ອຂໍ້ມູນປະຈຳຕົວຖືກສ້າງຂຶ້ນແລ້ວ. ຜູ້ລົງຄະແນນສຽງທີ່ມີທີ່ຢູື່ອີເມວບໍ່ຖືກຕ້ອງຈະບໍ່ສາມ"
+"າດລົງຄະແນນສຽງໄດ້."
 
 #: src/web/common/pages_common.ml:263
 msgid "Your ballot for "
-msgstr ""
+msgstr "ບັດຂອງທ່ານສຳລັບ "
 
 #. src/web/server/common/pages_admin.ml:442
 #: src/web/server/common/pages_admin.ml:475
 msgid "Your e-mail address"
-msgstr ""
+msgstr "ທີ່ຢູື່ອີເມວຂອງທ່ານ"
 
 #: src/web/server/common/mails_admin.ml:33
 msgid "Your e-mail address has been used to create an account on our Belenios server."
 msgstr ""
+"ທີ່ຢູື່ອີເມວຂອງທ່ານໄດ້ຖືກນຳໃຊ້ເພື່ອສ້າງບັນຊີໃນເຊີເວີ Belenios ຂອງພວກເຮົາ."
 
 #: src/web/server/common/pages_admin.ml:333
 msgid "Your e-mail address is: "
-msgstr ""
+msgstr "ທີ່ຢູື່ອີເມວຂອງທ່ານແມ່ນ: "
 
 #: src/web/clients/trustee/generate.ml:242
 msgid "Your job in the key establishment protocol is done! Your private key will be needed to decrypt the election result."
 msgstr ""
+"ວຽກຂອງທ່ານໃນໂປຣໂຕຄໍການສ້າງຄີສຳເລັດແລ້ວ! ຄີສ່ວນຕົວຂອງທ່ານຈະມີຄວາມຈຳເປັນໃນການຖອດລະຫັດຜົນການເລື"
+"ອກຕັ້ງ."
 
 #: src/web/clients/trustee/decrypt.ml:85
 msgid "Your partial decryption has been received and checked!"
-msgstr ""
+msgstr "ການຖອດລະຫັດບາງສ່ວນຂອງທ່ານໄດ້ຮັບ ແລະ ກວດສອບແລ້ວ!"
 
 #. src/web/clients/trustee/generate.ml:296
 #. src/web/clients/trustee/generate.ml:263
 #: src/web/clients/trustee/generate.ml:308
 msgid "Your private key is valid!"
-msgstr ""
+msgstr "ຄີສ່ວນຕົວຂອງທ່ານຖືກຕ້ອງ!"
 
 #. src/web/clients/trustee/generate.ml:292
 #. src/web/clients/trustee/generate.ml:260
 #: src/web/clients/trustee/generate.ml:305
 msgid "Your public key has already been registered!"
-msgstr ""
+msgstr "ຄີສາທາລະນະຂອງທ່ານໄດ້ຖືກລົງທະບຽນແລ້ວ!"
 
 #: src/web/common/pages_common.ml:239
 msgid "Your smart ballot tracker is "
-msgstr ""
+msgstr "ລະຫັດຕິດຕາມບັດອັດສະລິຍະຂອງທ່ານແມ່ນ "
 
 #: src/web/server/common/pages_admin.ml:386
 msgid "Your username is: "
-msgstr ""
+msgstr "ຊື່ຜູ້ໃຊ້ຂອງທ່ານແມ່ນ: "
 
 #: src/web/common/pages_common.ml:219
 msgid "Your weight is %s."
-msgstr ""
+msgstr "ນ້ຳໜັກຂອງທ່ານແມ່ນ %s."
 
 #: src/web/clients/admin/trustees_tab.ml:362
 msgid "action required"
-msgstr ""
+msgstr "ຕ້ອງມີການດຳເນີນການ"
 
 #: src/web/server/common/pages_admin.ml:514
 msgid "as a voter for election %s."
-msgstr ""
+msgstr "ໃນຖານະຜູ້ລົງຄະແນນສຽງສຳລັບການເລືອກຕັ້ງ %s."
 
 #: src/web/server/common/pages_admin.ml:510
 msgid "as an administrator."
-msgstr ""
+msgstr "ໃນຖານະຜູ້ບໍລິຫານ."
 
 #: src/web/clients/admin/elections.ml:754
 msgid "bad voter: %s"
-msgstr ""
+msgstr "ຜູ້ລົງຄະແນນສຽງທີ່ບໍ່ຖືກຕ້ອງ: %s"
 
 #: src/web/common/pages_common.ml:230
 msgid "ballot box"
-msgstr ""
+msgstr "ຫີບບັດ"
 
 #: src/web/server/common/pages_admin.ml:142
 msgid "contact us"
-msgstr ""
+msgstr "ຕິດຕໍ່ພວກເຮົາ"
 
 #: src/web/clients/admin/trustees_tab.ml:363
 msgid "done"
-msgstr ""
+msgstr "ສຳເລັດແລ້ວ"
 
 #: src/web/clients/admin/elections.ml:752
 msgid "duplicate voter: %s"
-msgstr ""
+msgstr "ຜູ້ລົງຄະແນນສຽງຊ້ຳກັນ: %s"
 
 #: src/web/clients/admin/elections.ml:848
 msgid "empty list"
-msgstr ""
+msgstr "ລາຍການຫວ່າງເປົ່າ"
 
 #. src/web/server/common/pages_admin.ml:323
 #: src/web/server/common/pages_admin.ml:374
 msgid "failed"
-msgstr ""
+msgstr "ລົ້ມເຫຼວ"
 
 #: src/web/clients/admin/elections.ml:1005
 msgid "from a file: "
-msgstr ""
+msgstr "ຈາກໄຟລ໌: "
 
 #: src/web/clients/admin/elections.ml:875
 msgid "from another election"
-msgstr ""
+msgstr "ຈາກການເລືອກຕັ້ງອື່ນ"
 
 #: src/web/clients/admin/elections.ml:719
 msgid "invalid identity: %s"
-msgstr ""
+msgstr "ຕົວຕົນບໍ່ຖືກຕ້ອງ: %s"
 
 #: src/web/server/common/pages_admin.ml:369
 msgid "of an unknown reason"
-msgstr ""
+msgstr "ດ້ວຍເຫດຜົນທີ່ບໍ່ຮູ້ຈັກ"
 
 #: src/web/clients/admin/trustees_tab.ml:221
 msgid "out of "
-msgstr ""
+msgstr "ຈາກທັງໝົດ "
 
 #: src/web/clients/credauth/generate.ml:92
 msgid "private credentials"
-msgstr ""
+msgstr "ຂໍ້ມູນປະຈຳຕົວສ່ວນຕົວ"
 
 #: src/web/clients/trustee/generate.ml:164
 msgid "private_key"
-msgstr ""
+msgstr "ຄີສ່ວນຕົວ"
 
 #: src/web/clients/admin/trustees_tab.ml:675
 msgid "server (has already shuffled)"
-msgstr ""
+msgstr "ເຊີເວີ (ໄດ້ເຮັດການສັບປ່ຽນແລ້ວ)"
 
 #: src/web/clients/admin/trustees_tab.ml:690
 msgid "skipped"
-msgstr ""
+msgstr "ຂ້າມແລ້ວ"
 
 #: src/web/clients/admin/trustees_tab.ml:368
 msgid "step %d/7"
-msgstr ""
+msgstr "ຂັ້ນຕອນ %d/7"
 
 #: src/web/clients/admin/trustees_tab.ml:367
 msgid "step 0?"
-msgstr ""
+msgstr "ຂັ້ນຕອນ 0?"
 
 #. src/web/server/common/pages_admin.ml:51
 #: src/web/clients/common/secondary_ui.ml:71
 msgid "terms of service"
-msgstr ""
+msgstr "ເງື່ອນໄຂການໃຫ້ບໍລິການ"
 
 #: src/web/server/common/pages_admin.ml:366
 msgid "the new password is too weak (%s)"
-msgstr ""
+msgstr "ລະຫັດຜ່ານໃໝ່ອ່ອນເກີນໄປ (%s)"
 
 #: src/web/server/common/pages_admin.ml:368
 msgid "the new password starts or ends with a space"
-msgstr ""
+msgstr "ລະຫັດຜ່ານໃໝ່ຂຶ້ນຕົ້ນ ຫຼື ລົງທ້າຍດ້ວຍຍະຫວ່າງ"
 
 #: src/web/server/common/pages_admin.ml:314
 msgid "the password is too weak (%s)"
-msgstr ""
+msgstr "ລະຫັດຜ່ານອ່ອນເກີນໄປ (%s)"
 
 #: src/web/server/common/pages_admin.ml:317
 msgid "the password starts or ends with a space"
-msgstr ""
+msgstr "ລະຫັດຜ່ານຂຶ້ນຕົ້ນ ຫຼື ລົງທ້າຍດ້ວຍຍະຫວ່າງ"
 
 #: src/web/clients/admin/elections.ml:1709
 msgid "the private parts of the credentials"
-msgstr ""
+msgstr "ສ່ວນສ່ວນຕົວຂອງຂໍ້ມູນປະຈຳຕົວ"
 
 #. src/web/server/common/pages_admin.ml:315
 #: src/web/server/common/pages_admin.ml:364
 msgid "the two passwords are not the same"
-msgstr ""
+msgstr "ລະຫັດຜ່ານທັງສອງບໍ່ກົງກັນ"
 
 #: src/web/server/common/pages_admin.ml:309
 msgid "the username is already taken"
-msgstr ""
+msgstr "ຊື່ຜູ້ໃຊ້ນີ້ຖືກໃຊ້ແລ້ວ"
 
 #: src/web/server/common/pages_admin.ml:312
 msgid "the username is invalid"
-msgstr ""
+msgstr "ຊື່ຜູ້ໃຊ້ບໍ່ຖືກຕ້ອງ"
 
 #: src/web/server/common/pages_admin.ml:311
 msgid "there is already an account with this e-mail address"
-msgstr ""
+msgstr "ມີບັນຊີທີ່ໃຊ້ທີ່ຢູື່ອີເມວນີ້ແລ້ວ"
 
 #: src/web/server/common/pages_admin.ml:318
 msgid "there is an error in the database"
-msgstr ""
+msgstr "ມີຂໍ້ຜິດພາດໃນຖານຂໍ້ມູນ"
 
 #: src/web/server/common/pages_admin.ml:521
 msgid "to access:"
-msgstr ""
+msgstr "ເພື່ອເຂົ້າເຖິງ:"
 
 #: src/web/clients/admin/elections.ml:757
 msgid "total weight too big: %s/%s"
-msgstr ""
+msgstr "ນ້ຳໜັກທັງໝົດຫຼາຍເກີນໄປ: %s/%s"
 
 #: src/web/clients/admin/elections.ml:852
 msgid "typical use"
-msgstr ""
+msgstr "ການນຳໃຊ້ທົ່ວໄປ"
 
 #: src/web/clients/admin/elections.ml:808
 msgid "voted?"
-msgstr ""
+msgstr "ລົງຄະແນນສຽງແລ້ວບໍ?"
 
 #: src/web/clients/credauth/generate.ml:134
 msgid "voter list"
-msgstr ""
+msgstr "ລາຍຊື່ຜູ້ລົງຄະແນນສຽງ"
 
 #: src/web/clients/admin/elections.ml:854
 msgid "when a login is needed, e.g. CAS"
-msgstr ""
+msgstr "ເມື່ອຕ້ອງການການເຂົ້າສູ່ລະບົບ, ເຊັ່ນ CAS"
 
 #: src/web/clients/admin/elections.ml:856
 msgid "when some voters have several votes"
-msgstr ""
+msgstr "ເມື່ອຜູ້ລົງຄະແນນສຽງບາງຄົນມີຫຼາຍຄະແນນ"
 
 #: src/web/clients/admin/trustees_tab.ml:691
 msgid "yes"
-msgstr ""
+msgstr "ແມ່ນ"
 
 #: src/web/clients/admin/elections.ml:939
 msgid "you have to make sure that the e-mail addresses are valid."
-msgstr ""
+msgstr "ທ່ານຕ້ອງແນ່ໃຈວ່າທີ່ຢູື່ອີເມວຖືກຕ້ອງ."
 
 #: src/web/server/common/pages_admin.ml:526
 msgid "your account id:"
-msgstr ""
+msgstr "ໄອດີບັນຊີຂອງທ່ານ:"
 
 #: src/web/server/common/pages_admin.ml:533
 msgid "your e-mail address:"
-msgstr ""
+msgstr "ທີ່ຢູື່ອີເມວຂອງທ່ານ:"
 
 #: src/web/server/common/pages_admin.ml:530
 msgid "your name:"
-msgstr ""
+msgstr "ຊື່ຂອງທ່ານ:"
