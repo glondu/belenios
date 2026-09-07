@@ -67,7 +67,9 @@ class PreferentialVotingWithoutEqualityApp extends React.Component {
     newSourceColumnCandidateIds.splice(sourceColumnCandidateIndex, 1);
     if (sourceColumnId === destinationColumnId) {
       newSourceColumnCandidateIds.splice(
-        destinationColumnCandidateIndex,
+        sourceColumnCandidateIndex < destinationColumnCandidateIndex
+          ? destinationColumnCandidateIndex - 1
+          : destinationColumnCandidateIndex,
         0,
         candidateId,
       );
