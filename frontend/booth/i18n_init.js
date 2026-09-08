@@ -35,6 +35,7 @@ function i18n_init(
           "he",
           "it",
           "jpn_JP",
+          "lo",
           "lt",
           "nb",
           "oc",

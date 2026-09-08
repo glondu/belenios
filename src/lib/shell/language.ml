@@ -36,6 +36,7 @@ let available =
     ("he", "עברית");
     ("it", "Italiano");
     ("jpn_JP", "日本語");
+    ("lo", "ພາສາລາວ");
     ("lt", "Lietuvių");
     ("ms", "Bahasa Melayu");
     ("nb", "Norsk (Bokmål)");
