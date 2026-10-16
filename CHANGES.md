@@ -50,10 +50,13 @@
      - Expose only JSON-formatted voters in the web API
      - Ignore addresses when computing voters hash
      - Make exposed records file a proper JSON
+     - Add filter by username prefix in voters view
+   + Voter interface:
+     - Fix bug with "Move to" dropdown in STV mode
    + Tests:
      - Fix scaling test and add a scaling scenario to CI
    + Translations:
-     - Add Estonian
+     - Add Estonian, Hebrew, Lao
 
 3.3.0 (2026-07-02)
 ==================
