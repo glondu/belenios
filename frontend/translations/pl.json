@@ -24,7 +24,7 @@
     "load_election_from_uuid_label": "Wczytaj z UUID",
     "load_election_from_parameters_label": "Wczytaj z parametrów",
     "election_uuid_is_x": "UUID Głosowania: {{uuid}}",
-    "election_fingerprint_is_x": "Cyfrowy odcisk (hasz) Głosowania: {{fingerprint}}",
+    "election_fingerprint_is_x": "Cyfrowy skrót Głosowania: {{fingerprint}}",
     "election_server": "Serwer Głosowania",
     "preferential_voting_preference_level": "Poziom preferencji {{level}}",
     "preferential_votign_add_preference_level": "+ Dodaj poziom preferencji",

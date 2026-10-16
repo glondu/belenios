@@ -1,11 +1,11 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2026-07-05 13:01+0000\n"
-"Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
+"PO-Revision-Date: 2026-10-14 08:56+0000\n"
+"Last-Translator: Mateusz Hołysz "
+"<mateusz_holysz@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/"
 "pl/>\n"
 "Language: pl\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 2026.7.1.dev0\n"
+"X-Generator: Weblate 2026.11.dev0\n"
 
 #: src/web/server/common/pages_common.ml:349
 msgid " (if you forgot it, for example)."
@@ -138,8 +138,8 @@ msgstr ""
 msgid "Administer elections"
 msgstr "Zarządzaj głosowaniami"
 
-#: src/web/clients/election/common.ml:62
 #. src/web/server/common/pages_common.ml:102
+#: src/web/clients/election/common.ml:62
 msgid "Administer this election"
 msgstr "Zarządzaj tym głosowaniem"
 
@@ -175,9 +175,9 @@ msgstr "Dane audytu nie są dostępne."
 msgid "Audit data: "
 msgstr "Dane audytu: "
 
-#: src/web/server/common/pages_common.ml:511
 #. src/web/server/common/pages_common.ml:413
 #. src/web/server/common/pages_common.ml:321
+#: src/web/server/common/pages_common.ml:511
 msgid "Authenticate"
 msgstr "Uwierzytelnij"
 
@@ -249,11 +249,11 @@ msgstr "Porównaj"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:74
 msgid "Compute fingerprint"
-msgstr "Oblicz cyfrowy odcisk (hasz)"
+msgstr "Oblicz cyfrowy skrót"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:35
 msgid "Computed fingerprint:"
-msgstr "Obliczony cyfrowy odcisk (hasz):"
+msgstr "Obliczony cyfrowy skrót:"
 
 #: src/web/server/common/pages_common.ml:486
 msgid "Confirm"
@@ -269,22 +269,22 @@ msgstr "Administrator kodów głosowania"
 
 #: src/web/clients/election/home.ml:229
 msgid "Credentials fingerprint"
-msgstr "Cyfrowy odcisk (hasz) kodów głosowania"
+msgstr "Cyfrowy skrót kodów głosowania"
 
-#: src/web/server/common/mails_voter.ml:267
 #. src/web/server/common/mails_voter.ml:207
+#: src/web/server/common/mails_voter.ml:267
 msgid "Dear %s,"
 msgstr "Dzień dobry %s,"
 
-#: src/web/server/common/pages_common.ml:540
 #. src/web/server/common/pages_common.ml:356
 #. src/web/server/common/pages_common.ml:288
+#: src/web/server/common/pages_common.ml:540
 msgid "E-mail address:"
 msgstr "Adres e-mail:"
 
 #: src/web/clients/election/home.ml:94
 msgid "Election fingerprint"
-msgstr "Cyfrowy odcisk (hasz) głosowania"
+msgstr "Cyfrowy skrót głosowania"
 
 #: src/web/clients/election/main.ml:36
 msgid "Election home"
@@ -316,7 +316,7 @@ msgstr "Błąd przy wczytywaniu kart do głosowania!"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:83
 msgid "Expected fingerprint:"
-msgstr "Spodziewany cyfrowy odcisk (hasz):"
+msgstr "Spodziewany cyfrowy skrót:"
 
 #: src/web/common/pages_common.ml:257
 msgid "FAIL!"
@@ -328,11 +328,11 @@ msgstr "Plik:"
 
 #: src/web/clients/election/home.ml:269
 msgid "Final fingerprint"
-msgstr "Definitywny, cyfrowy odcisk (hasz)"
+msgstr "Definitywny, cyfrowy skrót"
 
 #: src/web/clients/election/home.ml:257
 msgid "Fingerprint of the encrypted tally"
-msgstr "Cyfrowy odcisk (hasz) zaszyfrowanego wyniku głosowania"
+msgstr "Cyfrowy skrót zaszyfrowanego wyniku głosowania"
 
 #: src/web/server/common/site_common.ml:114
 msgid "Forbidden"
@@ -342,8 +342,8 @@ msgstr "Zabronione"
 msgid "Get the source code"
 msgstr "Pobierz kod źródłowy"
 
-#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 #. src/web/common/pages_common.ml:274
+#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
 msgstr "Wróć do głosowania"
 
@@ -388,10 +388,10 @@ msgstr "Język:"
 msgid "Loading..."
 msgstr "Wczytuję..."
 
-#: src/web/server/common/pages_common.ml:510
 #. src/web/server/common/pages_common.ml:412
 #. src/web/server/common/pages_common.ml:320
 #. src/web/server/common/pages_common.ml:280
+#: src/web/server/common/pages_common.ml:510
 msgid "Log in"
 msgstr "Zaloguj się"
 
@@ -451,7 +451,7 @@ msgstr "Zaloguj się:"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:61
 msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
-msgstr "Wklej poniżej dane, dla których chcesz obliczyć cyfrowy odcisk (hasz):"
+msgstr "Wklej poniżej dane, dla których chcesz obliczyć cyfrowy skrót:"
 
 #: src/web/clients/election/advanced.ml:69
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
@@ -465,9 +465,9 @@ msgstr "Oddaj głos przy pomocy Twojego osobistego linku:"
 msgid "Powered by "
 msgstr "System oparty na "
 
-#: src/web/clients/election/advanced.ml:222
 #. src/web/server/common/pages_common.ml:233
 #. src/web/server/common/pages_common.ml:225
+#: src/web/clients/election/advanced.ml:222
 msgid "Proceed"
 msgstr "Kontynuuj"
 
@@ -501,7 +501,7 @@ msgstr "Wyniki zostaną wyświetlone na stronie głosowania"
 
 #: src/web/clients/election/home.ml:129
 msgid "Sealing log fingerprint"
-msgstr "Pieczętowanie odcisku cyfrowego loga"
+msgstr "Pieczętowanie cyfrowego skrótu loga"
 
 #: src/web/clients/election/home.ml:794
 msgid "See accepted ballots"
@@ -522,8 +522,8 @@ msgstr ""
 "wybrać w przypadku gdy zgodnie z systemem Condorceta nie można wskazać "
 "zwycięzcy."
 
-#: src/web/clients/jslib/belenios_jslib.ml:278
 #. src/web/clients/jslib/belenios_jslib.ml:264
+#: src/web/clients/jslib/belenios_jslib.ml:278
 msgid "Smart ballot tracker"
 msgstr "Numer karty głosowania"
 
@@ -535,10 +535,10 @@ msgstr "Specyfikacja"
 msgid "Start"
 msgstr "Rozpocznij"
 
-#: src/web/clients/election/advanced.ml:101
 #. src/web/clients/election/advanced.ml:62
 #. src/web/server/common/pages_common.ml:554
 #. src/web/server/common/pages_common.ml:470
+#: src/web/clients/election/advanced.ml:101
 msgid "Submit"
 msgstr "Prześlij"
 
@@ -586,11 +586,11 @@ msgstr "Głosowanie zostanie zamknięte o %s (pozostało: %s)."
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:47
 msgid "The fingerprints differ!"
-msgstr "Cyfrowy odcisk (hasz) różni się!"
+msgstr "Cyfrowy skrót różni się!"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:46
 msgid "The fingerprints match!"
-msgstr "Cyfrowe odciski (hasze) są zgodne!"
+msgstr "Cyfrowe skróty są zgodne!"
 
 #: src/web/clients/election/home.ml:564
 msgid "The raw results can be viewed in the "
@@ -659,15 +659,15 @@ msgstr "Niewspierany typ pytania (uchwały, decyzji)"
 msgid "Use the following code:"
 msgstr "Użyj kodu:"
 
-#: src/web/server/common/pages_common.ml:355
 #. src/web/server/common/pages_common.ml:287
 #. src/web/server/common/mails_voter.ml:140
+#: src/web/server/common/pages_common.ml:355
 msgid "Username:"
 msgstr "Nazwa użytkownika:"
 
 #: src/web/clients/election/home.ml:117
 msgid "Voter list fingerprint"
-msgstr "Cyfrowy odcisk (hasz) listy uprawnionych do głosowania"
+msgstr "Cyfrowy skrót listy uprawnionych do głosowania"
 
 #: src/web/clients/election/home.ml:140
 msgid "Voters' total weight"
@@ -907,4 +907,3 @@ msgstr "Twój kod głosowania nie jest prawidłowy"
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "błędna nazwa użytkownika"
-
