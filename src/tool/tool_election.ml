@@ -223,14 +223,13 @@ let make file =
       let* () =
         let* x = Lazy.force raw_ballots in
         match x with
-        | Some _ -> (
-            match skip_ballot_check with
-            | false ->
-                ignore (Lazy.force verified_ballots);
-                Lwt.return_unit
-            | true ->
-                ignore (Lazy.force unverified_ballots);
-                Lwt.return_unit)
+        | Some _ ->
+            let bs () =
+              match skip_ballot_check with
+              | false -> Lazy.force verified_ballots
+              | true -> Lazy.force unverified_ballots
+            in
+            Lwt.try_bind bs (fun _ -> Lwt.return_unit) Lwt.reraise
         | None -> Lwt_io.eprintl "I: no ballots to check"
       in
       let* () =
