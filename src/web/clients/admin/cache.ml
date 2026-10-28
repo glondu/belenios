@@ -25,7 +25,7 @@ open Belenios_web_api
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
-open Common
+open Common_core
 open Lwt.Syntax
 
 type (_, _) endpoint =
