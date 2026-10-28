@@ -100,6 +100,7 @@ let delete_live_election s uuid roots =
       administrator = "";
       credential_authority;
       language = None;
+      deny_revote = W.template.deny_revote;
     }
   in
   let de_owners = metadata.owners in

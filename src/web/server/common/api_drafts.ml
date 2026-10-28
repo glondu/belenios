@@ -194,6 +194,7 @@ let post_drafts account draft =
       administrator = "";
       credential_authority = `Server;
       language = None;
+      deny_revote = false;
     }
   in
   let version = Defaults.version in

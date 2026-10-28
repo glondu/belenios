@@ -50,6 +50,7 @@ let make_raw_election (template : template) ~uuid ~group ~public_key =
       language = template.language;
       group;
       public_key;
+      deny_revote = template.deny_revote;
     }
   in
   yojson_of_params !&G.to_string params
@@ -72,6 +73,7 @@ module Parse (R : RAW_ELECTION) () = struct
       administrator = params.administrator;
       credential_authority = params.credential_authority;
       language = params.language;
+      deny_revote = params.deny_revote;
     }
 
   let has_nh_questions = Array.exists Question_.is_nh_question params.questions

@@ -150,6 +150,7 @@ let rec show_root main =
             administrator = a.name;
             credential_authority = `Server;
             language = None;
+            deny_revote = false;
           }
         in
         let address =

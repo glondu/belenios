@@ -501,8 +501,7 @@ let do_cast_ballot s (election : Election.t) ~ballot ~user ~weight date
             let* h = add_ballot s election last ballot in
             cont (h, false)
         | Some _ ->
-            if !Web_config.deny_revote then
-              Lwt.return @@ Error `RevoteNotAllowed
+            if W.template.deny_revote then Lwt.return @@ Error `RevoteNotAllowed
             else
               let* h = add_ballot s election last ballot in
               cont (h, true)

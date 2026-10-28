@@ -139,6 +139,7 @@ let newdraft () =
               administrator = a.name;
               credential_authority = `Server;
               language = None;
+              deny_revote = false;
             };
           languages = a.preferences.languages;
           contact = Some a.preferences.contact;

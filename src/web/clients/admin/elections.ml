@@ -547,23 +547,23 @@ let update_header () =
   let&&* container = document##getElementById (Js.string "election_descr") in
   show_in container (fun () -> Lwt.return [ txt descr ])
 
+let update_draft f =
+  let@ () = Lwt.async in
+  let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
+  Cache.set Cache.draft (Draft (v, f draft));
+  update_header ()
+
 let title_content () =
   let open (val !Belenios_js.I18n.gettext) in
   if is_draft () then
     let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
     let name, _ =
       let onchange r =
-        let@ () = Lwt.async in
-        let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-        Cache.set Cache.draft
-          (Draft
-             ( v,
-               {
-                 draft with
-                 questions =
-                   { draft.questions with name = Js.to_string r##.value };
-               } ));
-        update_header ()
+        update_draft (fun draft ->
+            {
+              draft with
+              questions = { draft.questions with name = Js.to_string r##.value };
+            })
       in
       textarea
         ~a:[ a_id "election_name_textarea" ]
@@ -571,17 +571,12 @@ let title_content () =
     in
     let desc, _ =
       let onchange r =
-        let@ () = Lwt.async in
-        let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-        Cache.set Cache.draft
-          (Draft
-             ( v,
-               {
-                 draft with
-                 questions =
-                   { draft.questions with description = Js.to_string r##.value };
-               } ));
-        update_header ()
+        update_draft (fun draft ->
+            {
+              draft with
+              questions =
+                { draft.questions with description = Js.to_string r##.value };
+            })
       in
       textarea
         ~a:[ a_id "election_description_textarea" ]
@@ -650,6 +645,29 @@ let title_content () =
       set_logo ();
       logo_elt
     in
+    let div_misc =
+      let onchange (e : Dom_html.event Js.t) =
+        let i =
+          Js.coerce_opt e##.target Dom_html.CoerceTo.input (fun _ ->
+              assert false)
+        in
+        let () =
+          update_draft (fun draft ->
+              {
+                draft with
+                questions =
+                  { draft.questions with deny_revote = Js.to_bool i##.checked };
+              })
+        in
+        false
+      in
+      let checked =
+        if draft.questions.deny_revote then [ a_checked () ] else []
+      in
+      let a = a_input_type `Checkbox :: a_onchange onchange :: checked in
+      let i = Tyxml_js.Html.input ~a () in
+      div [ label [ i; txt " "; txt @@ s_ "Do not allow revoting" ] ]
+    in
     Lwt.return
       [
         h2 [ txt @@ s_ "Title:" ];
@@ -658,6 +676,8 @@ let title_content () =
         div [ desc ];
         h2 [ txt @@ s_ "Logo:" ];
         div_logo;
+        h2 [ txt @@ s_ "Miscellaneous:" ];
+        div_misc;
       ]
   else
     (* not is_draft, i.e. running *)

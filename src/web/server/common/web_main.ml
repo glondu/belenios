@@ -174,7 +174,6 @@ module Make () = struct
         auth_instances_export :=
           Export { descr; config } :: !auth_instances_export
     | Element ("domain", [ ("name", name) ], []) -> domain := Some name
-    | Element ("deny-revote", [], []) -> Web_config.deny_revote := true
     | Element ("deny-newelection", [], []) ->
         Web_config.deny_newelection := true
     | Element ("grace-period", [], []) -> Web_config.grace_period := true

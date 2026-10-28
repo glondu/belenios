@@ -54,6 +54,7 @@ type template = {
   administrator : string;
   credential_authority : credential_authority;
   language : (string * lang_dir) option; [@yojson.option]
+  deny_revote : bool; [@default false] [@yojson_drop_default ( = )]
 }
 [@@deriving yojson]
 (** Election template. *)

@@ -75,6 +75,7 @@ module Make (P : PARAMS) = struct
       administrator = "Election Initiator";
       credential_authority = `External "Election Registrar";
       language = Some ("en", `Ltr);
+      deny_revote = false;
     }
 
   let draft =
