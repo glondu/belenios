@@ -1,8 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -134,8 +130,8 @@ msgstr "לפי כלל שיפוט רוב, הדירוג הוא:"
 msgid "Administer elections"
 msgstr "ניהול בחירות"
 
-#. src/web/server/common/pages_common.ml:102
 #: src/web/clients/election/common.ml:62
+#. src/web/server/common/pages_common.ml:102
 msgid "Administer this election"
 msgstr "ניהול בחירות אלה"
 
@@ -155,7 +151,7 @@ msgstr "כל הנאמנים הבאים (מפתחות אימות) נדרשים כ
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr "לחלופין, תוכלו גם להעלות קובץ המכיל את פתק ההצבעה שלכם:"
 
-#: src/web/server/common/mails_voter.ml:286
+#: src/web/server/common/mails_voter.ml:283
 msgid "Alternatively, you can follow the link:"
 msgstr "לחלופין, תוכלו ללחוץ על הקישור:"
 
@@ -167,9 +163,9 @@ msgstr "נתוני הביקורת אינם זמינים."
 msgid "Audit data: "
 msgstr "נתוני ביקורת: "
 
+#: src/web/server/common/pages_common.ml:511
 #. src/web/server/common/pages_common.ml:413
 #. src/web/server/common/pages_common.ml:321
-#: src/web/server/common/pages_common.ml:511
 msgid "Authenticate"
 msgstr "אימות"
 
@@ -177,7 +173,7 @@ msgstr "אימות"
 msgid "Authenticate with %s"
 msgstr "אימות באמצעות %s"
 
-#: src/web/server/common/mails_voter.ml:307
+#: src/web/server/common/mails_voter.ml:304
 msgid "Authentication"
 msgstr "אימות"
 
@@ -211,7 +207,7 @@ msgstr "כתובת דואל שגויה!"
 msgid "Bad security code!"
 msgstr "קוד אבטחה שגוי!"
 
-#: src/web/server/common/mails_voter.ml:300
+#: src/web/server/common/mails_voter.ml:297
 msgid "Best regards,"
 msgstr "בברכה,"
 
@@ -263,14 +259,14 @@ msgstr "מנפיק קודי הצבעה"
 msgid "Credentials fingerprint"
 msgstr "טביעת אצבע של קודי ההצבעה"
 
-#. src/web/server/common/mails_voter.ml:207
-#: src/web/server/common/mails_voter.ml:267
+#: src/web/server/common/mails_voter.ml:264
+#. src/web/server/common/mails_voter.ml:204
 msgid "Dear %s,"
 msgstr "שלום %s,"
 
+#: src/web/server/common/pages_common.ml:540
 #. src/web/server/common/pages_common.ml:356
 #. src/web/server/common/pages_common.ml:288
-#: src/web/server/common/pages_common.ml:540
 msgid "E-mail address:"
 msgstr "כתובת דואל:"
 
@@ -334,12 +330,12 @@ msgstr "הגישה אסורה"
 msgid "Get the source code"
 msgstr "הורדת קוד המקור"
 
-#. src/web/common/pages_common.ml:274
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
+#. src/web/common/pages_common.ml:274
 msgid "Go back to election"
 msgstr "חזרה לבחירות"
 
-#: src/web/server/common/mails_voter.ml:133
+#: src/web/server/common/mails_voter.ml:130
 msgid "If the above link does not work:"
 msgstr "אם הקישור שלמעלה אינו עובד:"
 
@@ -378,10 +374,10 @@ msgstr "שפה:"
 msgid "Loading..."
 msgstr "טוען..."
 
+#: src/web/server/common/pages_common.ml:510
 #. src/web/server/common/pages_common.ml:412
 #. src/web/server/common/pages_common.ml:320
 #. src/web/server/common/pages_common.ml:280
-#: src/web/server/common/pages_common.ml:510
 msgid "Log in"
 msgstr "התחברות"
 
@@ -415,11 +411,11 @@ msgstr "מספר פתקי ההצבעה שהתקבלו: "
 msgid "Number of voters"
 msgstr "מספר הבוחרים"
 
-#: src/web/server/common/mails_voter.ml:150
+#: src/web/server/common/mails_voter.ml:147
 msgid "Number of votes:"
 msgstr "מספר הקולות:"
 
-#: src/web/server/common/mails_voter.ml:157
+#: src/web/server/common/mails_voter.ml:154
 msgid "Only the last vote counts."
 msgstr "רק ההצבעה האחרונה נספרת."
 
@@ -447,7 +443,7 @@ msgstr "אנא הדביקו בתיבת הטקסט שלהלן את הנתונים
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr "אנא הדביקו את פתק ההצבעה המוצפן שלכם בתבנית JSON בתיבה הבאה:"
 
-#: src/web/server/common/mails_voter.ml:119
+#: src/web/server/common/mails_voter.ml:116
 msgid "Please vote here using your personal link:"
 msgstr "אנא הצביעו כאן באמצעות הקישור האישי שלכם:"
 
@@ -455,9 +451,9 @@ msgstr "אנא הצביעו כאן באמצעות הקישור האישי שלכ
 msgid "Powered by "
 msgstr "מופעל על ידי "
 
+#: src/web/clients/election/advanced.ml:222
 #. src/web/server/common/pages_common.ml:233
 #. src/web/server/common/pages_common.ml:225
-#: src/web/clients/election/advanced.ml:222
 msgid "Proceed"
 msgstr "המשך"
 
@@ -465,7 +461,7 @@ msgstr "המשך"
 msgid "Processing ballot"
 msgstr "מעבד את פתק ההצבעה"
 
-#: src/web/server/common/mails_voter.ml:136
+#: src/web/server/common/mails_voter.ml:133
 msgid "Public page of the election:"
 msgstr "העמוד הציבורי של הבחירות:"
 
@@ -485,7 +481,7 @@ msgstr "רענון הסטטוס"
 msgid "Restricted mode"
 msgstr "מצב מוגבל"
 
-#: src/web/server/common/mails_voter.ml:242
+#: src/web/server/common/mails_voter.ml:239
 msgid "Results will be published on the election page"
 msgstr "התוצאות יפורסמו בעמוד הבחירות"
 
@@ -509,8 +505,8 @@ msgstr "הגדרה"
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr "קיימות מספר שיטות להכריע איזה מועמד ייבחר כאשר אין מנצח קונדורסה."
 
-#. src/web/clients/jslib/belenios_jslib.ml:264
 #: src/web/clients/jslib/belenios_jslib.ml:278
+#. src/web/clients/jslib/belenios_jslib.ml:264
 msgid "Smart ballot tracker"
 msgstr "עוקב פתק-הצבעה חכם"
 
@@ -522,10 +518,10 @@ msgstr "מפרט"
 msgid "Start"
 msgstr "התחלה"
 
+#: src/web/clients/election/advanced.ml:101
 #. src/web/clients/election/advanced.ml:62
 #. src/web/server/common/pages_common.ml:554
 #. src/web/server/common/pages_common.ml:470
-#: src/web/clients/election/advanced.ml:101
 msgid "Submit"
 msgstr "שליחה"
 
@@ -606,7 +602,7 @@ msgstr "בחירות אלה נשמרו בארכיון."
 msgid "This election is currently closed."
 msgstr "בחירות אלה סגורות כעת."
 
-#: src/web/server/common/mails_voter.ml:232 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:229 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
 msgstr "הצבעה זו מחליפה כל הצבעה קודמת."
 
@@ -614,11 +610,11 @@ msgstr "הצבעה זו מחליפה כל הצבעה קודמת."
 msgid "Tie:"
 msgstr "שוויון:"
 
-#: src/web/server/common/mails_voter.ml:128
+#: src/web/server/common/mails_voter.ml:125
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr "כדי להצביע תזדקקו גם לסיסמה, שנשלחה בדואל נפרד."
 
-#: src/web/server/common/mails_voter.ml:93
+#: src/web/server/common/mails_voter.ml:90
 msgid "To get more information, please contact:"
 msgstr "לקבלת מידע נוסף, אנא פנו אל:"
 
@@ -634,13 +630,13 @@ msgstr "הנאמנים ערבבו את פתקי ההצבעה בסדר הבא:"
 msgid "Unsupported question type"
 msgstr "סוג שאלה זה אינו נתמך"
 
-#: src/web/server/common/mails_voter.ml:274
+#: src/web/server/common/mails_voter.ml:271
 msgid "Use the following code:"
 msgstr "השתמשו בקוד הבא:"
 
-#. src/web/server/common/pages_common.ml:287
-#. src/web/server/common/mails_voter.ml:140
 #: src/web/server/common/pages_common.ml:355
+#. src/web/server/common/pages_common.ml:287
+#. src/web/server/common/mails_voter.ml:137
 msgid "Username:"
 msgstr "שם משתמש:"
 
@@ -656,12 +652,12 @@ msgstr "המשקל הכולל של הבוחרים"
 msgid "Warning:"
 msgstr "אזהרה:"
 
-#: src/web/server/common/mails_voter.ml:295
+#: src/web/server/common/mails_voter.ml:292
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "אזהרה: תוקף הקוד הוא 15 דקות, וקודים קודמים שנשלחו לכתובת זו אינם תקפים עוד."
 
-#: src/web/server/common/mails_voter.ml:107
+#: src/web/server/common/mails_voter.ml:104
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr "אזהרה: הודעה זו מכילה מידע אישי וסודי ואין להעבירה הלאה."
 
@@ -677,7 +673,7 @@ msgstr "רוצים לעזור בתרגום?"
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr "אתם עומדים לשלוח פתק הצבעה שהעוקב החכם שלו הוא %s."
 
-#: src/web/server/common/mails_voter.ml:156
+#: src/web/server/common/mails_voter.ml:153
 msgid "You are allowed to vote several times."
 msgstr "אתם רשאים להצביע מספר פעמים."
 
@@ -689,7 +685,7 @@ msgstr "אתם מבצעים אימות כבוחרים."
 msgid "You are authenticating as an administrator."
 msgstr "אתם מבצעים אימות כמנהלי בחירות."
 
-#: src/web/server/common/mails_voter.ml:112
+#: src/web/server/common/mails_voter.ml:109
 msgid "You are listed as a voter for the election"
 msgstr "אתם מופיעים כבוחרים בבחירות"
 
@@ -713,7 +709,7 @@ msgstr "תוכלו גם להוריד את "
 msgid "You can check its presence in the "
 msgstr "תוכלו לוודא את הימצאותו בתוך "
 
-#: src/web/server/common/mails_voter.ml:236
+#: src/web/server/common/mails_voter.ml:233
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "תוכלו לוודא את הימצאותו בתיבת הקלפי, הזמינה בכתובת"
 
@@ -733,19 +729,19 @@ msgstr "לא ניתן להתחבר כעת. אנא נסו מאוחר יותר."
 msgid "Your ballot for "
 msgstr "פתק ההצבעה שלכם עבור "
 
-#: src/web/server/common/mails_voter.ml:178
+#: src/web/server/common/mails_voter.ml:175
 msgid "Your credential for election %s"
 msgstr "קוד ההצבעה שלכם לבחירות %s"
 
-#: src/web/server/common/mails_voter.ml:144
+#: src/web/server/common/mails_voter.ml:141
 msgid "Your credential:"
 msgstr "קוד ההצבעה שלכם:"
 
-#: src/web/server/common/mails_voter.ml:271
+#: src/web/server/common/mails_voter.ml:268
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr "כתובת הדואל שלכם שימשה לאימות מול שרת Belenios שלנו."
 
-#: src/web/server/common/mails_voter.ml:224
+#: src/web/server/common/mails_voter.ml:221
 msgid "Your smart ballot tracker is"
 msgstr "עוקב פתק-ההצבעה החכם שלכם הוא"
 
@@ -753,11 +749,11 @@ msgstr "עוקב פתק-ההצבעה החכם שלכם הוא"
 msgid "Your smart ballot tracker is "
 msgstr "עוקב פתק-ההצבעה החכם שלכם הוא "
 
-#: src/web/server/common/mails_voter.ml:210
+#: src/web/server/common/mails_voter.ml:207
 msgid "Your vote for election"
 msgstr "ההצבעה שלכם בבחירות"
 
-#: src/web/server/common/mails_voter.ml:204
+#: src/web/server/common/mails_voter.ml:201
 msgid "Your vote for election %s"
 msgstr "ההצבעה שלכם בבחירות %s"
 
@@ -765,7 +761,7 @@ msgstr "ההצבעה שלכם בבחירות %s"
 msgid "Your vote was not recorded!"
 msgstr "ההצבעה שלכם לא נרשמה!"
 
-#: src/web/server/common/mails_voter.ml:222 src/web/common/pages_common.ml:219
+#: src/web/server/common/mails_voter.ml:219 src/web/common/pages_common.ml:219
 msgid "Your weight is %s."
 msgstr "המשקל שלכם הוא %s."
 
@@ -785,7 +781,7 @@ msgstr "ליצור חשבון"
 msgid "direct link"
 msgstr "קישור ישיר"
 
-#: src/web/server/common/mails_voter.ml:217
+#: src/web/server/common/mails_voter.ml:214
 msgid "has been recorded."
 msgstr "נרשם."
 
@@ -876,3 +872,4 @@ msgstr "קוד ההצבעה שלכם אינו תקף"
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "שם המשתמש שלכם שגוי"
+

@@ -1,8 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -133,8 +129,8 @@ msgstr "ອີງຕາມການຕັດສິນດ້ວຍສຽງສ່
 msgid "Administer elections"
 msgstr "ບໍລິຫານການເລືອກຕັ້ງ"
 
-#. src/web/server/common/pages_common.ml:102
 #: src/web/clients/election/common.ml:62
+#. src/web/server/common/pages_common.ml:102
 msgid "Administer this election"
 msgstr "ບໍລິຫານການເລືອກຕັ້ງນີ້"
 
@@ -155,7 +151,7 @@ msgstr ""
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr "ຫຼືອີກວິທີໜຶ່ງ, ທ່ານສາມາດອັບໂຫຼດໄຟລ໌ທີ່ມີບັດຂອງທ່ານ:"
 
-#: src/web/server/common/mails_voter.ml:286
+#: src/web/server/common/mails_voter.ml:283
 msgid "Alternatively, you can follow the link:"
 msgstr "ຫຼືອີກວິທີໜຶ່ງ, ທ່ານສາມາດກົດເຂົ້າລິ້ງນີ້:"
 
@@ -167,9 +163,9 @@ msgstr "ບໍ່ມີຂໍ້ມູນການກວດສອບ."
 msgid "Audit data: "
 msgstr "ຂໍ້ມູນການກວດສອບ: "
 
+#: src/web/server/common/pages_common.ml:511
 #. src/web/server/common/pages_common.ml:413
 #. src/web/server/common/pages_common.ml:321
-#: src/web/server/common/pages_common.ml:511
 msgid "Authenticate"
 msgstr "ຢືນຢັນຕົວຕົນ"
 
@@ -177,7 +173,7 @@ msgstr "ຢືນຢັນຕົວຕົນ"
 msgid "Authenticate with %s"
 msgstr "ຢືນຢັນຕົວຕົນດ້ວຍ %s"
 
-#: src/web/server/common/mails_voter.ml:307
+#: src/web/server/common/mails_voter.ml:304
 msgid "Authentication"
 msgstr "ການຢືນຢັນຕົວຕົນ"
 
@@ -210,7 +206,7 @@ msgstr "ທີ່ຢູ່ອີເມວບໍ່ຖືກຕ້ອງ!"
 msgid "Bad security code!"
 msgstr "ລະຫັດຄວາມປອດໄພບໍ່ຖືກຕ້ອງ!"
 
-#: src/web/server/common/mails_voter.ml:300
+#: src/web/server/common/mails_voter.ml:297
 msgid "Best regards,"
 msgstr "ດ້ວຍຄວາມເຄົາລົບ,"
 
@@ -262,14 +258,14 @@ msgstr "ໜ່ວຍງານອອກໃບຢັ້ງຢືນ"
 msgid "Credentials fingerprint"
 msgstr "ລາຍນິ້ວມືຂອງໃບຢັ້ງຢືນ"
 
-#. src/web/server/common/mails_voter.ml:207
-#: src/web/server/common/mails_voter.ml:267
+#: src/web/server/common/mails_voter.ml:264
+#. src/web/server/common/mails_voter.ml:204
 msgid "Dear %s,"
 msgstr "ຮຽນ %s,"
 
+#: src/web/server/common/pages_common.ml:540
 #. src/web/server/common/pages_common.ml:356
 #. src/web/server/common/pages_common.ml:288
-#: src/web/server/common/pages_common.ml:540
 msgid "E-mail address:"
 msgstr "ທີ່ຢູ່ອີເມວ:"
 
@@ -333,12 +329,12 @@ msgstr "ຖືກຫ້າມ"
 msgid "Get the source code"
 msgstr "ດຶງເອົາຊອດໂຄ້ດ (source code)"
 
-#. src/web/common/pages_common.ml:274
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
+#. src/web/common/pages_common.ml:274
 msgid "Go back to election"
 msgstr "ກັບຄືນສູ່ການເລືອກຕັ້ງ"
 
-#: src/web/server/common/mails_voter.ml:133
+#: src/web/server/common/mails_voter.ml:130
 msgid "If the above link does not work:"
 msgstr "ຖ້າລິ້ງຂ້າງເທິງນັ້ນໃຊ້ການບໍ່ໄດ້:"
 
@@ -376,10 +372,10 @@ msgstr "ພາສາ:"
 msgid "Loading..."
 msgstr "ກຳລັງໂຫຼດ..."
 
+#: src/web/server/common/pages_common.ml:510
 #. src/web/server/common/pages_common.ml:412
 #. src/web/server/common/pages_common.ml:320
 #. src/web/server/common/pages_common.ml:280
-#: src/web/server/common/pages_common.ml:510
 msgid "Log in"
 msgstr "ເຂົ້າສູ່ລະບົບ"
 
@@ -412,11 +408,11 @@ msgstr "ຈຳນວນບັດທີ່ຖືກຍອມຮັບ: "
 msgid "Number of voters"
 msgstr "ຈຳນວນຜູ້ມີສິດເລືອກຕັ້ງ"
 
-#: src/web/server/common/mails_voter.ml:150
+#: src/web/server/common/mails_voter.ml:147
 msgid "Number of votes:"
 msgstr "ຈຳນວນຄະແນນສຽງ:"
 
-#: src/web/server/common/mails_voter.ml:157
+#: src/web/server/common/mails_voter.ml:154
 msgid "Only the last vote counts."
 msgstr "ຈະນັບສະເພາະການລົງຄະແນນສຽງຄັ້ງສຸດທ້າຍເທົ່ານັ້ນ."
 
@@ -444,7 +440,7 @@ msgstr "ກະລຸນາວາງຂໍ້ມູນທີ່ທ່ານຕ້
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr "ກະລຸນາວາງບັດທີ່ຖືກເຂົ້າລະຫັດຂອງທ່ານໃນຮູບແບບ JSON ໃນຊ່ອງຕໍ່ໄປນີ້:"
 
-#: src/web/server/common/mails_voter.ml:119
+#: src/web/server/common/mails_voter.ml:116
 msgid "Please vote here using your personal link:"
 msgstr "ກະລຸນາລົງຄະແນນສຽງທີ່ນີ້ໂດຍໃຊ້ລິ້ງສ່ວນຕົວຂອງທ່ານ:"
 
@@ -452,9 +448,9 @@ msgstr "ກະລຸນາລົງຄະແນນສຽງທີ່ນີ້ໂ
 msgid "Powered by "
 msgstr "ຂັບເຄື່ອນໂດຍ "
 
+#: src/web/clients/election/advanced.ml:222
 #. src/web/server/common/pages_common.ml:233
 #. src/web/server/common/pages_common.ml:225
-#: src/web/clients/election/advanced.ml:222
 msgid "Proceed"
 msgstr "ດຳເນີນການຕໍ່"
 
@@ -462,7 +458,7 @@ msgstr "ດຳເນີນການຕໍ່"
 msgid "Processing ballot"
 msgstr "ກຳລັງປະມວນຜົນບັດ"
 
-#: src/web/server/common/mails_voter.ml:136
+#: src/web/server/common/mails_voter.ml:133
 msgid "Public page of the election:"
 msgstr "ໜ້າສາທາລະນະຂອງການເລືອກຕັ້ງ:"
 
@@ -482,7 +478,7 @@ msgstr "ໂຫຼດສະຖານະຄືນໃໝ່"
 msgid "Restricted mode"
 msgstr "ໂໝດຈຳກັດ"
 
-#: src/web/server/common/mails_voter.ml:242
+#: src/web/server/common/mails_voter.ml:239
 msgid "Results will be published on the election page"
 msgstr "ຜົນການເລືອກຕັ້ງຈະຖືກເຜີຍແຜ່ໃນໜ້າການເລືອກຕັ້ງ"
 
@@ -506,8 +502,8 @@ msgstr "ຕັ້ງຄ່າ"
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr "ມີຫຼາຍເຕັກນິກໃນການຕັດສິນໃຈເລືອກຜູ້ສະໝັກ ເມື່ອບໍ່ມີຜູ້ຊະນະແບບ Condorcet."
 
-#. src/web/clients/jslib/belenios_jslib.ml:264
 #: src/web/clients/jslib/belenios_jslib.ml:278
+#. src/web/clients/jslib/belenios_jslib.ml:264
 msgid "Smart ballot tracker"
 msgstr "ລະຫັດຕິດຕາມບັດອັດສະລິຍະ"
 
@@ -519,10 +515,10 @@ msgstr "ຂໍ້ມູນຈຳເພາະ"
 msgid "Start"
 msgstr "ເລີ່ມຕົ້ນ"
 
+#: src/web/clients/election/advanced.ml:101
 #. src/web/clients/election/advanced.ml:62
 #. src/web/server/common/pages_common.ml:554
 #. src/web/server/common/pages_common.ml:470
-#: src/web/clients/election/advanced.ml:101
 msgid "Submit"
 msgstr "ສົ່ງ"
 
@@ -606,7 +602,7 @@ msgstr "ການເລືອກຕັ້ງນີ້ຖືກຈັດເກັ
 msgid "This election is currently closed."
 msgstr "ການເລືອກຕັ້ງນີ້ປິດຢູ່ໃນຂະນະນີ້."
 
-#: src/web/server/common/mails_voter.ml:232 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:229 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
 msgstr "ການລົງຄະແນນສຽງນີ້ຈະປ່ຽນແທນການລົງຄະແນນສຽງກ່ອນໜ້ານີ້ທັງໝົດ."
 
@@ -614,11 +610,11 @@ msgstr "ການລົງຄະແນນສຽງນີ້ຈະປ່ຽນແ
 msgid "Tie:"
 msgstr "ຄະແນນເທົ່າກັນ:"
 
-#: src/web/server/common/mails_voter.ml:128
+#: src/web/server/common/mails_voter.ml:125
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr "ເພື່ອລົງຄະແນນສຽງ, ທ່ານຍັງຕ້ອງການລະຫັດຜ່ານ, ເຊິ່ງຖືກສົ່ງໃນອີເມວຕ່າງຫາກ."
 
-#: src/web/server/common/mails_voter.ml:93
+#: src/web/server/common/mails_voter.ml:90
 msgid "To get more information, please contact:"
 msgstr "ເພື່ອຂໍຂໍ້ມູນເພີ່ມເຕີມ, ກະລຸນາຕິດຕໍ່:"
 
@@ -634,13 +630,13 @@ msgstr "ຜູ້ຮັກສາລະຫັດໄດ້ສຸ່ມລຳດັ
 msgid "Unsupported question type"
 msgstr "ປະເພດຄຳຖາມທີ່ບໍ່ຮອງຮັບ"
 
-#: src/web/server/common/mails_voter.ml:274
+#: src/web/server/common/mails_voter.ml:271
 msgid "Use the following code:"
 msgstr "ໃຊ້ລະຫັດຕໍ່ໄປນີ້:"
 
-#. src/web/server/common/pages_common.ml:287
-#. src/web/server/common/mails_voter.ml:140
 #: src/web/server/common/pages_common.ml:355
+#. src/web/server/common/pages_common.ml:287
+#. src/web/server/common/mails_voter.ml:137
 msgid "Username:"
 msgstr "ຊື່ຜູ້ໃຊ້:"
 
@@ -656,12 +652,12 @@ msgstr "ນ້ຳໜັກລວມຂອງຜູ້ມີສິດເລືອ
 msgid "Warning:"
 msgstr "ຄຳເຕືອນ:"
 
-#: src/web/server/common/mails_voter.ml:295
+#: src/web/server/common/mails_voter.ml:292
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "ຄຳເຕືອນ: ລະຫັດນີ້ມີອາຍຸ 15 ນາທີ, ແລະ ລະຫັດກ່ອນໜ້ານີ້ທີ່ສົ່ງຫາທີ່ຢູ່ນີ້ຈະບໍ່ສາມາດໃຊ້ໄດ້ອີກຕໍ່ໄປ."
 
-#: src/web/server/common/mails_voter.ml:107
+#: src/web/server/common/mails_voter.ml:104
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr "ຄຳເຕືອນ: ອີເມວນີ້ມີຂໍ້ມູນສ່ວນຕົວ ແລະ ຂໍ້ມູນລັບ ແລະ ບໍ່ຄວນຖືກສົ່ງຕໍ່."
 
@@ -678,7 +674,7 @@ msgstr "ຕ້ອງການຊ່ວຍໃນການແປພາສາບໍ
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr "ທ່ານກຳລັງຈະສົ່ງບັດດ້ວຍລະຫັດຕິດຕາມບັດອັດສະລິຍະ %s."
 
-#: src/web/server/common/mails_voter.ml:156
+#: src/web/server/common/mails_voter.ml:153
 msgid "You are allowed to vote several times."
 msgstr "ທ່ານໄດ້ຮັບອະນຸຍາດໃຫ້ລົງຄະແນນສຽງໄດ້ຫຼາຍຄັ້ງ."
 
@@ -690,7 +686,7 @@ msgstr "ທ່ານກຳລັງຢືນຢັນຕົວຕົນໃນນ
 msgid "You are authenticating as an administrator."
 msgstr "ທ່ານກຳລັງຢືນຢັນຕົວຕົນໃນນາມຜູ້ບໍລິຫານ."
 
-#: src/web/server/common/mails_voter.ml:112
+#: src/web/server/common/mails_voter.ml:109
 msgid "You are listed as a voter for the election"
 msgstr "ທ່ານມີລາຍຊື່ເປັນຜູ້ມີສິດເລືອກຕັ້ງສຳລັບການເລືອກຕັ້ງ"
 
@@ -714,7 +710,7 @@ msgstr "ທ່ານຍັງສາມາດດາວໂຫຼດ "
 msgid "You can check its presence in the "
 msgstr "ທ່ານສາມາດກວດສອບວ່າມັນມີຢູ່ຫຼືບໍ່ໃນ "
 
-#: src/web/server/common/mails_voter.ml:236
+#: src/web/server/common/mails_voter.ml:233
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "ທ່ານສາມາດກວດສອບວ່າມັນມີຢູ່ຫຼືບໍ່ໃນຫີບບັດ, ເຂົ້າເຖິງໄດ້ທີ່"
 
@@ -735,20 +731,20 @@ msgstr "ທ່ານບໍ່ສາມາດເຂົ້າສູ່ລະບົ
 msgid "Your ballot for "
 msgstr "ບັດຂອງທ່ານສຳລັບ "
 
-#: src/web/server/common/mails_voter.ml:178
+#: src/web/server/common/mails_voter.ml:175
 msgid "Your credential for election %s"
 msgstr "ໃບຢັ້ງຢືນຂອງທ່ານສຳລັບການເລືອກຕັ້ງ %s"
 
-#: src/web/server/common/mails_voter.ml:144
+#: src/web/server/common/mails_voter.ml:141
 msgid "Your credential:"
 msgstr "ໃບຢັ້ງຢືນຂອງທ່ານ:"
 
-#: src/web/server/common/mails_voter.ml:271
+#: src/web/server/common/mails_voter.ml:268
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "ທີ່ຢູ່ອີເມວຂອງທ່ານໄດ້ຖືກນຳໃຊ້ເພື່ອຢືນຢັນຕົວຕົນກັບເຊີເວີ Belenios ຂອງພວກເຮົາ."
 
-#: src/web/server/common/mails_voter.ml:224
+#: src/web/server/common/mails_voter.ml:221
 msgid "Your smart ballot tracker is"
 msgstr "ລະຫັດຕິດຕາມບັດອັດສະລິຍະຂອງທ່ານແມ່ນ"
 
@@ -756,11 +752,11 @@ msgstr "ລະຫັດຕິດຕາມບັດອັດສະລິຍະຂ
 msgid "Your smart ballot tracker is "
 msgstr "ລະຫັດຕິດຕາມບັດອັດສະລິຍະຂອງທ່ານແມ່ນ "
 
-#: src/web/server/common/mails_voter.ml:210
+#: src/web/server/common/mails_voter.ml:207
 msgid "Your vote for election"
 msgstr "ການລົງຄະແນນສຽງຂອງທ່ານສຳລັບການເລືອກຕັ້ງ"
 
-#: src/web/server/common/mails_voter.ml:204
+#: src/web/server/common/mails_voter.ml:201
 msgid "Your vote for election %s"
 msgstr "ການລົງຄະແນນສຽງຂອງທ່ານສຳລັບການເລືອກຕັ້ງ %s"
 
@@ -768,7 +764,7 @@ msgstr "ການລົງຄະແນນສຽງຂອງທ່ານສຳລ
 msgid "Your vote was not recorded!"
 msgstr "ການລົງຄະແນນສຽງຂອງທ່ານບໍ່ຖືກບັນທຶກ!"
 
-#: src/web/server/common/mails_voter.ml:222 src/web/common/pages_common.ml:219
+#: src/web/server/common/mails_voter.ml:219 src/web/common/pages_common.ml:219
 msgid "Your weight is %s."
 msgstr "ນ້ຳໜັກຂອງທ່ານແມ່ນ %s."
 
@@ -788,7 +784,7 @@ msgstr "ສ້າງບັນຊີ"
 msgid "direct link"
 msgstr "ລິ້ງໂດຍກົງ"
 
-#: src/web/server/common/mails_voter.ml:217
+#: src/web/server/common/mails_voter.ml:214
 msgid "has been recorded."
 msgstr "ໄດ້ຖືກບັນທຶກແລ້ວ."
 
@@ -879,3 +875,4 @@ msgstr "ໃບຢັ້ງຢືນຂອງທ່ານບໍ່ຖືກຕ້
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "ຊື່ຜູ້ໃຊ້ຂອງທ່ານບໍ່ຖືກຕ້ອງ"
+

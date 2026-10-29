@@ -1,8 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -40,7 +36,7 @@ msgstr " ושמרו אותו במקום בטוח."
 msgid " and save the file to a secure location."
 msgstr " ושמרו את הקובץ במקום בטוח."
 
-#: src/web/clients/admin/elections.ml:1716
+#: src/web/clients/admin/elections.ml:1828
 msgid " and save them in a secure location."
 msgstr " ושמרו אותם במקום בטוח."
 
@@ -56,8 +52,8 @@ msgstr " בכל עת במהלך הבחירות."
 msgid " as user "
 msgstr " בתור המשתמש "
 
-#. src/web/server/common/pages_admin.ml:324
 #: src/web/server/common/pages_admin.ml:375
+#. src/web/server/common/pages_admin.ml:324
 msgid " because "
 msgstr " מהסיבה הבאה: "
 
@@ -65,21 +61,16 @@ msgstr " מהסיבה הבאה: "
 msgid " has been accepted."
 msgstr " התקבל."
 
-#. src/web/server/common/pages_admin.ml:224
 #: src/web/server/common/pages_admin.ml:257
+#. src/web/server/common/pages_admin.ml:224
 msgid " in the following box: "
 msgstr " בתיבה הבאה: "
-
-#. src/web/clients/admin/elections.ml:1066
-#: src/web/clients/admin/elections.ml:1069
-msgid " in txt format."
-msgstr " בפורמט txt."
 
 #: src/web/common/pages_common.ml:253
 msgid " is rejected, because "
 msgstr " נדחה. הסיבה: "
 
-#: src/web/clients/admin/elections.ml:1553
+#: src/web/clients/admin/elections.ml:1665
 msgid " or send them manually this link:"
 msgstr " או שלחו להם את הקישור הזה באופן ידני:"
 
@@ -91,11 +82,7 @@ msgstr " או שם משתמש: "
 msgid " your contribution to decryption."
 msgstr " את תרומתכם לפענוח."
 
-#: src/web/clients/admin/elections.ml:817
-msgid "%d registered voter(s)"
-msgstr "%d בוחרים רשומים"
-
-#: src/web/clients/admin/admin.ml:167
+#: src/web/clients/admin/admin.ml:168
 msgid "(no title)"
 msgstr "(ללא כותרת)"
 
@@ -103,8 +90,8 @@ msgstr "(ללא כותרת)"
 msgid "(none)"
 msgstr "(ללא)"
 
-#. src/web/server/common/pages_admin.ml:326
 #: src/web/server/common/pages_admin.ml:377
+#. src/web/server/common/pages_admin.ml:326
 msgid ". Please try again with a different one."
 msgstr ". אנא נסו שוב עם אחר."
 
@@ -120,7 +107,7 @@ msgstr "2. לחצו על \"יצירה\"."
 msgid "3. Download the private credentials (creds.txt) and save the file to a secure location."
 msgstr "3. הורידו את קודי ההצבעה הפרטיים (creds.txt) ושמרו את הקובץ במקום בטוח."
 
-#: src/web/clients/admin/elections.ml:1155
+#: src/web/clients/admin/elections.ml:1267
 msgid "30 minutes"
 msgstr "30 דקות"
 
@@ -154,7 +141,7 @@ msgstr "ניהול חשבון"
 msgid "Account not found"
 msgstr "החשבון לא נמצא"
 
-#: src/web/clients/admin/elections.ml:871
+#: src/web/clients/admin/elections.ml:881
 msgid "Add"
 msgstr "הוספה"
 
@@ -162,17 +149,17 @@ msgstr "הוספה"
 msgid "Add a grade"
 msgstr "הוספת דירוג"
 
-#. src/web/clients/admin/trustees_tab.ml:119
 #: src/web/clients/admin/trustees_tab.ml:158
+#. src/web/clients/admin/trustees_tab.ml:119
 msgid "Add a trustee"
 msgstr "הוספת נאמן"
 
-#: src/web/clients/admin/elections.ml:806
+#: src/web/clients/admin/elections.ml:799
 msgid "Address"
 msgstr "כתובת"
 
-#. src/web/clients/admin/admin.ml:62
 #: src/web/clients/admin/admin.ml:73 src/web/clients/admin/admin.ml:72
+#. src/web/clients/admin/admin.ml:62
 msgid "Administration"
 msgstr "ניהול"
 
@@ -200,15 +187,11 @@ msgstr "הודעת דואל עם קישור נשלחה אל %s."
 msgid "An error occurred while applying the shuffle."
 msgstr "אירעה שגיאה בעת הערבוב."
 
-#: src/web/clients/admin/common.ml:125
-msgid "An error occurred while retrieving elections: %s"
-msgstr "אירעה שגיאה בעת אחזור הבחירות: %s"
-
 #: src/web/clients/credauth/generate.ml:74
 msgid "An error occurred while submitting credentials!"
 msgstr "אירעה שגיאה בעת שליחת קודי ההצבעה!"
 
-#: src/web/clients/admin/elections.ml:982
+#: src/web/clients/admin/elections.ml:1099
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
 "זהות היא \"כתובת\", או \"כתובת,שם משתמש\", או \"כתובת,שם משתמש,משקל\", או "
@@ -216,11 +199,11 @@ msgstr ""
 "המשויך לצורך אימות, ו\"משקל\" הוא מספר הקולות של הבוחר/ת (למקרה שלא לכל "
 "הבוחרים יש אותו מספר קולות)."
 
-#: src/web/clients/basic/admin_basic.ml:217
+#: src/web/clients/basic/admin_basic.ml:218
 msgid "Archived elections"
 msgstr "בחירות בארכיון"
 
-#: src/web/clients/admin/admin.ml:211
+#: src/web/clients/admin/admin.ml:212
 msgid "Archived elections:"
 msgstr "בחירות בארכיון:"
 
@@ -254,26 +237,26 @@ msgstr "כנאמנים, תפקידכם הראשון הוא לערבב את פת�
 msgid "Authentication method: "
 msgstr "שיטת אימות: "
 
-#: src/web/clients/admin/elections.ml:2081
+#: src/web/clients/admin/elections.ml:2193
 msgid "Automatic cleaning"
 msgstr "ניקוי אוטומטי"
 
-#: src/web/clients/admin/elections.ml:1092
+#: src/web/clients/admin/elections.ml:1204
 msgid "Automatic dates"
 msgstr "תאריכים אוטומטיים"
 
+#: src/web/server/common/mails_admin.ml:168
 #. src/web/server/common/mails_admin.ml:117
 #. src/web/server/common/mails_admin.ml:83
 #. src/web/server/common/mails_admin.ml:49
-#: src/web/server/common/mails_admin.ml:168
 msgid "Best regards,"
 msgstr "בברכה,"
 
-#: src/web/clients/admin/elections.ml:1519
+#: src/web/clients/admin/elections.ml:1631
 msgid "By a third-party of your choice"
 msgstr "על ידי צד שלישי לבחירתכם"
 
-#: src/web/clients/admin/elections.ml:1463
+#: src/web/clients/admin/elections.ml:1575
 msgid "By our server (not ideal for decentralized security)"
 msgstr "על ידי השרת שלנו (לא אידיאלי לאבטחה מבוזרת)"
 
@@ -285,11 +268,11 @@ msgstr "אם אתם בוחרים להמשיך, אתם מאשרים בזה:"
 msgid "By using this site, you accept our "
 msgstr "אם אתם בוחרים להשתמש באתר זה, אתם מקבלים את "
 
-#: src/web/clients/admin/elections.ml:1822
+#: src/web/clients/admin/elections.ml:1934
 msgid "CAS (external authentication server, offers better security guarantees when applicable)"
 msgstr "CAS (שרת אימות חיצוני, מספק ערובות אבטחה טובות יותר במקרים המתאימים)"
 
-#: src/web/clients/admin/trustees_tab.ml:111 src/web/clients/admin/common.ml:151
+#: src/web/clients/admin/trustees_tab.ml:111
 msgid "Cancel"
 msgstr "ביטול"
 
@@ -297,11 +280,11 @@ msgstr "ביטול"
 msgid "Change e-mail address"
 msgstr "שינוי כתובת הדואל"
 
+#: src/web/server/common/site_admin.ml:359
 #. src/web/server/common/site_admin.ml:244
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
-#: src/web/server/common/site_admin.ml:359
 msgid "Change password"
 msgstr "שינוי הסיסמה"
 
@@ -309,20 +292,20 @@ msgstr "שינוי הסיסמה"
 msgid "Check certificate"
 msgstr "בדיקת התעודה"
 
-#: src/web/clients/admin/elections.ml:641
+#: src/web/clients/admin/elections.ml:636
 msgid "Clear logo"
 msgstr "הסרת הלוגו"
 
+#: src/web/clients/admin/elections.ml:2085
 #. src/web/clients/common/secondary_ui.ml:80
-#: src/web/clients/admin/elections.ml:1973
 msgid "Close"
 msgstr "סגירה"
 
-#: src/web/clients/admin/elections.ml:1180
+#: src/web/clients/admin/elections.ml:1292
 msgid "Close: "
 msgstr "סגירה: "
 
-#: src/web/clients/admin/elections.ml:1305
+#: src/web/clients/admin/elections.ml:1417
 msgid "Code"
 msgstr "קוד"
 
@@ -346,11 +329,11 @@ msgstr "שיטת קונדורסה-שולצה"
 msgid "Contact"
 msgstr "פרטי יצירת קשר"
 
-#: src/web/clients/admin/elections.ml:1391
+#: src/web/clients/admin/elections.ml:1503
 msgid "Contact:"
 msgstr "פרטי יצירת קשר:"
 
-#: src/web/clients/admin/admin.ml:381
+#: src/web/clients/admin/admin.ml:382
 msgid "Could not get configuration from server! (%s)"
 msgstr "לא הצלחתי לקבל את התצורה מהשרת! (%s)"
 
@@ -362,7 +345,7 @@ msgstr "לא הצלחתי לקבל את היסטוריית הזיכויים!"
 msgid "Could not get parameters!"
 msgstr "לא הצלחתי לקבל את הפרמטרים!"
 
-#: src/web/clients/admin/elections.ml:1911
+#: src/web/clients/admin/elections.ml:2023
 msgid "Create"
 msgstr "יצירה"
 
@@ -370,18 +353,18 @@ msgstr "יצירה"
 msgid "Create a new board"
 msgstr "יצירת ועדת נאמנים חדשה"
 
-#: src/web/clients/admin/admin.ml:270
+#: src/web/clients/admin/admin.ml:271
 msgid "Create a new election"
 msgstr "יצירת בחירות חדשות"
 
+#: src/web/server/common/site_admin.ml:329
 #. src/web/server/common/site_admin.ml:200
 #. src/web/server/common/mails_admin.ml:56
-#: src/web/server/common/site_admin.ml:329
 msgid "Create account"
 msgstr "יצירת חשבון"
 
-#. src/web/server/common/pages_admin.ml:233
 #: src/web/server/common/pages_admin.ml:353
+#. src/web/server/common/pages_admin.ml:233
 msgid "Create an account"
 msgstr "ליצור חשבון"
 
@@ -413,7 +396,7 @@ msgstr "פרוטוקול מנפיק קודי ההצבעה"
 msgid "Credential generation"
 msgstr "יצירת קודי הצבעה"
 
-#: src/web/clients/admin/elections.ml:1589
+#: src/web/clients/admin/elections.ml:1701
 msgid "Credential operator"
 msgstr "מפעיל קודי ההצבעה"
 
@@ -421,7 +404,7 @@ msgstr "מפעיל קודי ההצבעה"
 msgid "Credential operator interface"
 msgstr "ממשק מפעיל קודי ההצבעה"
 
-#: src/web/clients/admin/elections.ml:1580
+#: src/web/clients/admin/elections.ml:1692
 msgid "Credential server"
 msgstr "שרת קודי ההצבעה"
 
@@ -429,7 +412,7 @@ msgstr "שרת קודי ההצבעה"
 msgid "Credential server:"
 msgstr "שרת קודי ההצבעה:"
 
-#: src/web/clients/admin/elections.ml:1737
+#: src/web/clients/admin/elections.ml:1849
 msgid "Credentials are being generated on the server."
 msgstr "קודי ההצבעה נוצרים בשרת."
 
@@ -437,7 +420,7 @@ msgstr "קודי ההצבעה נוצרים בשרת."
 msgid "Credentials have been received and checked!"
 msgstr "קודי ההצבעה התקבלו ונבדקו!"
 
-#: src/web/clients/admin/elections.ml:1726
+#: src/web/clients/admin/elections.ml:1838
 msgid "Credentials have been received from the external credential authority."
 msgstr "קודי ההצבעה התקבלו ממנפיק קודי ההצבעה החיצוני."
 
@@ -445,9 +428,13 @@ msgstr "קודי ההצבעה התקבלו ממנפיק קודי ההצבעה ה
 msgid "Credit variation"
 msgstr "שינוי בזיכויים"
 
-#: src/web/clients/admin/elections.ml:1032
-msgid "Current turnout: %d / %d = %.2f %%"
-msgstr "אחוז ההצבעה הנוכחי: %d / %d = %.2f %%"
+#: src/web/clients/admin/elections.ml:995
+msgid "Current turnout:"
+msgstr ""
+
+#: src/web/clients/admin/elections.ml:1008
+msgid "Current weighted turnout:"
+msgstr ""
 
 #: src/web/clients/trustee/generate.ml:225
 msgid "Data submission failed! Please refresh and/or restart from the beginning."
@@ -465,14 +452,14 @@ msgstr "תאריך ושעה"
 msgid "Dates"
 msgstr "תאריכים"
 
-#: src/web/clients/admin/elections.ml:1226
+#: src/web/clients/admin/elections.ml:1338
 msgid "Dates can no longer be defined for this election."
 msgstr "לא ניתן עוד להגדיר תאריכים לבחירות אלה."
 
+#: src/web/server/common/mails_admin.ml:147
 #. src/web/server/common/mails_admin.ml:97
 #. src/web/server/common/mails_admin.ml:63
 #. src/web/server/common/mails_admin.ml:29
-#: src/web/server/common/mails_admin.ml:147
 msgid "Dear %s,"
 msgstr "שלום %s,"
 
@@ -500,17 +487,17 @@ msgstr "פרטי יצירת קשר ברירת מחדל לבחירות חדשות
 msgid "Default languages for new elections:"
 msgstr "שפות ברירת מחדל לבחירות חדשות:"
 
-#: src/web/clients/admin/elections.ml:1891
+#: src/web/clients/admin/elections.ml:2003
 msgid "Default mode:"
 msgstr "מצב ברירת מחדל:"
 
-#: src/web/clients/admin/elections.ml:1210
+#: src/web/clients/admin/elections.ml:1322
 msgid "Defining this date will block finalization of the tallying process until this date. By default, when not set, results are published as soon as possible."
 msgstr ""
 "הגדרת תאריך זה תחסום את סיום תהליך ספירת הקולות עד למועד זה. כברירת מחדל, "
 "כאשר הוא אינו מוגדר, התוצאות מתפרסמות בהקדם האפשרי."
 
-#: src/web/clients/admin/elections.ml:860
+#: src/web/clients/admin/elections.ml:869
 msgid "Delete all"
 msgstr "מחיקת הכול"
 
@@ -518,25 +505,33 @@ msgstr "מחיקת הכול"
 msgid "Delete the election"
 msgstr "מחיקת הבחירות"
 
-#: src/web/clients/admin/elections.ml:672 src/web/clients/admin/elections.ml:657
+#: src/web/clients/admin/elections.ml:692 src/web/clients/admin/elections.ml:675
 msgid "Description:"
 msgstr "תיאור:"
 
-#: src/web/clients/admin/elections.ml:1331
+#: src/web/clients/admin/elections.ml:1443
 msgid "Direction: "
 msgstr "כיוון: "
 
-#. src/web/clients/admin/trustees_tab.ml:524
+#: src/web/clients/admin/elections.ml:669
+msgid "Do not allow revoting"
+msgstr ""
+
 #: src/web/clients/admin/trustees_tab.ml:621
+#. src/web/clients/admin/trustees_tab.ml:524
 msgid "Done?"
 msgstr "הושלם?"
 
-#. src/web/clients/credauth/generate.ml:119
 #: src/web/clients/credauth/generate.ml:127
+#. src/web/clients/credauth/generate.ml:119
 msgid "Download "
 msgstr "הורדה של "
 
-#: src/web/clients/admin/elections.ml:2027
+#: src/web/clients/admin/elections.ml:1174
+msgid "Download full lists in JSON format"
+msgstr ""
+
+#: src/web/clients/admin/elections.ml:2139
 msgid "Download sealing log"
 msgstr "הורדת יומן נעילת הבחירות"
 
@@ -550,12 +545,12 @@ msgstr ""
 "הורידו את המפתח הפרטי שלכם. הקפידו לשמור אותו כראוי, אחרת לא ניתן יהיה לספור "
 "את הקולות והבחירות יבוטלו."
 
-#: src/web/clients/admin/elections.ml:1846
+#: src/web/clients/admin/elections.ml:1958
 msgid "Dummy auth (should not be used in production): "
 msgstr "אימות דמה (אין להשתמש בו בסביבת ייצור): "
 
-#. src/web/server/common/pages_admin.ml:214
 #: src/web/server/common/pages_admin.ml:244
+#. src/web/server/common/pages_admin.ml:214
 msgid "E-mail address:"
 msgstr "כתובת דואל:"
 
@@ -571,11 +566,11 @@ msgstr "עריכת הפרופיל"
 msgid "Election identifier:"
 msgstr "מזהה הבחירות:"
 
-#: src/web/clients/admin/elections.ml:1974
+#: src/web/clients/admin/elections.ml:2086
 msgid "Election is currently closed"
 msgstr "הבחירות סגורות כעת"
 
-#: src/web/clients/admin/elections.ml:1973
+#: src/web/clients/admin/elections.ml:2085
 msgid "Election is currently open"
 msgstr "הבחירות פתוחות כעת"
 
@@ -583,10 +578,10 @@ msgstr "הבחירות פתוחות כעת"
 msgid "Election main page"
 msgstr "העמוד הראשי של הבחירות"
 
+#: src/web/server/common/pages_admin.ml:190
 #. src/web/server/common/pages_admin.ml:45
 #. src/web/common/pages_common.ml:143
 #. src/web/common/pages_common.ml:134
-#: src/web/server/common/pages_admin.ml:190
 msgid "Election server"
 msgstr "שרת הבחירות"
 
@@ -594,7 +589,7 @@ msgstr "שרת הבחירות"
 msgid "Election server:"
 msgstr "שרת הבחירות:"
 
-#: src/web/clients/admin/elections.ml:2097
+#: src/web/clients/admin/elections.ml:2209
 msgid "Election status"
 msgstr "סטטוס הבחירות"
 
@@ -602,25 +597,25 @@ msgstr "סטטוס הבחירות"
 msgid "Elections associated to this electoral board"
 msgstr "הבחירות המשויכות לוועדת נאמנים זו"
 
-#: src/web/clients/basic/admin_basic.ml:211
+#: src/web/clients/basic/admin_basic.ml:212
 msgid "Elections being prepared"
 msgstr "בחירות בהכנה"
 
-#: src/web/clients/admin/admin.ml:179
+#: src/web/clients/admin/admin.ml:180
 msgid "Elections being setup:"
 msgstr "בחירות בהקמה:"
 
-#: src/web/clients/basic/admin_basic.ml:213
+#: src/web/clients/basic/admin_basic.ml:214
 msgid "Elections you can administer"
 msgstr "בחירות שאתם יכולים לנהל"
 
-#: src/web/clients/admin/elections.ml:1124
+#: src/web/clients/admin/elections.ml:1236
 msgid "Erase"
 msgstr "מחיקה"
 
+#: src/web/clients/credop/credop.ml:89 src/web/clients/credauth/generate.ml:163
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/server/common/site_admin.ml:146
-#: src/web/clients/credop/credop.ml:89 src/web/clients/credauth/generate.ml:163
 msgid "Error"
 msgstr "שגיאה"
 
@@ -644,7 +639,7 @@ msgstr "שגיאה בעיבוד המפתח הפרטי. האם טענתם את ה
 msgid "Error while retrieving election!"
 msgstr "שגיאה באחזור הבחירות!"
 
-#: src/web/clients/admin/elections.ml:1784
+#: src/web/clients/admin/elections.ml:1896
 msgid "Error while retrieving server configuration: %s"
 msgstr "שגיאה באחזור תצורת השרת: %s"
 
@@ -660,14 +655,10 @@ msgstr "מעריך את זמן החישוב…"
 msgid "FAIL!"
 msgstr "נכשל!"
 
-#. src/web/clients/admin/trustees_tab.ml:516
 #: src/web/clients/admin/trustees_tab.ml:612
+#. src/web/clients/admin/trustees_tab.ml:516
 msgid "Failed to connect; please reload"
 msgstr "ההתחברות נכשלה; אנא טענו מחדש"
-
-#: src/web/clients/admin/common.ml:91
-msgid "Failed to sync data to server, code %d"
-msgstr "סנכרון הנתונים לשרת נכשל. קוד השגיאה: %d"
 
 #: src/web/clients/admin/trustees_tab.ml:742
 msgid "Failed with error %d!"
@@ -676,6 +667,10 @@ msgstr "נכשל. קוד השגיאה: %d!"
 #: src/web/clients/credop/credop.ml:258
 msgid "Failure"
 msgstr "כישלון"
+
+#: src/web/clients/admin/elections.ml:921
+msgid "Filter voters by username prefix"
+msgstr ""
 
 #: src/web/clients/credauth/generate.ml:106
 msgid "Fingerprint of public credentials:"
@@ -697,7 +692,7 @@ msgstr "יצירה אוטומטית"
 msgid "Generate a key"
 msgstr "יצירת מפתח"
 
-#: src/web/clients/admin/elections.ml:1469
+#: src/web/clients/admin/elections.ml:1581
 msgid "Generate and send the credentials"
 msgstr "יצירת קודי ההצבעה ושליחתם"
 
@@ -713,7 +708,7 @@ msgstr "הורדת קוד המקור"
 msgid "Go back to election"
 msgstr "חזרה לבחירות"
 
-#: src/web/clients/admin/elections.ml:1170
+#: src/web/clients/admin/elections.ml:1282
 msgid "Grace period: "
 msgstr "תקופת חסד: "
 
@@ -725,7 +720,7 @@ msgstr "דירוג הצעות"
 msgid "Here are the instructions:"
 msgstr "להלן ההוראות:"
 
-#: src/web/clients/admin/admin.ml:325 src/web/server/common/pages_admin.ml:91
+#: src/web/clients/admin/admin.ml:326 src/web/server/common/pages_admin.ml:91
 msgid "Home"
 msgstr "דף הבית"
 
@@ -741,11 +736,11 @@ msgstr "אם אין לכם חשבון, תוכלו "
 msgid "Impersonate a user"
 msgstr "התחזות למשתמש"
 
-#: src/web/clients/admin/elections.ml:999
+#: src/web/clients/admin/elections.ml:1116
 msgid "Import voters "
 msgstr "ייבוא בוחרים "
 
-#: src/web/clients/admin/elections.ml:1142
+#: src/web/clients/admin/elections.ml:1254
 msgid "In %d minutes"
 msgstr "בעוד %d דקות"
 
@@ -757,7 +752,7 @@ msgstr "מצב לא עקבי!"
 msgid "Incorrect code"
 msgstr "קוד שגוי"
 
-#: src/web/clients/admin/elections.ml:1605
+#: src/web/clients/admin/elections.ml:1717
 msgid "Initiate protocol"
 msgstr "הפעלת הפרוטוקול"
 
@@ -773,9 +768,9 @@ msgstr "הוספת שאלה"
 msgid "Insert an answer"
 msgstr "הוספת תשובה"
 
+#: src/web/clients/credauth/generate.ml:114
 #. src/web/clients/trustee/decrypt.ml:125
 #. src/web/clients/trustee/generate.ml:174
-#: src/web/clients/credauth/generate.ml:114
 msgid "Instructions:"
 msgstr "הוראות:"
 
@@ -787,7 +782,7 @@ msgstr "מזהה ועדה שגוי!"
 msgid "It is now time to compute your partial decryption factors."
 msgstr "הגיע הזמן לחשב את גורמי הפענוח החלקי שלכם."
 
-#: src/web/clients/admin/elections.ml:1305
+#: src/web/clients/admin/elections.ml:1417
 msgid "Language"
 msgstr "שפה"
 
@@ -795,7 +790,7 @@ msgstr "שפה"
 msgid "Language for administrator interface:"
 msgstr "שפת ממשק הניהול:"
 
-#: src/web/clients/admin/elections.ml:1312
+#: src/web/clients/admin/elections.ml:1424
 msgid "Language of metadata"
 msgstr "שפת המטא-נתונים"
 
@@ -803,7 +798,7 @@ msgstr "שפת המטא-נתונים"
 msgid "Language:"
 msgstr "שפה:"
 
-#: src/web/clients/admin/elections.ml:1326
+#: src/web/clients/admin/elections.ml:1438
 msgid "Language: "
 msgstr "שפה: "
 
@@ -811,27 +806,22 @@ msgstr "שפה: "
 msgid "Languages"
 msgstr "שפות"
 
-#: src/web/clients/admin/elections.ml:1335
+#: src/web/clients/admin/elections.ml:1447
 msgid "Languages of spontaneous e-mails"
 msgstr "שפות ההודעות היזומות"
 
-#: src/web/clients/admin/elections.ml:1311
+#: src/web/clients/admin/elections.ml:1423
 msgid "Languages:"
 msgstr "שפות:"
 
-#: src/web/clients/admin/elections.ml:1277
+#: src/web/clients/admin/elections.ml:1389
 msgid "Left to right"
 msgstr "משמאל לימין"
 
-#. src/web/clients/admin/trustees_tab.ml:414
 #: src/web/clients/admin/trustees_tab.ml:523
+#. src/web/clients/admin/trustees_tab.ml:414
 msgid "Link to send"
 msgstr "הקישור לשליחה"
-
-#. src/web/clients/admin/elections.ml:1066
-#: src/web/clients/admin/elections.ml:1069
-msgid "Link to the "
-msgstr "קישור אל "
 
 #: src/web/common/mails_admin.ml:167
 msgid "Link to trustee interface"
@@ -841,7 +831,7 @@ msgstr "קישור לממשק הנאמן"
 msgid "List name:"
 msgstr "שם הרשימה:"
 
-#: src/web/clients/admin/elections.ml:1351
+#: src/web/clients/admin/elections.ml:1463
 msgid "List of available languages, with their code:"
 msgstr "רשימת השפות הזמינות, עם הקוד שלהן:"
 
@@ -849,7 +839,7 @@ msgstr "רשימת השפות הזמינות, עם הקוד שלהן:"
 msgid "Lists"
 msgstr "רשימות"
 
-#: src/web/clients/admin/admin.ml:372
+#: src/web/clients/admin/admin.ml:373
 msgid "Loading..."
 msgstr "טוען..."
 
@@ -861,16 +851,16 @@ msgstr "התחברות באמצעות"
 msgid "Log in:"
 msgstr "התחברות:"
 
+#: src/web/clients/admin/admin.ml:349 src/web/clients/admin/account.ml:207
 #. src/web/server/common/pages_admin.ml:110
-#: src/web/clients/admin/admin.ml:348 src/web/clients/admin/account.ml:207
 msgid "Log out"
 msgstr "התנתקות"
 
-#: src/web/clients/admin/elections.ml:805
+#: src/web/clients/admin/elections.ml:798
 msgid "Login"
 msgstr "התחברות"
 
-#: src/web/clients/admin/elections.ml:659
+#: src/web/clients/admin/elections.ml:677
 msgid "Logo:"
 msgstr "לוגו:"
 
@@ -882,7 +872,7 @@ msgstr "העמוד הראשי של הבחירות ייפתח בלשונית חד
 msgid "Management"
 msgstr "ניהול"
 
-#: src/web/clients/admin/elections.ml:1766
+#: src/web/clients/admin/elections.ml:1878
 msgid "Management of credentials:"
 msgstr "ניהול קודי ההצבעה:"
 
@@ -894,6 +884,10 @@ msgstr "מספר הבחירות המרבי לסימון"
 msgid "Minimal number of choices to select"
 msgstr "מספר הבחירות המזערי לסימון"
 
+#: src/web/clients/admin/elections.ml:679
+msgid "Miscellaneous:"
+msgstr ""
+
 #: src/web/clients/credop/credop.ml:100
 msgid "Missing secret key. You must come to this page by following the full link that has been sent to you by e-mail."
 msgstr "חסר מפתח סודי. עליכם להגיע לעמוד זה דרך הקישור המלא שנשלח אליכם בדואל."
@@ -902,19 +896,19 @@ msgstr "חסר מפתח סודי. עליכם להגיע לעמוד זה דרך �
 msgid "Missing voters"
 msgstr "בוחרים חסרים"
 
-#: src/web/clients/admin/admin.ml:249
+#: src/web/clients/admin/admin.ml:250
 msgid "My archived elections"
 msgstr "הבחירות שלי בארכיון"
 
-#: src/web/clients/admin/admin.ml:247
+#: src/web/clients/admin/admin.ml:248
 msgid "My draft elections"
 msgstr "טיוטות הבחירות שלי"
 
-#: src/web/clients/admin/admin.ml:248
+#: src/web/clients/admin/admin.ml:249
 msgid "My running elections"
 msgstr "הבחירות הפעילות שלי"
 
-#: src/web/clients/admin/elections.ml:1660
+#: src/web/clients/admin/elections.ml:1772
 msgid "Name of the credential authority"
 msgstr "שם מנפיק קודי ההצבעה"
 
@@ -930,8 +924,8 @@ msgstr "ברירת המחדל של הדפדפן"
 msgid "New answer"
 msgstr "תשובה חדשה"
 
-#. src/web/clients/admin/questions.ml:688
 #: src/web/clients/admin/questions.ml:787 src/web/clients/admin/questions.ml:764
+#. src/web/clients/admin/questions.ml:688
 msgid "New candidate"
 msgstr "מועמד חדש"
 
@@ -952,7 +946,7 @@ msgid "No external trustee were set. Do you confirm that you trust the server fo
 msgstr ""
 "לא הוגדרו נאמנים חיצוניים. האם אתם מאשרים שאתם סומכים על השרת בנוגע לפרטיות?"
 
-#: src/web/clients/admin/elections.ml:625
+#: src/web/clients/admin/elections.ml:620
 msgid "No logo set."
 msgstr "לא הוגדר לוגו."
 
@@ -960,13 +954,17 @@ msgstr "לא הוגדר לוגו."
 msgid "Nothing to show here. Try going to the Status tab."
 msgstr "אין מה להציג כאן. נסו לעבור ללשונית הסטטוס."
 
-#: src/web/clients/admin/elections.ml:1739
+#: src/web/clients/admin/elections.ml:1851
 msgid "Number of credentials left: %d."
 msgstr "מספר קודי ההצבעה שנותרו: %d."
 
 #: src/web/clients/admin/questions.ml:447
 msgid "Number of seats:"
 msgstr "מספר המושבים:"
+
+#: src/web/clients/admin/elections.ml:972
+msgid "Number of voters:"
+msgstr ""
 
 #: src/web/common/mails_admin.ml:131
 msgid "On first connection, you will generate a private key."
@@ -994,7 +992,7 @@ msgstr ""
 msgid "Once the election is open, you must check that they match with what is published by the server."
 msgstr "לאחר שהבחירות ייפתחו, עליכם לוודא שהן תואמות למה שמפורסם על ידי השרת."
 
-#: src/web/clients/admin/elections.ml:1974
+#: src/web/clients/admin/elections.ml:2086
 msgid "Open"
 msgstr "פתיחה"
 
@@ -1006,7 +1004,7 @@ msgstr "פתיחה / סגירה"
 msgid "Open the link and follow the instructions."
 msgstr "פתחו את הקישור ופעלו לפי ההוראות."
 
-#: src/web/clients/admin/elections.ml:1177
+#: src/web/clients/admin/elections.ml:1289
 msgid "Open: "
 msgstr "פתיחה: "
 
@@ -1014,7 +1012,7 @@ msgstr "פתיחה: "
 msgid "Operator interface:"
 msgstr "ממשק המפעיל:"
 
-#: src/web/clients/admin/elections.ml:1893
+#: src/web/clients/admin/elections.ml:2005
 msgid "Other authentication modes:"
 msgstr "שיטות אימות אחרות:"
 
@@ -1026,7 +1024,7 @@ msgstr "פענוח חלקי"
 msgid "Partial decryption submission failed unexpectedly!"
 msgstr "שליחת הפענוח החלקי נכשלה באופן בלתי צפוי!"
 
-#: src/web/clients/admin/elections.ml:1861
+#: src/web/clients/admin/elections.ml:1973
 msgid "Password sent by e-mail when voting (a short password, renewed for each vote)"
 msgstr "סיסמה שנשלחת בדואל בעת ההצבעה (סיסמה קצרה, המתחדשת בכל הצבעה)"
 
@@ -1042,12 +1040,12 @@ msgstr "אנא בחרו סיסמה: "
 msgid "Please choose a username: "
 msgstr "אנא בחרו שם משתמש: "
 
-#: src/web/clients/admin/elections.ml:1714
+#: src/web/clients/admin/elections.ml:1826
 msgid "Please download "
 msgstr "אנא הורידו את "
 
-#. src/web/server/common/pages_admin.ml:222
 #: src/web/server/common/pages_admin.ml:255
+#. src/web/server/common/pages_admin.ml:222
 msgid "Please enter "
 msgstr "אנא הזינו "
 
@@ -1055,7 +1053,7 @@ msgstr "אנא הזינו "
 msgid "Please enter the code here:"
 msgstr "אנא הזינו כאן את הקוד:"
 
-#: src/web/clients/admin/elections.ml:965
+#: src/web/clients/admin/elections.ml:1082
 msgid "Please enter the identities of voters to add, one per line (max %s)."
 msgstr "אנא הזינו את זהויות הבוחרים להוספה, אחת בכל שורה (לכל היותר %s)."
 
@@ -1063,7 +1061,7 @@ msgstr "אנא הזינו את זהויות הבוחרים להוספה, אחת 
 msgid "Please enter the verification code received by e-mail:"
 msgstr "אנא הזינו את קוד האימות שהתקבל בדואל:"
 
-#: src/web/clients/admin/elections.ml:1777
+#: src/web/clients/admin/elections.ml:1889
 msgid "Please fill-in the voter list first."
 msgstr "אנא מלאו תחילה את רשימת הבוחרים."
 
@@ -1074,10 +1072,6 @@ msgstr "אנא טענו את המפתח הפרטי שלכם מקובץ:"
 #: src/web/server/common/pages_admin.ml:433
 msgid "Please provide one:"
 msgstr "אנא ספקו אחת:"
-
-#: src/web/clients/admin/common.ml:163
-msgid "Please select the election from which you want to import data:"
-msgstr "אנא בחרו את הבחירות שמהן ברצונכם לייבא נתונים:"
 
 #: src/web/clients/trustee/shuffle.ml:122
 msgid "Please wait…"
@@ -1111,10 +1105,10 @@ msgstr "התצוגה המקדימה תיפתח בלשונית חדשה"
 msgid "Private key is missing!"
 msgstr "המפתח הפרטי חסר!"
 
+#: src/web/server/common/pages_admin.ml:505
 #. src/web/server/common/pages_admin.ml:492
 #. src/web/server/common/pages_admin.ml:466
 #. src/web/server/common/pages_admin.ml:437
-#: src/web/server/common/pages_admin.ml:505
 msgid "Proceed"
 msgstr "המשך"
 
@@ -1146,15 +1140,15 @@ msgstr "רישום המפתח הציבורי נכשל! אנא רעננו ו/או
 msgid "Public key registration succeeded!"
 msgstr "רישום המפתח הציבורי הצליח!"
 
-#: src/web/clients/admin/elections.ml:1404
+#: src/web/clients/admin/elections.ml:1516
 msgid "Public name of the administrator:"
 msgstr "השם הפומבי של מנהל הבחירות:"
 
-#: src/web/clients/admin/elections.ml:1397
+#: src/web/clients/admin/elections.ml:1509
 msgid "Public name of the administrator: "
 msgstr "השם הפומבי של מנהל הבחירות: "
 
-#: src/web/clients/admin/elections.ml:1199
+#: src/web/clients/admin/elections.ml:1311
 msgid "Publish: "
 msgstr "פרסום: "
 
@@ -1178,14 +1172,14 @@ msgstr "שאלות:"
 msgid "Questions (non editable):"
 msgstr "שאלות (אינן ניתנות לעריכה):"
 
-#: src/web/clients/admin/elections.ml:1958
+#: src/web/clients/admin/elections.ml:2070
 msgid "Ready to create:"
 msgstr "מוכן ליצירה:"
 
+#: src/web/clients/trustee/trustee.ml:197
 #. src/web/clients/admin/trustees_tab.ml:699
 #. src/web/clients/admin/trustees_tab.ml:544
 #. src/web/clients/admin/trustees_tab.ml:438
-#: src/web/clients/trustee/trustee.ml:197
 msgid "Refresh status"
 msgstr "רענון הסטטוס"
 
@@ -1220,15 +1214,15 @@ msgstr "איפוס והתחלה מחדש"
 msgid "Restricted mode"
 msgstr "מצב מוגבל"
 
-#: src/web/clients/admin/elections.ml:2125 src/web/clients/admin/elections.ml:283
+#: src/web/clients/admin/elections.ml:2237 src/web/clients/admin/elections.ml:283
 msgid "Results page"
 msgstr "עמוד התוצאות"
 
-#: src/web/clients/admin/elections.ml:1278
+#: src/web/clients/admin/elections.ml:1390
 msgid "Right to left"
 msgstr "מימין לשמאל"
 
-#: src/web/clients/admin/admin.ml:207
+#: src/web/clients/admin/admin.ml:208
 msgid "Running or finished elections:"
 msgstr "בחירות פעילות או שהסתיימו:"
 
@@ -1250,20 +1244,20 @@ msgstr ""
 msgid "Save the two fingerprints above."
 msgstr "שמרו את שתי טביעות האצבע הרשומות למעלה."
 
-#: src/web/clients/admin/elections.ml:2011
+#: src/web/clients/admin/elections.ml:2123
 msgid "Seal"
 msgstr "נעילת הבחירות"
 
-#: src/web/clients/admin/elections.ml:2037
+#: src/web/clients/admin/elections.ml:2149
 msgid "Sealing"
 msgstr "נעילת הבחירות"
 
-#: src/web/clients/admin/elections.ml:2043
+#: src/web/clients/admin/elections.ml:2155
 msgid "Sealing allows you to freeze some election properties such as automatic dates."
 msgstr ""
 "נעילת הבחירות מאפשרת לכם להקפיא חלק ממאפייני הבחירות, כגון תאריכים אוטומטיים."
 
-#: src/web/clients/admin/elections.ml:2048
+#: src/web/clients/admin/elections.ml:2160
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
 msgstr ""
 "פעולות נעילת הבחירות וביטול הנעילה נרשמות ביומן, וטביעת האצבע של היומן "
@@ -1289,7 +1283,7 @@ msgstr "בחירת נאמן זה"
 msgid "Selecting CAS authentication requires setting a valid CAS server"
 msgstr "בחירה באימות CAS מחייבת הגדרת שרת CAS תקין"
 
-#: src/web/clients/admin/elections.ml:1552
+#: src/web/clients/admin/elections.ml:1664
 msgid "Send an e-mail to the credential authority"
 msgstr "שליחת הודעת דואל למנפיק קודי ההצבעה"
 
@@ -1297,11 +1291,11 @@ msgstr "שליחת הודעת דואל למנפיק קודי ההצבעה"
 msgid "Send link"
 msgstr "שליחת הקישור"
 
-#: src/web/clients/admin/elections.ml:626
+#: src/web/clients/admin/elections.ml:621
 msgid "Set a logo (.png, max. 10 KB): "
 msgstr "הגדרת לוגו (.png, עד 10 KB): "
 
-#: src/web/clients/admin/elections.ml:1596
+#: src/web/clients/admin/elections.ml:1708
 msgid "Set credential authority info"
 msgstr "הגדרת פרטי מנפיק קודי ההצבעה"
 
@@ -1313,7 +1307,7 @@ msgstr "הגדרת ועדת הנאמנים נכשלה עם קוד %d!"
 msgid "Setup: "
 msgstr "הקמה: "
 
-#: src/web/clients/admin/elections.ml:1056
+#: src/web/clients/admin/elections.ml:1151
 msgid "Show only missing voters"
 msgstr "הצגת בוחרים חסרים בלבד"
 
@@ -1333,7 +1327,7 @@ msgstr "דילוג"
 msgid "Skip all remaining trustees"
 msgstr "דילוג על כל הנאמנים הנותרים"
 
-#: src/web/clients/admin/elections.ml:1252
+#: src/web/clients/admin/elections.ml:1364
 msgid "Some language in the list is not available"
 msgstr "אחת השפות ברשימה אינה זמינה"
 
@@ -1345,7 +1339,7 @@ msgstr "חלק מהבוחרים:"
 msgid "Someone is trying to associate your e-mail address to an account on our Belenios server."
 msgstr "מישהו מנסה לשייך את כתובת הדואל שלכם לחשבון בשרת בלניוס שלנו."
 
-#: src/web/clients/admin/elections.ml:1948
+#: src/web/clients/admin/elections.ml:2060
 msgid "Something is wrong with the configuration of voter authentication! Maybe an invalid CAS server was given?"
 msgstr "משהו שגוי בתצורת אימות הבוחרים! ייתכן שסופק שרת CAS לא תקין?"
 
@@ -1357,8 +1351,8 @@ msgstr "סידור ההצעות"
 msgid "Specification"
 msgstr "מפרט"
 
-#. src/web/clients/admin/elections.ml:403
 #: src/web/clients/admin/trustees_tab.ml:415
+#. src/web/clients/admin/elections.ml:403
 msgid "Status"
 msgstr "סטטוס"
 
@@ -1366,12 +1360,12 @@ msgstr "סטטוס"
 msgid "Step %d/7"
 msgstr "שלב %d/7"
 
+#: src/web/clients/trustee/shuffle.ml:159 src/web/clients/trustee/decrypt.ml:76
 #. src/web/server/common/pages_admin.ml:404
 #. src/web/server/common/pages_admin.ml:348
 #. src/web/server/common/pages_admin.ml:292
 #. src/web/server/common/pages_admin.ml:260
 #. src/web/server/common/pages_admin.ml:227
-#: src/web/clients/trustee/shuffle.ml:159 src/web/clients/trustee/decrypt.ml:76
 msgid "Submit"
 msgstr "שליחה"
 
@@ -1399,7 +1393,7 @@ msgstr "הצלחה"
 msgid "Success?"
 msgstr "הצלחה?"
 
-#: src/web/clients/basic/admin_basic.ml:215
+#: src/web/clients/basic/admin_basic.ml:216
 msgid "Tallied elections"
 msgstr "בחירות שנספרו"
 
@@ -1435,7 +1429,7 @@ msgstr "יצירת החשבון "
 msgid "The account has been created."
 msgstr "החשבון נוצר."
 
-#: src/web/clients/admin/elections.ml:2132
+#: src/web/clients/admin/elections.ml:2244
 msgid "The archive can be downloaded at: "
 msgstr "ניתן להוריד את הארכיון בכתובת: "
 
@@ -1455,7 +1449,7 @@ msgstr "השינוי "
 msgid "The election administrator"
 msgstr "מנהל הבחירות"
 
-#: src/web/clients/admin/elections.ml:2011
+#: src/web/clients/admin/elections.ml:2123
 msgid "The election is not sealed."
 msgstr "הבחירות אינן נעולות."
 
@@ -1463,7 +1457,7 @@ msgstr "הבחירות אינן נעולות."
 msgid "The election result is already published!"
 msgstr "תוצאות הבחירות כבר פורסמו!"
 
-#: src/web/clients/admin/elections.ml:613
+#: src/web/clients/admin/elections.ml:608
 msgid "The file is too large! It must be < 10 KB."
 msgstr "הקובץ גדול מדי! עליו להיות קטן מ-10 קילובייט."
 
@@ -1503,26 +1497,20 @@ msgstr "הקוד שסופק שגוי. אנא חזרו אחורה ונסו שוב
 msgid "The secret key is not valid!"
 msgstr "המפתח הסודי אינו תקין!"
 
-#. src/web/clients/admin/trustees_tab.ml:83
 #: src/web/clients/admin/trustees_tab.ml:334
+#. src/web/clients/admin/trustees_tab.ml:83
 msgid "The server is always one of the trustees"
 msgstr "השרת הוא תמיד אחד הנאמנים"
-
-#: src/web/clients/admin/common.ml:100
-msgid "The server is in readonly mode, you cannot perform changes. Please reload the page to discard pending changes."
-msgstr ""
-"השרת נמצא במצב קריאה בלבד, לא ניתן לבצע שינויים. אנא טענו מחדש את העמוד כדי "
-"לבטל שינויים ממתינים."
 
 #: src/web/clients/trustee/shuffle.ml:168
 msgid "The shuffle has been successfully applied!"
 msgstr "הערבוב הוחל בהצלחה!"
 
-#: src/web/clients/admin/elections.ml:2106
+#: src/web/clients/admin/elections.ml:2218
 msgid "The tally for this election has started."
 msgstr "ספירת הקולות בבחירות אלה החלה."
 
-#: src/web/clients/admin/elections.ml:1479
+#: src/web/clients/admin/elections.ml:1591
 msgid "The voter list is empty!"
 msgstr "רשימת הבוחרים ריקה!"
 
@@ -1530,15 +1518,11 @@ msgstr "רשימת הבוחרים ריקה!"
 msgid "There has been a request to change the password of your account on our Belenios server."
 msgstr "התקבלה בקשה לשינוי הסיסמה של החשבון שלכם בשרת בלניוס שלנו."
 
-#: src/web/clients/admin/elections.ml:762 src/web/clients/admin/elections.ml:721
+#: src/web/clients/admin/elections.ml:770 src/web/clients/admin/elections.ml:740
 msgid "There is an error in the voter list! (%s)"
 msgstr "יש שגיאה ברשימת הבוחרים! (%s)"
 
-#: src/web/clients/admin/elections.ml:769
-msgid "There is an unexpected error in the voter list!"
-msgstr "יש שגיאה בלתי צפויה ברשימת הבוחרים!"
-
-#: src/web/clients/admin/elections.ml:726
+#: src/web/clients/admin/elections.ml:745
 msgid "There is an unexpected syntax error in the voter list!"
 msgstr "יש שגיאת תחביר בלתי צפויה ברשימת הבוחרים!"
 
@@ -1554,7 +1538,7 @@ msgstr "אין כרגע ועדת נאמנים."
 msgid "This account does not exist"
 msgstr "החשבון הזה אינו קיים"
 
-#: src/web/clients/admin/elections.ml:1394
+#: src/web/clients/admin/elections.ml:1506
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr "פרטי יצירת קשר אלה יתווספו להודעות הדואל הנשלחות לבוחרים."
 
@@ -1562,43 +1546,43 @@ msgstr "פרטי יצירת קשר אלה יתווספו להודעות הדוא
 msgid "This e-mail address is invalid!"
 msgstr "כתובת הדואל הזו אינה תקינה!"
 
-#: src/web/clients/admin/elections.ml:2114
+#: src/web/clients/admin/elections.ml:2226
 msgid "This election has been tallied"
 msgstr "הקולות בבחירות אלה נספרו"
 
-#: src/web/clients/admin/elections.ml:2100
+#: src/web/clients/admin/elections.ml:2212
 msgid "This election is a draft."
 msgstr "בחירות אלה הן טיוטה."
 
-#: src/web/clients/admin/elections.ml:2115
+#: src/web/clients/admin/elections.ml:2227
 msgid "This election is archived"
 msgstr "בחירות אלה נשמרו בארכיון"
 
-#: src/web/clients/admin/elections.ml:2110
+#: src/web/clients/admin/elections.ml:2222
 msgid "This election is in shuffling phase."
 msgstr "בחירות אלה נמצאות בשלב הערבוב."
 
-#: src/web/clients/admin/elections.ml:2102
+#: src/web/clients/admin/elections.ml:2214
 msgid "This election is running."
 msgstr "בחירות אלה פעילות."
 
-#: src/web/clients/admin/elections.ml:2010
+#: src/web/clients/admin/elections.ml:2122
 msgid "This election is sealed."
 msgstr "בחירות אלה נעולות."
 
-#: src/web/clients/admin/elections.ml:2074
+#: src/web/clients/admin/elections.ml:2186
 msgid "This election will be automatically archived after %s."
 msgstr "בחירות אלה יישמרו בארכיון באופן אוטומטי לאחר %s."
 
-#: src/web/clients/admin/elections.ml:2088
+#: src/web/clients/admin/elections.ml:2200
 msgid "This election will be automatically deleted after %s."
 msgstr "בחירות אלה יימחקו באופן אוטומטי לאחר %s."
 
-#: src/web/clients/admin/elections.ml:1342
+#: src/web/clients/admin/elections.ml:1454
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr "זוהי רשימת שפות מופרדת ברווחים, שתשמש בהודעות הדואל הנשלחות מהשרת."
 
-#: src/web/clients/admin/elections.ml:1318
+#: src/web/clients/admin/elections.ml:1430
 msgid "This is the language of election title, description and questions."
 msgstr "זוהי השפה של כותרת הבחירות, התיאור והשאלות."
 
@@ -1606,7 +1590,7 @@ msgstr "זוהי השפה של כותרת הבחירות, התיאור והשא�
 msgid "This list must be the one approved by the election commission."
 msgstr "רשימה זו חייבת להיות זו שאושרה על ידי ועדת הבחירות."
 
-#: src/web/clients/admin/elections.ml:1399
+#: src/web/clients/admin/elections.ml:1511
 msgid "This name will be published on the election result page."
 msgstr "שם זה יפורסם בעמוד תוצאות הבחירות."
 
@@ -1622,7 +1606,7 @@ msgstr "מצב סף"
 msgid "Title"
 msgstr "כותרת"
 
-#: src/web/clients/admin/elections.ml:670 src/web/clients/admin/elections.ml:655
+#: src/web/clients/admin/elections.ml:690 src/web/clients/admin/elections.ml:673
 msgid "Title:"
 msgstr "כותרת:"
 
@@ -1634,8 +1618,8 @@ msgstr "כדי לנהל בחירות עליכם להתחבר."
 msgid "To confirm this creation, please use the following code:"
 msgstr "לאישור היצירה, אנא השתמשו בקוד הבא:"
 
-#. src/web/server/common/mails_admin.ml:70
 #: src/web/server/common/mails_admin.ml:104
+#. src/web/server/common/mails_admin.ml:70
 msgid "To confirm this, please use the following code:"
 msgstr "לאישור, אנא השתמשו בקוד הבא:"
 
@@ -1652,6 +1636,10 @@ msgstr ""
 #: src/web/clients/admin/questions.ml:1001
 msgid "Total complexity:"
 msgstr "מורכבות כוללת:"
+
+#: src/web/clients/admin/elections.ml:984
+msgid "Total weight:"
+msgstr ""
 
 #: src/web/clients/trustee/generate.ml:322
 msgid "Trustee key generation"
@@ -1673,10 +1661,10 @@ msgstr "הקמת הנאמנים - שלב 1: בחירת הנאמנים"
 msgid "Trustee setup - Step 2: key generation"
 msgstr "הקמת הנאמנים - שלב 2: יצירת מפתחות"
 
+#: src/web/clients/admin/trustees_tab.ml:522
 #. src/web/clients/admin/trustees_tab.ml:412
 #. src/web/clients/admin/trustees_tab.ml:324
 #. src/web/clients/admin/trustees_tab.ml:73
-#: src/web/clients/admin/trustees_tab.ml:522
 msgid "Trustee's e-mail"
 msgstr "הדואל של הנאמן"
 
@@ -1688,8 +1676,8 @@ msgstr "הדואל של הנאמן "
 msgid "Trustee's name"
 msgstr "שם הנאמן"
 
-#. src/web/clients/admin/trustees_tab.ml:74
 #: src/web/clients/admin/trustees_tab.ml:325
+#. src/web/clients/admin/trustees_tab.ml:74
 msgid "Trustee's public name"
 msgstr "השם הפומבי של הנאמן"
 
@@ -1701,8 +1689,8 @@ msgstr "השם הפומבי של הנאמן "
 msgid "Type of answer:"
 msgstr "סוג התשובה:"
 
-#. src/web/server/common/pages_admin.ml:344
 #: src/web/server/common/pages_admin.ml:400
+#. src/web/server/common/pages_admin.ml:344
 msgid "Type the password again: "
 msgstr "הקלידו שוב את הסיסמה: "
 
@@ -1710,19 +1698,19 @@ msgstr "הקלידו שוב את הסיסמה: "
 msgid "Unknown state!"
 msgstr "מצב לא ידוע!"
 
-#: src/web/clients/admin/admin.ml:459
+#: src/web/clients/admin/admin.ml:460
 msgid "Unknown uuid"
 msgstr "מזהה לא ידוע"
 
-#: src/web/clients/admin/elections.ml:2010
+#: src/web/clients/admin/elections.ml:2122
 msgid "Unseal"
 msgstr "ביטול נעילת הבחירות"
 
-#: src/web/clients/admin/elections.ml:898
+#: src/web/clients/admin/elections.ml:907
 msgid "Upload voter file"
 msgstr "העלאת קובץ בוחרים"
 
-#: src/web/clients/admin/elections.ml:1573
+#: src/web/clients/admin/elections.ml:1685
 msgid "Use an external server"
 msgstr "שימוש בשרת חיצוני"
 
@@ -1738,20 +1726,24 @@ msgstr "אישור הוועדה"
 msgid "Variation kind"
 msgstr "סוג השינוי"
 
-#: src/web/clients/admin/elections.ml:1026 src/web/clients/admin/elections.ml:175
+#: src/web/clients/admin/elections.ml:1180
+msgid "View voter list"
+msgstr ""
+
+#: src/web/clients/admin/elections.ml:1143 src/web/clients/admin/elections.ml:175
 msgid "Voter list"
 msgstr "רשימת הבוחרים"
 
-#: src/web/clients/admin/elections.ml:930
+#: src/web/clients/admin/elections.ml:1049
 msgid "Voter list (not editable):"
 msgstr "רשימת הבוחרים (אינה ניתנת לעריכה):"
 
-#. src/web/clients/admin/elections.ml:931
 #: src/web/clients/credauth/generate.ml:199
+#. src/web/clients/admin/elections.ml:1050
 msgid "Voter list:"
 msgstr "רשימת הבוחרים:"
 
-#: src/web/clients/admin/elections.ml:1061
+#: src/web/clients/admin/elections.ml:1173
 msgid "Voter list (not editable):"
 msgstr "רשימת הבוחרים (אינה ניתנת לעריכה):"
 
@@ -1759,12 +1751,12 @@ msgstr "רשימת הבוחרים (אינה ניתנת לעריכה):"
 msgid "Voter's authentication"
 msgstr "אימות הבוחרים"
 
-#. src/web/clients/admin/elections.ml:1789
-#: src/web/clients/admin/elections.ml:1897
+#: src/web/clients/admin/elections.ml:2009
+#. src/web/clients/admin/elections.ml:1901
 msgid "Voter's authentication:"
 msgstr "אימות הבוחרים:"
 
-#: src/web/clients/admin/elections.ml:1021
+#: src/web/clients/admin/elections.ml:1138
 msgid "Voting records"
 msgstr "רישומי ההצבעה"
 
@@ -1772,13 +1764,13 @@ msgstr "רישומי ההצבעה"
 msgid "Waiting for the election administrator to set the threshold..."
 msgstr "מחכים שמנהל הבחירות יגדיר את הסף..."
 
+#: src/web/clients/trustee/generate.ml:297
 #. src/web/clients/trustee/generate.ml:233
 #. src/web/clients/trustee/generate.ml:215
-#: src/web/clients/trustee/generate.ml:297
 msgid "Waiting for the other trustees..."
 msgstr "מחכים לשאר הנאמנים..."
 
-#: src/web/clients/admin/elections.ml:861
+#: src/web/clients/admin/elections.ml:870
 msgid "Warning, this action is irreversible"
 msgstr "אזהרה, פעולה זו בלתי הפיכה"
 
@@ -1786,28 +1778,28 @@ msgstr "אזהרה, פעולה זו בלתי הפיכה"
 msgid "Warning, this will delete the current list of trustees"
 msgstr "אזהרה, פעולה זו תמחק את רשימת הנאמנים הנוכחית"
 
-#: src/web/clients/admin/elections.ml:936
+#: src/web/clients/admin/elections.ml:1055
 msgid "Warning:"
 msgstr "אזהרה:"
 
+#: src/web/server/common/mails_admin.ml:112
 #. src/web/server/common/mails_admin.ml:78
 #. src/web/server/common/mails_admin.ml:44
-#: src/web/server/common/mails_admin.ml:112
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "אזהרה: תוקף הקוד הוא 15 דקות, וקודים קודמים שנשלחו לכתובת זו אינם תקפים עוד."
 
-#: src/web/clients/admin/elections.ml:1959
+#: src/web/clients/admin/elections.ml:2071
 msgid "Warning: this is irreversible!"
 msgstr "אזהרה: פעולה זו בלתי הפיכה!"
 
-#. src/web/clients/admin/elections.ml:1556
-#. src/web/clients/admin/elections.ml:1490
-#: src/web/clients/admin/elections.ml:1621
+#: src/web/clients/admin/elections.ml:1733
+#. src/web/clients/admin/elections.ml:1668
+#. src/web/clients/admin/elections.ml:1602
 msgid "Warning: this will freeze the voter list!"
 msgstr "אזהרה: פעולה זו תקפיא את רשימת הבוחרים!"
 
-#: src/web/clients/admin/elections.ml:807
+#: src/web/clients/admin/elections.ml:800
 msgid "Weight"
 msgstr "משקל"
 
@@ -1901,7 +1893,7 @@ msgstr "תשתמשו בו כדי לפענח את התוצאה הסופית."
 msgid "You will use it to send credentials to voters."
 msgstr "תשתמשו בו כדי לשלוח קודי הצבעה לבוחרים."
 
-#: src/web/clients/admin/elections.ml:945
+#: src/web/clients/admin/elections.ml:1064
 msgid "You won't be able to change the e-mail addresses once the credentials are created. Voters with invalid e-mail addresses won't be able to vote."
 msgstr ""
 "לא תוכלו לשנות את כתובות הדואל לאחר שקודי ההצבעה ייווצרו. בוחרים עם כתובות "
@@ -1911,8 +1903,8 @@ msgstr ""
 msgid "Your ballot for "
 msgstr "פתק ההצבעה שלכם עבור "
 
-#. src/web/server/common/pages_admin.ml:442
 #: src/web/server/common/pages_admin.ml:475
+#. src/web/server/common/pages_admin.ml:442
 msgid "Your e-mail address"
 msgstr "כתובת הדואל שלכם"
 
@@ -1934,15 +1926,15 @@ msgstr ""
 msgid "Your partial decryption has been received and checked!"
 msgstr "הפענוח החלקי שלכם התקבל ונבדק!"
 
+#: src/web/clients/trustee/generate.ml:308
 #. src/web/clients/trustee/generate.ml:296
 #. src/web/clients/trustee/generate.ml:263
-#: src/web/clients/trustee/generate.ml:308
 msgid "Your private key is valid!"
 msgstr "המפתח הפרטי שלכם תקין!"
 
+#: src/web/clients/trustee/generate.ml:305
 #. src/web/clients/trustee/generate.ml:292
 #. src/web/clients/trustee/generate.ml:260
-#: src/web/clients/trustee/generate.ml:305
 msgid "Your public key has already been registered!"
 msgstr "המפתח הציבורי שלכם כבר נרשם!"
 
@@ -1970,7 +1962,7 @@ msgstr "כבוחר/ת בבחירות %s."
 msgid "as an administrator."
 msgstr "כמנהל בחירות."
 
-#: src/web/clients/admin/elections.ml:754
+#: src/web/clients/admin/elections.ml:762
 msgid "bad voter: %s"
 msgstr "בוחר/ת שגוי/ה: %s"
 
@@ -1986,28 +1978,28 @@ msgstr "צרו קשר"
 msgid "done"
 msgstr "הושלם"
 
-#: src/web/clients/admin/elections.ml:752
+#: src/web/clients/admin/elections.ml:760
 msgid "duplicate voter: %s"
 msgstr "בוחר/ת כפול/ה: %s"
 
-#: src/web/clients/admin/elections.ml:848
+#: src/web/clients/admin/elections.ml:844
 msgid "empty list"
 msgstr "רשימה ריקה"
 
-#. src/web/server/common/pages_admin.ml:323
 #: src/web/server/common/pages_admin.ml:374
+#. src/web/server/common/pages_admin.ml:323
 msgid "failed"
 msgstr "נכשל"
 
-#: src/web/clients/admin/elections.ml:1005
+#: src/web/clients/admin/elections.ml:1122
 msgid "from a file: "
 msgstr "מקובץ: "
 
-#: src/web/clients/admin/elections.ml:875
+#: src/web/clients/admin/elections.ml:885
 msgid "from another election"
 msgstr "מבחירות אחרות"
 
-#: src/web/clients/admin/elections.ml:719
+#: src/web/clients/admin/elections.ml:738
 msgid "invalid identity: %s"
 msgstr "זהות לא תקינה: %s"
 
@@ -2043,8 +2035,8 @@ msgstr "שלב %d/7"
 msgid "step 0?"
 msgstr "שלב 0?"
 
-#. src/web/server/common/pages_admin.ml:51
 #: src/web/clients/common/secondary_ui.ml:71
+#. src/web/server/common/pages_admin.ml:51
 msgid "terms of service"
 msgstr "תנאי השימוש"
 
@@ -2064,12 +2056,12 @@ msgstr "הסיסמה חלשה מדי (%s)"
 msgid "the password starts or ends with a space"
 msgstr "הסיסמה מתחילה או מסתיימת ברווח"
 
-#: src/web/clients/admin/elections.ml:1709
+#: src/web/clients/admin/elections.ml:1821
 msgid "the private parts of the credentials"
 msgstr "החלקים הפרטיים של קודי ההצבעה"
 
-#. src/web/server/common/pages_admin.ml:315
 #: src/web/server/common/pages_admin.ml:364
+#. src/web/server/common/pages_admin.ml:315
 msgid "the two passwords are not the same"
 msgstr "שתי הסיסמאות אינן זהות"
 
@@ -2093,15 +2085,15 @@ msgstr "יש שגיאה במסד הנתונים"
 msgid "to access:"
 msgstr "לגישה:"
 
-#: src/web/clients/admin/elections.ml:757
+#: src/web/clients/admin/elections.ml:765
 msgid "total weight too big: %s/%s"
 msgstr "המשקל הכולל גדול מדי: %s/%s"
 
-#: src/web/clients/admin/elections.ml:852
+#: src/web/clients/admin/elections.ml:861
 msgid "typical use"
 msgstr "שימוש טיפוסי"
 
-#: src/web/clients/admin/elections.ml:808
+#: src/web/clients/admin/elections.ml:801
 msgid "voted?"
 msgstr "הצביע?"
 
@@ -2109,11 +2101,11 @@ msgstr "הצביע?"
 msgid "voter list"
 msgstr "רשימת הבוחרים"
 
-#: src/web/clients/admin/elections.ml:854
+#: src/web/clients/admin/elections.ml:863
 msgid "when a login is needed, e.g. CAS"
 msgstr "כאשר נדרשת התחברות, למשל CAS"
 
-#: src/web/clients/admin/elections.ml:856
+#: src/web/clients/admin/elections.ml:865
 msgid "when some voters have several votes"
 msgstr "כאשר לחלק מהבוחרים יש מספר קולות"
 
@@ -2121,7 +2113,7 @@ msgstr "כאשר לחלק מהבוחרים יש מספר קולות"
 msgid "yes"
 msgstr "כן"
 
-#: src/web/clients/admin/elections.ml:939
+#: src/web/clients/admin/elections.ml:1058
 msgid "you have to make sure that the e-mail addresses are valid."
 msgstr "עליכם לוודא שכתובות הדואל תקינות."
 
@@ -2136,3 +2128,4 @@ msgstr "כתובת הדואל שלכם:"
 #: src/web/server/common/pages_admin.ml:530
 msgid "your name:"
 msgstr "שמכם:"
+

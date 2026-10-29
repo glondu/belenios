@@ -35,7 +35,7 @@ msgstr " ja salvestage see turvalisse kohta."
 msgid " and save the file to a secure location."
 msgstr " ja salvestage fail turvalisse kohta."
 
-#: src/web/clients/admin/elections.ml:1716
+#: src/web/clients/admin/elections.ml:1828
 msgid " and save them in a secure location."
 msgstr " ja hoidke neid turvalises kohas."
 
@@ -65,16 +65,11 @@ msgstr " on heaks kiidetud."
 msgid " in the following box: "
 msgstr " järgmisse lahtrisse: "
 
-#: src/web/clients/admin/elections.ml:1069
-#. src/web/clients/admin/elections.ml:1066
-msgid " in txt format."
-msgstr " txt-vormingus."
-
 #: src/web/common/pages_common.ml:253
 msgid " is rejected, because "
 msgstr " lükatakse tagasi, sest "
 
-#: src/web/clients/admin/elections.ml:1553
+#: src/web/clients/admin/elections.ml:1665
 msgid " or send them manually this link:"
 msgstr " või saatke neile käsitsi see link:"
 
@@ -86,11 +81,7 @@ msgstr " või kasutajanimi: "
 msgid " your contribution to decryption."
 msgstr " teie panus dekrüpteerimisse."
 
-#: src/web/clients/admin/elections.ml:817
-msgid "%d registered voter(s)"
-msgstr "%d registreeritud valijat"
-
-#: src/web/clients/admin/admin.ml:167
+#: src/web/clients/admin/admin.ml:168
 msgid "(no title)"
 msgstr "(pealkirjata)"
 
@@ -117,7 +108,7 @@ msgstr ""
 "3. Laadige alla privaatsed autentimisandmed (creds.txt) ja salvestage fail "
 "turvalisse kohta."
 
-#: src/web/clients/admin/elections.ml:1155
+#: src/web/clients/admin/elections.ml:1267
 msgid "30 minutes"
 msgstr "30 minutit"
 
@@ -151,7 +142,7 @@ msgstr "Kontohaldus"
 msgid "Account not found"
 msgstr "Konto ei leitud"
 
-#: src/web/clients/admin/elections.ml:871
+#: src/web/clients/admin/elections.ml:881
 msgid "Add"
 msgstr "Lisa"
 
@@ -164,7 +155,7 @@ msgstr "Lisa hinne"
 msgid "Add a trustee"
 msgstr "Lisa usaldusisik"
 
-#: src/web/clients/admin/elections.ml:806
+#: src/web/clients/admin/elections.ml:799
 msgid "Address"
 msgstr ""
 
@@ -197,15 +188,11 @@ msgstr "%s-ile on saadetud lingiga e-kiri."
 msgid "An error occurred while applying the shuffle."
 msgstr "Segamise käivitamisel tekkis viga."
 
-#: src/web/clients/admin/common.ml:125
-msgid "An error occurred while retrieving elections: %s"
-msgstr "Valimiste andmete hankimisel tekkis viga: %s"
-
 #: src/web/clients/credauth/generate.ml:74
 msgid "An error occurred while submitting credentials!"
 msgstr "Autentimisandmete saatmisel tekkis viga!"
 
-#: src/web/clients/admin/elections.ml:982
+#: src/web/clients/admin/elections.ml:1099
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
 "Identiteet on kas \"aadress\" või \"aadress,kasutajanimi\" või "
@@ -214,11 +201,11 @@ msgstr ""
 "\"kaal\" on valija häälte arv (juhul kui valijatel pole kõigil sama palju "
 "hääli)."
 
-#: src/web/clients/basic/admin_basic.ml:217
+#: src/web/clients/basic/admin_basic.ml:218
 msgid "Archived elections"
 msgstr "Arhiveeritud valimised"
 
-#: src/web/clients/admin/admin.ml:211
+#: src/web/clients/admin/admin.ml:212
 msgid "Archived elections:"
 msgstr "Arhiveeritud valimised:"
 
@@ -253,11 +240,11 @@ msgstr ""
 msgid "Authentication method: "
 msgstr "Autentimismeetod: "
 
-#: src/web/clients/admin/elections.ml:2081
+#: src/web/clients/admin/elections.ml:2193
 msgid "Automatic cleaning"
 msgstr "Automaatne puhastamine"
 
-#: src/web/clients/admin/elections.ml:1092
+#: src/web/clients/admin/elections.ml:1204
 msgid "Automatic dates"
 msgstr "Automaatsed kuupäevad"
 
@@ -268,11 +255,11 @@ msgstr "Automaatsed kuupäevad"
 msgid "Best regards,"
 msgstr "Parimate soovidega,"
 
-#: src/web/clients/admin/elections.ml:1519
+#: src/web/clients/admin/elections.ml:1631
 msgid "By a third-party of your choice"
 msgstr "Teie valitud kolmanda osapoole poolt"
 
-#: src/web/clients/admin/elections.ml:1463
+#: src/web/clients/admin/elections.ml:1575
 msgid "By our server (not ideal for decentralized security)"
 msgstr ""
 "Meie serveri poolt (pole ideaalne detsentraliseeritud turvalisuse jaoks)"
@@ -285,12 +272,12 @@ msgstr "Jätkates annate loa:"
 msgid "By using this site, you accept our "
 msgstr "Selle saidi kasutamisega nõustute meie "
 
-#: src/web/clients/admin/elections.ml:1822
+#: src/web/clients/admin/elections.ml:1934
 msgid "CAS (external authentication server, offers better security guarantees when applicable)"
 msgstr ""
 "CAS (väline autentimisserver, pakub vajadusel paremaid turvagarantiisid)"
 
-#: src/web/clients/admin/trustees_tab.ml:111 src/web/clients/admin/common.ml:151
+#: src/web/clients/admin/trustees_tab.ml:111
 msgid "Cancel"
 msgstr "Tühista"
 
@@ -310,20 +297,20 @@ msgstr "Parooli muutmine"
 msgid "Check certificate"
 msgstr "Kontrolli sertifikaati"
 
-#: src/web/clients/admin/elections.ml:641
+#: src/web/clients/admin/elections.ml:636
 msgid "Clear logo"
 msgstr "Puhasta logo"
 
-#: src/web/clients/admin/elections.ml:1973
+#: src/web/clients/admin/elections.ml:2085
 #. src/web/clients/common/secondary_ui.ml:80
 msgid "Close"
 msgstr "Sulge"
 
-#: src/web/clients/admin/elections.ml:1180
+#: src/web/clients/admin/elections.ml:1292
 msgid "Close: "
 msgstr "Sulge: "
 
-#: src/web/clients/admin/elections.ml:1305
+#: src/web/clients/admin/elections.ml:1417
 msgid "Code"
 msgstr "Kood"
 
@@ -347,11 +334,11 @@ msgstr "Condorcet-Schulze meetod"
 msgid "Contact"
 msgstr "Kontakt"
 
-#: src/web/clients/admin/elections.ml:1391
+#: src/web/clients/admin/elections.ml:1503
 msgid "Contact:"
 msgstr "Kontakt:"
 
-#: src/web/clients/admin/admin.ml:381
+#: src/web/clients/admin/admin.ml:382
 msgid "Could not get configuration from server! (%s)"
 msgstr "Serverist ei õnnestunud konfiguratsiooni hankida! (%s)"
 
@@ -363,7 +350,7 @@ msgstr "Krediidiajalugu ei õnnestunud hankida!"
 msgid "Could not get parameters!"
 msgstr "Parameetreid ei õnnestunud hankida!"
 
-#: src/web/clients/admin/elections.ml:1911
+#: src/web/clients/admin/elections.ml:2023
 msgid "Create"
 msgstr "Tekita"
 
@@ -371,7 +358,7 @@ msgstr "Tekita"
 msgid "Create a new board"
 msgstr "Loo uus tahvel"
 
-#: src/web/clients/admin/admin.ml:270
+#: src/web/clients/admin/admin.ml:271
 msgid "Create a new election"
 msgstr "Loo uued valimised"
 
@@ -414,7 +401,7 @@ msgstr "Autentimisasutuse protokoll"
 msgid "Credential generation"
 msgstr "Autentimisandmete genereerimine"
 
-#: src/web/clients/admin/elections.ml:1589
+#: src/web/clients/admin/elections.ml:1701
 msgid "Credential operator"
 msgstr "Autentimisoperaator"
 
@@ -422,7 +409,7 @@ msgstr "Autentimisoperaator"
 msgid "Credential operator interface"
 msgstr "Autentimisandmete kasutajaliides"
 
-#: src/web/clients/admin/elections.ml:1580
+#: src/web/clients/admin/elections.ml:1692
 msgid "Credential server"
 msgstr "Autentimisserver"
 
@@ -430,7 +417,7 @@ msgstr "Autentimisserver"
 msgid "Credential server:"
 msgstr "Autentimisserver:"
 
-#: src/web/clients/admin/elections.ml:1737
+#: src/web/clients/admin/elections.ml:1849
 msgid "Credentials are being generated on the server."
 msgstr "Autentimisandmeid luuakse serveris."
 
@@ -438,7 +425,7 @@ msgstr "Autentimisandmeid luuakse serveris."
 msgid "Credentials have been received and checked!"
 msgstr "Kinnitusdokumendid on kätte saadud ja kontrollitud!"
 
-#: src/web/clients/admin/elections.ml:1726
+#: src/web/clients/admin/elections.ml:1838
 msgid "Credentials have been received from the external credential authority."
 msgstr "Väliselt volituste väljastajalt on saadud volitused."
 
@@ -446,9 +433,13 @@ msgstr "Väliselt volituste väljastajalt on saadud volitused."
 msgid "Credit variation"
 msgstr "Krediiditingimuste muutmine"
 
-#: src/web/clients/admin/elections.ml:1032
-msgid "Current turnout: %d / %d = %.2f %%"
-msgstr "Praegune osalusprotsent: %d / %d = %.2f %%"
+#: src/web/clients/admin/elections.ml:995
+msgid "Current turnout:"
+msgstr ""
+
+#: src/web/clients/admin/elections.ml:1008
+msgid "Current weighted turnout:"
+msgstr ""
 
 #: src/web/clients/trustee/generate.ml:225
 msgid "Data submission failed! Please refresh and/or restart from the beginning."
@@ -468,7 +459,7 @@ msgstr "Kuupäev ja kellaaeg"
 msgid "Dates"
 msgstr "Kuupäevad"
 
-#: src/web/clients/admin/elections.ml:1226
+#: src/web/clients/admin/elections.ml:1338
 msgid "Dates can no longer be defined for this election."
 msgstr "Selle valimise kuupäevi ei saa enam määrata."
 
@@ -503,18 +494,18 @@ msgstr "Uute valimiste puhul vaikimisi määratud kontaktisik: "
 msgid "Default languages for new elections:"
 msgstr "Uute valimiste vaikimisi keeled:"
 
-#: src/web/clients/admin/elections.ml:1891
+#: src/web/clients/admin/elections.ml:2003
 msgid "Default mode:"
 msgstr "Vaikimisi režiim:"
 
-#: src/web/clients/admin/elections.ml:1210
+#: src/web/clients/admin/elections.ml:1322
 msgid "Defining this date will block finalization of the tallying process until this date. By default, when not set, results are published as soon as possible."
 msgstr ""
 "Selle kuupäeva määramine takistab tulemuste kokkuvõtmise protsessi "
 "lõpetamist kuni selle kuupäevani. Kui seda ei ole määratud, avaldatakse "
 "tulemused vaikimisi niipea kui võimalik."
 
-#: src/web/clients/admin/elections.ml:860
+#: src/web/clients/admin/elections.ml:869
 msgid "Delete all"
 msgstr "Kõik kustutada"
 
@@ -522,13 +513,17 @@ msgstr "Kõik kustutada"
 msgid "Delete the election"
 msgstr "Kustuta valimised"
 
-#: src/web/clients/admin/elections.ml:672 src/web/clients/admin/elections.ml:657
+#: src/web/clients/admin/elections.ml:692 src/web/clients/admin/elections.ml:675
 msgid "Description:"
 msgstr "Kirjeldus:"
 
-#: src/web/clients/admin/elections.ml:1331
+#: src/web/clients/admin/elections.ml:1443
 msgid "Direction: "
 msgstr "Suund: "
+
+#: src/web/clients/admin/elections.ml:669
+msgid "Do not allow revoting"
+msgstr ""
 
 #: src/web/clients/admin/trustees_tab.ml:621
 #. src/web/clients/admin/trustees_tab.ml:524
@@ -540,7 +535,11 @@ msgstr "Valmis?"
 msgid "Download "
 msgstr "Lae alla "
 
-#: src/web/clients/admin/elections.ml:2027
+#: src/web/clients/admin/elections.ml:1174
+msgid "Download full lists in JSON format"
+msgstr ""
+
+#: src/web/clients/admin/elections.ml:2139
 msgid "Download sealing log"
 msgstr "Laadige alla tihenduslogi"
 
@@ -554,7 +553,7 @@ msgstr ""
 "Lae alla oma privaatvõti. Veendu, et SALVESTAD selle nõuetekohaselt, "
 "vastasel juhul ei ole võimalik hääli kokku lugeda ja valimised tühistatakse."
 
-#: src/web/clients/admin/elections.ml:1846
+#: src/web/clients/admin/elections.ml:1958
 msgid "Dummy auth (should not be used in production): "
 msgstr "Testi-autentimine (ei tohiks tootmiskeskkonnas kasutada): "
 
@@ -575,11 +574,11 @@ msgstr "Muuda profiili"
 msgid "Election identifier:"
 msgstr "Valimiste tunnus:"
 
-#: src/web/clients/admin/elections.ml:1974
+#: src/web/clients/admin/elections.ml:2086
 msgid "Election is currently closed"
 msgstr "Valimised on praegu lõppenud"
 
-#: src/web/clients/admin/elections.ml:1973
+#: src/web/clients/admin/elections.ml:2085
 msgid "Election is currently open"
 msgstr "Valimised on praegu avatud"
 
@@ -598,7 +597,7 @@ msgstr "Valimisserver"
 msgid "Election server:"
 msgstr "Valimisserver:"
 
-#: src/web/clients/admin/elections.ml:2097
+#: src/web/clients/admin/elections.ml:2209
 msgid "Election status"
 msgstr "Valimiste seis"
 
@@ -606,19 +605,19 @@ msgstr "Valimiste seis"
 msgid "Elections associated to this electoral board"
 msgstr "Selle valimiskomisjoniga seotud valimised"
 
-#: src/web/clients/basic/admin_basic.ml:211
+#: src/web/clients/basic/admin_basic.ml:212
 msgid "Elections being prepared"
 msgstr "Valimiste ettevalmistused on käimas"
 
-#: src/web/clients/admin/admin.ml:179
+#: src/web/clients/admin/admin.ml:180
 msgid "Elections being setup:"
 msgstr "Valimiste ettevalmistamine:"
 
-#: src/web/clients/basic/admin_basic.ml:213
+#: src/web/clients/basic/admin_basic.ml:214
 msgid "Elections you can administer"
 msgstr "Valimised, mida saate korraldada"
 
-#: src/web/clients/admin/elections.ml:1124
+#: src/web/clients/admin/elections.ml:1236
 msgid "Erase"
 msgstr "Kustuta"
 
@@ -648,7 +647,7 @@ msgstr "Privaatvõtme töötlemisel tekkis viga. Kas laadisite õige faili?"
 msgid "Error while retrieving election!"
 msgstr "Valimiste andmete laadimisel tekkis viga!"
 
-#: src/web/clients/admin/elections.ml:1784
+#: src/web/clients/admin/elections.ml:1896
 msgid "Error while retrieving server configuration: %s"
 msgstr "Viga serveri konfiguratsiooni laadimisel: %s"
 
@@ -669,10 +668,6 @@ msgstr "EBAÕNNESTUMINE!"
 msgid "Failed to connect; please reload"
 msgstr "Ühenduse loomine ebaõnnestus; palun laadige leht uuesti"
 
-#: src/web/clients/admin/common.ml:91
-msgid "Failed to sync data to server, code %d"
-msgstr "Andmete sünkroniseerimine serveriga ebaõnnestus, kood %d"
-
 #: src/web/clients/admin/trustees_tab.ml:742
 msgid "Failed with error %d!"
 msgstr "Ebaõnnestus, tekkis viga %d!"
@@ -680,6 +675,10 @@ msgstr "Ebaõnnestus, tekkis viga %d!"
 #: src/web/clients/credop/credop.ml:258
 msgid "Failure"
 msgstr "Ebaõnnestumine"
+
+#: src/web/clients/admin/elections.ml:921
+msgid "Filter voters by username prefix"
+msgstr ""
 
 #: src/web/clients/credauth/generate.ml:106
 msgid "Fingerprint of public credentials:"
@@ -701,7 +700,7 @@ msgstr "Genereeri"
 msgid "Generate a key"
 msgstr "Loo võti"
 
-#: src/web/clients/admin/elections.ml:1469
+#: src/web/clients/admin/elections.ml:1581
 msgid "Generate and send the credentials"
 msgstr "Loo ja saada autentimisandmed"
 
@@ -717,7 +716,7 @@ msgstr "Lae alla lähtekood"
 msgid "Go back to election"
 msgstr "Tagasi valimiste juurde"
 
-#: src/web/clients/admin/elections.ml:1170
+#: src/web/clients/admin/elections.ml:1282
 msgid "Grace period: "
 msgstr "Kaitseperiood: "
 
@@ -729,7 +728,7 @@ msgstr "Hindamiskriteeriumid"
 msgid "Here are the instructions:"
 msgstr "Siin on juhised:"
 
-#: src/web/clients/admin/admin.ml:325 src/web/server/common/pages_admin.ml:91
+#: src/web/clients/admin/admin.ml:326 src/web/server/common/pages_admin.ml:91
 msgid "Home"
 msgstr "Kodu"
 
@@ -745,11 +744,11 @@ msgstr "Kui teil pole veel kontot, võite "
 msgid "Impersonate a user"
 msgstr "Kasutaja anonüümimine"
 
-#: src/web/clients/admin/elections.ml:999
+#: src/web/clients/admin/elections.ml:1116
 msgid "Import voters "
 msgstr "Valijate importimine "
 
-#: src/web/clients/admin/elections.ml:1142
+#: src/web/clients/admin/elections.ml:1254
 msgid "In %d minutes"
 msgstr "%d minuti pärast"
 
@@ -761,7 +760,7 @@ msgstr "Ebakõla!"
 msgid "Incorrect code"
 msgstr "Vale kood"
 
-#: src/web/clients/admin/elections.ml:1605
+#: src/web/clients/admin/elections.ml:1717
 msgid "Initiate protocol"
 msgstr "Protokolli käivitamine"
 
@@ -791,7 +790,7 @@ msgstr "Vigane tahvli identifikaator!"
 msgid "It is now time to compute your partial decryption factors."
 msgstr "Nüüd on aeg arvutada välja osalised dešifreerimistegurid."
 
-#: src/web/clients/admin/elections.ml:1305
+#: src/web/clients/admin/elections.ml:1417
 msgid "Language"
 msgstr "Keel"
 
@@ -799,7 +798,7 @@ msgstr "Keel"
 msgid "Language for administrator interface:"
 msgstr "Haldusliidese keel:"
 
-#: src/web/clients/admin/elections.ml:1312
+#: src/web/clients/admin/elections.ml:1424
 msgid "Language of metadata"
 msgstr "Metandmete keel"
 
@@ -807,7 +806,7 @@ msgstr "Metandmete keel"
 msgid "Language:"
 msgstr "Keel:"
 
-#: src/web/clients/admin/elections.ml:1326
+#: src/web/clients/admin/elections.ml:1438
 msgid "Language: "
 msgstr "Keel: "
 
@@ -815,15 +814,15 @@ msgstr "Keel: "
 msgid "Languages"
 msgstr "Keeled"
 
-#: src/web/clients/admin/elections.ml:1335
+#: src/web/clients/admin/elections.ml:1447
 msgid "Languages of spontaneous e-mails"
 msgstr "Spontaansete e-kirjade keeled"
 
-#: src/web/clients/admin/elections.ml:1311
+#: src/web/clients/admin/elections.ml:1423
 msgid "Languages:"
 msgstr "Keeled:"
 
-#: src/web/clients/admin/elections.ml:1277
+#: src/web/clients/admin/elections.ml:1389
 msgid "Left to right"
 msgstr "Vasakult paremale"
 
@@ -831,11 +830,6 @@ msgstr "Vasakult paremale"
 #. src/web/clients/admin/trustees_tab.ml:414
 msgid "Link to send"
 msgstr "Link saatmiseks"
-
-#: src/web/clients/admin/elections.ml:1069
-#. src/web/clients/admin/elections.ml:1066
-msgid "Link to the "
-msgstr "Link lehele "
 
 #: src/web/common/mails_admin.ml:167
 msgid "Link to trustee interface"
@@ -845,7 +839,7 @@ msgstr "Link usaldusisiku liidesele"
 msgid "List name:"
 msgstr "Loendi nimi:"
 
-#: src/web/clients/admin/elections.ml:1351
+#: src/web/clients/admin/elections.ml:1463
 msgid "List of available languages, with their code:"
 msgstr "Saadaval olevate keelte loetelu koos nende koodidega:"
 
@@ -853,7 +847,7 @@ msgstr "Saadaval olevate keelte loetelu koos nende koodidega:"
 msgid "Lists"
 msgstr "Nimekirjad"
 
-#: src/web/clients/admin/admin.ml:372
+#: src/web/clients/admin/admin.ml:373
 msgid "Loading..."
 msgstr "Laadimine..."
 
@@ -865,16 +859,16 @@ msgstr "Logi sisse, kasutades"
 msgid "Log in:"
 msgstr "Logi sisse:"
 
-#: src/web/clients/admin/admin.ml:348 src/web/clients/admin/account.ml:207
+#: src/web/clients/admin/admin.ml:349 src/web/clients/admin/account.ml:207
 #. src/web/server/common/pages_admin.ml:110
 msgid "Log out"
 msgstr "Välju"
 
-#: src/web/clients/admin/elections.ml:805
+#: src/web/clients/admin/elections.ml:798
 msgid "Login"
 msgstr "Sisene"
 
-#: src/web/clients/admin/elections.ml:659
+#: src/web/clients/admin/elections.ml:677
 msgid "Logo:"
 msgstr "Logo:"
 
@@ -886,7 +880,7 @@ msgstr "Valimiste pealeht avatakse uues vahekaardis."
 msgid "Management"
 msgstr "Juhtimine"
 
-#: src/web/clients/admin/elections.ml:1766
+#: src/web/clients/admin/elections.ml:1878
 msgid "Management of credentials:"
 msgstr "Autentimisandmete haldamine:"
 
@@ -898,6 +892,10 @@ msgstr "Valikuvõimaluste maksimaalne arv"
 msgid "Minimal number of choices to select"
 msgstr "Valikute minimaalne arv"
 
+#: src/web/clients/admin/elections.ml:679
+msgid "Miscellaneous:"
+msgstr ""
+
 #: src/web/clients/credop/credop.ml:100
 msgid "Missing secret key. You must come to this page by following the full link that has been sent to you by e-mail."
 msgstr ""
@@ -908,19 +906,19 @@ msgstr ""
 msgid "Missing voters"
 msgstr "Puuduvad valijad"
 
-#: src/web/clients/admin/admin.ml:249
+#: src/web/clients/admin/admin.ml:250
 msgid "My archived elections"
 msgstr "Minu arhiveeritud valimised"
 
-#: src/web/clients/admin/admin.ml:247
+#: src/web/clients/admin/admin.ml:248
 msgid "My draft elections"
 msgstr "Minu valimiste eelnõu"
 
-#: src/web/clients/admin/admin.ml:248
+#: src/web/clients/admin/admin.ml:249
 msgid "My running elections"
 msgstr "Minu valimiskampaaniad"
 
-#: src/web/clients/admin/elections.ml:1660
+#: src/web/clients/admin/elections.ml:1772
 msgid "Name of the credential authority"
 msgstr "Sertifikaadi väljastaja nimi"
 
@@ -959,7 +957,7 @@ msgstr ""
 "Välist usaldusisikut ei määratud. Kas kinnitate, et usaldate serverit "
 "privaatsuse osas?"
 
-#: src/web/clients/admin/elections.ml:625
+#: src/web/clients/admin/elections.ml:620
 msgid "No logo set."
 msgstr "Logo pole määratud."
 
@@ -967,13 +965,17 @@ msgstr "Logo pole määratud."
 msgid "Nothing to show here. Try going to the Status tab."
 msgstr "Siin pole midagi näidata. Proovi minna vahekaardile „Staatus”."
 
-#: src/web/clients/admin/elections.ml:1739
+#: src/web/clients/admin/elections.ml:1851
 msgid "Number of credentials left: %d."
 msgstr "Järelejäänud autentimistunnuste arv: %d."
 
 #: src/web/clients/admin/questions.ml:447
 msgid "Number of seats:"
 msgstr "Kohtade arv:"
+
+#: src/web/clients/admin/elections.ml:972
+msgid "Number of voters:"
+msgstr ""
 
 #: src/web/common/mails_admin.ml:131
 msgid "On first connection, you will generate a private key."
@@ -1003,7 +1005,7 @@ msgstr ""
 "Kui hääletus on avatud, peate kontrollima, kas need andmed vastavad serveri "
 "poolt avaldatutele."
 
-#: src/web/clients/admin/elections.ml:1974
+#: src/web/clients/admin/elections.ml:2086
 msgid "Open"
 msgstr "Ava"
 
@@ -1015,7 +1017,7 @@ msgstr "Ava / Sulge"
 msgid "Open the link and follow the instructions."
 msgstr "Avage link ja järgige juhiseid."
 
-#: src/web/clients/admin/elections.ml:1177
+#: src/web/clients/admin/elections.ml:1289
 msgid "Open: "
 msgstr "Avatud: "
 
@@ -1023,7 +1025,7 @@ msgstr "Avatud: "
 msgid "Operator interface:"
 msgstr "Käsitleja liides:"
 
-#: src/web/clients/admin/elections.ml:1893
+#: src/web/clients/admin/elections.ml:2005
 msgid "Other authentication modes:"
 msgstr "Muud autentimise viisid:"
 
@@ -1035,7 +1037,7 @@ msgstr "Osaline dekrüpteerimine"
 msgid "Partial decryption submission failed unexpectedly!"
 msgstr "Osaline dekodeerimine ebaõnnestus ootamatult!"
 
-#: src/web/clients/admin/elections.ml:1861
+#: src/web/clients/admin/elections.ml:1973
 msgid "Password sent by e-mail when voting (a short password, renewed for each vote)"
 msgstr ""
 "Hääletamisel e-postiga saadetud parool (lühike parool, mis uueneb iga "
@@ -1053,7 +1055,7 @@ msgstr "Palun valige parool: "
 msgid "Please choose a username: "
 msgstr "Palun valige kasutajanimi: "
 
-#: src/web/clients/admin/elections.ml:1714
+#: src/web/clients/admin/elections.ml:1826
 msgid "Please download "
 msgstr "Palun laadige alla "
 
@@ -1066,7 +1068,7 @@ msgstr "Palun sisestage "
 msgid "Please enter the code here:"
 msgstr "Palun sisestage kood siia:"
 
-#: src/web/clients/admin/elections.ml:965
+#: src/web/clients/admin/elections.ml:1082
 msgid "Please enter the identities of voters to add, one per line (max %s)."
 msgstr ""
 "Palun sisestage lisatavate valijate andmed, üks rida iga valija kohta "
@@ -1076,7 +1078,7 @@ msgstr ""
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Palun sisestage e-kirjas saadud kinnituskood:"
 
-#: src/web/clients/admin/elections.ml:1777
+#: src/web/clients/admin/elections.ml:1889
 msgid "Please fill-in the voter list first."
 msgstr "Palun täitke kõigepealt valijate nimekiri."
 
@@ -1087,10 +1089,6 @@ msgstr "Palun laadige oma privaatvõti failist:"
 #: src/web/server/common/pages_admin.ml:433
 msgid "Please provide one:"
 msgstr "Palun märkige üks järgmistest:"
-
-#: src/web/clients/admin/common.ml:163
-msgid "Please select the election from which you want to import data:"
-msgstr "Palun valige valimised, millest soovite andmeid importida:"
 
 #: src/web/clients/trustee/shuffle.ml:122
 msgid "Please wait…"
@@ -1163,15 +1161,15 @@ msgstr ""
 msgid "Public key registration succeeded!"
 msgstr "Avaliku võtme registreerimine õnnestus!"
 
-#: src/web/clients/admin/elections.ml:1404
+#: src/web/clients/admin/elections.ml:1516
 msgid "Public name of the administrator:"
 msgstr "Halduri avalik nimi:"
 
-#: src/web/clients/admin/elections.ml:1397
+#: src/web/clients/admin/elections.ml:1509
 msgid "Public name of the administrator: "
 msgstr "Haldaja avalik nimi: "
 
-#: src/web/clients/admin/elections.ml:1199
+#: src/web/clients/admin/elections.ml:1311
 msgid "Publish: "
 msgstr "Avalda: "
 
@@ -1196,7 +1194,7 @@ msgstr "Küsimused:"
 msgid "Questions (non editable):"
 msgstr "Küsimused (ei saa muuta):"
 
-#: src/web/clients/admin/elections.ml:1958
+#: src/web/clients/admin/elections.ml:2070
 msgid "Ready to create:"
 msgstr "Valmis looma:"
 
@@ -1239,15 +1237,15 @@ msgstr "Tühista ja alusta otsast peale"
 msgid "Restricted mode"
 msgstr "Piiratud režiim"
 
-#: src/web/clients/admin/elections.ml:2125 src/web/clients/admin/elections.ml:283
+#: src/web/clients/admin/elections.ml:2237 src/web/clients/admin/elections.ml:283
 msgid "Results page"
 msgstr "Tulemuste leht"
 
-#: src/web/clients/admin/elections.ml:1278
+#: src/web/clients/admin/elections.ml:1390
 msgid "Right to left"
 msgstr "Paremalt vasakule"
 
-#: src/web/clients/admin/admin.ml:207
+#: src/web/clients/admin/admin.ml:208
 msgid "Running or finished elections:"
 msgstr "Käimasolevad või lõppenud valimised:"
 
@@ -1269,21 +1267,21 @@ msgstr ""
 msgid "Save the two fingerprints above."
 msgstr "Salvestage need kaks ülaltoodud sõrmejälge."
 
-#: src/web/clients/admin/elections.ml:2011
+#: src/web/clients/admin/elections.ml:2123
 msgid "Seal"
 msgstr "Pitser"
 
-#: src/web/clients/admin/elections.ml:2037
+#: src/web/clients/admin/elections.ml:2149
 msgid "Sealing"
 msgstr "plommimine"
 
-#: src/web/clients/admin/elections.ml:2043
+#: src/web/clients/admin/elections.ml:2155
 msgid "Sealing allows you to freeze some election properties such as automatic dates."
 msgstr ""
 "Kinnitamine võimaldab teil mõningaid valimiste parameetreid, näiteks "
 "automaatsed kuupäevad, lukustada."
 
-#: src/web/clients/admin/elections.ml:2048
+#: src/web/clients/admin/elections.ml:2160
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
 msgstr ""
 "Hääletussüsteemi sulgemise ja avamise toimingud registreeritakse ning logi "
@@ -1310,7 +1308,7 @@ msgstr "Vali see usaldusisik"
 msgid "Selecting CAS authentication requires setting a valid CAS server"
 msgstr "CAS-autentimise valimiseks tuleb määrata kehtiv CAS-server"
 
-#: src/web/clients/admin/elections.ml:1552
+#: src/web/clients/admin/elections.ml:1664
 msgid "Send an e-mail to the credential authority"
 msgstr "Saada e-kiri sertifikaadi väljastajale"
 
@@ -1318,11 +1316,11 @@ msgstr "Saada e-kiri sertifikaadi väljastajale"
 msgid "Send link"
 msgstr "Saada link"
 
-#: src/web/clients/admin/elections.ml:626
+#: src/web/clients/admin/elections.ml:621
 msgid "Set a logo (.png, max. 10 KB): "
 msgstr "Määra logo (.png, maks. 10 KB): "
 
-#: src/web/clients/admin/elections.ml:1596
+#: src/web/clients/admin/elections.ml:1708
 msgid "Set credential authority info"
 msgstr "Määra volituste andja andmed"
 
@@ -1334,7 +1332,7 @@ msgstr "Plaadi paigaldamine ebaõnnestus, veakood %d!"
 msgid "Setup: "
 msgstr "Seadistamine: "
 
-#: src/web/clients/admin/elections.ml:1056
+#: src/web/clients/admin/elections.ml:1151
 msgid "Show only missing voters"
 msgstr "Näita ainult puuduvaid hääletajaid"
 
@@ -1354,7 +1352,7 @@ msgstr "Vahelejätmine"
 msgid "Skip all remaining trustees"
 msgstr "Jäta kõik ülejäänud usaldusisikud vahele"
 
-#: src/web/clients/admin/elections.ml:1252
+#: src/web/clients/admin/elections.ml:1364
 msgid "Some language in the list is not available"
 msgstr "Mõned nimekirjas olevad keeled ei ole saadaval"
 
@@ -1368,7 +1366,7 @@ msgstr ""
 "Keegi üritab seostada sinu e-posti aadressi meie Belenios-serveril asuva "
 "kontoga."
 
-#: src/web/clients/admin/elections.ml:1948
+#: src/web/clients/admin/elections.ml:2060
 msgid "Something is wrong with the configuration of voter authentication! Maybe an invalid CAS server was given?"
 msgstr ""
 "Valijate autentimise seadistuses on midagi valesti! Võib-olla on sisestatud "
@@ -1424,7 +1422,7 @@ msgstr "Edu"
 msgid "Success?"
 msgstr "Edu?"
 
-#: src/web/clients/basic/admin_basic.ml:215
+#: src/web/clients/basic/admin_basic.ml:216
 msgid "Tallied elections"
 msgstr "Kokku loetud valimistulemused"
 
@@ -1460,7 +1458,7 @@ msgstr "Konto loomine "
 msgid "The account has been created."
 msgstr "Konto on loodud."
 
-#: src/web/clients/admin/elections.ml:2132
+#: src/web/clients/admin/elections.ml:2244
 msgid "The archive can be downloaded at: "
 msgstr "Arhiivi saab alla laadida aadressilt: "
 
@@ -1480,7 +1478,7 @@ msgstr "Muutus "
 msgid "The election administrator"
 msgstr "Valimiste korraldaja"
 
-#: src/web/clients/admin/elections.ml:2011
+#: src/web/clients/admin/elections.ml:2123
 msgid "The election is not sealed."
 msgstr "Valimiste tulemused ei ole veel lõplikud."
 
@@ -1488,7 +1486,7 @@ msgstr "Valimiste tulemused ei ole veel lõplikud."
 msgid "The election result is already published!"
 msgstr "Valimistulemused on juba avaldatud!"
 
-#: src/web/clients/admin/elections.ml:613
+#: src/web/clients/admin/elections.ml:608
 msgid "The file is too large! It must be < 10 KB."
 msgstr "Fail on liiga suur! Selle suurus peab olema alla 10 KB."
 
@@ -1537,21 +1535,15 @@ msgstr "Salajane võti ei ole kehtiv!"
 msgid "The server is always one of the trustees"
 msgstr "Server on alati üks usaldusisikutest"
 
-#: src/web/clients/admin/common.ml:100
-msgid "The server is in readonly mode, you cannot perform changes. Please reload the page to discard pending changes."
-msgstr ""
-"Server on lugemisrežiimis, muudatusi teha ei saa. Palun värskenda lehekülge, "
-"et tühistada salvestamata muudatused."
-
 #: src/web/clients/trustee/shuffle.ml:168
 msgid "The shuffle has been successfully applied!"
 msgstr "Segamine on edukalt läbi viidud!"
 
-#: src/web/clients/admin/elections.ml:2106
+#: src/web/clients/admin/elections.ml:2218
 msgid "The tally for this election has started."
 msgstr "Selle valimise häälte lugemine on alanud."
 
-#: src/web/clients/admin/elections.ml:1479
+#: src/web/clients/admin/elections.ml:1591
 msgid "The voter list is empty!"
 msgstr "Valijate nimekiri on tühi!"
 
@@ -1559,15 +1551,11 @@ msgstr "Valijate nimekiri on tühi!"
 msgid "There has been a request to change the password of your account on our Belenios server."
 msgstr "Meie Belenios-serveris on esitatud taotlus muuta teie konto parooli."
 
-#: src/web/clients/admin/elections.ml:762 src/web/clients/admin/elections.ml:721
+#: src/web/clients/admin/elections.ml:770 src/web/clients/admin/elections.ml:740
 msgid "There is an error in the voter list! (%s)"
 msgstr "Valijate nimekirjas on viga! (%s)"
 
-#: src/web/clients/admin/elections.ml:769
-msgid "There is an unexpected error in the voter list!"
-msgstr "Valijate nimekirjas on ootamatu viga!"
-
-#: src/web/clients/admin/elections.ml:726
+#: src/web/clients/admin/elections.ml:745
 msgid "There is an unexpected syntax error in the voter list!"
 msgstr "Valijate nimekirjas on ootamatu süntaksiviga!"
 
@@ -1583,7 +1571,7 @@ msgstr "Hetkel ei ole valimiskomisjoni."
 msgid "This account does not exist"
 msgstr "Sellist kontot ei ole olemas"
 
-#: src/web/clients/admin/elections.ml:1394
+#: src/web/clients/admin/elections.ml:1506
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr "See kontakt lisatakse valijatele saadetavatesse e-kirjadesse."
 
@@ -1591,45 +1579,45 @@ msgstr "See kontakt lisatakse valijatele saadetavatesse e-kirjadesse."
 msgid "This e-mail address is invalid!"
 msgstr "See e-posti aadress on kehtetu!"
 
-#: src/web/clients/admin/elections.ml:2114
+#: src/web/clients/admin/elections.ml:2226
 msgid "This election has been tallied"
 msgstr "Selle valimise tulemused on kokku loetud"
 
-#: src/web/clients/admin/elections.ml:2100
+#: src/web/clients/admin/elections.ml:2212
 msgid "This election is a draft."
 msgstr "Need valimised on katsetus."
 
-#: src/web/clients/admin/elections.ml:2115
+#: src/web/clients/admin/elections.ml:2227
 msgid "This election is archived"
 msgstr "Need valimised on arhiveeritud"
 
-#: src/web/clients/admin/elections.ml:2110
+#: src/web/clients/admin/elections.ml:2222
 msgid "This election is in shuffling phase."
 msgstr "Need valimised on praegu segunemisfaasis."
 
-#: src/web/clients/admin/elections.ml:2102
+#: src/web/clients/admin/elections.ml:2214
 msgid "This election is running."
 msgstr "Need valimised on käimas."
 
-#: src/web/clients/admin/elections.ml:2010
+#: src/web/clients/admin/elections.ml:2122
 msgid "This election is sealed."
 msgstr "Selle valimise tulemus on juba otsustatud."
 
-#: src/web/clients/admin/elections.ml:2074
+#: src/web/clients/admin/elections.ml:2186
 msgid "This election will be automatically archived after %s."
 msgstr "Need valimised arhiveeritakse automaatselt pärast %s."
 
-#: src/web/clients/admin/elections.ml:2088
+#: src/web/clients/admin/elections.ml:2200
 msgid "This election will be automatically deleted after %s."
 msgstr "See valik kustutatakse automaatselt pärast %s."
 
-#: src/web/clients/admin/elections.ml:1342
+#: src/web/clients/admin/elections.ml:1454
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
 "See on tühikutega eraldatud keelte loetelu, mida kasutatakse serveri poolt "
 "saadetavates e-kirjades."
 
-#: src/web/clients/admin/elections.ml:1318
+#: src/web/clients/admin/elections.ml:1430
 msgid "This is the language of election title, description and questions."
 msgstr "See on valimiste pealkirja, kirjelduse ja küsimuste keel."
 
@@ -1637,7 +1625,7 @@ msgstr "See on valimiste pealkirja, kirjelduse ja küsimuste keel."
 msgid "This list must be the one approved by the election commission."
 msgstr "See nimekiri peab olema valimiskomisjoni poolt heaks kiidetud nimekiri."
 
-#: src/web/clients/admin/elections.ml:1399
+#: src/web/clients/admin/elections.ml:1511
 msgid "This name will be published on the election result page."
 msgstr "See nimi avaldatakse valimistulemuste lehel."
 
@@ -1653,7 +1641,7 @@ msgstr "Läviväärtuse režiim"
 msgid "Title"
 msgstr "Pealkiri"
 
-#: src/web/clients/admin/elections.ml:670 src/web/clients/admin/elections.ml:655
+#: src/web/clients/admin/elections.ml:690 src/web/clients/admin/elections.ml:673
 msgid "Title:"
 msgstr "Pealkiri:"
 
@@ -1683,6 +1671,10 @@ msgstr ""
 #: src/web/clients/admin/questions.ml:1001
 msgid "Total complexity:"
 msgstr "Kogukomplekssus:"
+
+#: src/web/clients/admin/elections.ml:984
+msgid "Total weight:"
+msgstr ""
 
 #: src/web/clients/trustee/generate.ml:322
 msgid "Trustee key generation"
@@ -1741,19 +1733,19 @@ msgstr "Sisestage parool uuesti: "
 msgid "Unknown state!"
 msgstr "Tundmatu seisund!"
 
-#: src/web/clients/admin/admin.ml:459
+#: src/web/clients/admin/admin.ml:460
 msgid "Unknown uuid"
 msgstr "Tundmatu \"uuid\""
 
-#: src/web/clients/admin/elections.ml:2010
+#: src/web/clients/admin/elections.ml:2122
 msgid "Unseal"
 msgstr "Pitseri eemaldamine"
 
-#: src/web/clients/admin/elections.ml:898
+#: src/web/clients/admin/elections.ml:907
 msgid "Upload voter file"
 msgstr "Lae üles valijate nimekiri"
 
-#: src/web/clients/admin/elections.ml:1573
+#: src/web/clients/admin/elections.ml:1685
 msgid "Use an external server"
 msgstr "Kasuta välist serverit"
 
@@ -1769,20 +1761,24 @@ msgstr "Plaadi valideerimine"
 msgid "Variation kind"
 msgstr "Muutuse liik"
 
-#: src/web/clients/admin/elections.ml:1026 src/web/clients/admin/elections.ml:175
+#: src/web/clients/admin/elections.ml:1180
+msgid "View voter list"
+msgstr ""
+
+#: src/web/clients/admin/elections.ml:1143 src/web/clients/admin/elections.ml:175
 msgid "Voter list"
 msgstr "Valijate nimekiri"
 
-#: src/web/clients/admin/elections.ml:930
+#: src/web/clients/admin/elections.ml:1049
 msgid "Voter list (not editable):"
 msgstr "Valijate nimekiri (ei saa muuta):"
 
 #: src/web/clients/credauth/generate.ml:199
-#. src/web/clients/admin/elections.ml:931
+#. src/web/clients/admin/elections.ml:1050
 msgid "Voter list:"
 msgstr "Valijate nimekiri:"
 
-#: src/web/clients/admin/elections.ml:1061
+#: src/web/clients/admin/elections.ml:1173
 msgid "Voter list (not editable):"
 msgstr "Valijate nimekiri (muutmiseks suletud):"
 
@@ -1790,12 +1786,12 @@ msgstr "Valijate nimekiri (muutmiseks suletud):"
 msgid "Voter's authentication"
 msgstr "Valija identifitseerimine"
 
-#: src/web/clients/admin/elections.ml:1897
-#. src/web/clients/admin/elections.ml:1789
+#: src/web/clients/admin/elections.ml:2009
+#. src/web/clients/admin/elections.ml:1901
 msgid "Voter's authentication:"
 msgstr "Valija identifitseerimine:"
 
-#: src/web/clients/admin/elections.ml:1021
+#: src/web/clients/admin/elections.ml:1138
 msgid "Voting records"
 msgstr "Hääletustulemused"
 
@@ -1809,7 +1805,7 @@ msgstr "Oodatakse, kuni valimiste korraldaja määrab künnise..."
 msgid "Waiting for the other trustees..."
 msgstr "Ootame teisi usaldusisikuid..."
 
-#: src/web/clients/admin/elections.ml:861
+#: src/web/clients/admin/elections.ml:870
 msgid "Warning, this action is irreversible"
 msgstr "Hoiatus: see toiming on pöördumatu"
 
@@ -1817,7 +1813,7 @@ msgstr "Hoiatus: see toiming on pöördumatu"
 msgid "Warning, this will delete the current list of trustees"
 msgstr "Hoiatus: see toiming kustutab praeguse usaldusisikute nimekirja"
 
-#: src/web/clients/admin/elections.ml:936
+#: src/web/clients/admin/elections.ml:1055
 msgid "Warning:"
 msgstr "Hoiatus:"
 
@@ -1829,17 +1825,17 @@ msgstr ""
 "Hoiatus: see kood kehtib 15 minutit ning varem sellele aadressile saadetud "
 "koodid ei kehti enam."
 
-#: src/web/clients/admin/elections.ml:1959
+#: src/web/clients/admin/elections.ml:2071
 msgid "Warning: this is irreversible!"
 msgstr "Hoiatus: see toiming on pöördumatu!"
 
-#: src/web/clients/admin/elections.ml:1621
-#. src/web/clients/admin/elections.ml:1556
-#. src/web/clients/admin/elections.ml:1490
+#: src/web/clients/admin/elections.ml:1733
+#. src/web/clients/admin/elections.ml:1668
+#. src/web/clients/admin/elections.ml:1602
 msgid "Warning: this will freeze the voter list!"
 msgstr "Hoiatus: see külmutab valijate nimekirja!"
 
-#: src/web/clients/admin/elections.ml:807
+#: src/web/clients/admin/elections.ml:800
 msgid "Weight"
 msgstr "Kaal"
 
@@ -1941,7 +1937,7 @@ msgstr "Seda kasutate lõpptulemuse dekodeerimiseks."
 msgid "You will use it to send credentials to voters."
 msgstr "Sa kasutad seda valijatele volikirjade saatmiseks."
 
-#: src/web/clients/admin/elections.ml:945
+#: src/web/clients/admin/elections.ml:1064
 msgid "You won't be able to change the e-mail addresses once the credentials are created. Voters with invalid e-mail addresses won't be able to vote."
 msgstr ""
 "Pärast volituste loomist ei saa te e-posti aadresse muuta. Kehtetu e-posti "
@@ -2011,7 +2007,7 @@ msgstr "valijana valimistel %s."
 msgid "as an administrator."
 msgstr "haldurina."
 
-#: src/web/clients/admin/elections.ml:754
+#: src/web/clients/admin/elections.ml:762
 msgid "bad voter: %s"
 msgstr ""
 
@@ -2027,11 +2023,11 @@ msgstr "võtke meiega ühendust"
 msgid "done"
 msgstr "valmis"
 
-#: src/web/clients/admin/elections.ml:752
+#: src/web/clients/admin/elections.ml:760
 msgid "duplicate voter: %s"
 msgstr "kordusvalija: %s"
 
-#: src/web/clients/admin/elections.ml:848
+#: src/web/clients/admin/elections.ml:844
 msgid "empty list"
 msgstr "tühi nimekiri"
 
@@ -2040,15 +2036,15 @@ msgstr "tühi nimekiri"
 msgid "failed"
 msgstr "ebaõnnestus"
 
-#: src/web/clients/admin/elections.ml:1005
+#: src/web/clients/admin/elections.ml:1122
 msgid "from a file: "
 msgstr "failist: "
 
-#: src/web/clients/admin/elections.ml:875
+#: src/web/clients/admin/elections.ml:885
 msgid "from another election"
 msgstr "teistelt valimistelt"
 
-#: src/web/clients/admin/elections.ml:719
+#: src/web/clients/admin/elections.ml:738
 msgid "invalid identity: %s"
 msgstr "Kehtetu kasutajanimi: %s"
 
@@ -2105,7 +2101,7 @@ msgstr "parool on liiga nõrk (%s)"
 msgid "the password starts or ends with a space"
 msgstr "parool algab või lõpeb tühikuga"
 
-#: src/web/clients/admin/elections.ml:1709
+#: src/web/clients/admin/elections.ml:1821
 msgid "the private parts of the credentials"
 msgstr "volituste privaatsed osad"
 
@@ -2134,15 +2130,15 @@ msgstr "andmebaasis on viga"
 msgid "to access:"
 msgstr "juurdepääsuks:"
 
-#: src/web/clients/admin/elections.ml:757
+#: src/web/clients/admin/elections.ml:765
 msgid "total weight too big: %s/%s"
 msgstr "kogukaal on liiga suur: %s/%s"
 
-#: src/web/clients/admin/elections.ml:852
+#: src/web/clients/admin/elections.ml:861
 msgid "typical use"
 msgstr "tüüpiline kasutus"
 
-#: src/web/clients/admin/elections.ml:808
+#: src/web/clients/admin/elections.ml:801
 msgid "voted?"
 msgstr "hääletasid?"
 
@@ -2150,11 +2146,11 @@ msgstr "hääletasid?"
 msgid "voter list"
 msgstr "valijate nimekiri"
 
-#: src/web/clients/admin/elections.ml:854
+#: src/web/clients/admin/elections.ml:863
 msgid "when a login is needed, e.g. CAS"
 msgstr "kui on vaja sisse logida, nt CAS"
 
-#: src/web/clients/admin/elections.ml:856
+#: src/web/clients/admin/elections.ml:865
 msgid "when some voters have several votes"
 msgstr "kui mõnel valijal on mitu häält"
 
@@ -2162,7 +2158,7 @@ msgstr "kui mõnel valijal on mitu häält"
 msgid "yes"
 msgstr "jah"
 
-#: src/web/clients/admin/elections.ml:939
+#: src/web/clients/admin/elections.ml:1058
 msgid "you have to make sure that the e-mail addresses are valid."
 msgstr "Peate veenduma, et e-posti aadressid on kehtivad."
 
