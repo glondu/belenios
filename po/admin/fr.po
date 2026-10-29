@@ -437,11 +437,11 @@ msgstr "Variation de crédits"
 
 #: src/web/clients/admin/elections.ml:995
 msgid "Current turnout:"
-msgstr ""
+msgstr "Taux de participation actuel :"
 
 #: src/web/clients/admin/elections.ml:1008
 msgid "Current weighted turnout:"
-msgstr ""
+msgstr "Taux de participation actuel pondéré :"
 
 #: src/web/clients/trustee/generate.ml:225
 msgid "Data submission failed! Please refresh and/or restart from the beginning."
@@ -525,7 +525,7 @@ msgstr "Direction : "
 
 #: src/web/clients/admin/elections.ml:669
 msgid "Do not allow revoting"
-msgstr ""
+msgstr "Ne pas autoriser le revote"
 
 #: src/web/clients/admin/trustees_tab.ml:621
 #. src/web/clients/admin/trustees_tab.ml:524
@@ -539,7 +539,7 @@ msgstr "Téléchargez "
 
 #: src/web/clients/admin/elections.ml:1174
 msgid "Download full lists in JSON format"
-msgstr ""
+msgstr "Télécharger les listes complètes au format JSON"
 
 #: src/web/clients/admin/elections.ml:2139
 msgid "Download sealing log"
@@ -681,7 +681,7 @@ msgstr "Échec"
 
 #: src/web/clients/admin/elections.ml:921
 msgid "Filter voters by username prefix"
-msgstr ""
+msgstr "Filtrer les électeurs par préfixe de nom d'utilisateur"
 
 #: src/web/clients/credauth/generate.ml:106
 msgid "Fingerprint of public credentials:"
@@ -897,7 +897,7 @@ msgstr "Nombre minimum de choix à sélectionner"
 
 #: src/web/clients/admin/elections.ml:679
 msgid "Miscellaneous:"
-msgstr ""
+msgstr "Divers :"
 
 #: src/web/clients/credop/credop.ml:100
 msgid "Missing secret key. You must come to this page by following the full link that has been sent to you by e-mail."
@@ -978,7 +978,7 @@ msgstr "Nombre de sièges :"
 
 #: src/web/clients/admin/elections.ml:972
 msgid "Number of voters:"
-msgstr ""
+msgstr "Nombre de votants :"
 
 #: src/web/common/mails_admin.ml:131
 msgid "On first connection, you will generate a private key."
@@ -1683,7 +1683,7 @@ msgstr "Complexité totale :"
 
 #: src/web/clients/admin/elections.ml:984
 msgid "Total weight:"
-msgstr ""
+msgstr "Poids total :"
 
 #: src/web/clients/trustee/generate.ml:322
 msgid "Trustee key generation"
@@ -1774,7 +1774,7 @@ msgstr "Type de variation"
 
 #: src/web/clients/admin/elections.ml:1180
 msgid "View voter list"
-msgstr ""
+msgstr "Voir la liste électorale"
 
 #: src/web/clients/admin/elections.ml:1143 src/web/clients/admin/elections.ml:175
 msgid "Voter list"
