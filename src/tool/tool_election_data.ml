@@ -271,7 +271,10 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
              (fun _ (x : _ public_credential_props) (has_weights, accu) ->
                let has_weights = has_weights || x.weight <> None in
                let y = G.to_string x.credential in
-               if SMap.mem y accu then
+               (* the identity element would let anyone sign ballots *)
+               if (not (G.check x.credential)) || G.(x.credential =~ one) then
+                 Printf.ksprintf failwith "invalid credential: %s" y
+               else if SMap.mem y accu then
                  Printf.ksprintf failwith "duplicate credential: %s" y
                else
                  ( has_weights,

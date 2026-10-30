@@ -221,6 +221,13 @@ let make file =
           assert (G.(public_key =~ K.combine_keys trustees))
       | None -> failwith "missing trustees");
       let* () =
+        (* also checks the credentials, even if there are no ballots *)
+        let* x = Lazy.force public_creds_weights in
+        match x with
+        | Some _ -> Lwt.return_unit
+        | None -> failwith "missing public credentials"
+      in
+      let* () =
         let* x = Lazy.force raw_ballots in
         match x with
         | Some _ ->
