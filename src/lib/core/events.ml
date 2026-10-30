@@ -40,3 +40,16 @@ let update_roots h event accu =
   | `EncryptedTally -> { accu with roots_encrypted_tally = event.event_payload }
   | `Result -> { accu with roots_result = event.event_payload }
   | _ -> accu
+
+let is_valid_transition prev next =
+  match (prev, next) with
+  | None, `Setup -> true
+  | Some (`Setup | `Ballot), (`Ballot | `EndBallots) -> true
+  | Some `EndBallots, `EncryptedTally -> true
+  | Some (`EncryptedTally | `Shuffle), `Shuffle -> true
+  | Some `Shuffle, `EndShuffles -> true
+  | ( Some (`EncryptedTally | `EndShuffles | `PartialDecryption),
+      `PartialDecryption ) ->
+      true
+  | Some `PartialDecryption, `Result -> true
+  | _ -> false

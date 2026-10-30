@@ -256,12 +256,20 @@ struct
           loop previous (previous :: accu)
     in
     let* events = loop last [ last ] in
-    let rec loop height parent = function
+    let rec loop height parent prev_typ = function
       | [] -> M.return ()
       | event :: events ->
           let event_s = string_of_event event in
           let event_h = Hash.hash_string event_s in
-          if event.event_parent = parent && event.event_height = height then
+          if not (Events.is_valid_transition prev_typ event.event_typ) then
+            let msg =
+              Printf.sprintf "unexpected %s event at height %d"
+                (string_of_event_type event.event_typ)
+                height
+            in
+            M.fail (Failure msg)
+          else if event.event_parent = parent && event.event_height = height
+          then
             let* () =
               match event.event_typ with
               | `Ballot | `Result ->
@@ -337,10 +345,10 @@ struct
                   in
                   M.return ()
             in
-            loop (height + 1) (Some event_h) events
+            loop (height + 1) (Some event_h) (Some event.event_typ) events
           else
             let msg = Printf.sprintf "inconsistency at height %d" height in
             M.fail (Failure msg)
     in
-    loop 0 None events
+    loop 0 None None events
 end
