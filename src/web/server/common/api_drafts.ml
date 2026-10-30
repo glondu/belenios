@@ -421,8 +421,8 @@ let submit_public_credentials s
               else if Weight.compare w weight <> 0 then
                 invalid "differing weight"
               else if SSet.mem cred_s creds then invalid "duplicate credential"
-              else if not (G.check p.credential) then
-                invalid "public credential"
+              else if not (G.check p.credential && not G.(p.credential =~ one))
+              then invalid "public credential"
               else used := true
         in
         (i + 1, SSet.add cred_s creds))
