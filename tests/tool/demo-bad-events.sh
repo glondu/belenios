@@ -49,7 +49,8 @@ EOF
     belenios-tool setup make-election $uuid $group --template $1
 
     belenios-tool archive init
-    rm -f election.json trustees.json public_creds.json
+    mkdir setup
+    mv election.json trustees.json public_creds.json setup/
 
     BEL=$UUID.bel
 }
@@ -100,6 +101,23 @@ vote voter1 "$H_VOTE"
 vote voter2 "$H_VOTE"
 belenios-tool election verify
 snapshot
+
+# Recreate the archive with an extra public credential $1
+init_with_credential () {
+    rm -f $BEL
+    cp ../setup/election.json ../setup/trustees.json .
+    jq --compact-output --arg c "$1" '. + [$c + ",,intruder"]' \
+        ../setup/public_creds.json > public_creds.json
+    belenios-tool archive init
+}
+
+expect_rejected "the identity element as credential" '
+    init_with_credential 0000000000000000000000000000000000000000000000000000000000000001
+' "invalid credential"
+
+expect_rejected "a credential of order 2" '
+    init_with_credential 7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec
+' "is not a valid public credential"
 
 expect_rejected "a ballot after EndBallots" '
     belenios-tool archive add-event --type=EndBallots < /dev/null

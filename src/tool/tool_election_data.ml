@@ -273,6 +273,10 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
                    has_weights || String.index_opt x ',' <> None
                  in
                  match Cred.parse_public_credential x with
+                 | Some (_, y) when G.(y =~ one) ->
+                     (* the identity element would let anyone sign ballots *)
+                     Printf.ksprintf failwith "invalid credential: %s"
+                       (G.to_string y)
                  | Some (w, y) ->
                      let y = G.to_string y in
                      if SMap.mem y accu then
