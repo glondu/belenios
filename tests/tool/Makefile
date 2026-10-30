@@ -10,6 +10,7 @@ check:
 	./demo-l.sh
 	./demo-n-voters.sh
 	./demo-complex.sh
+	./demo-bad-events.sh
 
 clean:
 	rm -rf data

@@ -62,3 +62,7 @@ type roots = {
 
 val empty_roots : roots
 val update_roots : hash -> event -> roots -> roots
+
+val is_valid_transition : event_type option -> event_type -> bool
+(** [is_valid_transition prev next] tells whether an event of type [next] may
+    follow an event of type [prev] ([None] for the first event). *)

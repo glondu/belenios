@@ -253,6 +253,22 @@ let make file =
         | None -> Lwt_io.eprintl "I: no shuffles to check"
       in
       let* () =
+        (* Event ordering (checked by fsck) ensures that partial
+           decryptions follow EndShuffles iff there are shuffles *)
+        let* shuffles = Lazy.force raw_shuffles in
+        let* pds = Lazy.force pds in
+        match (W.has_nh_questions, shuffles, pds) with
+        | true, None, Some _ ->
+            failwith
+              "the election has non-homomorphic questions and partial \
+               decryptions were found without shuffles"
+        | false, Some _, _ ->
+            failwith
+              "the election has no non-homomorphic questions and shuffles were \
+               found"
+        | _ -> Lwt.return_unit
+      in
+      let* () =
         let* x = Lazy.force result in
         let* y = Lazy.force pds in
         match (x, trustees, y) with
