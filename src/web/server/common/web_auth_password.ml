@@ -143,7 +143,7 @@ struct
       }
 
   let () =
-    Eliom_registration.Any.register ~service:Web_services.password_post
+    Eliom.Registration.Any.register ~service:Web_services.password_post
       password_handler
 end
 

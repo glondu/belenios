@@ -76,7 +76,7 @@ module Make (I : SENDER) () = struct
     let () =
       let x = { recipient = recipient.address; code; expiration_time } in
       let msg = Printf.sprintf "Sending OTP %s" (!+yojson_of_otp_record x) in
-      Ocsigen_messages.accesslog msg
+      Ocsigen.Messages.accesslog msg
     in
     codes :=
       SMap.add recipient.address

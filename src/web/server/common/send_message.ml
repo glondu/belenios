@@ -185,7 +185,7 @@ let send ?internal (msg : message) =
         Lwt.return_ok recipient.address)
       (function
         | Unix.Unix_error (Unix.EAGAIN, _, _) when retry > 0 ->
-            Ocsigen_messages.warning
+            Ocsigen.Messages.warning
               "Failed to fork for sending an e-mail; will try again in 1s";
             let* () = Lwt_unix.sleep 1. in
             loop (retry - 1)
@@ -194,7 +194,7 @@ let send ?internal (msg : message) =
               Printf.sprintf "Failed to send an e-mail to %s: %s"
                 recipient.address (Printexc.to_string e)
             in
-            Ocsigen_messages.errlog msg;
+            Ocsigen.Messages.errlog msg;
             Lwt.return_error ())
   in
   loop 2

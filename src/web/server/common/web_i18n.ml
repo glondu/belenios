@@ -112,7 +112,7 @@ let parse_lang =
     | exception Not_found -> None
 
 let get_preferred_language () =
-  let langs = Eliom_request_info.get_accept_language () in
+  let langs = Eliom.Request_info.get_accept_language () in
   match langs with
   | [] -> default_lang
   | (lang, _) :: _ -> (
@@ -123,7 +123,7 @@ module Make () = struct
     let* lang =
       match lang with
       | None -> (
-          let cookies = Eliom_request_info.get_cookies () in
+          let cookies = Eliom.Request_info.get_cookies () in
           match
             Ocsigen_cookie_map.Map_inner.find_opt "belenios-lang" cookies
           with

@@ -25,14 +25,14 @@ type signup_kind = CreateAccount | ChangePassword of { username : string }
 type signup_env = { kind : signup_kind; service : string }
 
 module type S = sig
-  val site_user : (user * account * string) option Eliom_reference.eref
+  val site_user : (user * account * string) option Eliom.Reference.eref
 
   val connect_context :
-    Belenios_web_api.connect_context option option Eliom_reference.eref
+    Belenios_web_api.connect_context option option Eliom.Reference.eref
 
-  val signup_address : string option Eliom_reference.eref
-  val signup_env : signup_env option Eliom_reference.eref
-  val set_email_env : string option Eliom_reference.eref
+  val signup_address : string option Eliom.Reference.eref
+  val signup_env : signup_env option Eliom.Reference.eref
+  val set_email_env : string option Eliom.Reference.eref
   val discard : unit -> unit Lwt.t
   val get_consent_cookie : unit -> bool
   val set_consent_cookie : unit -> unit

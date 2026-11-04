@@ -26,8 +26,8 @@ open Web_common
 module Make (X : Pages_sig.S) (Web_auth : Web_auth_sig.S) = struct
   open X
   open Web_services
-  open Eliom_service
-  open Eliom_registration
+  open Eliom.Service
+  open Eliom.Registration
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
@@ -103,7 +103,7 @@ module Make (X : Pages_sig.S) (Web_auth : Web_auth_sig.S) = struct
     Any.register ~service:set_language (fun (lang, cont) () ->
         let exp = Unix.gettimeofday () +. (10. *. 365. *. 86400.) in
         let () =
-          Eliom_state.set_cookie ~exp ~name:"belenios-lang" ~value:lang ()
+          Eliom.State.set_cookie ~exp ~name:"belenios-lang" ~value:lang ()
         in
         Web_auth.exec @@ `Site cont)
 

@@ -19,8 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Eliom_service
-open Eliom_parameter
+open Eliom.Service
+open Eliom.Parameter
 open Web_common
 
 module Make () = struct
@@ -30,7 +30,9 @@ module Make () = struct
   let apps = create ~path:(Path []) ~meth:(Get (suffix (string "page"))) ()
 
   let default_rewrite_prefix x =
-    let prefix = Eliom_uri.make_string_uri ~absolute:true ~service:home () in
+    let prefix =
+      Eliom.Eliom_uri.make_string_uri ~absolute:true ~service:home ()
+    in
     let nprefix = String.length prefix in
     if String.starts_with ~prefix x then
       String.concat "/"
@@ -52,14 +54,14 @@ module Make () = struct
 
   let make_absolute_string_uri ?fragment ~service x =
     (* We assume fragment is already encoded, that's why we don't use
-       the labelled argument of Eliom_uri.make_string_uri. *)
-    Eliom_uri.make_string_uri ~absolute:true ~service x |> !rewrite_fun
+       the labelled argument of Eliom.Eliom_uri.make_string_uri. *)
+    Eliom.Eliom_uri.make_string_uri ~absolute:true ~service x |> !rewrite_fun
     |> fun x ->
     match fragment with None -> x | Some y -> String.concat "#" [ x; y ]
 
   let admin_basic () =
-    Eliom_service.preapply
-      ~service:(Eliom_service.static_dir ())
+    Eliom.Service.preapply
+      ~service:(Eliom.Service.static_dir ())
       [ "static"; "admin_basic.html" ]
 
   let make_admin_link uuid =
@@ -128,7 +130,7 @@ module Make () = struct
       ~meth:(Get (uuid "uuid" ** string "state"))
       ()
 
-  let booth_v2 () = Eliom_service.preapply ~service:apps "vote"
+  let booth_v2 () = Eliom.Service.preapply ~service:apps "vote"
 
   type booth =
     | Booth :
@@ -144,7 +146,7 @@ module Make () = struct
           unit,
           unit,
           non_ocaml )
-        Eliom_service.t)
+        Eliom.Service.t)
         -> booth
 
   let booths = [| (Booth booth_v2, "Version 2") |]

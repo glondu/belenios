@@ -27,29 +27,18 @@ open Api_generic
 
 let ( let& ) = Option.bind
 
-[%%import "../../../platform/config.mlh"]
-[%%if ocsigenserver_version < (7, 0)]
-
 let return_response x =
   let* response, body = x in
-  Lwt.return @@ Ocsigen_response.make ~body response
+  let body = Ocsigen.Response.Body.of_cohttp ~encoding:Chunked body in
+  Lwt.return @@ Ocsigen.Response.make ~body response
 
-[%%else]
-
-let return_response x =
-  let* response, body = x in
-  let body = Ocsigen_response.Body.of_cohttp ~encoding:Chunked body in
-  Lwt.return @@ Ocsigen_response.make ~body response
-
-[%%endif]
-
-module Api_result = Eliom_mkreg.Make (struct
+module Api_result = Eliom.Mkreg.Make (struct
   type page = Api_generic.result
   type options = unit
-  type result = Ocsigen_response.t
+  type result = Ocsigen.Response.t
 
   let result_of_http_result = Fun.id
-  let send_appl_content = Eliom_service.XNever
+  let send_appl_content = Eliom.Service.XNever
 
   let send ?options:_ ?charset:_ ?code:_ ?content_type:_ ?headers:_ response =
     let headers = Cohttp.Header.of_list [ ("cache-control", "no-cache") ] in
@@ -85,9 +74,9 @@ module Api_result = Eliom_mkreg.Make (struct
           Cohttp.Header.add headers "content-type" "text/event-stream"
         in
         let body =
-          Ocsigen_response.Body.of_cohttp ~encoding:Chunked @@ `Stream x
+          Ocsigen.Response.Body.of_cohttp ~encoding:Chunked @@ `Stream x
         in
-        Lwt.return @@ Ocsigen_response.respond ~headers ~status:`OK ~body ()
+        Lwt.return @@ Ocsigen.Response.respond ~headers ~status:`OK ~body ()
 end)
 
 module Make (Web_state : Web_state_sig.S) = struct
@@ -98,21 +87,21 @@ module Make (Web_state : Web_state_sig.S) = struct
   let login_voter_dispatch = ref (fun ~state:_ _ _ _ -> assert false)
 
   let dispatch endpoint method_ _params body =
-    let sp = Eliom_common.get_sp () in
+    let sp = Eliom.Common.get_sp () in
     let* token =
-      let* user = Eliom_reference.get Web_state.site_user in
+      let* user = Eliom.Reference.get Web_state.site_user in
       let token =
         let& x =
-          Ocsigen_request.header sp.Eliom_common.sp_request.request_info
-            (Ocsigen_header.Name.of_string "Authorization")
+          Ocsigen.Request.header sp.Eliom.Common.sp_request.request_info
+            (Ocsigen_http.Header.Name.of_string "Authorization")
         in
         String.drop_prefix ~prefix:"Bearer " x
       in
       Lwt.return { token; user }
     in
     let ifmatch =
-      Ocsigen_request.header sp.Eliom_common.sp_request.request_info
-        (Ocsigen_header.Name.of_string "If-Match")
+      Ocsigen.Request.header sp.Eliom.Common.sp_request.request_info
+        (Ocsigen_http.Header.Name.of_string "If-Match")
     in
     let body =
       {
@@ -150,8 +139,8 @@ module Make (Web_state : Web_state_sig.S) = struct
     | [ "send-message"; kind ] -> (
         let@ hmac cont =
           let x =
-            Ocsigen_request.header sp.Eliom_common.sp_request.request_info
-              (Ocsigen_header.Name.of_string "Authorization")
+            Ocsigen.Request.header sp.Eliom.Common.sp_request.request_info
+              (Ocsigen_http.Header.Name.of_string "Authorization")
           in
           match x with
           | None -> unauthorized
@@ -237,8 +226,8 @@ module Make (Web_state : Web_state_sig.S) = struct
         | _ -> method_not_allowed)
     | _ -> not_found
 
-  open Eliom_service
-  open Eliom_parameter
+  open Eliom.Service
+  open Eliom.Parameter
 
   let api_get =
     create ~path:(Path [ "api" ])

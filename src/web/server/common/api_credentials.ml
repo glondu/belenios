@@ -112,7 +112,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft)) voters
           Printf.sprintf "could not create credentials spool dir for %s [%s]"
             (Uuid.to_string r.uuid) (Printexc.to_string e)
         in
-        Ocsigen_messages.errlog msg;
+        Ocsigen.Messages.errlog msg;
         Lwt.return_unit)
   in
   let* () =
@@ -135,7 +135,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft)) voters
           Printf.sprintf "sending seed for %s to %s failed"
             (Uuid.to_string r.uuid) r.info.operator
         in
-        Ocsigen_messages.errlog msg;
+        Ocsigen.Messages.errlog msg;
         Lwt.return_unit
   in
   let url = Printf.sprintf "%sapi/credentials/belenios" r.belenios_url in
@@ -155,7 +155,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft)) voters
            %d"
           (Uuid.to_string r.uuid) url code
       in
-      Ocsigen_messages.errlog msg;
+      Ocsigen.Messages.errlog msg;
       Lwt.return_unit
 
 let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
@@ -169,7 +169,7 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
     | 200 -> cont @@ e.of_string x
     | code ->
         let msg = Printf.sprintf "GET %s returned status %d" url code in
-        Ocsigen_messages.errlog msg;
+        Ocsigen.Messages.errlog msg;
         Lwt.return_nil
   in
   let get_object h =
@@ -469,10 +469,10 @@ let dispatch endpoint method_ body =
       match method_ with
       | `GET ->
           let@ seed cont =
-            let sp = Eliom_common.get_sp () in
+            let sp = Eliom.Common.get_sp () in
             match
-              Ocsigen_request.header sp.sp_request.request_info
-                (Ocsigen_header.Name.of_string "Authorization")
+              Ocsigen.Request.header sp.sp_request.request_info
+                (Ocsigen_http.Header.Name.of_string "Authorization")
             with
             | None -> unauthorized
             | Some x -> (

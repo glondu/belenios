@@ -31,7 +31,7 @@ type state = {
 }
 
 type result =
-  | Html : Html_types.div Eliom_content.Html.elt -> result
+  | Html : Html_types.div Eliom.Content.Html.elt -> result
   | Redirection : string -> result
 
 module type AUTH_SYSTEM = sig
@@ -98,7 +98,7 @@ module type S = sig
     auth_system ->
     state:string ->
     post_login_handler ->
-    Eliom_registration.Html.result Lwt.t
+    Eliom.Registration.Html.result Lwt.t
 
   val get_site_login_handler : string -> result Lwt.t
   val get_dispatch : string -> auth_dispatch option
@@ -108,7 +108,7 @@ module type S = sig
     ?login:bool ->
     ?state:string ->
     [< `Election of uuid | `Site of Web_common.site_cont ] ->
-    Eliom_registration.Html.result Lwt.t
+    Eliom.Registration.Html.result Lwt.t
 
   module State : STATE
 

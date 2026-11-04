@@ -24,8 +24,8 @@ open Lwt.Syntax
 open Belenios
 open Belenios_server_core
 open Web_common
-open Eliom_content.Html.F
-open Eliom_content.Html.F.Form
+open Eliom.Content.Html.F
+open Eliom.Content.Html.F.Form
 
 module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) =
 struct
@@ -35,31 +35,31 @@ struct
     let attributes =
       match target with Some x -> [ a_target x ] | None -> []
     in
-    Eliom_content.Html.F.Raw.a
+    Eliom.Content.Html.F.Raw.a
       ~a:(a_href (Xml.uri_of_string uri) :: attributes)
       [ txt text ]
 
   let raw_a ~service ?(a = []) contents x =
-    let href = Xml.uri_of_string (Eliom_uri.make_string_uri ~service x) in
-    Eliom_content.Html.F.Raw.a ~a:(a_href href :: a) contents
+    let href = Xml.uri_of_string (Eliom.Eliom_uri.make_string_uri ~service x) in
+    Eliom.Content.Html.F.Raw.a ~a:(a_href href :: a) contents
 
   let api_a endpoint uuid contents =
     let path = (endpoint uuid).Belenios_web_api.Endpoints.path in
     let href = Printf.sprintf "%s/api/%s" !Web_config.prefix path in
-    Eliom_content.Html.F.Raw.a ~a:[ a_href @@ Xml.uri_of_string href ] contents
+    Eliom.Content.Html.F.Raw.a ~a:[ a_href @@ Xml.uri_of_string href ] contents
 
   let static x =
     let service =
-      Eliom_service.static_dir_with_params
-        ~get_params:(Eliom_parameter.string "version")
+      Eliom.Service.static_dir_with_params
+        ~get_params:(Eliom.Parameter.string "version")
         ()
     in
     make_absolute_string_uri ~service ("static" :: x, Version.build)
-    |> Eliom_content.Xml.uri_of_string
+    |> Eliom.Content.Xml.uri_of_string
 
   let root x =
-    let service = Eliom_service.static_dir () in
-    make_absolute_string_uri ~service x |> Eliom_content.Xml.uri_of_string
+    let service = Eliom.Service.static_dir () in
+    make_absolute_string_uri ~service x |> Eliom.Content.Xml.uri_of_string
 
   let get_preferred_gettext ?lang () =
     Web_i18n.get_preferred_gettext ?lang "voter"
@@ -74,9 +74,9 @@ struct
         | Some x -> return @@ Unsafe.data x)
 
   module UiBase = struct
-    module Xml = Eliom_content.Xml
-    module Svg = Eliom_content.Svg.F.Raw'
-    module Html = Eliom_content.Html.F.Raw'
+    module Xml = Eliom.Content.Xml
+    module Svg = Eliom.Content.Svg.F.Raw'
+    module Html = Eliom.Content.Html.F.Raw'
 
     let uris = Api_generic.get_configuration_uris ()
   end
@@ -97,7 +97,7 @@ struct
       | Some uuid ->
           let uri = Xml.uri_of_string @@ make_admin_link (Some uuid) in
           let id = Printf.sprintf "election_admin_%s" (Uuid.to_string uuid) in
-          Eliom_content.Html.F.Raw.a
+          Eliom.Content.Html.F.Raw.a
             ~a:[ a_id id; a_href uri ]
             [ txt (s_ "Administer this election") ]
     in
@@ -148,7 +148,7 @@ struct
              a_dir (Language.get_lang_dir lang);
              a_xml_lang (Language.unwrap lang);
            ]
-         (head (Eliom_content.Html.F.title (txt title)) head_content)
+         (head (Eliom.Content.Html.F.title (txt title)) head_content)
          (body
             (Ui.base_body l ~full_title ~login_box ~warning ~lang_box ~content
                ~footer ~administer ~extra_footer ?sticky_footer ~restricted_mode
@@ -197,10 +197,10 @@ struct
          ]
 
   let make_a_with_hash ~service ?hash contents =
-    let uri = Eliom_uri.make_string_uri ~service () in
+    let uri = Eliom.Eliom_uri.make_string_uri ~service () in
     let uri = match hash with None -> uri | Some x -> uri ^ "#" ^ x in
     let href = [ a_href (Xml.uri_of_string uri) ] in
-    Eliom_content.Html.F.Raw.a ~a:href [ txt contents ]
+    Eliom.Content.Html.F.Raw.a ~a:href [ txt contents ]
 
   let a_mailto ?(dest = "") ~subject ~body contents =
     let uri =
@@ -228,7 +228,7 @@ struct
       | Some uri, None ->
           div
             [
-              Eliom_content.Html.F.Raw.a
+              Eliom.Content.Html.F.Raw.a
                 ~a:[ a_id "generic_proceed_link"; a_href uri ]
                 [ txt (s_ "Proceed") ];
             ]
@@ -241,7 +241,7 @@ struct
     let id = [ a_id id ] in
     let rows = match rows with None -> [] | Some i -> [ a_rows i ] in
     let cols = match cols with None -> [] | Some i -> [ a_cols i ] in
-    Eliom_content.Html.F.Raw.textarea ~a:(id @ rows @ cols) (txt contents)
+    Eliom.Content.Html.F.Raw.textarea ~a:(id @ rows @ cols) (txt contents)
 
   let login_title site_or_election service =
     let* l = get_preferred_gettext () in
@@ -581,7 +581,7 @@ struct
     let open (val l) in
     let content =
       [
-        Eliom_content.Html.F.Raw.a
+        Eliom.Content.Html.F.Raw.a
           ~a:[ a_href (Xml.uri_of_string uri) ]
           [ txt @@ s_ "Click here" ];
       ]

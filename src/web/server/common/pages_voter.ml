@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Belenios
 open Web_common
-open Eliom_content.Html.F
+open Eliom.Content.Html.F
 
 module Make
     (Web_state : Web_state_sig.S)

@@ -523,11 +523,11 @@ let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
       let* () = Cohttp_lwt.Body.drain_body body in
       let code = Cohttp.Code.code_of_status x.status in
       let msg = Printf.sprintf "%s: %d" prefix code in
-      Ocsigen_messages.warning msg;
+      Ocsigen.Messages.warning msg;
       Lwt.return_unit)
     (fun e ->
       let msg = Printf.sprintf "%s: %s" prefix (Printexc.to_string e) in
-      Ocsigen_messages.errlog msg;
+      Ocsigen.Messages.errlog msg;
       Lwt.return_unit)
 
 let set_trustees election (se : _ raw_draft_election) uuid

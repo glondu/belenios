@@ -34,8 +34,8 @@ struct
   open X
   open Web_services
   open Site_common
-  open Eliom_service
-  open Eliom_registration
+  open Eliom.Service
+  open Eliom.Registration
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 

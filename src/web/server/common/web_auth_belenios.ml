@@ -21,7 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
-open Eliom_service
+open Eliom.Service
 open Belenios
 open Belenios_storage_api
 open Web_common
@@ -29,14 +29,14 @@ open Web_common
 module Make (Web_services : Web_services_sig.S) (Web_auth : Web_auth_sig.S) =
 struct
   let get_context =
-    let open Eliom_service in
+    let open Eliom.Service in
     create
       ~path:(Path [ "auth"; "belenios"; "get-context" ])
-      ~meth:(Get Eliom_parameter.(string "state"))
+      ~meth:(Get Eliom.Parameter.(string "state"))
       ()
 
   let () =
-    let open Eliom_registration in
+    let open Eliom.Registration in
     Any.register ~service:get_context (fun state () ->
         let context : Belenios_web_api.connect_context =
           match Web_auth.State.get_election ~state with
@@ -54,19 +54,19 @@ struct
             "application/json" ))
 
   let login_belenios =
-    Eliom_service.create
-      ~path:(Eliom_service.Path [ "auth"; "belenios"; "return" ])
-      ~meth:(Eliom_service.Get Eliom_parameter.any) ()
+    Eliom.Service.create
+      ~path:(Eliom.Service.Path [ "auth"; "belenios"; "return" ])
+      ~meth:(Eliom.Service.Get Eliom.Parameter.any) ()
 
   let belenios_get_info ~server ~code =
     let url =
       let service =
-        Eliom_service.extern ~prefix:server ~path:[ "validate" ]
-          ~meth:(Get Eliom_parameter.(string "code"))
+        Eliom.Service.extern ~prefix:server ~path:[ "validate" ]
+          ~meth:(Get Eliom.Parameter.(string "code"))
           ()
       in
       let service = preapply ~service code in
-      Eliom_uri.make_string_uri ~absolute:true ~service ()
+      Eliom.Eliom_uri.make_string_uri ~absolute:true ~service ()
     in
     let* x, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
     let* info = Cohttp_lwt.Body.to_string body in
@@ -84,10 +84,10 @@ struct
         match (get "server", get "callback") with
         | Some prefix, Some callback ->
             let auth_endpoint =
-              Eliom_service.extern ~prefix ~path:[ "login" ]
+              Eliom.Service.extern ~prefix ~path:[ "login" ]
                 ~meth:
-                  (Eliom_service.Get
-                     Eliom_parameter.(string "callback" ** string "state"))
+                  (Eliom.Service.Get
+                     Eliom.Parameter.(string "callback" ** string "state"))
                 ()
             in
             let service = preapply ~service:auth_endpoint (callback, state) in
@@ -122,5 +122,5 @@ struct
     | _ -> fail_http `Unauthorized
 
   let () =
-    Eliom_registration.Any.register ~service:login_belenios belenios_handler
+    Eliom.Registration.Any.register ~service:login_belenios belenios_handler
 end
