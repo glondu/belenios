@@ -4,7 +4,7 @@ stages:
 
 .base:
   # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by contrib/docker/gitlab-ci.Dockerfile
-  image: glondu/beleniosbase-tests:20260425-1
+  image: glondu/beleniosbase-tests:20261103-1
 
 .basic-server-test-script: &basic-server-test-script
     # Start belenios web server
