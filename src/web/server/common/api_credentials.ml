@@ -328,7 +328,7 @@ let process_request : credentials_request -> _ = function
   | `NewRequest r ->
       let@ _check_belenios_url cont =
         if !Web_config.credentials_server_allowed r.belenios_url then cont ()
-        else return_yojson 400 `Null
+        else return_yojson `Bad_request `Null
       in
       let@ _check_info cont =
         if
@@ -336,7 +336,7 @@ let process_request : credentials_request -> _ = function
           = Printf.sprintf "%s/api/credentials/server" !Web_config.prefix
           && is_email r.info.operator
         then cont ()
-        else return_yojson 400 `Null
+        else return_yojson `Bad_request `Null
       in
       let uuid = Uuid.to_string r.uuid in
       let@ draft cont =
@@ -348,9 +348,9 @@ let process_request : credentials_request -> _ = function
         match Cohttp.Code.code_of_status x.status with
         | 200 -> (
             match !*draft_of_yojson body with
-            | exception _ -> return_yojson 502 `Null
+            | exception _ -> return_yojson `Bad_gateway `Null
             | x -> cont x)
-        | code -> return_yojson 502 (`Int code)
+        | code -> return_yojson `Bad_gateway (`Int code)
       in
       let@ voter_list cont =
         let url =
@@ -367,9 +367,9 @@ let process_request : credentials_request -> _ = function
         match Cohttp.Code.code_of_status x.status with
         | 200 -> (
             match !*voters_of_yojson body with
-            | exception _ -> return_yojson 502 `Null
+            | exception _ -> return_yojson `Bad_gateway `Null
             | x -> cont x)
-        | code -> return_yojson 502 (`Int code)
+        | code -> return_yojson `Bad_gateway (`Int code)
       in
       Lwt.async (process_request_new r draft voter_list);
       ok
@@ -487,7 +487,7 @@ let dispatch endpoint method_ body =
           if check_seed ~params ~seed then
             let* p = Storage.C.get s Credentials_credits in
             match Lopt.get_string p with
-            | Some p -> return_json 200 p
+            | Some p -> return_json `OK p
             | None -> not_found
           else unauthorized
       | _ -> method_not_allowed)

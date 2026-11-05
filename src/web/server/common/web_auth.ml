@@ -73,7 +73,7 @@ let admin_cont a ~address user =
   match account with
   | Ok account ->
       let* token = Api_generic.new_token account user in
-      Api_generic.return_json 200
+      Api_generic.return_json `OK
       @@ !+Belenios_web_api.yojson_of_auth_token token
   | Error () -> Api_generic.forbidden
 
@@ -483,7 +483,7 @@ struct
                   env.user <- Some { user; name = None; timestamp = None };
                   let* x = !election_cast_confirm_handler_ref ~state in
                   match x with
-                  | Ok _ -> Api_generic.return_yojson 200 (yojson_of_uuid uuid)
+                  | Ok _ -> Api_generic.return_yojson `OK (yojson_of_uuid uuid)
                   | Error _ -> Api_generic.forbidden
                 in
                 dispatch a endpoint method_ body cont)

@@ -83,7 +83,7 @@ let dispatch ~token:_ ~ifmatch:_ endpoint method_ _body =
           let* x = lookup id in
           match x with
           | None -> not_found
-          | Some x -> return_json 200 (!+yojson_of_billing_request x))
+          | Some x -> return_json `OK (!+yojson_of_billing_request x))
       | _ -> method_not_allowed)
   | [ "requests"; id; "validate" ] -> (
       match method_ with

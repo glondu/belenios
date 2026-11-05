@@ -563,7 +563,7 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
       match method_ with
       | `GET ->
           let* x = get () in
-          return_yojson 200 x
+          return_yojson `OK x
       | `POST -> (
           let@ admin_id cont =
             match who with
@@ -644,7 +644,7 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
           let@ () =
            fun cont ->
             let* x = cont () in
-            return_yojson 200 @@ [%yojson_of_group: _ trustees_trustee_status] x
+            return_yojson `OK @@ [%yojson_of_group: _ trustees_trustee_status] x
           in
           let@ dt cont =
             match dt with
@@ -762,7 +762,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
         Storage.T.set s (Trustees_draft G.spec) Value
           { step = 1; mode = `Basic { trustees = [] } }
       in
-      return_yojson 200 @@ `String (Uuid.to_string uuid)
+      return_yojson `OK @@ `String (Uuid.to_string uuid)
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.T.with_transaction uuid in

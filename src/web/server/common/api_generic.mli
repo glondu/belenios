@@ -40,7 +40,7 @@ type generic_content = String of string | Path of string
 type generic = { mime : string; content : generic_content }
 
 type result =
-  [ `Json of int * string
+  [ `Json of Http.Status.t * string
   | `Bel of string
   | `Sealing_log of string
   | `Generic of generic
@@ -48,8 +48,8 @@ type result =
 
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
-val return_json : int -> string -> result Lwt.t
-val return_yojson : int -> json -> result Lwt.t
+val return_json : Http.Status.t -> string -> result Lwt.t
+val return_yojson : Http.Status.t -> json -> result Lwt.t
 val return_generic : generic -> result Lwt.t
 val ok : result Lwt.t
 val bad_request : result Lwt.t

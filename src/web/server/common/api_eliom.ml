@@ -54,8 +54,7 @@ module Api_result = Eliom_mkreg.Make (struct
   let send ?options:_ ?charset:_ ?code:_ ?content_type:_ ?headers:_ response =
     let headers = Cohttp.Header.of_list [ ("cache-control", "no-cache") ] in
     match response with
-    | `Json (code, body) ->
-        let status = `Code code in
+    | `Json (status, body) ->
         let headers =
           Cohttp.Header.add headers "content-type" "application/json"
         in
@@ -129,13 +128,13 @@ module Make (Web_state : Web_state_sig.S) = struct
         match method_ with
         | `GET ->
             let x = Api_generic.get_configuration () in
-            return_json 200 (!+yojson_of_configuration x)
+            return_json `OK (!+yojson_of_configuration x)
         | _ -> method_not_allowed)
     | [ "readonly" ] -> (
         match method_ with
         | `GET ->
             let x = Storage.readonly.get () in
-            return_yojson 200 (`Bool x)
+            return_yojson `OK (`Bool x)
         | `PUT ->
             let@ token = Option.unwrap unauthorized token.token in
             if !Web_config.readonly_token_hash = Some (sha256_hex token) then
@@ -143,7 +142,7 @@ module Make (Web_state : Web_state_sig.S) = struct
               match x with
               | `Bool x ->
                   Storage.readonly.set x;
-                  return_yojson 200 `Null
+                  return_yojson `OK `Null
               | _ -> bad_request
             else unauthorized
         | _ -> method_not_allowed)
@@ -204,7 +203,7 @@ module Make (Web_state : Web_state_sig.S) = struct
             match !get_result ~state with
             | None -> not_found
             | Some result ->
-                return_json 200
+                return_json `OK
                   (!+Belenios_web_api.yojson_of_cast_result result))
         | _ -> method_not_allowed)
     | "trustees" :: endpoint ->
