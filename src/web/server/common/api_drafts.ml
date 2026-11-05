@@ -1366,6 +1366,6 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       | `GET ->
           let@ () = handle_generic_error in
           let* x = get_draft_status uuid se in
-          return_json 200 (string_of_draft_status x)
+          return_json `OK (string_of_draft_status x)
       | _ -> method_not_allowed)
   | _ -> not_found

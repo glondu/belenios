@@ -59,7 +59,7 @@ struct
             match account with
             | Ok account ->
                 let* token = Api_generic.new_token account user in
-                Api_generic.return_json 200
+                Api_generic.return_json `OK
                 @@ Belenios_web_api.string_of_auth_token token
             | Error () -> Api_generic.forbidden)
         | _ -> Api_generic.method_not_allowed)

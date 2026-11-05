@@ -436,7 +436,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
       | `GET ->
           let* x = Web_persist.get_audit_cache s in
           let@ x = Option.unwrap not_found x in
-          return_json 200 @@ string_of_audit_cache x
+          return_json `OK @@ string_of_audit_cache x
       | _ -> method_not_allowed)
   | [ "sealing-log" ] -> (
       let@ _ = with_administrator token metadata in
@@ -451,7 +451,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
       | `GET ->
           let@ () = handle_generic_error in
           let* x = Web_persist.get_all_voters s in
-          return_json 200 (string_of_voter_list x)
+          return_json `OK (string_of_voter_list x)
       | _ -> method_not_allowed)
   | [ "records" ] -> (
       let@ _ = with_administrator token metadata in
@@ -459,7 +459,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
       | `GET ->
           let@ () = handle_generic_error in
           let* x = get_records s in
-          return_json 200 (string_of_records x)
+          return_json `OK (string_of_records x)
       | _ -> method_not_allowed)
   | [ "partial-decryptions" ] -> (
       match method_ with
@@ -467,7 +467,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
           let* x = get_partial_decryptions s metadata in
-          return_json 200 (string_of_partial_decryptions x)
+          return_json `OK (string_of_partial_decryptions x)
       | _ -> method_not_allowed)
   | [ "trustee" ] -> (
       let* state = Web_persist.get_election_state s in
@@ -480,7 +480,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
               let* tally_trustee_private_key =
                 find_trustee_private_key s trustee_id
               in
-              return_json 200
+              return_json `OK
                 (string_of_tally_trustee { tally_trustee_private_key })
           | `POST -> (
               let@ trustee_id = with_tally_trustee token s in
@@ -522,7 +522,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
           Lwt.catch
             (fun () ->
               let* x = Public_archive.get_nh_ciphertexts s in
-              return_json 200 x)
+              return_json `OK x)
             (function Election_not_found _ -> not_found | e -> Lwt.reraise e)
       | _ -> method_not_allowed)
   | [ "encrypted-tally" ] -> (
@@ -532,7 +532,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
           Lwt.catch
             (fun () ->
               let* x = Public_archive.get_latest_encrypted_tally s in
-              match x with None -> not_found | Some x -> return_json 200 x)
+              match x with None -> not_found | Some x -> return_json `OK x)
             (function Election_not_found _ -> not_found | e -> Lwt.reraise e)
       | _ -> method_not_allowed)
   | [ "shuffles" ] -> (
@@ -541,7 +541,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
           let* x = get_shuffles s metadata in
-          return_json 200 (string_of_shuffles x)
+          return_json `OK (string_of_shuffles x)
       | _ -> method_not_allowed)
   | [ "shuffles"; shuffler ] -> (
       match method_ with
@@ -562,7 +562,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
       | `GET ->
           let@ () = handle_generic_error in
           let* x = Public_archive.get_ballot_hashes s in
-          return_json 200 (string_of_ballots_with_weights x)
+          return_json `OK (string_of_ballots_with_weights x)
       | `POST ->
           let@ () = handle_generic_error in
           let@ state_module cont =
@@ -595,14 +595,14 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
             | None -> `Assoc []
             | Some state -> `Assoc [ ("state", `String state) ]
           in
-          return_json 401 (Yojson.Safe.to_string json)
+          return_json `Unauthorized (Yojson.Safe.to_string json)
       | _ -> method_not_allowed)
   | [ "objects"; hash ] -> (
       match method_ with
       | `GET -> (
           let@ () = handle_generic_error in
           let* x = Public_archive.get_data s (Hash.of_hex hash) in
-          match x with Some x -> return_json 200 x | None -> not_found)
+          match x with Some x -> return_json `OK x | None -> not_found)
       | _ -> method_not_allowed)
   | [ "archive-header" ] -> (
       match method_ with
@@ -610,7 +610,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
           let@ () = handle_generic_error in
           let* x = Storage.E.get s Archive_header in
           match Lopt.get_string x with
-          | Some x -> return_json 200 x
+          | Some x -> return_json `OK x
           | None -> not_found)
       | _ -> method_not_allowed)
   | [ "last-event" ] -> (
@@ -619,7 +619,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
           let@ () = handle_generic_error in
           let* x = Storage.E.get s Last_event in
           match Lopt.get_string x with
-          | Some x -> return_json 200 x
+          | Some x -> return_json `OK x
           | None -> not_found)
       | _ -> method_not_allowed)
   | [ "roots" ] -> (
@@ -627,7 +627,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
       | `GET ->
           let@ () = handle_generic_error in
           let* x = Public_archive.get_roots s in
-          return_json 200 (string_of_roots x)
+          return_json `OK (string_of_roots x)
       | _ -> method_not_allowed)
   | [ "archive.zip" ] -> (
       match method_ with
@@ -703,7 +703,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
           let@ () = handle_generic_error in
           let* uuid = Api_drafts.post_drafts account draft in
           match uuid with
-          | Some uuid -> return_json 200 (string_of_uuid uuid)
+          | Some uuid -> return_json `OK (string_of_uuid uuid)
           | None -> forbidden)
       | _ -> method_not_allowed)
   | [ uuid; "election" ] -> (
@@ -713,7 +713,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       match raw with
       | Some raw -> (
           match method_ with
-          | `GET -> return_json 200 raw
+          | `GET -> return_json `OK raw
           | _ -> method_not_allowed)
       | None -> (
           let* se = Storage.E.get s Draft in
@@ -741,7 +741,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | `GET ->
           Lwt.try_bind
             (fun () -> Public_archive.get_trustees s)
-            (fun raw -> return_json 200 raw)
+            (fun raw -> return_json `OK raw)
             (fun _ ->
               let* se = Storage.E.get s Draft in
               match Lopt.get_value se with
@@ -786,7 +786,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
                   trustees
                   |> string_of_trustees Yojson.Safe.write_json
                        Yojson.Safe.write_json
-                  |> return_json 200)
+                  |> return_json `OK)
       | _ -> method_not_allowed)
   | [ uuid; "automatic-dates" ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in

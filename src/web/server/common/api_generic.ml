@@ -64,7 +64,7 @@ type generic_content = String of string | Path of string
 type generic = { mime : string; content : generic_content }
 
 type result =
-  [ `Json of int * string
+  [ `Json of Http.Status.t * string
   | `Bel of string
   | `Sealing_log of string
   | `Generic of generic ]
@@ -74,16 +74,25 @@ type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 let return_json code x = Lwt.return @@ `Json (code, x)
 let return_yojson code x = return_json code (Yojson.Safe.to_string x)
 let return_generic x = Lwt.return @@ `Generic x
-let ok = return_json 200 "{}"
-let bad_request = return_json 400 {|"Bad Request"|}
-let unauthorized = return_json 401 {|"Unauthorized"|}
-let forbidden = return_json 403 {|"Forbidden"|}
-let not_found = return_json 404 {|"Not Found"|}
-let method_not_allowed = return_json 405 {|"Method Not Allowed"|}
-let precondition_failed = return_json 412 {|"Precondition Failed"|}
-let conflict = return_json 409 {|"Conflict"|}
-let request_entity_too_large = return_json 413 {|"Request Entity Too Large"|}
-let service_unavailable = return_json 503 {|"Service Unavailable"|}
+let ok = return_json `OK "{}"
+let bad_request = return_json `Bad_request {|"Bad Request"|}
+let unauthorized = return_json `Unauthorized {|"Unauthorized"|}
+let forbidden = return_json `Forbidden {|"Forbidden"|}
+let not_found = return_json `Not_found {|"Not Found"|}
+
+let method_not_allowed =
+  return_json `Method_not_allowed {|"Method Not Allowed"|}
+
+let precondition_failed =
+  return_json `Precondition_failed {|"Precondition Failed"|}
+
+let conflict = return_json `Conflict {|"Conflict"|}
+
+let request_entity_too_large =
+  return_json `Request_entity_too_large {|"Request Entity Too Large"|}
+
+let service_unavailable =
+  return_json `Service_unavailable {|"Service Unavailable"|}
 
 let handle_ifmatch ifmatch current cont =
   match ifmatch with
@@ -96,7 +105,7 @@ let handle_generic_error f =
   Lwt.catch f (function
     | Error error ->
         let request_status = { code = 400; status = "Bad Request"; error } in
-        return_json 400 (string_of_request_status request_status)
+        return_json `Bad_request (string_of_request_status request_status)
     | Readonly_storage ->
         let request_status =
           {
@@ -105,23 +114,25 @@ let handle_generic_error f =
             error = `ReadonlyStorage;
           }
         in
-        return_json 503 (string_of_request_status request_status)
+        return_json `Service_unavailable
+          (string_of_request_status request_status)
     | exn ->
         let error = `GenericError (Printexc.to_string exn) in
         let request_status =
           { code = 500; status = "Internal Server Error"; error }
         in
-        return_json 500 (string_of_request_status request_status))
+        return_json `Internal_server_error
+          (string_of_request_status request_status))
 
 let handle_get get =
   let@ () = handle_generic_error in
   let* x = get () in
-  return_json 200 x
+  return_json `OK x
 
 let handle_get_option get =
   let@ () = handle_generic_error in
   let* x = get () in
-  match x with None -> not_found | Some x -> return_json 200 x
+  match x with None -> not_found | Some x -> return_json `OK x
 
 let get_configuration_uris () =
   {
@@ -228,7 +239,7 @@ let post_send_message ?internal ~key (m : Belenios_messages.message_payload) =
           | Ok hint ->
               let cache = HMap.add hmac m.timestamp cache in
               msgcache := cache;
-              `String hint |> Yojson.Safe.to_string |> return_json 200
+              `String hint |> Yojson.Safe.to_string |> return_json `OK
           | Error () -> service_unavailable
         else forbidden
     | None -> forbidden
