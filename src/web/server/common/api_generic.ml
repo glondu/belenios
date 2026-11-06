@@ -64,7 +64,7 @@ type generic_content = String of string | Path of string
 type generic = { mime : string; content : generic_content }
 
 type result =
-  [ `Json of Http.Status.t * string
+  [ `Json of Http.Status.standard * string
   | `Bel of string
   | `Sealing_log of string
   | `Generic of generic ]
