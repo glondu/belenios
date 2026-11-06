@@ -90,25 +90,20 @@ type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 let return_json code x = Lwt.return @@ `Json (code, x)
 let return_yojson code x = return_json code (Json.to_string x)
 let return_generic x = Lwt.return @@ `Generic x
-let ok = return_json `OK "{}"
-let bad_request = return_json `Bad_request {|"Bad Request"|}
-let unauthorized = return_json `Unauthorized {|"Unauthorized"|}
-let forbidden = return_json `Forbidden {|"Forbidden"|}
-let not_found = return_json `Not_found {|"Not Found"|}
 
-let method_not_allowed =
-  return_json `Method_not_allowed {|"Method Not Allowed"|}
+let return_jstatus status =
+  return_yojson status (`String (Http.Status.to_string status))
 
-let precondition_failed =
-  return_json `Precondition_failed {|"Precondition Failed"|}
-
-let conflict = return_json `Conflict {|"Conflict"|}
-
-let request_entity_too_large =
-  return_json `Request_entity_too_large {|"Request Entity Too Large"|}
-
-let service_unavailable =
-  return_json `Service_unavailable {|"Service Unavailable"|}
+let ok = return_jstatus `OK
+let bad_request = return_jstatus `Bad_request
+let unauthorized = return_jstatus `Unauthorized
+let forbidden = return_jstatus `Forbidden
+let not_found = return_jstatus `Not_found
+let method_not_allowed = return_jstatus `Method_not_allowed
+let precondition_failed = return_jstatus `Precondition_failed
+let conflict = return_jstatus `Conflict
+let request_entity_too_large = return_jstatus `Request_entity_too_large
+let service_unavailable = return_jstatus `Service_unavailable
 
 let handle_ifmatch ifmatch current cont =
   match ifmatch with
