@@ -79,7 +79,7 @@ type generic_content = String of string | Path of string
 type generic = { mime : string; content : generic_content }
 
 type result =
-  [ `Json of Http.Status.t * string
+  [ `Json of Http.Status.standard * string
   | `Bel of string
   | `Sealing_log of string
   | `Generic of generic
@@ -91,8 +91,9 @@ let return_json code x = Lwt.return @@ `Json (code, x)
 let return_yojson code x = return_json code (Json.to_string x)
 let return_generic x = Lwt.return @@ `Generic x
 
-let return_jstatus status =
-  return_yojson status (`String (Http.Status.to_string status))
+let return_jstatus (status : Http.Status.standard) =
+  return_yojson status
+    (`String (Http.Status.to_string (status :> Http.Status.t)))
 
 let ok = return_jstatus `OK
 let bad_request = return_jstatus `Bad_request

@@ -55,6 +55,7 @@ module Api_result = Eliom_mkreg.Make (struct
     let headers = Cohttp.Header.of_list [ ("cache-control", "no-cache") ] in
     match response with
     | `Json (status, body) ->
+        let status = (status : Http.Status.standard :> Http.Status.t) in
         let headers =
           Cohttp.Header.add headers "content-type" "application/json"
         in
