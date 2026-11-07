@@ -436,7 +436,7 @@ let cast_ballot send_confirmation s (election : Election.t) ~ballot ~user
       let () =
         if revote then
           let uuid = Storage.E.get_uuid s in
-          Printf.ksprintf Ocsigen_messages.accesslog
+          Printf.ksprintf Ocsigen.Messages.accesslog
             "Someone revoted in election %s" (Uuid.to_string uuid)
       in
       Lwt.return { confirmation with email }
@@ -604,11 +604,11 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
                 | Election_not_found _ -> not_found | e -> Lwt.reraise e)
           in
           let lang =
-            let sp = Eliom_common.get_sp () in
+            let sp = Eliom.Common.get_sp () in
             let@ lang =
               Option.bind
-                (Ocsigen_request.header sp.sp_request.request_info
-                   (Ocsigen_header.Name.of_string "Accept-Language"))
+                (Ocsigen.Request.header sp.sp_request.request_info
+                   (Ocsigen_http.Header.Name.of_string "Accept-Language"))
             in
             Language.of_string_opt lang
           in

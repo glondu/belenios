@@ -21,7 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
-open Eliom_service
+open Eliom.Service
 open Belenios
 open Belenios_storage_api
 open Belenios_server_core
@@ -165,7 +165,7 @@ struct
     | _ -> ()
 
   let exec ?(extern = false) ?(login = false) ?state x =
-    let open Eliom_registration in
+    let open Eliom.Registration in
     let redir =
       match x with
       | `Election _ -> (
@@ -227,7 +227,7 @@ struct
         let restart_login () =
           let service = restart_login a.auth_instance kind ~state in
           Pages_common.login_failed ~service ()
-          >>= Eliom_registration.Html.send ~code:401
+          >>= Eliom.Registration.Html.send ~code:401
         in
         if auth_system = a.auth_system then
           let cont : Belenios_web_api.user_info option -> _ = function
@@ -246,7 +246,7 @@ struct
                           let* token = Api_generic.new_token account user in
                           let* () = Web_state.discard () in
                           let* () =
-                            Eliom_reference.set Web_state.site_user
+                            Eliom.Reference.set Web_state.site_user
                               (Some (user, account, token.token))
                           in
                           cont ()
@@ -260,7 +260,7 @@ struct
         else restart_login ()
     | _ ->
         Pages_common.authentication_impossible ()
-        >>= Eliom_registration.Html.send
+        >>= Eliom.Registration.Html.send
 
   let auth_systems = ref ([] : (string * auth_system) list)
 
@@ -311,7 +311,7 @@ struct
           let kind = `Site site_cont in
           let@ () =
            fun cont ->
-            let* x = Eliom_reference.get Web_state.site_user in
+            let* x = Eliom.Reference.get Web_state.site_user in
             match x with None -> cont () | Some _ -> exec ~login:true kind
           in
           let@ auth_config cont2 =
@@ -334,7 +334,7 @@ struct
                         (List.map (fun (x : auth_config) -> x.auth_instance) c)
                         builder ()
                     in
-                    Eliom_registration.Html.send page)
+                    Eliom.Registration.Html.send page)
           in
           match List.assoc_opt auth_config.auth_system !auth_systems with
           | Some { extern; handler; _ } ->
@@ -354,12 +354,12 @@ struct
           Pages_common.login_title site_or_election auth_config.auth_instance
         in
         let* page = Pages_common.base ~title ~content:[ x ] () in
-        Eliom_registration.Html.send page
-    | Redirection x -> Eliom_registration.String_redirection.send x
+        Eliom.Registration.Html.send page
+    | Redirection x -> Eliom.Registration.String_redirection.send x
 
   let logout_handler cont =
     let* () =
-      let* x = Eliom_reference.get Web_state.site_user in
+      let* x = Eliom.Reference.get Web_state.site_user in
       match x with
       | None -> Lwt.return_unit
       | Some (_, _, token) ->
@@ -370,20 +370,20 @@ struct
     exec (`Site cont)
 
   let () =
-    Eliom_registration.Any.register ~service:site_login (fun x () ->
+    Eliom.Registration.Any.register ~service:site_login (fun x () ->
         login_handler (`Site x))
 
   let () =
-    Eliom_registration.Any.register ~service:logout (fun cont () ->
+    Eliom.Registration.Any.register ~service:logout (fun cont () ->
         logout_handler cont)
 
   let () =
-    Eliom_registration.Any.register ~service:election_login (fun x () ->
+    Eliom.Registration.Any.register ~service:election_login (fun x () ->
         login_handler (`Election x))
 
   let get_site_login_handler service =
     match find_auth_instance service !Web_config.site_auth_config with
-    | None -> return @@ Html (Eliom_content.Html.F.div [])
+    | None -> return @@ Html (Eliom.Content.Html.F.div [])
     | Some auth_config -> (
         match List.assoc_opt auth_config.auth_system !auth_systems with
         | Some { extern; handler; _ } ->
@@ -393,7 +393,7 @@ struct
                 ~username_or_address:`Username ()
             in
             get_pre_login_handler ~state env
-        | None -> return @@ Html (Eliom_content.Html.F.div []))
+        | None -> return @@ Html (Eliom.Content.Html.F.div []))
 
   let get_dispatch auth_system =
     let& { dispatch; _ } = List.assoc_opt auth_system !auth_systems in

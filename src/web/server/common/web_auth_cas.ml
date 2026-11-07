@@ -21,7 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
-open Eliom_service
+open Eliom.Service
 open Belenios
 open Belenios_storage_api
 open Web_common
@@ -31,11 +31,11 @@ struct
   let next_lf str i = String.index_from_opt str i '\n'
 
   let login_cas =
-    Eliom_service.create
-      ~path:(Eliom_service.Path [ "auth"; "cas" ])
+    Eliom.Service.create
+      ~path:(Eliom.Service.Path [ "auth"; "cas" ])
       ~meth:
-        (Eliom_service.Get
-           Eliom_parameter.(string "state" ** opt (string "ticket")))
+        (Eliom.Service.Get
+           Eliom.Parameter.(string "state" ** opt (string "ticket")))
       ()
 
   let cas_self ~state =
@@ -76,14 +76,14 @@ struct
   let get_cas_validation_v2 server ~state ticket =
     let url =
       let cas_validate =
-        Eliom_service.extern ~prefix:server ~path:[ "serviceValidate" ]
+        Eliom.Service.extern ~prefix:server ~path:[ "serviceValidate" ]
           ~meth:
-            (Eliom_service.Get
-               Eliom_parameter.(string "service" ** string "ticket"))
+            (Eliom.Service.Get
+               Eliom.Parameter.(string "service" ** string "ticket"))
           ()
       in
       let service = preapply ~service:cas_validate (cas_self ~state, ticket) in
-      Eliom_uri.make_string_uri ~absolute:true ~service ()
+      Eliom.Eliom_uri.make_string_uri ~absolute:true ~service ()
     in
     let* r, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
     if Cohttp.(Code.code_of_status (Response.status r)) = 200 then
@@ -116,14 +116,14 @@ struct
   let get_cas_validation_v1 server ~state ticket =
     let url =
       let cas_validate =
-        Eliom_service.extern ~prefix:server ~path:[ "validate" ]
+        Eliom.Service.extern ~prefix:server ~path:[ "validate" ]
           ~meth:
-            (Eliom_service.Get
-               Eliom_parameter.(string "service" ** string "ticket"))
+            (Eliom.Service.Get
+               Eliom.Parameter.(string "service" ** string "ticket"))
           ()
       in
       let service = preapply ~service:cas_validate (cas_self ~state, ticket) in
-      Eliom_uri.make_string_uri ~absolute:true ~service ()
+      Eliom.Eliom_uri.make_string_uri ~absolute:true ~service ()
     in
     let* _, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
     let* info = Cohttp_lwt.Body.to_string body in
@@ -141,8 +141,8 @@ struct
         match List.assoc_opt "server" a.auth_config with
         | Some server ->
             let cas_login =
-              Eliom_service.extern ~prefix:server ~path:[ "login" ]
-                ~meth:(Eliom_service.Get Eliom_parameter.(string "service"))
+              Eliom.Service.extern ~prefix:server ~path:[ "login" ]
+                ~meth:(Eliom.Service.Get Eliom.Parameter.(string "service"))
                 ()
             in
             let service = preapply ~service:cas_login (cas_self ~state) in
@@ -173,5 +173,5 @@ struct
             | _, None -> fail_http `Service_unavailable);
       }
 
-  let () = Eliom_registration.Any.register ~service:login_cas cas_handler
+  let () = Eliom.Registration.Any.register ~service:login_cas cas_handler
 end

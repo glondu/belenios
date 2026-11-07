@@ -57,7 +57,7 @@ struct
     Web_auth.register ~auth_system:"dummy" { handler; extern = false; dispatch }
 
   let () =
-    Eliom_registration.Any.register ~service:Web_services.dummy_post
+    Eliom.Registration.Any.register ~service:Web_services.dummy_post
       (fun () (state, login) ->
         run_post_login_handler ~state
           {

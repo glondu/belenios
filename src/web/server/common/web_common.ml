@@ -33,7 +33,7 @@ let fail e = Lwt.fail (BeleniosWebError e)
 
 let fail_http status =
   Lwt.fail
-    (Ocsigen_extensions.Ocsigen_http_error (Ocsigen_cookie_map.empty, status))
+    (Ocsigen.Extensions.Ocsigen_http_error (Ocsigen_cookie_map.empty, status))
 
 let get_election_home_url ?credential uuid =
   let suffix = match credential with None -> "" | Some x -> "/" ^ x in
@@ -41,7 +41,7 @@ let get_election_home_url ?credential uuid =
     suffix
 
 let uuid x =
-  Eliom_parameter.user_type ~of_string:Uuid.of_string ~to_string:Uuid.to_string
+  Eliom.Parameter.user_type ~of_string:Uuid.of_string ~to_string:Uuid.to_string
     x
 
 type site_cont_path =
@@ -84,7 +84,7 @@ let string_of_site_cont x =
   path ^ admin
 
 let site_cont x =
-  Eliom_parameter.user_type ~of_string:site_cont_of_string
+  Eliom.Parameter.user_type ~of_string:site_cont_of_string
     ~to_string:string_of_site_cont x
 
 type privacy_cont = ContAdmin | ContSignup of string
@@ -100,7 +100,7 @@ let string_of_privacy_cont = function
   | ContSignup service -> "signup/" ^ service
 
 let privacy_cont x =
-  Eliom_parameter.user_type ~of_string:privacy_cont_of_string
+  Eliom.Parameter.user_type ~of_string:privacy_cont_of_string
     ~to_string:string_of_privacy_cont x
 
 type captcha_error = BadCaptcha | BadAddress
@@ -137,7 +137,7 @@ type credential_record = {
 }
 
 let exhaust_file file =
-  let fname = file.Ocsigen_extensions.tmp_filename in
+  let fname = file.Ocsigen.Extensions.tmp_filename in
   let* result = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
   let* () = Lwt_unix.unlink fname in
   Lwt.return result

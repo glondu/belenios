@@ -34,22 +34,22 @@ struct
   open X
   open Web_services
   open Site_common
-  open Eliom_service
-  open Eliom_registration
+  open Eliom.Service
+  open Eliom.Registration
 
   let get_preferred_gettext ?lang () =
     Web_i18n.get_preferred_gettext ?lang "admin"
 
   let () =
     let@ a = Accounts.add_update_hook in
-    let* user = Eliom_reference.get Web_state.site_user in
+    let* user = Eliom.Reference.get Web_state.site_user in
     match user with
     | Some (u, b, t) when a.id = b.id ->
-        Eliom_reference.set Web_state.site_user (Some (u, a, t))
+        Eliom.Reference.set Web_state.site_user (Some (u, a, t))
     | _ -> Lwt.return_unit
 
   let with_site_user f =
-    let* user = Eliom_reference.get Web_state.site_user in
+    let* user = Eliom.Reference.get Web_state.site_user in
     match user with Some u -> f u | None -> forbidden ()
 
   let () =
@@ -65,7 +65,7 @@ struct
 
   let () =
     Any.register ~service:sealing (fun () () ->
-        let* site_user = Eliom_reference.get Web_state.site_user in
+        let* site_user = Eliom.Reference.get Web_state.site_user in
         match site_user with
         | None -> forbidden ()
         | Some _ -> (
@@ -75,7 +75,7 @@ struct
 
   let () =
     Any.register ~service:home (fun () () ->
-        let* site_user = Eliom_reference.get Web_state.site_user in
+        let* site_user = Eliom.Reference.get Web_state.site_user in
         match site_user with
         | None ->
             Pages_admin.admin_login Web_auth.get_site_login_handler
@@ -131,7 +131,7 @@ struct
         let@ _, account, _ = with_site_user in
         if is_email ~blacklist:!Web_config.blacklisted_domains address then
           let* () =
-            Eliom_reference.set Web_state.set_email_env (Some address)
+            Eliom.Reference.set Web_state.set_email_env (Some address)
           in
           let* r =
             SetEmailOtp.generate ~context:()
@@ -148,8 +148,8 @@ struct
 
   let () =
     Any.register ~service:set_email_confirm (fun () code ->
-        let* u = Eliom_reference.get Web_state.site_user in
-        let* x = Eliom_reference.get Web_state.set_email_env in
+        let* u = Eliom.Reference.get Web_state.site_user in
+        let* x = Eliom.Reference.get Web_state.set_email_env in
         match (x, u) with
         | None, _ | _, None -> forbidden ()
         | Some address, Some (_, a, _) -> (
@@ -227,7 +227,7 @@ struct
                 ~recipient:{ name = email; address = email }
             in
             let* () =
-              Eliom_reference.set Web_state.signup_address (Some email)
+              Eliom.Reference.set Web_state.signup_address (Some email)
             in
             Pages_admin.signup_login r
         | _ -> signup_captcha_handler service error email)
@@ -267,13 +267,13 @@ struct
               match x with
               | Some (username, Some address) ->
                   let* () =
-                    Eliom_reference.set Web_state.signup_address (Some address)
+                    Eliom.Reference.set Web_state.signup_address (Some address)
                   in
                   Web_signup.send_changepw_code l ~service
                     ~recipient:{ name = username; address }
               | _ ->
                   let () =
-                    Printf.ksprintf Ocsigen_messages.warning
+                    Printf.ksprintf Ocsigen.Messages.warning
                       "Unsuccessful attempt to change the password of %S (%S) \
                        for service %s"
                       username email service
@@ -286,20 +286,20 @@ struct
   let () =
     Any.register ~service:signup_login_post (fun () code ->
         let code = Stdlib.String.trim code in
-        let* address = Eliom_reference.get Web_state.signup_address in
+        let* address = Eliom.Reference.get Web_state.signup_address in
         match address with
         | None -> forbidden ()
         | Some address -> (
             match Web_signup.confirm_code ~address ~code with
             | Some x ->
-                let* () = Eliom_reference.set Web_state.signup_env (Some x) in
+                let* () = Eliom.Reference.set Web_state.signup_env (Some x) in
                 redir_preapply signup () ()
             | _ -> forbidden ()))
 
   let () =
     Any.register ~service:signup (fun () () ->
-        let* address = Eliom_reference.get Web_state.signup_address in
-        let* x = Eliom_reference.get Web_state.signup_env in
+        let* address = Eliom.Reference.get Web_state.signup_address in
+        let* x = Eliom.Reference.get Web_state.signup_env in
         match (address, x) with
         | Some address, Some { kind = CreateAccount; _ } ->
             Pages_admin.signup address None "" >>= Html.send
@@ -312,8 +312,8 @@ struct
       (fun () (username, (password, password2)) ->
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let* address = Eliom_reference.get Web_state.signup_address in
-        let* x = Eliom_reference.get Web_state.signup_env in
+        let* address = Eliom.Reference.get Web_state.signup_address in
+        let* x = Eliom.Reference.get Web_state.signup_env in
         match (address, x) with
         | Some email, Some { service; kind = CreateAccount } ->
             if password = password2 then
@@ -342,8 +342,8 @@ struct
     Any.register ~service:changepw_post (fun () (password, password2) ->
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let* address = Eliom_reference.get Web_state.signup_address in
-        let* x = Eliom_reference.get Web_state.signup_env in
+        let* address = Eliom.Reference.get Web_state.signup_address in
+        let* x = Eliom.Reference.get Web_state.signup_env in
         match (address, x) with
         | Some address, Some { service; kind = ChangePassword { username } } ->
             if password = password2 then
@@ -373,7 +373,7 @@ struct
         Pages_admin.compute_fingerprint ())
 
   let has_sudo_capability f =
-    let* x = Eliom_reference.get Web_state.site_user in
+    let* x = Eliom.Reference.get Web_state.site_user in
     match x with
     | Some (_, a, token) when Accounts.(has_capability Sudo a) -> f token
     | _ -> forbidden ()
@@ -406,14 +406,14 @@ struct
                 let () = Api_generic.invalidate_token token in
                 let* token = Api_generic.new_token a u in
                 let* () =
-                  Eliom_reference.set Web_state.site_user
+                  Eliom.Reference.set Web_state.site_user
                     (Some (u, a, token.token))
                 in
                 Redirection.send (Redirection home)))
 
   let () =
     Any.register ~service:api_token (fun () () ->
-        let* x = Eliom_reference.get Web_state.site_user in
+        let* x = Eliom.Reference.get Web_state.site_user in
         let code, content =
           match x with
           | None -> (403, "Forbidden")
@@ -442,12 +442,12 @@ struct
   let get_context ~server ~state =
     let url =
       let service =
-        Eliom_service.extern ~prefix:server ~path:[ "get-context" ]
-          ~meth:(Get Eliom_parameter.(string "state"))
+        Eliom.Service.extern ~prefix:server ~path:[ "get-context" ]
+          ~meth:(Get Eliom.Parameter.(string "state"))
           ()
       in
       let service = preapply ~service state in
-      Eliom_uri.make_string_uri ~absolute:true ~service ()
+      Eliom.Eliom_uri.make_string_uri ~absolute:true ~service ()
     in
     let* x, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
     let* context = Cohttp_lwt.Body.to_string body in
@@ -459,7 +459,7 @@ struct
     | _ -> Lwt.return_none
 
   let connect_auth ?uuid ~callback ~server ~state () =
-    let* x = Eliom_reference.get Web_state.site_user in
+    let* x = Eliom.Reference.get Web_state.site_user in
     match x with
     | None ->
         Redirection.send
@@ -467,7 +467,7 @@ struct
              (preapply ~service:site_login
                 (None, default_admin (ContSiteConnect (callback, state)))))
     | Some (_, account, _) ->
-        let* () = Eliom_reference.unset Web_state.connect_context in
+        let* () = Eliom.Reference.unset Web_state.connect_context in
         let* page =
           Pages_admin.connect_consent ?uuid ~account ~callback ~server ~state ()
         in
@@ -479,12 +479,12 @@ struct
         | None -> fail_http `Bad_request
         | Some server -> (
             let* context =
-              let* x = Eliom_reference.get Web_state.connect_context in
+              let* x = Eliom.Reference.get Web_state.connect_context in
               match x with
               | None ->
                   let* x = get_context ~server ~state in
                   let* () =
-                    Eliom_reference.set Web_state.connect_context (Some x)
+                    Eliom.Reference.set Web_state.connect_context (Some x)
                   in
                   Lwt.return x
               | Some x -> Lwt.return x
@@ -502,7 +502,7 @@ struct
         match List.assoc_opt callback !Web_config.connect with
         | None -> fail_http `Bad_request
         | Some server -> (
-            let* x = Eliom_reference.get Web_state.site_user in
+            let* x = Eliom.Reference.get Web_state.site_user in
             match x with
             | None -> fail_http `Forbidden
             | Some (_, a, _) ->
@@ -520,10 +520,10 @@ struct
                 add_code ~now code { timeout; user_info };
                 let service =
                   let service =
-                    Eliom_service.extern ~prefix:server ~path:[ "return" ]
+                    Eliom.Service.extern ~prefix:server ~path:[ "return" ]
                       ~meth:
-                        (Eliom_service.Get
-                           Eliom_parameter.(string "code" ** string "state"))
+                        (Eliom.Service.Get
+                           Eliom.Parameter.(string "code" ** string "state"))
                       ()
                   in
                   preapply ~service (code, state)

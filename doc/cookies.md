@@ -12,7 +12,7 @@ anonymous visitors:
 Cookies are also used by [Eliom's sessions and server-side
 state](https://ocsigen.org/eliom/latest/manual/server-state). Use of
 this feature can be audited by looking at uses of modules
-`Eliom_reference` and `Eliom_state` in the OCaml code.
+`Eliom.Reference` and `Eliom.State` in the OCaml code.
 
 Belenios uses only volatile data states (non-persistent Eliom
 references). This means that all cookies (regardless of their

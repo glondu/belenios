@@ -36,8 +36,8 @@ val uuid :
   string ->
   ( uuid,
     [ `WithoutSuffix ],
-    [ `One of uuid ] Eliom_parameter.param_name )
-  Eliom_parameter.params_type
+    [ `One of uuid ] Eliom.Parameter.param_name )
+  Eliom.Parameter.params_type
 
 type site_cont_path =
   | ContSiteHome
@@ -54,8 +54,8 @@ val site_cont :
   string ->
   ( site_cont,
     [ `WithoutSuffix ],
-    [ `One of site_cont ] Eliom_parameter.param_name )
-  Eliom_parameter.params_type
+    [ `One of site_cont ] Eliom.Parameter.param_name )
+  Eliom.Parameter.params_type
 
 type privacy_cont = ContAdmin | ContSignup of string
 
@@ -65,8 +65,8 @@ val privacy_cont :
   string ->
   ( privacy_cont,
     [ `WithoutSuffix ],
-    [ `One of privacy_cont ] Eliom_parameter.param_name )
-  Eliom_parameter.params_type
+    [ `One of privacy_cont ] Eliom.Parameter.param_name )
+  Eliom.Parameter.params_type
 
 type captcha_error = BadCaptcha | BadAddress
 
@@ -94,4 +94,4 @@ type credential_record = {
   cr_username : string option;
 }
 
-val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t
+val exhaust_file : Ocsigen.Multipart.file_info -> string Lwt.t

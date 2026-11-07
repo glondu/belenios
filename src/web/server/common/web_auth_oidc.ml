@@ -22,7 +22,7 @@
 open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt
 open Lwt.Syntax
-open Eliom_service
+open Eliom.Service
 open Belenios
 open Belenios_storage_api
 open Belenios_web_api
@@ -54,9 +54,9 @@ struct
   type Web_auth_sig.data += Data_oidc of oidc_configuration
 
   let login_oidc =
-    Eliom_service.create
-      ~path:(Eliom_service.Path [ "auth"; "oidc" ])
-      ~meth:(Eliom_service.Get Eliom_parameter.any) ()
+    Eliom.Service.create
+      ~path:(Eliom.Service.Path [ "auth"; "oidc" ])
+      ~meth:(Eliom.Service.Get Eliom.Parameter.any) ()
 
   let oidc_self =
     lazy
@@ -122,10 +122,10 @@ struct
             Web_auth.State.set_data ~state (Data_oidc ocfg);
             let prefix, path = split_prefix_path ocfg.authorization_endpoint in
             let auth_endpoint =
-              Eliom_service.extern ~prefix ~path
+              Eliom.Service.extern ~prefix ~path
                 ~meth:
-                  (Eliom_service.Get
-                     Eliom_parameter.(
+                  (Eliom.Service.Get
+                     Eliom.Parameter.(
                        string "redirect_uri" ** string "response_type"
                        ** string "client_id" ** string "scope" ** string "state"
                        ** string "prompt"))
@@ -177,5 +177,5 @@ struct
           }
     | _, _ -> fail_http `Unauthorized
 
-  let () = Eliom_registration.Any.register ~service:login_oidc oidc_handler
+  let () = Eliom.Registration.Any.register ~service:login_oidc oidc_handler
 end

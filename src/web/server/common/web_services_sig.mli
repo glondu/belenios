@@ -29,7 +29,7 @@ module type S = sig
     service:
       ( 'a,
         unit,
-        Eliom_service.get,
+        Eliom.Service.get,
         _,
         _,
         _,
@@ -38,73 +38,73 @@ module type S = sig
         _,
         unit,
         _ )
-      Eliom_service.t ->
+      Eliom.Service.t ->
     'a ->
     string
 
   val uuid_and_token :
     ( uuid * string,
       [ `WithoutSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name )
-    Eliom_service.params
+      [ `One of uuid ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name )
+    Eliom.Service.params
 
   val banner :
     ( string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val home :
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val apps :
     ( string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val admin_basic :
     unit ->
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.non_reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.non_reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val make_admin_link : uuid option -> string
 
@@ -118,218 +118,218 @@ module type S = sig
   val privacy_notice_accept :
     ( unit,
       Web_common.privacy_cont,
-      Eliom_service.post,
-      Eliom_service.non_att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.non_att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of Web_common.privacy_cont ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of Web_common.privacy_cont ] Eliom.Parameter.param_name,
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val site_login :
     ( string option * Web_common.site_cont,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name
-      * [ `One of Web_common.site_cont ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of Web_common.site_cont ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val logout :
     ( Web_common.site_cont,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of Web_common.site_cont ] Eliom_parameter.param_name,
+      [ `One of Web_common.site_cont ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val source_code :
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val extra_css :
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val logo :
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val favicon :
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val sealing :
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val election_home_dir :
     ( uuid,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name,
+      [ `One of uuid ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val election_home_redirect :
     ( uuid * unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name
-      * [ `One of unit ] Eliom_parameter.param_name,
+      [ `One of uuid ] Eliom.Parameter.param_name
+      * [ `One of unit ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val set_consent :
     ( Web_common.site_cont,
       unit,
-      Eliom_service.get,
-      Eliom_service.non_att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.non_att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of Web_common.site_cont ] Eliom_parameter.param_name,
+      [ `One of Web_common.site_cont ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val election_login :
     ( string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val election_login_done :
     ( uuid * string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
+      [ `One of uuid ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val booth_v2 :
     unit ->
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.non_reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.non_reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   type booth =
     | Booth :
         (unit ->
         ( unit,
           unit,
-          Eliom_service.get,
-          Eliom_service.att,
-          Eliom_service.non_co,
-          Eliom_service.non_ext,
+          Eliom.Service.get,
+          Eliom.Service.att,
+          Eliom.Service.non_co,
+          Eliom.Service.non_ext,
           'reg,
           [ `WithoutSuffix ],
           unit,
           unit,
-          Eliom_service.non_ocaml )
-        Eliom_service.t)
+          Eliom.Service.non_ocaml )
+        Eliom.Service.t)
         -> booth
 
   val booths : (booth * string) array
@@ -337,399 +337,399 @@ module type S = sig
   val election_cast_confirm :
     ( string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val dummy_post :
     ( unit,
       string * string,
-      Eliom_service.post,
-      Eliom_service.non_att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.non_att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name,
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val email_post :
     ( unit,
       string * string,
-      Eliom_service.post,
-      Eliom_service.non_att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.non_att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name,
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val email_election_login :
     ( string,
       unit,
-      Eliom_service.get,
-      Eliom_service.non_att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.non_att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val email_captcha_post :
     ( unit,
       string * (string * (string * string)),
-      Eliom_service.post,
-      Eliom_service.non_att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.non_att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name
-      * ([ `One of string ] Eliom_parameter.param_name
-        * ([ `One of string ] Eliom_parameter.param_name
-          * [ `One of string ] Eliom_parameter.param_name)),
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name
+      * ([ `One of string ] Eliom.Parameter.param_name
+        * ([ `One of string ] Eliom.Parameter.param_name
+          * [ `One of string ] Eliom.Parameter.param_name)),
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val email_login_post :
     ( unit,
       string * string,
-      Eliom_service.post,
-      Eliom_service.non_att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.non_att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name,
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val email_login_link :
     ( string * string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithSuffix ],
-      [ `One of string ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val password_post :
     ( unit,
       string * (string * string),
-      Eliom_service.post,
-      Eliom_service.non_att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.non_att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name
-      * ([ `One of string ] Eliom_parameter.param_name
-        * [ `One of string ] Eliom_parameter.param_name),
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name
+      * ([ `One of string ] Eliom.Parameter.param_name
+        * [ `One of string ] Eliom.Parameter.param_name),
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val set_language :
     ( string * Web_common.site_cont,
       unit,
-      Eliom_service.get,
-      Eliom_service.non_att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.non_att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name
-      * [ `One of Web_common.site_cont ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of Web_common.site_cont ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val signup_captcha :
     ( string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val signup_captcha_post :
     ( string,
       string * (string * string),
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
-      [ `One of string ] Eliom_parameter.param_name
-      * ([ `One of string ] Eliom_parameter.param_name
-        * [ `One of string ] Eliom_parameter.param_name),
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name
+      * ([ `One of string ] Eliom.Parameter.param_name
+        * [ `One of string ] Eliom.Parameter.param_name),
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val signup_captcha_img :
     ( string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val signup_login_post :
     ( unit,
       string,
-      Eliom_service.post,
-      Eliom_service.non_att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.non_att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name,
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val signup :
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val signup_post :
     ( unit,
       string * (string * string),
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name
-      * ([ `One of string ] Eliom_parameter.param_name
-        * [ `One of string ] Eliom_parameter.param_name),
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name
+      * ([ `One of string ] Eliom.Parameter.param_name
+        * [ `One of string ] Eliom.Parameter.param_name),
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val changepw_captcha :
     ( string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val changepw_captcha_post :
     ( string,
       string * (string * (string * string)),
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
-      [ `One of string ] Eliom_parameter.param_name
-      * ([ `One of string ] Eliom_parameter.param_name
-        * ([ `One of string ] Eliom_parameter.param_name
-          * [ `One of string ] Eliom_parameter.param_name)),
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name
+      * ([ `One of string ] Eliom.Parameter.param_name
+        * ([ `One of string ] Eliom.Parameter.param_name
+          * [ `One of string ] Eliom.Parameter.param_name)),
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val changepw_post :
     ( unit,
       string * string,
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name,
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val compute_fingerprint :
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val set_email_post :
     ( unit,
       string,
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name,
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val set_email_confirm :
     ( unit,
       string,
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name,
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val sudo :
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val sudo_post :
     ( unit,
       string * string,
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name,
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val api_token :
     ( unit,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
       unit,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val connect_login :
     ( string * string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val connect_consent :
     ( string * string,
       unit,
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.post,
+      Eliom.Service.att,
+      Eliom.Service.co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 
   val connect_validate :
     ( string,
       unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
 end

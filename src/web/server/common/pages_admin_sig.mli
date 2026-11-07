@@ -22,18 +22,18 @@
 open Web_common
 
 module type S = sig
-  val privacy_notice : privacy_cont -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val privacy_notice : privacy_cont -> [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 
   val admin_login :
     (string -> Web_auth_sig.result Lwt.t) ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
+    [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 
   val signup_captcha :
     service:string ->
     captcha_error option ->
     string ->
     string ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
+    [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 
   val signup_changepw :
     service:string ->
@@ -41,30 +41,30 @@ module type S = sig
     string ->
     string ->
     string ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
+    [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 
   val signup_login :
-    (string, unit) result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+    (string, unit) result -> [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 
   val signup :
     string ->
     add_account_error option ->
     string ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
+    [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 
   val changepw :
     username:string ->
     address:string ->
     add_account_error option ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
+    [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 
-  val compute_fingerprint : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val set_email : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val compute_fingerprint : unit -> [> `Html ] Eliom.Content.Html.F.elt Lwt.t
+  val set_email : unit -> [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 
   val set_email_confirm :
-    (string, unit) result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+    (string, unit) result -> [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 
-  val sudo : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val sudo : unit -> [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 
   val connect_consent :
     ?uuid:Belenios.uuid ->
@@ -73,5 +73,5 @@ module type S = sig
     server:string ->
     state:string ->
     unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
+    [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 end

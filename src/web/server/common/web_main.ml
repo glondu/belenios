@@ -83,12 +83,12 @@ module Make () = struct
       attrs
 
   let () =
-    Eliom_config.get_config ()
+    Eliom.Config.get_config ()
     |>
     let open Xml in
     List.iter @@ function
     | PCData x ->
-        Ocsigen_extensions.Configuration.ignore_blank_pcdata ~in_tag:"belenios"
+        Ocsigen.Extensions.Configuration.ignore_blank_pcdata ~in_tag:"belenios"
           x
     | Element ("public-url", attrs, []) ->
         let prefix_ = List.assoc_opt "prefix" attrs in
@@ -100,7 +100,7 @@ module Make () = struct
         in
         prefix := prefix_
     | Element ("maxrequestbodysizeinmemory", [ ("value", m) ], []) ->
-        Ocsigen_config.set_maxrequestbodysizeinmemory (int_of_string m)
+        Ocsigen.Config.set_maxrequestbodysizeinmemory (int_of_string m)
     | Element ("source", [ ("file", file) ], []) -> source_file := Some file
     | Element ("extra-css", [ ("file", file) ], []) ->
         Web_config.extra_css := file

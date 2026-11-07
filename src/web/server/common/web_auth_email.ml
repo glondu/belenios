@@ -131,13 +131,13 @@ struct
         Web_auth.State.set_data ~state (Data_email recipient);
         let address = if show_email_address then Some r else None in
         Pages_common.email_login ?lang ?address ~state site_or_election
-        >>= Eliom_registration.Html.send
+        >>= Eliom.Registration.Html.send
     | _ ->
         run_post_login_handler ~state
           { Web_auth.post_login_handler = (fun _ _ cont -> cont None) }
 
   let () =
-    Eliom_registration.Any.register ~service:Web_services.email_election_login
+    Eliom.Registration.Any.register ~service:Web_services.email_election_login
       (fun state () ->
         match Web_auth.State.get_auth ~state with
         | Some { username_or_address; auth_instance } -> (
@@ -157,23 +157,23 @@ struct
                 in
                 let* title = Pages_common.login_title `Election auth_instance in
                 Pages_common.base ~title ~content:[ fragment ] ()
-                >>= Eliom_registration.Html.send)
+                >>= Eliom.Registration.Html.send)
         | _ ->
             Pages_common.authentication_impossible ()
-            >>= Eliom_registration.Html.send)
+            >>= Eliom.Registration.Html.send)
 
   let () =
-    Eliom_registration.Any.register ~service:Web_services.email_post
+    Eliom.Registration.Any.register ~service:Web_services.email_post
       (fun () (state, name) -> handle_email_post ~state name true)
 
   let () =
-    Eliom_registration.Any.register ~service:Web_services.email_captcha_post
+    Eliom.Registration.Any.register ~service:Web_services.email_captcha_post
       (fun () (state, (challenge, (response, name))) ->
         let* b = Web_captcha.check_captcha ~challenge ~response in
         handle_email_post ~state name b)
 
   let () =
-    Eliom_registration.Any.register ~service:Web_services.email_login_post
+    Eliom.Registration.Any.register ~service:Web_services.email_login_post
       (fun () (state, code) ->
         let code = String.trim code in
         match Web_auth.State.get_data ~state with
@@ -203,7 +203,7 @@ struct
               { Web_auth.post_login_handler = (fun _ _ cont -> cont None) })
 
   let () =
-    Eliom_registration.Any.register ~service:Web_services.email_login_link
+    Eliom.Registration.Any.register ~service:Web_services.email_login_link
       (fun (state, code) () ->
         let election_env = Web_auth.State.get_election ~state in
         let site_or_election =
@@ -215,5 +215,5 @@ struct
           | _ -> None
         in
         Pages_common.email_login ?lang ~code ~state site_or_election
-        >>= Eliom_registration.Html.send)
+        >>= Eliom.Registration.Html.send)
 end

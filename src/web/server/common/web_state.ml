@@ -20,16 +20,16 @@
 (**************************************************************************)
 
 module Make () = struct
-  let belenios_scope = `Session (Eliom_common.create_scope_hierarchy "belenios")
-  let site_user = Eliom_reference.eref ~scope:belenios_scope None
-  let connect_context = Eliom_reference.eref ~scope:belenios_scope None
-  let signup_address = Eliom_reference.eref ~scope:belenios_scope None
-  let signup_env = Eliom_reference.eref ~scope:belenios_scope None
-  let set_email_env = Eliom_reference.eref ~scope:belenios_scope None
-  let discard () = Eliom_state.discard ~scope:belenios_scope ()
+  let belenios_scope = `Session (Eliom.Common.create_scope_hierarchy "belenios")
+  let site_user = Eliom.Reference.eref ~scope:belenios_scope None
+  let connect_context = Eliom.Reference.eref ~scope:belenios_scope None
+  let signup_address = Eliom.Reference.eref ~scope:belenios_scope None
+  let signup_env = Eliom.Reference.eref ~scope:belenios_scope None
+  let set_email_env = Eliom.Reference.eref ~scope:belenios_scope None
+  let discard () = Eliom.State.discard ~scope:belenios_scope ()
 
   let get_consent_cookie () =
-    let cookies = Eliom_request_info.get_cookies () in
+    let cookies = Eliom.Request_info.get_cookies () in
     match Ocsigen_cookie_map.Map_inner.find_opt "belenios-consent" cookies with
     | None -> true
     | Some x -> (
@@ -40,6 +40,6 @@ module Make () = struct
   let set_consent_cookie () =
     let now = Belenios.datetime_now () in
     let exp = Int64.to_float now +. (10. *. 365. *. 86400.) in
-    Eliom_state.set_cookie ~exp ~name:"belenios-consent"
+    Eliom.State.set_cookie ~exp ~name:"belenios-consent"
       ~value:(Int64.to_string now) ()
 end

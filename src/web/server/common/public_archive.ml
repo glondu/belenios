@@ -94,7 +94,7 @@ module ElectionCacheTypes = struct
   type value = Election.t
 end
 
-module ElectionCache = Ocsigen_cache.Make (ElectionCacheTypes)
+module ElectionCache = Ocsigen_base.Cache.Make (ElectionCacheTypes)
 
 exception Not_cachable
 

@@ -26,5 +26,5 @@ module type S = sig
     Storage.E.t ->
     Belenios.Election.t ->
     unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
+    [> `Html ] Eliom.Content.Html.F.elt Lwt.t
 end

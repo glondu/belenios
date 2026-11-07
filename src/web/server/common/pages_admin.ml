@@ -24,8 +24,8 @@ open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
 open Web_common
-open Eliom_content.Html.F
-open Eliom_content.Html.F.Form
+open Eliom.Content.Html.F
+open Eliom.Content.Html.F.Form
 
 module Make
     (Web_state : Web_state_sig.S)
@@ -71,16 +71,16 @@ struct
   let login_box ?cont () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let* user = Eliom_reference.get Web_state.site_user in
+    let* user = Eliom.Reference.get Web_state.site_user in
     let auth_systems =
       List.map (fun x -> x.auth_instance) !Web_config.site_auth_config
     in
     let cont = match cont with None -> ContSiteHome | Some x -> x in
     let cont = default_admin cont in
     let login service =
-      Eliom_service.preapply ~service:site_login (Some service, cont)
+      Eliom.Service.preapply ~service:site_login (Some service, cont)
     in
-    let logout () = Eliom_service.preapply ~service:logout cont in
+    let logout () = Eliom.Service.preapply ~service:logout cont in
     let home =
       div
         ~a:[ a_class [ "nav-menu__item"; "noselect" ] ]

@@ -651,11 +651,11 @@ let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
       let* () = Cohttp_lwt.Body.drain_body body in
       let code = Cohttp.Code.code_of_status x.status in
       let msg = Printf.sprintf "%s: %d" prefix code in
-      Ocsigen_messages.warning msg;
+      Ocsigen.Messages.warning msg;
       Lwt.return_unit)
     (fun e ->
       let msg = Printf.sprintf "%s: %s" prefix (Printexc.to_string e) in
-      Ocsigen_messages.errlog msg;
+      Ocsigen.Messages.errlog msg;
       Lwt.return_unit)
 
 let validation_error x = raise (Api_generic.Error (`ValidationError x))

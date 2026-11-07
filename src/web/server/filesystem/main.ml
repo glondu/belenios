@@ -124,7 +124,8 @@ module MakeBackend
     type value = password_record SMap.t * password_record SMap.t
   end
 
-  module PasswordRecordsCache = Ocsigen_cache.Make (PasswordRecordsCacheTypes)
+  module PasswordRecordsCache =
+    Ocsigen_base.Cache.Make (PasswordRecordsCacheTypes)
 
   exception Password_db_not_found
 
@@ -540,7 +541,7 @@ module MakeBackend
         let* () = Lwt_unix.rename fname_new fname in
         rmdir temp_dir
     | _ ->
-        Printf.ksprintf Ocsigen_messages.errlog
+        Printf.ksprintf Ocsigen.Messages.errlog
           "Error while creating archive.zip for election %s, temporary \
            directory left in %s"
           uuid_s temp_dir;
@@ -603,7 +604,7 @@ module MakeBackend
     type value = voters
   end
 
-  module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
+  module VoterCache = Ocsigen_base.Cache.Make (VoterCacheTypes)
 
   let get_all_voters uuid =
     let* x = get (Election (uuid, Voters)) in
@@ -842,7 +843,7 @@ module MakeBackend
     type value = W : ('a, 'b) spec * 'a public_credentials_with_id -> value
   end
 
-  module CredCache = Ocsigen_cache.Make (CredCacheTypes)
+  module CredCache = Ocsigen_base.Cache.Make (CredCacheTypes)
 
   let raw_get_credential_cache uuid =
     let@ w cont =
@@ -1530,12 +1531,12 @@ module Make (Config : CONFIG) : STORAGE = struct
     if now > next_t then
       let* () = action s uuid in
       Lwt.return
-        (Printf.ksprintf Ocsigen_messages.warning
+        (Printf.ksprintf Ocsigen.Messages.warning
            "Election %s has been automatically %s" uuid_s comment)
     else Lwt.return_unit
 
   let rec data_policy_loop () =
-    let open Ocsigen_messages in
+    let open Ocsigen.Messages in
     let* () =
       if readonly.get () then (
         accesslog "Data policy process skipped because of readonly mode";
@@ -1597,7 +1598,7 @@ module Make (Config : CONFIG) : STORAGE = struct
       B.get_trustees_elections uuid
 
     let rec gc () =
-      let open Ocsigen_messages in
+      let open Ocsigen.Messages in
       let* () =
         if readonly.get () then (
           accesslog
