@@ -1,11 +1,10 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2022-02-28 14:55+0000\n"
-"Last-Translator: Stavros Christoforou <stavros.christoforou@gmail.com>\n"
+"PO-Revision-Date: 2026-11-09 10:20+0000\n"
+"Last-Translator: EFA <efathenes@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/belenios/admin/el/>"
 "\n"
 "Language: el\n"
@@ -13,15 +12,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.11.1-dev\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 
 #: src/web/clients/admin/trustees_tab.ml:222
 msgid " (server is not counted)"
-msgstr ""
+msgstr " (ο διακομιστής δεν προσμετράται)"
 
 #: src/web/common/pages_common.ml:246
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " Σας έχει αποσταλεί μήνυμα επιβεβαίωσης μέσω ηλεκτρονικού ταχυδρομείου."
 
 #: src/web/server/common/pages_admin.ml:338
 msgid " and a password: "
@@ -37,7 +36,7 @@ msgstr " και να αποθηκεύσετε το αρχείο σε ασφαλ�
 
 #: src/web/clients/admin/elections.ml:1828
 msgid " and save them in a secure location."
-msgstr ""
+msgstr " και αποθηκεύστε τα σε ασφαλές μέρος."
 
 #: src/web/server/common/pages_admin.ml:388
 msgid " and your e-mail address is: "
@@ -45,33 +44,33 @@ msgstr " και η διεύθυνση ηλεκτρονικού ταχυδρομ�
 
 #: src/web/common/pages_common.ml:244
 msgid " anytime during the election."
-msgstr ""
+msgstr " οποιαδήποτε στιγμή κατά τη διάρκεια της ψηφοφορίας."
 
 #: src/web/common/pages_common.ml:233
 msgid " as user "
-msgstr ""
+msgstr " ως χρήστης "
 
-#: src/web/server/common/pages_admin.ml:375
 #. src/web/server/common/pages_admin.ml:324
+#: src/web/server/common/pages_admin.ml:375
 msgid " because "
 msgstr " επειδή "
 
 #: src/web/common/pages_common.ml:235
 msgid " has been accepted."
-msgstr ""
+msgstr " έγινε αποδεκτή."
 
-#: src/web/server/common/pages_admin.ml:257
 #. src/web/server/common/pages_admin.ml:224
+#: src/web/server/common/pages_admin.ml:257
 msgid " in the following box: "
 msgstr " στο ακόλουθο πεδίο: "
 
 #: src/web/common/pages_common.ml:253
 msgid " is rejected, because "
-msgstr ""
+msgstr " απορρίπτεται, επειδή "
 
 #: src/web/clients/admin/elections.ml:1665
 msgid " or send them manually this link:"
-msgstr ""
+msgstr " ή στείλτε τους χειροκίνητα αυτόν τον σύνδεσμο:"
 
 #: src/web/server/common/pages_admin.ml:247
 msgid " or username: "
@@ -79,52 +78,56 @@ msgstr " ή όνομα χρήστη: "
 
 #: src/web/clients/trustee/decrypt.ml:140
 msgid " your contribution to decryption."
-msgstr ""
+msgstr " ή στείλτε τους χειροκίνητα αυτόν τον σύνδεσμο."
 
 #: src/web/clients/admin/admin.ml:168
 msgid "(no title)"
-msgstr ""
+msgstr "(χωρίς τίτλο)"
 
 #: src/web/clients/trustee/trustee.ml:186
 msgid "(none)"
-msgstr ""
+msgstr "(κανένα)"
 
-#: src/web/server/common/pages_admin.ml:377
 #. src/web/server/common/pages_admin.ml:326
+#: src/web/server/common/pages_admin.ml:377
 msgid ". Please try again with a different one."
-msgstr ""
+msgstr ". Παρακαλούμε δοκιμάστε ξανά με διαφορετικό."
 
 #: src/web/common/mails_admin.ml:46
 msgid "1. Click on the link."
-msgstr ""
+msgstr "1. Κάντε κλικ στον σύνδεσμο."
 
 #: src/web/common/mails_admin.ml:48
 msgid "2. Click on \"Generate\"."
-msgstr ""
+msgstr "2. Κάντε κλικ στο «Δημιουργία»."
 
 #: src/web/common/mails_admin.ml:51
 msgid "3. Download the private credentials (creds.txt) and save the file to a secure location."
 msgstr ""
+"3. Κατεβάστε τα ιδιωτικά διαπιστευτήρια (creds.txt) και αποθηκεύστε το "
+"αρχείο σε ασφαλές μέρος."
 
 #: src/web/clients/admin/elections.ml:1267
 msgid "30 minutes"
-msgstr ""
+msgstr "30 λεπτά"
 
 #: src/web/common/mails_admin.ml:57
 msgid "4. Download the list of voters (voters.txt)."
-msgstr ""
+msgstr "4. Κατεβάστε τον κατάλογο ψηφοφόρων (voters.txt)."
 
 #: src/web/common/mails_admin.ml:63
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
 msgstr ""
+"5. Αποθηκεύστε τα δύο αποτυπώματα: το αποτύπωμα του καταλόγου ψηφοφόρων και "
+"το αποτύπωμα των δημόσιων διαπιστευτηρίων"
 
 #: src/web/common/mails_admin.ml:72
 msgid "6. Click on \"Submit the public credentials\"."
-msgstr ""
+msgstr "6. Κάντε κλικ στο «Υποβολή των δημόσιων διαπιστευτηρίων»."
 
 #: src/web/server/common/pages_admin.ml:282
 msgid "A verification code has been sent to %s."
-msgstr ""
+msgstr "Ένας κωδικός επαλήθευσης έχει σταλεί στο %s."
 
 #: src/web/server/common/pages_admin.ml:63
 msgid "Accept"
@@ -132,22 +135,22 @@ msgstr "Αποδοχή"
 
 #: src/web/server/common/pages_admin.ml:298
 msgid "Account management"
-msgstr ""
+msgstr "Διαχείριση λογαριασμού"
 
 #: src/web/server/common/site_admin.ml:395
 msgid "Account not found"
-msgstr ""
+msgstr "Ο λογαριασμός δεν βρέθηκε"
 
 #: src/web/clients/admin/elections.ml:881
 msgid "Add"
-msgstr ""
+msgstr "Προσθήκη"
 
 #: src/web/clients/admin/questions.ml:595
 msgid "Add a grade"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:158
 #. src/web/clients/admin/trustees_tab.ml:119
+#: src/web/clients/admin/trustees_tab.ml:158
 msgid "Add a trustee"
 msgstr ""
 
@@ -155,8 +158,8 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: src/web/clients/admin/admin.ml:73 src/web/clients/admin/admin.ml:72
 #. src/web/clients/admin/admin.ml:62
+#: src/web/clients/admin/admin.ml:73 src/web/clients/admin/admin.ml:72
 msgid "Administration"
 msgstr ""
 
@@ -236,10 +239,10 @@ msgstr ""
 msgid "Automatic dates"
 msgstr ""
 
-#: src/web/server/common/mails_admin.ml:168
 #. src/web/server/common/mails_admin.ml:117
 #. src/web/server/common/mails_admin.ml:83
 #. src/web/server/common/mails_admin.ml:49
+#: src/web/server/common/mails_admin.ml:168
 msgid "Best regards,"
 msgstr ""
 
@@ -271,11 +274,11 @@ msgstr ""
 msgid "Change e-mail address"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:359
 #. src/web/server/common/site_admin.ml:244
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
+#: src/web/server/common/site_admin.ml:359
 msgid "Change password"
 msgstr ""
 
@@ -287,8 +290,8 @@ msgstr ""
 msgid "Clear logo"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2085
 #. src/web/clients/common/secondary_ui.ml:80
+#: src/web/clients/admin/elections.ml:2085
 msgid "Close"
 msgstr ""
 
@@ -348,14 +351,14 @@ msgstr ""
 msgid "Create a new election"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:329
 #. src/web/server/common/site_admin.ml:200
 #. src/web/server/common/mails_admin.ml:56
+#: src/web/server/common/site_admin.ml:329
 msgid "Create account"
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:353
 #. src/web/server/common/pages_admin.ml:233
+#: src/web/server/common/pages_admin.ml:353
 msgid "Create an account"
 msgstr ""
 
@@ -447,10 +450,10 @@ msgstr ""
 msgid "Dates can no longer be defined for this election."
 msgstr ""
 
-#: src/web/server/common/mails_admin.ml:147
 #. src/web/server/common/mails_admin.ml:97
 #. src/web/server/common/mails_admin.ml:63
 #. src/web/server/common/mails_admin.ml:29
+#: src/web/server/common/mails_admin.ml:147
 msgid "Dear %s,"
 msgstr "Αγαπητέ/ή %s,"
 
@@ -506,13 +509,13 @@ msgstr ""
 msgid "Do not allow revoting"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:621
 #. src/web/clients/admin/trustees_tab.ml:524
+#: src/web/clients/admin/trustees_tab.ml:621
 msgid "Done?"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:127
 #. src/web/clients/credauth/generate.ml:119
+#: src/web/clients/credauth/generate.ml:127
 msgid "Download "
 msgstr ""
 
@@ -536,8 +539,8 @@ msgstr ""
 msgid "Dummy auth (should not be used in production): "
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:244
 #. src/web/server/common/pages_admin.ml:214
+#: src/web/server/common/pages_admin.ml:244
 msgid "E-mail address:"
 msgstr ""
 
@@ -565,10 +568,10 @@ msgstr ""
 msgid "Election main page"
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:190
 #. src/web/server/common/pages_admin.ml:45
 #. src/web/common/pages_common.ml:143
 #. src/web/common/pages_common.ml:134
+#: src/web/server/common/pages_admin.ml:190
 msgid "Election server"
 msgstr "Διακομιστής ψηφοφορίας"
 
@@ -600,9 +603,9 @@ msgstr ""
 msgid "Erase"
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:89 src/web/clients/credauth/generate.ml:163
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/server/common/site_admin.ml:146
+#: src/web/clients/credop/credop.ml:89 src/web/clients/credauth/generate.ml:163
 msgid "Error"
 msgstr "Σφάλμα"
 
@@ -642,8 +645,8 @@ msgstr ""
 msgid "FAIL!"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:612
 #. src/web/clients/admin/trustees_tab.ml:516
+#: src/web/clients/admin/trustees_tab.ml:612
 msgid "Failed to connect; please reload"
 msgstr ""
 
@@ -755,9 +758,9 @@ msgstr ""
 msgid "Insert an answer"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:114
 #. src/web/clients/trustee/decrypt.ml:125
 #. src/web/clients/trustee/generate.ml:174
+#: src/web/clients/credauth/generate.ml:114
 msgid "Instructions:"
 msgstr ""
 
@@ -805,8 +808,8 @@ msgstr ""
 msgid "Left to right"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:523
 #. src/web/clients/admin/trustees_tab.ml:414
+#: src/web/clients/admin/trustees_tab.ml:523
 msgid "Link to send"
 msgstr ""
 
@@ -838,8 +841,8 @@ msgstr ""
 msgid "Log in:"
 msgstr ""
 
-#: src/web/clients/admin/admin.ml:349 src/web/clients/admin/account.ml:207
 #. src/web/server/common/pages_admin.ml:110
+#: src/web/clients/admin/admin.ml:349 src/web/clients/admin/account.ml:207
 msgid "Log out"
 msgstr ""
 
@@ -911,8 +914,8 @@ msgstr ""
 msgid "New answer"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:787 src/web/clients/admin/questions.ml:764
 #. src/web/clients/admin/questions.ml:688
+#: src/web/clients/admin/questions.ml:787 src/web/clients/admin/questions.ml:764
 msgid "New candidate"
 msgstr ""
 
@@ -1024,8 +1027,8 @@ msgstr ""
 msgid "Please download "
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:255
 #. src/web/server/common/pages_admin.ml:222
+#: src/web/server/common/pages_admin.ml:255
 msgid "Please enter "
 msgstr ""
 
@@ -1085,10 +1088,10 @@ msgstr ""
 msgid "Private key is missing!"
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:505
 #. src/web/server/common/pages_admin.ml:492
 #. src/web/server/common/pages_admin.ml:466
 #. src/web/server/common/pages_admin.ml:437
+#: src/web/server/common/pages_admin.ml:505
 msgid "Proceed"
 msgstr "Προχωρήστε"
 
@@ -1156,10 +1159,10 @@ msgstr ""
 msgid "Ready to create:"
 msgstr ""
 
-#: src/web/clients/trustee/trustee.ml:197
 #. src/web/clients/admin/trustees_tab.ml:699
 #. src/web/clients/admin/trustees_tab.ml:544
 #. src/web/clients/admin/trustees_tab.ml:438
+#: src/web/clients/trustee/trustee.ml:197
 msgid "Refresh status"
 msgstr ""
 
@@ -1323,8 +1326,8 @@ msgstr ""
 msgid "Specification"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:415
 #. src/web/clients/admin/elections.ml:403
+#: src/web/clients/admin/trustees_tab.ml:415
 msgid "Status"
 msgstr ""
 
@@ -1332,12 +1335,12 @@ msgstr ""
 msgid "Step %d/7"
 msgstr ""
 
-#: src/web/clients/trustee/shuffle.ml:159 src/web/clients/trustee/decrypt.ml:76
 #. src/web/server/common/pages_admin.ml:404
 #. src/web/server/common/pages_admin.ml:348
 #. src/web/server/common/pages_admin.ml:292
 #. src/web/server/common/pages_admin.ml:260
 #. src/web/server/common/pages_admin.ml:227
+#: src/web/clients/trustee/shuffle.ml:159 src/web/clients/trustee/decrypt.ml:76
 msgid "Submit"
 msgstr ""
 
@@ -1469,8 +1472,8 @@ msgstr ""
 msgid "The secret key is not valid!"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:334
 #. src/web/clients/admin/trustees_tab.ml:83
+#: src/web/clients/admin/trustees_tab.ml:334
 msgid "The server is always one of the trustees"
 msgstr ""
 
@@ -1590,8 +1593,8 @@ msgstr ""
 msgid "To confirm this creation, please use the following code:"
 msgstr ""
 
-#: src/web/server/common/mails_admin.ml:104
 #. src/web/server/common/mails_admin.ml:70
+#: src/web/server/common/mails_admin.ml:104
 msgid "To confirm this, please use the following code:"
 msgstr ""
 
@@ -1631,10 +1634,10 @@ msgstr ""
 msgid "Trustee setup - Step 2: key generation"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:522
 #. src/web/clients/admin/trustees_tab.ml:412
 #. src/web/clients/admin/trustees_tab.ml:324
 #. src/web/clients/admin/trustees_tab.ml:73
+#: src/web/clients/admin/trustees_tab.ml:522
 msgid "Trustee's e-mail"
 msgstr ""
 
@@ -1646,8 +1649,8 @@ msgstr ""
 msgid "Trustee's name"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:325
 #. src/web/clients/admin/trustees_tab.ml:74
+#: src/web/clients/admin/trustees_tab.ml:325
 msgid "Trustee's public name"
 msgstr ""
 
@@ -1659,8 +1662,8 @@ msgstr ""
 msgid "Type of answer:"
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:400
 #. src/web/server/common/pages_admin.ml:344
+#: src/web/server/common/pages_admin.ml:400
 msgid "Type the password again: "
 msgstr ""
 
@@ -1708,8 +1711,8 @@ msgstr ""
 msgid "Voter list (not editable):"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:199
 #. src/web/clients/admin/elections.ml:1050
+#: src/web/clients/credauth/generate.ml:199
 msgid "Voter list:"
 msgstr ""
 
@@ -1721,8 +1724,8 @@ msgstr ""
 msgid "Voter's authentication"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2009
 #. src/web/clients/admin/elections.ml:1901
+#: src/web/clients/admin/elections.ml:2009
 msgid "Voter's authentication:"
 msgstr ""
 
@@ -1734,9 +1737,9 @@ msgstr ""
 msgid "Waiting for the election administrator to set the threshold..."
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:297
 #. src/web/clients/trustee/generate.ml:233
 #. src/web/clients/trustee/generate.ml:215
+#: src/web/clients/trustee/generate.ml:297
 msgid "Waiting for the other trustees..."
 msgstr ""
 
@@ -1752,9 +1755,9 @@ msgstr ""
 msgid "Warning:"
 msgstr "Προειδοποίηση:"
 
-#: src/web/server/common/mails_admin.ml:112
 #. src/web/server/common/mails_admin.ml:78
 #. src/web/server/common/mails_admin.ml:44
+#: src/web/server/common/mails_admin.ml:112
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 
@@ -1762,9 +1765,9 @@ msgstr ""
 msgid "Warning: this is irreversible!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1733
 #. src/web/clients/admin/elections.ml:1668
 #. src/web/clients/admin/elections.ml:1602
+#: src/web/clients/admin/elections.ml:1733
 msgid "Warning: this will freeze the voter list!"
 msgstr ""
 
@@ -1860,8 +1863,8 @@ msgstr ""
 msgid "Your ballot for "
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:475
 #. src/web/server/common/pages_admin.ml:442
+#: src/web/server/common/pages_admin.ml:475
 msgid "Your e-mail address"
 msgstr ""
 
@@ -1881,15 +1884,15 @@ msgstr ""
 msgid "Your partial decryption has been received and checked!"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:308
 #. src/web/clients/trustee/generate.ml:296
 #. src/web/clients/trustee/generate.ml:263
+#: src/web/clients/trustee/generate.ml:308
 msgid "Your private key is valid!"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:305
 #. src/web/clients/trustee/generate.ml:292
 #. src/web/clients/trustee/generate.ml:260
+#: src/web/clients/trustee/generate.ml:305
 msgid "Your public key has already been registered!"
 msgstr ""
 
@@ -1941,8 +1944,8 @@ msgstr ""
 msgid "empty list"
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:374
 #. src/web/server/common/pages_admin.ml:323
+#: src/web/server/common/pages_admin.ml:374
 msgid "failed"
 msgstr ""
 
@@ -1990,8 +1993,8 @@ msgstr ""
 msgid "step 0?"
 msgstr ""
 
-#: src/web/clients/common/secondary_ui.ml:71
 #. src/web/server/common/pages_admin.ml:51
+#: src/web/clients/common/secondary_ui.ml:71
 msgid "terms of service"
 msgstr ""
 
@@ -2015,8 +2018,8 @@ msgstr ""
 msgid "the private parts of the credentials"
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:364
 #. src/web/server/common/pages_admin.ml:315
+#: src/web/server/common/pages_admin.ml:364
 msgid "the two passwords are not the same"
 msgstr "οι δύο κωδικοί δεν είναι ίδιοι"
 
@@ -2083,4 +2086,3 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:530
 msgid "your name:"
 msgstr ""
-
