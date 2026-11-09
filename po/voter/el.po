@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2026-11-09 10:20+0000\n"
+"PO-Revision-Date: 2026-11-10 08:15+0000\n"
 "Last-Translator: EFA <efathenes@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/belenios/voter/el/>"
 "\n"
@@ -211,7 +211,7 @@ msgstr ""
 
 #: src/web/server/common/mails_voter.ml:297
 msgid "Best regards,"
-msgstr ""
+msgstr "Με εκτίμηση,"
 
 #: src/web/clients/election/home.ml:498
 msgid "Blank vote"
@@ -223,7 +223,7 @@ msgstr ""
 
 #: src/web/clients/common/secondary_ui.ml:70
 msgid "By using this site, you accept our "
-msgstr "Με την χρήση αυτής της σελίδας, δέχεστε την "
+msgstr "Χρησιμοποιώντας αυτόν τον ιστότοπο, αποδέχεστε τους "
 
 #: src/web/server/common/pages_common.ml:586
 msgid "Click here"
@@ -231,7 +231,7 @@ msgstr ""
 
 #: src/web/clients/common/secondary_ui.ml:80
 msgid "Close"
-msgstr ""
+msgstr "Κλείσιμο"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:92
 msgid "Compare"
@@ -270,7 +270,7 @@ msgstr "Αγαπητέ/ή %s,"
 #. src/web/server/common/pages_common.ml:288
 #: src/web/server/common/pages_common.ml:540
 msgid "E-mail address:"
-msgstr ""
+msgstr "Διεύθυνση ηλεκτρονικού ταχυδρομείου:"
 
 #: src/web/clients/election/home.ml:94
 msgid "Election fingerprint"
@@ -330,12 +330,12 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:69
 msgid "Get the source code"
-msgstr "Κατεβάστε τον πηγαίο κώδικα"
+msgstr "Λήψη του πηγαίου κώδικα"
 
 #. src/web/common/pages_common.ml:274
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
-msgstr "Επιστρέψτε στην ψηφοφορία"
+msgstr "Επιστροφή στην ψηφοφορία"
 
 #: src/web/server/common/mails_voter.ml:130
 msgid "If the above link does not work:"
@@ -374,7 +374,7 @@ msgstr "Γλώσσα:"
 
 #: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
-msgstr ""
+msgstr "Φόρτωση..."
 
 #. src/web/server/common/pages_common.ml:412
 #. src/web/server/common/pages_common.ml:320
@@ -427,11 +427,12 @@ msgstr "Κωδικός:"
 
 #: src/web/server/common/pages_common.ml:549
 msgid "Please enter "
-msgstr ""
+msgstr "Παρακαλούμε εισαγάγετε "
 
 #: src/web/server/common/pages_common.ml:466
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
+"Εισαγάγετε τον κωδικό επαλήθευσης που λάβατε μέσω ηλεκτρονικού ταχυδρομείου:"
 
 #: src/web/server/common/pages_common.ml:274
 msgid "Please log in:"
@@ -453,7 +454,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:65
 msgid "Powered by "
-msgstr "Βασισμένο στο "
+msgstr "Με την υποστήριξη του "
 
 #. src/web/server/common/pages_common.ml:233
 #. src/web/server/common/pages_common.ml:225
@@ -479,11 +480,11 @@ msgstr ""
 
 #: src/web/clients/election/home.ml:682
 msgid "Refresh status"
-msgstr ""
+msgstr "Ανανέωση κατάστασης"
 
 #: src/web/common/pages_common.ml:54
 msgid "Restricted mode"
-msgstr ""
+msgstr "Περιορισμένη λειτουργία"
 
 #: src/web/server/common/mails_voter.ml:239
 msgid "Results will be published on the election page"
@@ -518,7 +519,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:71
 msgid "Specification"
-msgstr ""
+msgstr "Προδιαγραφή"
 
 #: src/web/clients/election/home.ml:767
 msgid "Start"
@@ -529,7 +530,7 @@ msgstr "Έναρξη"
 #. src/web/server/common/pages_common.ml:470
 #: src/web/clients/election/advanced.ml:101
 msgid "Submit"
-msgstr ""
+msgstr "Υποβολή"
 
 #: src/web/clients/election/advanced.ml:157
 msgid "Submit by copy/paste"
@@ -547,11 +548,11 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:73
 msgid "Terms of service"
-msgstr ""
+msgstr "Όροι χρήσης"
 
 #: src/web/common/pages_common.ml:249
 msgid "Thank you for voting!"
-msgstr "Σας ευχαριστούμε για την συμμετοχή σας στην ψηφοφορία!"
+msgstr "Ευχαριστούμε που ψηφίσατε!"
 
 #: src/web/clients/election/home.ml:408
 msgid "The Schulze winners are:"
@@ -613,7 +614,7 @@ msgstr "Η ψηφοφορία είναι κλειστή αυτή την στιγ
 
 #: src/web/server/common/mails_voter.ml:229 src/web/common/pages_common.ml:209
 msgid "This vote replaces any previous vote."
-msgstr "Η ψήφος αυτή αντικαθιστά προηγούμενες ψήφους."
+msgstr "Αυτή η ψήφος αντικαθιστά κάθε προηγούμενη ψήφο."
 
 #: src/web/clients/election/home.ml:381 src/web/clients/election/home.ml:319
 msgid "Tie:"
@@ -666,6 +667,8 @@ msgstr "Προειδοποίηση:"
 #: src/web/server/common/mails_voter.ml:292
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
+"Προσοχή: αυτός ο κωδικός ισχύει για 15 λεπτά και οι προηγούμενοι κωδικοί που "
+"στάλθηκαν σε αυτή τη διεύθυνση δεν ισχύουν πλέον."
 
 #: src/web/server/common/mails_voter.ml:104
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
@@ -718,7 +721,7 @@ msgstr "Μπορείτε επίσης να κατεβάσετε το "
 
 #: src/web/common/pages_common.ml:242
 msgid "You can check its presence in the "
-msgstr "Μπορείτε να ελέγξετε την ύπαρξή του στην "
+msgstr "Μπορείτε να ελέγξετε την παρουσία του στην "
 
 #: src/web/server/common/mails_voter.ml:233
 msgid "You can check its presence in the ballot box, accessible at"
@@ -738,7 +741,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:263
 msgid "Your ballot for "
-msgstr "To ψηφοδέλτιό σας για το "
+msgstr "Το ψηφοδέλτιό σας για "
 
 #: src/web/server/common/mails_voter.ml:175
 msgid "Your credential for election %s"
@@ -758,7 +761,7 @@ msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σ�
 
 #: src/web/common/pages_common.ml:239
 msgid "Your smart ballot tracker is "
-msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σας είναι "
+msgstr "Το έξυπνο αναγνωριστικό παρακολούθησης του ψηφοδελτίου σας είναι "
 
 #: src/web/server/common/mails_voter.ml:207
 msgid "Your vote for election"
@@ -774,7 +777,7 @@ msgstr "Η ψήφος σας δεν καταγράφηκε!"
 
 #: src/web/server/common/mails_voter.ml:219 src/web/common/pages_common.ml:219
 msgid "Your weight is %s."
-msgstr ""
+msgstr "Το βάρος της ψήφου σας είναι %s."
 
 #: src/web/common/pages_common.ml:230
 msgid "ballot box"
@@ -822,7 +825,7 @@ msgstr "ξεκινήστε από την αρχή"
 
 #: src/web/clients/common/secondary_ui.ml:71
 msgid "terms of service"
-msgstr ""
+msgstr "όρους χρήσης"
 
 #: src/web/clients/election/home.ml:402
 msgid "the Wikipedia page"
