@@ -29,15 +29,7 @@ let datetime_now () =
   Int64.of_float (Js.to_float (new%js Js.date_now)##valueOf /. 1000.)
 
 module Debug = struct
-  [%%if js_of_ocaml_version < (6, 0)]
-
-  let debug x = Firebug.console##log (Js.string x)
-
-  [%%else]
-
   let debug x = Console.console##log (Js.string x)
-
-  [%%endif]
 end
 
 module Belenios_js_crypto = struct

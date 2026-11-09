@@ -23,16 +23,6 @@
 
 open Js_of_ocaml
 
-[%%if js_of_ocaml_version < (6, 0)]
-
-let navigator_language_raw =
-  Js.Optdef.to_option Dom_html.window##.navigator##.language
-
-let scroll x y = Dom_html.window##scroll x y
-let log_4 a b c d = Firebug.console##log_4 a b c d
-
-[%%else]
-
 let navigator_language_raw =
   Js.Opt.to_option Dom_html.window##.navigator##.language
 
@@ -41,19 +31,8 @@ let scroll x y =
 
 let log_4 a b c d = Console.console##log_4 a b c d
 
-[%%endif]
-[%%if js_of_ocaml_version < (6, 4)]
-
-let get_file (x : #Dom_html.inputElement Js.t) =
-  let files = x##.files in
-  Js.Opt.to_option (files##item 0)
-
-[%%else]
-
 let get_file (x : #Dom_html.inputElement Js.t) =
   Js.Opt.case x##.files (fun () -> None) (fun x -> Js.Opt.to_option (x##item 0))
-
-[%%endif]
 
 let navigator_language =
   let open Belenios.Language in
