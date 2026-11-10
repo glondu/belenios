@@ -152,8 +152,12 @@ their private key to decrypt the result. It is expected that the trustee:
   `fingerprint of your shuffle` as saved in the previous step is present
   on the page of the election, next to their name. If this is not the case,
   the private key must not be used;
-- save the fingerprint of the ballot box to be decrypted: `fingerprint
-  of the encrypted tally`.
+- the decryption webpage displays the `fingerprint
+  of the encrypted tally` (called `fingerprint of the ballot box to be
+  decrypted` for alternative voting). Check that the same value is present
+  on the page of the election. If this is not the case,
+  the private key must not be used, otherwise the private key may
+  be used to decrypt something else;
 
 
 Once the tally is finished, the results are published on the page of the
@@ -162,13 +166,9 @@ election. It is expected that the trustee:
 - **destroys** their decryption key;
 - checks that the following data
 are present on this page, each time associated to their name:
-
-- (in threshold mode) their PKI `public key`;
-- their `verification key`;
-- (for alternative voting) the fingerprint of their shuffle;
-- the fingerprint of the ballot box to be decrypted `fingerprint of the
-  encrypted tally` (in order to check that her private key has not be
-  used to decrypt something else).
+  - (in threshold mode) their PKI `public key`;
+  - their `verification key`;
+  - (for alternative voting) the fingerprint of their shuffle.
 
 
 Instructions for the credential authority
