@@ -274,10 +274,16 @@ let make file =
         match x with
         | Some (_, x) ->
             let* _, y = Lazy.force raw_encrypted_tally in
-            if x.sized_encrypted_tally = y.sized_encrypted_tally then
+            if x.sized_encrypted_tally <> y.sized_encrypted_tally then
+              failwith "encrypted tally failed verification"
+            else if x.sized_num_tallied <> y.sized_num_tallied then
+              failwith "wrong number of tallied ballots"
+            else if
+              Weight.compare x.sized_total_weight y.sized_total_weight <> 0
+            then failwith "wrong total weight of tallied ballots"
+            else
               Lwt_io.eprintlf "I: fingerprint of encrypted tally is %s"
                 (Hash.to_b64 x.sized_encrypted_tally)
-            else failwith "encrypted tally failed verification"
         | None -> Lwt.return_unit
       in
       let* () =
