@@ -275,12 +275,14 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
        x
        |> Option.map (fun x ->
            HMap.fold
-             (fun _ (x : _ public_credential_props) (has_weights, accu) ->
+             (fun h (x : _ public_credential_props) (has_weights, accu) ->
                let has_weights = has_weights || x.weight <> None in
                let y = G.to_string x.credential in
                (* the identity element would let anyone sign ballots *)
                if (not (G.check x.credential)) || G.(x.credential =~ one) then
                  Printf.ksprintf failwith "invalid credential: %s" y
+               else if h <> Hash.hash_string y then
+                 Printf.ksprintf failwith "invalid key for credential: %s" y
                else if SMap.mem y accu then
                  Printf.ksprintf failwith "duplicate credential: %s" y
                else

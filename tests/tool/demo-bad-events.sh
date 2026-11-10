@@ -100,22 +100,31 @@ vote voter2 "$H_VOTE"
 belenios-tool election verify
 snapshot
 
-# Recreate the archive with an extra public credential $1
-init_with_credential () {
+# Recreate the archive with public credentials modified by jq filter $1
+init_with_public_creds () {
     rm -f $BEL
     cp ../setup/election.json ../setup/trustees.json .
-    jq --compact-output --arg c "$1" '. + {"0000000000000000000000000000000000000000000000000000000000000000": {"credential": $c, "id": "intruder"}}' \
-        ../setup/public_creds.json > public_creds.json
+    jq --compact-output "$1" ../setup/public_creds.json > public_creds.json
     belenios-tool archive init
+}
+
+# Recreate the archive with an extra public credential $1 (with the
+# right key)
+init_with_credential () {
+    init_with_public_creds ". + {\"$(printf "%s" "$1" | sha256sum | cut -d" " -f1)\": {credential: \"$1\", id: \"intruder\"}}"
 }
 
 expect_rejected "the identity element as credential" '
     init_with_credential 0000000000000000000000000000000000000000000000000000000000000001
-' "invalid credential"
+' "invalid credential:"
 
 expect_rejected "a credential of order 2" '
     init_with_credential 7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec
-' "invalid credential"
+' "invalid credential:"
+
+expect_rejected "a credential with a wrong key" '
+    init_with_public_creds "to_entries | .[0].key = \"0000000000000000000000000000000000000000000000000000000000000000\" | from_entries"
+' "invalid key for credential"
 
 # Store $1 in extracted/ as a $2 (data or event) file, and print its hash
 add_object () {
