@@ -190,6 +190,23 @@ expect_rejected "a shuffle in an election without non-homomorphic questions" '
     belenios-tool archive add-event --type=EndShuffles < /dev/null
 ' "no non-homomorphic questions and shuffles were found"
 
+# Add an EncryptedTally event whose sized_encrypted_tally (last line
+# output by compute-encrypted-tally) is modified by jq filter $1
+add_modified_tally () {
+    belenios-tool archive add-event --type=EndBallots < /dev/null
+    belenios-tool election compute-encrypted-tally \
+        | { IFS= read -r et; echo "$et"; jq --compact-output "$1"; } \
+        | belenios-tool archive add-event --type=EncryptedTally
+}
+
+expect_rejected "a wrong number of tallied ballots" '
+    add_modified_tally ".num_tallied = 3"
+' "wrong number of tallied ballots"
+
+expect_rejected "a wrong total weight of tallied ballots" '
+    add_modified_tally ".total_weight = 3"
+' "wrong total weight of tallied ballots"
+
 header "Finish the election"
 
 belenios-tool archive add-event --type=EndBallots < /dev/null
