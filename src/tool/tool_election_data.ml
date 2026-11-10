@@ -29,6 +29,7 @@ module type GETTERS = sig
   val raw_election : string Lwt.t
   val get_trustees : unit -> string option Lwt.t
   val get_public_creds : unit -> string list option Lwt.t
+  val get_credentials_certificate : unit -> string option Lwt.t
   val get_ballots : unit -> string list option Lwt.t
 
   val get_encrypted_tally :
@@ -80,6 +81,12 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
     let* setup_data = setup_data in
     let* x = get_data setup_data.setup_credentials in
     Lwt.return @@ Option.map public_credentials_of_string x
+
+  let get_credentials_certificate () =
+    let* setup_data = setup_data in
+    match setup_data.setup_credentials_certificate with
+    | None -> Lwt.return_none
+    | Some x -> get_data x
 
   let get_trustees () =
     let* setup_data = setup_data in
