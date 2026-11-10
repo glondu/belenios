@@ -160,8 +160,12 @@ déchiffrement :
   apparait sur la page d'accueil de l'élection, à côté du nom de
   l'autorité. La clé de déchiffrement ne doit pas être entrée si ce n'est
   pas le cas.
-- sauvegarde l'empreinte de l'urne à déchiffrer : `empreinte du
-  résultat chiffré`.
+- la page web de déchiffrement affiche `empreinte du
+  résultat chiffré`  (appelée `empreinte de l'urne à déchiffrer` dans
+  le mode vote alternatif). Il faut vérifier que la même valeur
+  apparait sur la page de l'élection. Si ce n'est pas le cas, la clé
+  de déchiffrement ne doit pas être entrée sinon elle pourrait être
+  utilisée pour déchiffrer une autre donnée.
 
 Une fois le dépouillement terminé, les résultats sont proclamés sur la
 page d'accueil de l'élection. Il est attendu que l'autorité de
@@ -173,10 +177,7 @@ page, à chaque fois associées à son nom :
 
 	- (en mode threshold) sa clé publique de PKI `clé publique`;
 	- sa clé de vérification `clé de vérification`;
-	- (en mode vote alternatif) l'empreinte de son mélange;
-	- l'empreinte de l'urne à déchiffrer : `empreinte du résultat chiffré`
-  (pour vérifier que sa clé de déchiffrement n'a pas été utilisée pour
-  déchiffrer une autre donnée).
+	- (en mode vote alternatif) l'empreinte de son mélange.
 
 
 Instructions pour l'autorité de génération de codes de vote
