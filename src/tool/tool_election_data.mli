@@ -31,6 +31,7 @@ module type GETTERS = sig
   val raw_election : string Lwt.t
   val get_trustees : unit -> string option Lwt.t
   val get_public_creds : ('a, 'b) group -> 'a public_credentials option Lwt.t
+  val get_credentials_certificate : unit -> string option Lwt.t
   val get_ballots : unit -> string list option Lwt.t
 
   val get_encrypted_tally :

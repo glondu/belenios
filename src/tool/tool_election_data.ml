@@ -29,6 +29,7 @@ module type GETTERS = sig
   val raw_election : string Lwt.t
   val get_trustees : unit -> string option Lwt.t
   val get_public_creds : ('a, 'b) group -> 'a public_credentials option Lwt.t
+  val get_credentials_certificate : unit -> string option Lwt.t
   val get_ballots : unit -> string list option Lwt.t
 
   val get_encrypted_tally :
@@ -81,6 +82,12 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
     let* x = get_data setup_data.credentials in
     let module G = (val w) in
     Lwt.return @@ Option.map !*(public_credentials_of_yojson !$G.of_string) x
+
+  let get_credentials_certificate () =
+    let* setup_data = setup_data in
+    match setup_data.credentials_certificate with
+    | None -> Lwt.return_none
+    | Some x -> get_data x
 
   let get_trustees () =
     let* setup_data = setup_data in

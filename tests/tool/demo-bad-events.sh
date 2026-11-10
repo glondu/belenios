@@ -117,6 +117,52 @@ expect_rejected "a credential of order 2" '
     init_with_credential 7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec
 ' "invalid credential"
 
+# Store $1 in extracted/ as a $2 (data or event) file, and print its hash
+add_object () {
+    printf "%s" "$1" > object.tmp
+    h=$(sha256sum object.tmp | cut -d" " -f1)
+    mv object.tmp extracted/$h.$2.json
+    echo $h
+}
+
+# Recreate the archive with a credentials certificate for election $1,
+# with $2 credentials and public credentials hash $3 (right values when
+# empty), signed with a bogus signature (the tool cannot sign one)
+init_with_certificate () {
+    rm -f $BEL
+    cp ../setup/election.json ../setup/trustees.json ../setup/public_creds.json .
+    belenios-tool archive init
+    mkdir extracted
+    tar -xf $BEL -C extracted
+    SETUP=$(tar -tf $BEL | sed -n 5p)
+    CREDS=$(jq --raw-output .credentials extracted/$SETUP).data.json
+    KEY=$(jq --raw-output "[.[]][0].credential" extracted/$CREDS)
+    CERT=$(jq --null-input --compact-output --arg uuid "${1:-$UUID}" --argjson n "${2:-3}" \
+        --arg h "${3:-$(sha256sum < extracted/$CREDS | cut -d" " -f1)}" --arg k "$KEY" \
+        "{message: {uuid: \$uuid, voter_list_length: \$n, public_creds_hash: \$h, verification_key: \$k, encryption_key: \$k}, signature: {challenge: \"1\", response: \"1\"}}")
+    CERT_H=$(add_object "$CERT" data)
+    SETUP_H=$(add_object "$(jq --compact-output --arg h $CERT_H ". + {credentials_certificate: \$h}" extracted/$SETUP)" data)
+    rm extracted/*.event.json
+    add_object "{\"height\":0,\"type\":[\"Setup\"],\"payload\":\"$SETUP_H\"}" event > /dev/null
+    belenios-tool archive make --dir extracted > $BEL
+}
+
+expect_rejected "a credentials certificate for another election" '
+    init_with_certificate $(belenios-tool setup generate-token)
+' "invalid credentials certificate: wrong uuid"
+
+expect_rejected "a credentials certificate with a wrong number of credentials" '
+    init_with_certificate "" 2
+' "invalid credentials certificate: wrong number of credentials"
+
+expect_rejected "a credentials certificate for other credentials" '
+    init_with_certificate "" "" 0000000000000000000000000000000000000000000000000000000000000000
+' "invalid credentials certificate: wrong public credentials"
+
+expect_rejected "a credentials certificate with a bad signature" '
+    init_with_certificate
+' "invalid credentials certificate: bad signature"
+
 expect_rejected "a ballot after EndBallots" '
     belenios-tool archive add-event --type=EndBallots < /dev/null
     vote voter3 "$H_VOTE"
