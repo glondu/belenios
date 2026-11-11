@@ -66,7 +66,8 @@ module Make (B : LIBSODIUM_STUBS) = struct
     let () = assert (hex_size = 2 * bytes)
 
     let point_of_string s =
-      assert (String.length s = hex_size);
+      if String.length s <> hex_size then
+        invalid_arg "Ed25519_libsodium.of_string";
       of_z_generic bytes (Z.of_hex s)
 
     let string_of_point p =
