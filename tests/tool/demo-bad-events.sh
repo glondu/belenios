@@ -284,6 +284,10 @@ expect_rejected "a partial decryption without shuffles" '
         | belenios-tool archive add-event --type=PartialDecryption
 ' "partial decryptions were found without shuffles"
 
+expect_rejected "a shuffle from an unknown trustee" '
+    belenios-tool election shuffle --key ../*.privkey --trustee-id 2 | belenios-tool archive add-event --type=Shuffle
+' "shuffle from unknown trustee 2"
+
 expect_rejected "a partial decryption after Shuffle without EndShuffles" '
     belenios-tool election shuffle --key ../*.privkey --trustee-id 1 | belenios-tool archive add-event --type=Shuffle
     belenios-tool election decrypt --privkey ../*.privkey --trustee-id 1 | belenios-tool archive add-event --type=PartialDecryption

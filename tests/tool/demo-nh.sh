@@ -142,6 +142,25 @@ belenios-tool archive add-event --type=EndBallots < /dev/null
 belenios-tool election compute-encrypted-tally | belenios-tool archive add-event --type=EncryptedTally
 belenios-tool election verify
 
+header "Check report of missing shufflers"
+
+# Only the first trustee shuffles: this is valid, but must be reported
+# (work in a subdirectory, left for inspection in case of failure)
+tdir="$DIR/one-shuffle"
+mkdir "$tdir"
+cp $UUID.bel "$tdir"
+belenios-tool election shuffle --dir "$tdir" --key $(ls *.privkey | head -n1) --trustee-id 1 \
+    | belenios-tool archive add-event --dir "$tdir" --type=Shuffle
+belenios-tool archive add-event --dir "$tdir" --type=EndShuffles < /dev/null
+belenios-tool election verify --dir "$tdir" 2>&1 | tee "$tdir/verify.out"
+if grep -q "^I: no shuffle from trustee 2 (.*), trustee 3 (.*)$" "$tdir/verify.out"; then
+    echo "Missing shufflers are reported"
+else
+    echo "Missing shufflers are not reported!"
+    exit 1
+fi
+rm -rf "$tdir"
+
 header "Shuffle ciphertexts"
 
 trustee_id=1
@@ -167,7 +186,13 @@ belenios-tool election compute-result | belenios-tool archive add-event --type=R
 
 header "Perform final verification"
 
-belenios-tool election verify
+belenios-tool election verify 2>&1 | tee verify.out
+if grep -q "^I: all trustees shuffled$" verify.out; then
+    echo "All shufflers are reported"
+else
+    echo "Shufflers are not reported!"
+    exit 1
+fi
 
 header "Apply Schulze method"
 

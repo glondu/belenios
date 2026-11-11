@@ -212,6 +212,28 @@ let make file =
       in
       loop 0 cc shuffles
 
+    (* verification key, decryption key and name of each trustee, in
+       the order of owner indexes *)
+    let trustee_keys trustees =
+      trustees
+      |> List.concat_map (function
+        | `Single (t : _ basic_parameters) ->
+            let k = t.verification_key.message.message in
+            [ (t.cert.message.verification, k.public_key, k.name) ]
+        | `Pedersen (t : _ threshold_parameters) ->
+            Array.map2
+              (fun (c : _ pedersen_cert) (k : _ threshold_verification_key) ->
+                let k = k.message.message in
+                (c.message.verification, k.public_key, k.name))
+              t.certs t.verification_keys
+            |> Array.to_list)
+      |> Array.of_list
+
+    let string_of_trustee keys i =
+      match keys.(i - 1) with
+      | _, _, Some name -> Printf.sprintf "trustee %d (%s)" i name
+      | _, _, None -> Printf.sprintf "trustee %d" i
+
     let verify ?(skip_ballot_check = false) () =
       let* () = fsck () in
       let* trustees = trustees in
@@ -292,13 +314,50 @@ let make file =
         | None -> Lwt.return_unit
       in
       let* () =
-        let* x = Lazy.force shuffles in
-        match x with
-        | Some shuffles ->
-            let* b = shuffles_check shuffles in
-            assert b;
-            Lwt.return_unit
-        | None -> Lwt_io.eprintl "I: no shuffles to check"
+        let* x = Lazy.force raw_shuffles in
+        match (x, trustees) with
+        | None, _ -> Lwt_io.eprintl "I: no shuffles to check"
+        | _, None -> failwith "missing trustees"
+        | Some raw_shuffles, Some trustees ->
+            let keys = trustee_keys trustees in
+            let n = Array.length keys in
+            let owners =
+              List.map
+                (fun (_, (owned : _ owned), _) -> owned.owner)
+                raw_shuffles
+            in
+            List.iter
+              (fun i ->
+                if i < 1 || i > n then
+                  Printf.ksprintf failwith "shuffle from unknown trustee %d" i)
+              owners;
+            let* () =
+              let* x = Lazy.force shuffles in
+              match x with
+              | Some shuffles ->
+                  let* b = shuffles_check shuffles in
+                  assert b;
+                  Lwt.return_unit
+              | None -> failwith "missing shuffles"
+            in
+            (* ballot secrecy relies on at least one honest shuffler *)
+            let* () =
+              Lwt_list.iteri_s
+                (fun j i ->
+                  Lwt_io.eprintlf "I: shuffle #%d was made by %s" j
+                    (string_of_trustee keys i))
+                owners
+            in
+            let missing =
+              List.init n (fun i -> i + 1)
+              |> List.filter (fun i -> not (List.mem i owners))
+            in
+            if missing = [] then Lwt_io.eprintl "I: all trustees shuffled"
+            else
+              Lwt_io.eprintlf "I: no shuffle from %s"
+                (missing
+                |> List.map (string_of_trustee keys)
+                |> String.concat ", ")
       in
       let* () =
         (* Event ordering (checked by fsck) ensures that partial
@@ -326,25 +385,7 @@ let make file =
         | None, _ -> Lwt.return_unit
         | _, None -> failwith "missing trustees"
         | Some pds, Some trustees ->
-            (* verification and decryption keys of each trustee, in the
-               order of owner indexes *)
-            let keys =
-              trustees
-              |> List.concat_map (function
-                | `Single (t : _ basic_parameters) ->
-                    [
-                      ( t.cert.message.verification,
-                        t.verification_key.message.message.public_key );
-                    ]
-                | `Pedersen (t : _ threshold_parameters) ->
-                    Array.map2
-                      (fun (c : _ pedersen_cert)
-                           (k : _ threshold_verification_key) ->
-                        (c.message.verification, k.message.message.public_key))
-                      t.certs t.verification_keys
-                    |> Array.to_list)
-              |> Array.of_list
-            in
+            let keys = trustee_keys trustees in
             let n = Array.length keys in
             let seen = Array.make n false in
             let* tally, _ = Lazy.force encrypted_tally in
@@ -358,7 +399,7 @@ let make file =
                   Printf.ksprintf failwith
                     "duplicate partial decryption from trustee %d" i
                 else
-                  let vk, pvk = keys.(i - 1) in
+                  let vk, pvk, _ = keys.(i - 1) in
                   let factor = !*[%group_of_yojson: _ partial_decryption] x in
                   if not (E.check_factor tally ~vk ~pvk factor) then
                     Printf.ksprintf failwith
