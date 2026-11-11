@@ -312,6 +312,51 @@ let make file =
         | _ -> Lwt.return_unit
       in
       let* () =
+        (* Check each partial decryption, even if there is no result
+           yet, and even if not needed to compute it (combining them
+           ignores invalid ones from threshold trustees, and only
+           keeps the last one of each trustee) *)
+        let* pds = Lazy.force pds in
+        match (pds, trustees) with
+        | None, _ -> Lwt.return_unit
+        | _, None -> failwith "missing trustees"
+        | Some pds, Some trustees ->
+            (* public key of each trustee, in the order of owner indexes *)
+            let keys =
+              trustees
+              |> List.concat_map (function
+                | `Single (t : _ trustee_public_key) -> [ t.trustee_public_key ]
+                | `Pedersen (t : _ threshold_parameters) ->
+                    t.t_verification_keys
+                    |> Array.map (fun (k : _ trustee_public_key) ->
+                        k.trustee_public_key)
+                    |> Array.to_list)
+              |> Array.of_list
+            in
+            let n = Array.length keys in
+            let seen = Array.make n false in
+            let* tally, _ = Lazy.force encrypted_tally in
+            pds
+            |> List.iter (fun (_, (owned : _ owned), x) ->
+                let i = owned.owned_owner in
+                if i < 1 || i > n then
+                  Printf.ksprintf failwith
+                    "partial decryption from unknown trustee %d" i
+                else if seen.(i - 1) then
+                  Printf.ksprintf failwith
+                    "duplicate partial decryption from trustee %d" i
+                else
+                  let factor =
+                    partial_decryption_of_string (sread G.of_string)
+                      (sread G.Zq.of_string) x
+                  in
+                  if not (E.check_factor tally keys.(i - 1) factor) then
+                    Printf.ksprintf failwith
+                      "invalid partial decryption from trustee %d" i
+                  else seen.(i - 1) <- true);
+            Lwt.return_unit
+      in
+      let* () =
         let* x = Lazy.force result in
         let* y = Lazy.force pds in
         match (x, trustees, y) with
