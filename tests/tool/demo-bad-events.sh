@@ -220,6 +220,38 @@ header "Finish the election"
 
 belenios-tool archive add-event --type=EndBallots < /dev/null
 belenios-tool election compute-encrypted-tally | belenios-tool archive add-event --type=EncryptedTally
+belenios-tool election verify
+snapshot
+
+decrypt () {
+    belenios-tool election decrypt --privkey ../*.privkey --trustee-id 1
+}
+
+# Add a partial decryption of trustee 1, with the partial decryption
+# (first line output by decrypt) modified by jq filter $1, and the
+# owned partial decryption (second line) by jq filter $2
+add_modified_pd () {
+    decrypt | {
+        IFS= read -r pd
+        pd="$(echo "$pd" | jq --compact-output "$1")"
+        echo "$pd"
+        jq --compact-output --arg h "$(printf "%s" "$pd" | sha256sum | cut -d" " -f1)" ".payload = \$h | $2"
+    } | belenios-tool archive add-event --type=PartialDecryption
+}
+
+expect_rejected "an invalid partial decryption" '
+    add_modified_pd ".signature.response = \"1\"" "."
+' "invalid partial decryption from trustee 1"
+
+expect_rejected "a partial decryption from an unknown trustee" '
+    add_modified_pd "." ".owner = 2"
+' "partial decryption from unknown trustee 2"
+
+expect_rejected "two partial decryptions from the same trustee" '
+    decrypt | belenios-tool archive add-event --type=PartialDecryption
+    decrypt | belenios-tool archive add-event --type=PartialDecryption
+' "duplicate partial decryption from trustee 1"
+
 belenios-tool election decrypt --privkey *.privkey --trustee-id 1 | belenios-tool archive add-event --type=PartialDecryption
 belenios-tool election compute-result | belenios-tool archive add-event --type=Result
 belenios-tool election verify

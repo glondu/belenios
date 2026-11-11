@@ -139,6 +139,35 @@ for u in *.privkey; do
     echo >&2
 done
 
+header "Check rejection of an unneeded invalid partial decryption"
+
+# Trustees 2 and 3 are enough to decrypt, so an invalid partial
+# decryption from trustee 4 is not needed, but must still be rejected
+# (work in a subdirectory, left for inspection in case of failure)
+tdir="$DIR/unneeded-pd"
+mkdir "$tdir"
+cp $UUID.bel "$tdir"
+id=$(cat 3.trustee)
+belenios-tool election decrypt-threshold --dir "$tdir" --key $id.key --decryption-key $id.dkey --trustee-id 4 | {
+    IFS= read -r pd
+    pd="$(echo "$pd" | jq --compact-output '.signature.response = "1"')"
+    echo "$pd"
+    jq --compact-output --arg h "$(printf "%s" "$pd" | sha256sum | cut -d" " -f1)" '.payload = $h'
+} | belenios-tool archive add-event --dir "$tdir" --type=PartialDecryption
+belenios-tool election compute-result --dir "$tdir" | belenios-tool archive add-event --dir "$tdir" --type=Result
+if belenios-tool election verify --dir "$tdir" > "$tdir/verify.out" 2>&1; then
+    cat "$tdir/verify.out"
+    echo "verify accepted an invalid partial decryption!"
+    exit 1
+elif grep -q "invalid partial decryption from trustee 4" "$tdir/verify.out"; then
+    echo "verify rejected it as expected"
+else
+    cat "$tdir/verify.out"
+    echo "verify rejected it, but not for the expected reason!"
+    exit 1
+fi
+rm -rf "$tdir"
+
 header "Finalize tally"
 
 belenios-tool election compute-result | belenios-tool archive add-event --type=Result
