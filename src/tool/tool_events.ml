@@ -57,12 +57,15 @@ module IoReader = struct
     f.pos <- x;
     Lwt.return_unit
 
+  let truncated () = failwith "truncated archive"
+
   let read_block f buffer =
     let rec loop i =
       if i < block_size then (
         let* n = Lwt_unix.read f.fd buffer i (block_size - i) in
         f.pos <- Int64.add f.pos (Int64.of_int n);
-        if n = 0 then raise End_of_file else loop (i + n))
+        if n = 0 then if i = 0 then raise End_of_file else truncated ()
+        else loop (i + n))
       else Lwt.return_unit
     in
     loop 0
@@ -94,8 +97,15 @@ let build_index filename =
   let r = Hashtbl.create 1000 in
   let* fd = Lwt_unix.openfile filename [ O_RDONLY ] 0o600 in
   let ic = { pos = 0L; fd } in
-  let* header = Reader.read_header ic in
+  let* length = Lwt_unix.LargeFile.lseek fd 0L SEEK_END in
+  let* _ = Lwt_unix.LargeFile.lseek fd 0L SEEK_SET in
+  let* header =
+    Lwt.catch
+      (fun () -> Reader.read_header ic)
+      (function End_of_file -> IoReader.truncated () | e -> Lwt.reraise e)
+  in
   let rec loop last accu lines =
+    let start = ic.pos in
     Lwt.try_bind
       (fun () -> Reader.read_record ic)
       (fun record ->
@@ -108,7 +118,11 @@ let build_index filename =
         Hashtbl.add r record.hash record.location;
         loop last accu ((record.typ, record.hash) :: lines))
       (function
-        | End_of_file -> Lwt.return (r, last, accu, lines, header)
+        | End_of_file ->
+            (* the end of the file must be the end of a record *)
+            if ic.pos = start && start = length then
+              Lwt.return (r, last, accu, lines, header)
+            else IoReader.truncated ()
         | e -> Lwt.reraise e)
   in
   Lwt.finalize
@@ -158,14 +172,17 @@ let fold_on_event_payload_hashes index typ last_event f accu =
   let rec loop e accu =
     let* x = get_event index e in
     match x with
-    | None -> assert false
+    | None -> Printf.ksprintf failwith "event %s not found" (Hash.to_hex e)
     | Some e ->
         if e.typ = typ then
           match (e.payload, e.parent) with
           | Some payload, Some parent ->
               let* x = f payload accu in
               loop parent x
-          | _ -> assert false
+          | _ ->
+              Printf.ksprintf failwith "ill-formed %s event at height %d"
+                (!+yojson_of_event_type e.typ)
+                e.height
         else Lwt.return accu
   in
   loop last_event accu
@@ -174,7 +191,10 @@ let fold_on_event_payloads index typ last_event f accu =
   fold_on_event_payload_hashes index typ last_event
     (fun payload accu ->
       let* x = get_data index payload in
-      match x with None -> assert false | Some x -> f x accu)
+      match x with
+      | None ->
+          Printf.ksprintf failwith "data %s not found" (Hash.to_hex payload)
+      | Some x -> f x accu)
     accu
 
 let fsck index =

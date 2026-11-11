@@ -51,14 +51,19 @@ let bytes_of_header { name; size; timestamp } =
   b
 
 let header_of_bytes b =
-  let name =
-    let i = 0 in
-    let j = Bytes.index_from b i '\000' in
-    Bytes.sub_string b i (j - i)
+  let r =
+    try
+      let name =
+        let i = 0 in
+        let j = Bytes.index_from b i '\000' in
+        Bytes.sub_string b i (j - i)
+      in
+      let size = Bytes.sub_string b 124 11 |> int64_of_octal in
+      let timestamp = Bytes.sub_string b 136 11 |> int64_of_octal in
+      Some { name; size; timestamp }
+    with Not_found | Failure _ | Invalid_argument _ -> None
   in
-  let size = Bytes.sub_string b 124 11 |> int64_of_octal in
-  let timestamp = Bytes.sub_string b 136 11 |> int64_of_octal in
-  let r = { name; size; timestamp } in
-  let reproducible = b = bytes_of_header r in
-  if reproducible then { name; size; timestamp }
-  else failwith "Tar.header_of_bytes: not reproducible"
+  match r with
+  | Some r when b = bytes_of_header r -> r
+  | Some _ -> failwith "Tar.header_of_bytes: not reproducible"
+  | None -> failwith "Tar.header_of_bytes: ill-formed header"

@@ -53,14 +53,17 @@ let make file =
   let module C = Pki.MakeChannels (P) in
   let module Pedersen = Trustees.MakePedersen (C) in
   let module K = Trustees.MakeCombinator (G) in
+  let check_trustees trustees =
+    if not (K.check trustees) then failwith "invalid trustees"
+    else if not G.(public_key =~ K.combine_keys trustees) then
+      failwith "election public key does not match trustees"
+  in
   (* Check trustee keys, if present *)
   let* () =
     let* trustees = trustees in
     match trustees with
     | Some trustees ->
-        assert (K.check trustees);
-        let y' = K.combine_keys trustees in
-        assert (G.(public_key =~ y'));
+        check_trustees trustees;
         Lwt.return_unit
     | None -> failwith "missing trustees"
   in
@@ -208,7 +211,7 @@ let make file =
             if E.check_shuffle cc ~vk s then
               loop (i + 1) s.message.ciphertexts ss
             else Printf.ksprintf failwith "shuffle #%d failed tests" i
-        | [] -> Lwt.return_true
+        | [] -> Lwt.return_unit
       in
       loop 0 cc shuffles
 
@@ -238,9 +241,7 @@ let make file =
       let* () = fsck () in
       let* trustees = trustees in
       (match trustees with
-      | Some trustees ->
-          assert (K.check trustees);
-          assert (G.(public_key =~ K.combine_keys trustees))
+      | Some trustees -> check_trustees trustees
       | None -> failwith "missing trustees");
       let* () =
         (* also checks the credentials, even if there are no ballots *)
@@ -334,10 +335,7 @@ let make file =
             let* () =
               let* x = Lazy.force shuffles in
               match x with
-              | Some shuffles ->
-                  let* b = shuffles_check shuffles in
-                  assert b;
-                  Lwt.return_unit
+              | Some shuffles -> shuffles_check shuffles
               | None -> failwith "missing shuffles"
             in
             (* ballot secrecy relies on at least one honest shuffler *)

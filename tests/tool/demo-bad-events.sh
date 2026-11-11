@@ -114,6 +114,34 @@ init_with_credential () {
     init_with_public_creds ". + {\"$(printf "%s" "$1" | sha256sum | cut -d" " -f1)\": {credential: \"$1\", id: \"intruder\"}}"
 }
 
+expect_rejected "an empty archive" '
+    : > $BEL
+' "truncated archive"
+
+expect_rejected "a truncated archive" '
+    head -c -100 $BEL > truncated.bel
+    mv truncated.bel $BEL
+' "truncated archive"
+
+expect_rejected "a block of zeros at the end of the archive" '
+    head -c 512 /dev/zero >> $BEL
+' "ill-formed header"
+
+expect_rejected "a public key that does not match the trustees" '
+    rm -f $BEL
+    cp ../setup/trustees.json ../setup/public_creds.json .
+    jq --compact-output ".public_key = $(jq "[.[]][0].credential" ../setup/public_creds.json)" \
+        ../setup/election.json > election.json
+    belenios-tool archive init
+' "election public key does not match trustees"
+
+expect_rejected "an ill-formed public key" '
+    rm -f $BEL
+    cp ../setup/trustees.json ../setup/public_creds.json .
+    jq --compact-output ".public_key = \"00\"" ../setup/election.json > election.json
+    belenios-tool archive init
+' "Ed25519_pure.of_string"
+
 expect_rejected "the identity element as credential" '
     init_with_credential 0000000000000000000000000000000000000000000000000000000000000001
 ' "invalid credential:"

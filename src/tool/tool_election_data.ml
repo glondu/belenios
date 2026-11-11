@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios
-open Common
 
 module type GETTERS = sig
   val fsck : unit -> unit Lwt.t
@@ -63,18 +62,18 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
   let setup_data =
     let* roots = roots in
     match roots.setup_data with
-    | None -> failcmd "setup data are missing"
+    | None -> failwith "setup data are missing"
     | Some x -> (
         let* x = get_data x in
         match x with
-        | None -> failcmd "could not get setup data"
+        | None -> failwith "could not get setup data"
         | Some x -> Lwt.return @@ !*setup_data_of_yojson x)
 
   let raw_election =
     let* setup_data = setup_data in
     let* x = get_data setup_data.election in
     match x with
-    | None -> failcmd "could not get election"
+    | None -> failwith "could not get election"
     | Some x -> Lwt.return x
 
   let get_public_creds (type a b) (w : (a, b) group) =

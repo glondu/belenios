@@ -84,31 +84,41 @@ module MakeReader (M : IO_READER) = struct
     let* { name; size; _ } = raw_read_header f buffer in
     let* header = raw_read_body f buffer size in
     if name = "BELENIOS" then
-      let header = !*header_of_yojson header in
-      if header.version = 1 then M.return header
-      else M.fail (Failure "unsupported archive header")
+      match !*header_of_yojson header with
+      | header when header.version = 1 -> M.return header
+      | _ -> M.fail (Failure "unsupported archive header")
+      | exception _ -> M.fail (Failure "ill-formed archive header found")
     else M.fail (Failure "ill-formed archive header found")
 
   let read_record f =
     let buffer = Bytes.create block_size in
     let* { name; size; _ } = raw_read_header f buffer in
     let* offset = M.get_pos f in
-    let typ, hash =
-      let i = 0 in
-      let j = String.index_from name i '.' + 1 in
-      let k = String.index_from name j '.' + 1 in
-      ( (match String.sub name j (k - j - 1) with
-        | "data" -> `Data
-        | "event" -> `Event
-        | _ -> assert false),
-        String.sub name i (j - i - 1) |> Hash.of_hex )
+    let ill_formed () =
+      M.fail (Failure (Printf.sprintf "ill-formed archive record %S" name))
+    in
+    let* typ, hash =
+      match String.split_on_char '.' name with
+      | [ hash; typ; "json" ] -> (
+          match
+            ( (match typ with
+              | "data" -> `Data
+              | "event" -> `Event
+              | _ -> invalid_arg "read_record"),
+              Hash.of_hex hash )
+          with
+          | x -> M.return x
+          | exception Invalid_argument _ -> ill_formed ())
+      | _ -> ill_formed ()
     in
     let location = { offset; length = size } in
     let* typ =
       match typ with
-      | `Event ->
+      | `Event -> (
           let* body = raw_read_body f buffer size in
-          M.return @@ Event (!*event_of_yojson body)
+          match !*event_of_yojson body with
+          | event -> M.return @@ Event event
+          | exception _ -> ill_formed ())
       | `Data ->
           let new_pos =
             let open Int64 in

@@ -194,7 +194,7 @@ let to_string p =
   if n < hex_size then String.make (hex_size - n) '0' ^ r else r
 
 let of_string s =
-  assert (String.length s = hex_size);
+  if String.length s <> hex_size then invalid_arg "Ed25519_pure.of_string";
   match uncompress (Z.of_hex s) with
   | Some p -> of_coordinates p
   | None -> invalid_arg "Ed25519_pure.of_string"
