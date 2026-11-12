@@ -89,7 +89,15 @@ module Make (Web_state : Web_state_sig.S) = struct
   let dispatch endpoint method_ _params body =
     let sp = Eliom.Common.get_sp () in
     let* token =
-      let* user = Eliom.Reference.get Web_state.site_user in
+      let* user =
+        (* the session cookie is accepted only for GET requests (used
+           by download links in the admin interface), so that other
+           sites cannot make an administrator's browser perform
+           actions (CSRF); other requests need an API token *)
+        match method_ with
+        | `GET -> Eliom.Reference.get Web_state.site_user
+        | _ -> Lwt.return_none
+      in
       let token =
         let& x =
           Ocsigen.Request.header sp.Eliom.Common.sp_request.request_info
