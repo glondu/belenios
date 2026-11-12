@@ -1,2 +1,2 @@
 #!/bin/sh
-exec cat >> /tmp/sendmail_fake
+exec cat >> _run/sendmail_fake
