@@ -571,7 +571,7 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
                 cont a.id
             | _ -> unauthorized
           in
-          let@ request = body.run !*trustees_request_of_yojson in
+          let@ request = body.run !*trustees_uuid_request_of_yojson in
           let@ request cont =
             match request with
             | `SendLink { address; langs } -> (
@@ -751,8 +751,12 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       match method_ with
       | `POST ->
           let@ account = with_administrator token in
-          let@ { version; group } = body.run !*group_specification_of_yojson in
-          let owners = [ account.id ] in
+          let@ (Create { group = { version; group }; owners }) =
+            body.run !*trustees_root_request_of_yojson
+          in
+          let@ () =
+           fun cont -> if List.mem account.id owners then cont () else forbidden
+          in
           let* uuid = Storage.T.new_trustees () in
           let@ s = Storage.T.with_transaction uuid in
           let* () =

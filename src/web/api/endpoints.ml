@@ -108,20 +108,20 @@ let draft_credentials_token uuid =
     to_string_post = !+yojson_of_unit;
   }
 
-let trustees_ =
+let trustees_root =
   {
     path = "trustees";
     of_string = !*unit_of_yojson;
     to_string = !+yojson_of_unit;
-    to_string_post = !+yojson_of_group_specification;
+    to_string_post = !+yojson_of_trustees_root_request;
   }
 
-let trustees uuid =
+let trustees_uuid uuid =
   {
     path = Printf.sprintf "trustees/%s" (Uuid.to_string uuid);
     of_string = !*wrapped_trustees_status_of_yojson;
     to_string = !+yojson_of_wrapped_trustees_status;
-    to_string_post = !+yojson_of_trustees_request;
+    to_string_post = !+yojson_of_trustees_uuid_request;
   }
 
 let trustees_trustee uuid ~token (type a b) (w : (a, b) group) =

@@ -50,7 +50,7 @@ module App (U : UI) = struct
           | x -> cont x
         in
         let@ trustees cont =
-          let* x = Api.(get (trustees uuid) `Nobody) in
+          let* x = Api.(get (trustees_uuid uuid) `Nobody) in
           match x with
           | Error _ -> Lwt.return [ txt @@ s_ "Could not get parameters!" ]
           | Ok (x, _) -> cont x

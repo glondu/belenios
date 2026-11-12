@@ -52,10 +52,11 @@ val draft_public_credentials :
 
 val draft_private_credentials : uuid -> (admin, private_credentials, unit) t
 val draft_credentials_token : uuid -> (admin, string, unit) t
-val trustees_ : (admin, unit, group_specification) t
+val trustees_root : (admin, unit, trustees_root_request) t
 
-val trustees :
-  uuid -> ([< nobody | admin ], wrapped_trustees_status, trustees_request) t
+val trustees_uuid :
+  uuid ->
+  ([< nobody | admin ], wrapped_trustees_status, trustees_uuid_request) t
 
 val trustees_trustee :
   uuid ->

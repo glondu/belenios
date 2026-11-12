@@ -116,7 +116,8 @@ module Make (P : PARAMS) = struct
   let create_draft () = create yojson_of_raw_draft "%s/elections" draft
 
   let create_trustees () =
-    create yojson_of_group_specification "%s/trustees" { version; group }
+    create yojson_of_trustees_root_request "%s/trustees"
+    @@ Create { group = { version; group }; owners = [ admin_id ] }
 
   let setup_voters uuid nb_voters =
     let nb_length = String.length (string_of_int nb_voters) in
@@ -208,7 +209,7 @@ module Make (P : PARAMS) = struct
   let validate_election uuid =
     let* trustees = create_trustees () in
     let* () =
-      send_request yojson_of_trustees_request "%s/trustees/%s" trustees
+      send_request yojson_of_trustees_uuid_request "%s/trustees/%s" trustees
         `Validate
     in
     let* () =

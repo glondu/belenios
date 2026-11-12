@@ -30,7 +30,7 @@ open Belenios_js.Session
 open Common
 
 let send_trustees_request ?ifmatch uuid req =
-  let* x = Api.(post ?ifmatch (trustees uuid) !user req) in
+  let* x = Api.(post ?ifmatch (trustees_uuid uuid) !user req) in
   let b =
     if x.code = 200 then (
       Cache.invalidate Cache.status;
@@ -49,7 +49,7 @@ let get_trustees () =
     let* status = Cache.get_until_success Cache.e_status in
     match status.trustees with None -> Lwt.return_none | Some x -> cont x
   in
-  let* x = Api.(get (trustees uuid) !user) in
+  let* x = Api.(get (trustees_uuid uuid) !user) in
   let ifmatch = get_ifmatch x in
   match x with
   | Error e ->
@@ -279,8 +279,11 @@ let new_board_but () =
   let@ () = button ~a:[ a_id "new_board" ] @@ s_ "Create a new board" in
   let election_uuid = get_current_uuid () in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let { version; group; _ } : raw_draft = draft in
-  let* x = Api.(post trustees_ !user { version; group }) in
+  let { version; group; owners; _ } : raw_draft = draft in
+  let* x =
+    Api.(
+      post trustees_root !user @@ Create { group = { version; group }; owners })
+  in
   match x.code with
   | 200 -> (
       let trustees_uuid =

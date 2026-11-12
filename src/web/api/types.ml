@@ -337,7 +337,11 @@ let yojson_of_wrapped_trustees_status (Wrapped_trustees_status (w, x)) =
 type send_link_payload = { address : string; langs : string list }
 [@@deriving yojson]
 
-type trustees_request =
+type trustees_root_request =
+  | Create of { group : group_specification; owners : int list }
+[@@deriving yojson]
+
+type trustees_uuid_request =
   [ `SetStep of int
   | `AddTrustee of addable_trustee
   | `SendLink of send_link_payload
