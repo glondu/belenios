@@ -477,7 +477,13 @@ module MakeBackend
   let add_election_to_trustees ~trustees ~election =
     let election = Uuid.to_string election in
     let target = Printf.sprintf "../../../elections/%s" election in
-    Lwt_unix.symlink target (spool_trustees trustees "elections" // election)
+    Lwt.catch
+      (fun () ->
+        Lwt_unix.symlink target (spool_trustees trustees "elections" // election))
+      (function
+        (* the election is already linked to these trustees *)
+        | Unix.Unix_error (EEXIST, _, _) -> Lwt.return_unit
+        | e -> Lwt.reraise e)
 
   let get_trustees_elections uuid =
     let* xs =
