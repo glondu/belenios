@@ -729,6 +729,12 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
             ok
       | `POST, `Administrator account -> (
           let@ () = handle_ifmatch ifmatch get in
+          let@ () =
+           fun cont ->
+            if Web_persist.get_credentials_status uuid se <> `None then
+              forbidden
+            else cont ()
+          in
           let@ request = body.run !*voters_request_of_yojson in
           let@ () = handle_generic_error in
           match request with
