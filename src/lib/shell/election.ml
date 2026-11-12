@@ -114,7 +114,8 @@ let supported_crypto_versions = [ Version V2 ]
 (** Computing checksums *)
 
 let compute_checksums (type a b) (election : (a, b) u) trustees
-    public_credentials ~shuffles ~encrypted_tally ~final =
+    public_credentials ~shuffles ~encrypted_tally ~latest_encrypted_tally ~final
+    =
   let module W = (val election) in
   let ec_public_credentials =
     Hash.hash_string
@@ -210,6 +211,7 @@ let compute_checksums (type a b) (election : (a, b) u) trustees
     public_credentials = ec_public_credentials;
     shuffles = ec_shuffles;
     encrypted_tally;
+    latest_encrypted_tally;
     num_voters = ec_num_voters;
     weights = ec_weights;
     final;

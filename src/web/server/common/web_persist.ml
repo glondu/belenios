@@ -561,6 +561,11 @@ let compute_audit_cache s =
         let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
         Lwt.return_some x.encrypted_tally
       in
+      let* latest_encrypted_tally =
+        let* x = Public_archive.get_latest_encrypted_tally s in
+        let&* x = x in
+        Lwt.return_some @@ Hash.hash_string x
+      in
       let@ trustees cont =
         let* x = Public_archive.get_trustees s (module W.G) in
         match Lopt.get_value x with None -> Lwt.return_none | Some x -> cont x
@@ -580,7 +585,8 @@ let compute_audit_cache s =
         in
         Election.compute_checksums
           (module W)
-          trustees public_credentials ~shuffles ~encrypted_tally ~final
+          trustees public_credentials ~shuffles ~encrypted_tally
+          ~latest_encrypted_tally ~final
         |> Lwt.return
       in
       let* sealing_log =

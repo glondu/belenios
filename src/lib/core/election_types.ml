@@ -85,6 +85,7 @@ type election_checksums = {
   public_credentials : hash;
   shuffles : trustee_checksum list option; [@yojson.option]
   encrypted_tally : hash option; [@yojson.option]
+  latest_encrypted_tally : hash option; [@yojson.option]
   final : hash option; [@yojson.option]
 }
 [@@deriving yojson]
