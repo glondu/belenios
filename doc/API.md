@@ -29,6 +29,14 @@ by a `GET` request (if supported) on the same endpoint. This is
 typically used to avoid silent conflicts. An HTTP error 412
 (Precondition Failed) is returned when there is no match.
 
+Drafts and trustees are owned by a list of administrator accounts,
+given (as account ids) when they are created, and editable for
+drafts. The administrator making the request must be part of the
+list, but the other ids are not checked: they may refer to accounts
+that do not exist, or whose owners did not consent. Choosing the
+owners is the responsibility of the administrator; the listed accounts
+gain rights on the draft or trustees, but no obligation.
+
 # Endpoints
 
 Here, we give for each endpoint the available methods and their
