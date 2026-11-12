@@ -747,22 +747,25 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
 
 let dispatch ~token ~ifmatch endpoint method_ body =
   match endpoint with
-  | [] ->
-      let@ account = with_administrator token in
-      let@ { version; group } = body.run !*group_specification_of_yojson in
-      let owners = [ account.id ] in
-      let* uuid = Storage.T.new_trustees () in
-      let@ s = Storage.T.with_transaction uuid in
-      let* () =
-        Storage.T.set s Trustees_metadata Value
-          { version; group; owners; trustees = None }
-      in
-      let module G = (val Group.make { version; group }) in
-      let* () =
-        Storage.T.set s (Trustees_draft G.spec) Value
-          { step = 1; mode = `Basic { trustees = [] } }
-      in
-      return_yojson `OK @@ `String (Uuid.to_string uuid)
+  | [] -> (
+      match method_ with
+      | `POST ->
+          let@ account = with_administrator token in
+          let@ { version; group } = body.run !*group_specification_of_yojson in
+          let owners = [ account.id ] in
+          let* uuid = Storage.T.new_trustees () in
+          let@ s = Storage.T.with_transaction uuid in
+          let* () =
+            Storage.T.set s Trustees_metadata Value
+              { version; group; owners; trustees = None }
+          in
+          let module G = (val Group.make { version; group }) in
+          let* () =
+            Storage.T.set s (Trustees_draft G.spec) Value
+              { step = 1; mode = `Basic { trustees = [] } }
+          in
+          return_yojson `OK @@ `String (Uuid.to_string uuid)
+      | _ -> method_not_allowed)
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.T.with_transaction uuid in
