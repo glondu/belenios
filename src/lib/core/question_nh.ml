@@ -38,9 +38,15 @@ type result = int array array [@@deriving yojson]
 
 (** {2 Counting methods} *)
 
-type mj_extra = { blank : bool; grades : string array } [@@deriving yojson]
-type schulze_extra = { blank : bool } [@@deriving yojson]
-type stv_extra = { blank : bool; seats : int } [@@deriving yojson]
+type mj_extra = { blank : bool; grades : string array }
+[@@deriving yojson] [@@yojson.allow_extra_fields]
+
+type schulze_extra = { blank : bool }
+[@@deriving yojson] [@@yojson.allow_extra_fields]
+
+type stv_extra = { blank : bool; seats : int }
+[@@deriving yojson] [@@yojson.allow_extra_fields]
+
 type _ id += Id : question id
 
 let type_ = "NonHomomorphic"
