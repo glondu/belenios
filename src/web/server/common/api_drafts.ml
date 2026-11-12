@@ -530,12 +530,15 @@ let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
       Ocsigen.Messages.errlog msg;
       Lwt.return_unit)
 
-let set_trustees election (se : _ raw_draft_election) uuid
+(* [owner], if present, must be an owner of the trustees *)
+let set_trustees ?owner election (se : _ raw_draft_election) uuid
     ((metadata, set_metadata) : metadata updatable) =
   let@ s = Storage.T.with_transaction uuid in
   let* x = Storage.T.get s Trustees_metadata in
   match Lopt.get_value x with
-  | Some m when m.version = se.version && m.group = se.group ->
+  | Some m
+    when (match owner with None -> true | Some id -> List.mem id m.owners)
+         && m.version = se.version && m.group = se.group ->
       let* () = Storage.T.add_election s election in
       let* () = set_metadata { metadata with trustees = Some uuid } in
       ok
@@ -558,12 +561,17 @@ let post_draft_status ~admin_id s uuid
       | None ->
           let* () = set_metadata { metadata with trustees } in
           ok
-      | Some trustees -> set_trustees uuid se trustees (metadata, set_metadata))
+      | Some trustees ->
+          set_trustees ~owner:admin_id uuid se trustees (metadata, set_metadata)
+      )
   | `ImportTrustees from -> (
       let@ s = Storage.E.with_transaction from in
       let* x = Storage.E.get s Metadata in
       match Lopt.get_value x with
-      | Some { trustees = Some trustees; _ } ->
+      | Some { trustees = Some trustees; owners; _ }
+        when List.mem admin_id owners ->
+          (* the trustees of an election can be reused by its owners,
+             even if they do not own the trustees themselves *)
           set_trustees uuid se trustees (metadata, set_metadata)
       | _ -> forbidden)
   | `ValidateElection ->
