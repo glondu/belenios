@@ -306,8 +306,8 @@ let make_audit_div (election : Election.t) cache =
              audit_trustees_mandatory;
              audit_trustees_threshold;
              audit_credentials;
-             audit_shuffles;
              audit_tally;
+             audit_shuffles;
              audit_final;
              audit_sealing;
            ]);
