@@ -11,7 +11,7 @@ fi
 if [ -e _run ]; then
     : ${BELENIOS_CONFIG:=demo/ocsigenserver.conf.in}
     : ${BELENIOS_VARDIR:=_run}
-    : ${BELENIOS_RUNDIR:=/tmp/belenios}
+    : ${BELENIOS_RUNDIR:=_run/run}
     : ${BELENIOS_BINDIR:=_run/usr/bin}
     : ${BELENIOS_SHAREDIR:=_run/usr/share/belenios-server}
 else

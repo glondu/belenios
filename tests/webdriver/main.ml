@@ -32,7 +32,7 @@ module Config = struct
   let height = getenv_int ~default:1000 "BELENIOS_WINDOW_HEIGHT"
   let webdriver = "http://127.0.0.1:4444"
   let belenios = "http://127.0.0.1:8001"
-  let email_file = "/tmp/sendmail_fake"
+  let email_file = "_run/sendmail_fake"
   let tmpdir = ref None
 end
 

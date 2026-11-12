@@ -8,8 +8,8 @@ if [ "$1" = "--preload" ]; then
     shift
 fi
 
-if [ -e .git ]; then
-    : ${BELENIOS_RUNDIR:=/tmp/belenios}
+if [ -e _run ]; then
+    : ${BELENIOS_RUNDIR:=_run/run}
 else
     : ${BELENIOS_RUNDIR:=/run/belenios}
 fi

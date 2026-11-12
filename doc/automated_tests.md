@@ -20,7 +20,7 @@ server does not return an error when trying to send emails in the test
 environment (that has no `sendmail` installed nor configured), and the
 fake `sendmail` executable makes it possible to verify what emails
 have been sent and read their content, simply by reading the log file
-where it redirects all its input (we use `/tmp/sendmail_fake` as
+where it redirects all its input (we use `_run/sendmail_fake` as
 location for this log file).
 
 Automated tests can be executed manually, or via Continuous
