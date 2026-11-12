@@ -398,11 +398,15 @@ let make file =
         | None -> Lwt.return_none
         | Some x -> Lwt.return_some @@ List.map (fun (_, x, _) -> x) x
       in
-      let* encrypted_tally =
+      let* encrypted_tally, latest_encrypted_tally =
         try
-          let* _, x = Lazy.force encrypted_tally in
-          Lwt.return_some x.sized_encrypted_tally
-        with _ -> Lwt.return_none
+          let* latest, x = Lazy.force encrypted_tally in
+          let latest =
+            Hash.hash_string
+              (string_of_encrypted_tally (swrite G.to_string) latest)
+          in
+          Lwt.return (Some x.sized_encrypted_tally, Some latest)
+        with _ -> Lwt.return (None, None)
       in
       let* trustees =
         let* trustees_as_string = trustees_as_string in
@@ -418,7 +422,7 @@ let make file =
       in
       let* final = Getters.get_final () in
       Belenios.Election.compute_checksums ~election ~shuffles ~encrypted_tally
-        ~trustees ~public_credentials ~final
+        ~latest_encrypted_tally ~trustees ~public_credentials ~final
       |> string_of_election_checksums |> Lwt.return
 
     let compute_voters privcreds =

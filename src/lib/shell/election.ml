@@ -152,7 +152,7 @@ let supported_crypto_versions = [ Version V1 ]
 (** Computing checksums *)
 
 let compute_checksums ~election ~trustees ~public_credentials ~shuffles
-    ~encrypted_tally ~final =
+    ~encrypted_tally ~latest_encrypted_tally ~final =
   let ec_public_credentials =
     Hash.hash_string (string_of_public_credentials public_credentials)
   in
@@ -248,6 +248,7 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
     ec_public_credentials;
     ec_shuffles;
     ec_encrypted_tally = encrypted_tally;
+    ec_latest_encrypted_tally = latest_encrypted_tally;
     ec_num_voters;
     ec_weights;
     ec_final = final;

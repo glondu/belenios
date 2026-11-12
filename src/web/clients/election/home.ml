@@ -234,6 +234,24 @@ let make_audit_div election cache =
     match checksums.ec_shuffles with
     | None -> []
     | Some xs ->
+        let latest_encrypted_tally =
+          match checksums.ec_latest_encrypted_tally with
+          | None -> []
+          | Some h ->
+              [
+                tr
+                  [
+                    td
+                      [
+                        txt
+                        @@ s_
+                             "Fingerprint of the encrypted tally after \
+                              shuffles:";
+                      ];
+                    td [ code [ txt @@ Hash.to_b64 h ] ];
+                  ];
+              ]
+        in
         [
           tr
             [
@@ -245,6 +263,7 @@ let make_audit_div election cache =
               td [ format_tc "shuffles" xs ];
             ];
         ]
+        @ latest_encrypted_tally
   in
   let audit_tally =
     match checksums.ec_encrypted_tally with

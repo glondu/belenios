@@ -603,6 +603,11 @@ let compute_audit_cache s =
         let x = sized_encrypted_tally_of_string read_hash x in
         Lwt.return_some x.sized_encrypted_tally
       in
+      let* latest_encrypted_tally =
+        let* x = Public_archive.get_latest_encrypted_tally s in
+        let&* x = x in
+        Lwt.return_some @@ Hash.hash_string x
+      in
       let* trustees = Public_archive.get_trustees s in
       let* cache_checksums =
         let* setup_data = get_setup_data s in
@@ -616,7 +621,7 @@ let compute_audit_cache s =
           @@ Option.map (fun x -> x.last_hash) (Lopt.get_value last_event)
         in
         Election.compute_checksums ~election ~shuffles ~encrypted_tally
-          ~trustees ~public_credentials ~final
+          ~latest_encrypted_tally ~trustees ~public_credentials ~final
         |> Lwt.return
       in
       let* cache_sealing_log =
