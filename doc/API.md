@@ -212,12 +212,12 @@ method.
 
 ## `trustees` (administrator)
 
-### `POST`: group_specification -> uuid
+### `POST`: trustees_root_request -> uuid
 
 ## `trustees/$UUID`
 
 ### `GET`: unit -> trustees_status (anybody or administrator)
-### `POST`: trustees_request -> unit (administrator)
+### `POST`: trustees_uuid_request -> unit (administrator)
 
 ## `trustees/$UUID/$TOKEN/trustee`
 
