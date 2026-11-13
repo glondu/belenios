@@ -58,39 +58,70 @@ module Make (I : SENDER) () = struct
 
   type code = {
     code : string;
-    payload : payload;
+    mutable payload : payload;
     expiration_time : float;
     mutable trials_left : int;
+    sent_time : float;
+    sent : (string, unit) result Lwt.t;
   }
 
   let codes = ref SMap.empty
   let max_trials = 10
 
+  (* minimum delay (in seconds) between two codes sent to the same
+     address *)
+  let min_delay = 60.
+
   let filter_codes_by_time now table =
     SMap.filter (fun _ { expiration_time; _ } -> now <= expiration_time) table
+
+  let is_throttled now { sent_time; sent; _ } =
+    now < sent_time +. min_delay
+    &&
+    match Lwt.state sent with
+    | Return (Error ()) | Fail _ -> false
+    | _ -> true
 
   let generate ?lang ~context ~(recipient : recipient) ?state ~payload () =
     let now = Unix.gettimeofday () in
     let codes_ = filter_codes_by_time now !codes in
-    let code = generate_numeric 6 in
-    let expiration_time = now +. 900. in
-    let () =
-      let x = { recipient = recipient.address; code; expiration_time } in
-      let msg = Printf.sprintf "Sending OTP %s" (!+yojson_of_otp_record x) in
-      Ocsigen.Messages.accesslog msg
-    in
-    (* requesting a new code must not give more trials, otherwise the
-       code could be brute-forced by requesting new codes repeatedly *)
-    let trials_left =
-      match SMap.find_opt recipient.address codes_ with
-      | Some { trials_left; _ } -> trials_left
-      | None -> max_trials
-    in
-    codes :=
-      SMap.add recipient.address
-        { code; payload; expiration_time; trials_left }
-        codes_;
-    I.send ?lang ~context ~recipient ?state ~code ()
+    match SMap.find_opt recipient.address codes_ with
+    | Some x when is_throttled now x ->
+        (* a code has just been sent: keep it instead of sending a new
+           one, so that the address cannot be flooded *)
+        codes := codes_;
+        x.payload <- payload;
+        x.sent
+    | previous ->
+        let code = generate_numeric 6 in
+        let expiration_time = now +. 900. in
+        let () =
+          let x = { recipient = recipient.address; code; expiration_time } in
+          let msg =
+            Printf.sprintf "Sending OTP %s" (!+yojson_of_otp_record x)
+          in
+          Ocsigen.Messages.accesslog msg
+        in
+        (* requesting a new code must not give more trials, otherwise the
+           code could be brute-forced by requesting new codes repeatedly *)
+        let trials_left =
+          match previous with
+          | Some { trials_left; _ } -> trials_left
+          | None -> max_trials
+        in
+        let sent = I.send ?lang ~context ~recipient ?state ~code () in
+        codes :=
+          SMap.add recipient.address
+            {
+              code;
+              payload;
+              expiration_time;
+              trials_left;
+              sent_time = now;
+              sent;
+            }
+            codes_;
+        sent
 
   let check ~address ~code =
     let now = Unix.gettimeofday () in
