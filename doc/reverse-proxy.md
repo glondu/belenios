@@ -75,12 +75,14 @@ Add the following lines to the relevant section of
     add_header X-Frame-Options "DENY" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "no-referrer" always;
-    proxy_cookie_flags ~ secure httponly samesite=strict;
+    proxy_cookie_flags ~ secure httponly samesite=lax;
 ```
 
-Note that `samesite=strict` is incompatible with external voter
-authentication. If you intend to authenticate voters with CAS or
-OpenID Connect, you may use `samesite=none` instead.
+Prefer `samesite=lax` to `samesite=strict`: with the latter, an
+administrator who follows a link to Belenios from another site (e.g.
+from an e-mail in a webmail) is logged out. Both work with external
+authentication (CAS, OpenID Connect, Belenios Connect) of
+administrators and voters; `samesite=none` is not needed.
 
 Run `systemctl restart nginx.service` (as root).
 
