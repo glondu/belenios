@@ -21,6 +21,8 @@
 
 open Belenios_storage_api
 
+val check_allowlist : auth_config -> login:string -> bool Lwt.t
+
 val perform_admin_login :
   auth_config ->
   name:string option ->

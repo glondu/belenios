@@ -124,6 +124,15 @@ site. Available authentication methods:
    administrator accounts and change their password by themselves (the
    password database will be dynamically updated).
 
+ * `<email>`: authenticate by sending a one-time code to the e-mail
+   address entered by the user. Anybody can make the server send
+   codes to any address, so on a public server, use the
+   `use_captcha="true"` attribute (the user must solve a captcha
+   before a code is sent), or the `allowlist` attribute (codes are
+   sent only to the listed addresses; its value is the `from` name of
+   a `<map>` element of `<storage>`, pointing to a file with one
+   address per line).
+
  * `<cas>`: authenticate with a [CAS](https://www.apereo.org/projects/cas)
    server. For example:
 
