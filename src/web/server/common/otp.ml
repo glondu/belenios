@@ -64,6 +64,7 @@ module Make (I : SENDER) () = struct
   }
 
   let codes = ref SMap.empty
+  let max_trials = 10
 
   let filter_codes_by_time now table =
     SMap.filter (fun _ { expiration_time; _ } -> now <= expiration_time) table
@@ -78,9 +79,16 @@ module Make (I : SENDER) () = struct
       let msg = Printf.sprintf "Sending OTP %s" (!+yojson_of_otp_record x) in
       Ocsigen.Messages.accesslog msg
     in
+    (* requesting a new code must not give more trials, otherwise the
+       code could be brute-forced by requesting new codes repeatedly *)
+    let trials_left =
+      match SMap.find_opt recipient.address codes_ with
+      | Some { trials_left; _ } -> trials_left
+      | None -> max_trials
+    in
     codes :=
       SMap.add recipient.address
-        { code; payload; expiration_time; trials_left = 10 }
+        { code; payload; expiration_time; trials_left }
         codes_;
     I.send ?lang ~context ~recipient ?state ~code ()
 
@@ -91,11 +99,14 @@ module Make (I : SENDER) () = struct
     match SMap.find_opt address codes_ with
     | None -> None
     | Some x ->
-        if x.code = code then (
+        if x.trials_left <= 0 then
+          (* the entry is kept until it expires, so that the number of
+             trials is not reset by requesting a new code *)
+          None
+        else if x.code = code then (
           codes := SMap.remove address codes_;
           Some x.payload)
         else (
-          if x.trials_left > 0 then x.trials_left <- x.trials_left - 1
-          else codes := SMap.remove address codes_;
+          x.trials_left <- x.trials_left - 1;
           None)
 end
