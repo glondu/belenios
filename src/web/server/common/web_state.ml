@@ -25,6 +25,10 @@ module Make () = struct
   let connect_context = Eliom_reference.eref ~scope:belenios_scope None
   let signup_address = Eliom_reference.eref ~scope:belenios_scope None
   let signup_env = Eliom_reference.eref ~scope:belenios_scope None
+
+  let site_login_states =
+    Eliom_reference.eref ~scope:belenios_scope Belenios.SSet.empty
+
   let set_email_env = Eliom_reference.eref ~scope:belenios_scope None
   let discard () = Eliom_state.discard ~scope:belenios_scope ()
 
