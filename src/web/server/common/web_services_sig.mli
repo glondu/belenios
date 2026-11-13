@@ -734,7 +734,7 @@ module type S = sig
     Eliom.Service.t
 
   val connect_validate :
-    ( string,
+    ( string * string,
       unit,
       Eliom.Service.get,
       Eliom.Service.att,
@@ -742,7 +742,8 @@ module type S = sig
       Eliom.Service.non_ext,
       Eliom.Service.reg,
       [ `WithoutSuffix ],
-      [ `One of string ] Eliom.Parameter.param_name,
+      [ `One of string ] Eliom.Parameter.param_name
+      * [ `One of string ] Eliom.Parameter.param_name,
       unit,
       Eliom.Service.non_ocaml )
     Eliom.Service.t

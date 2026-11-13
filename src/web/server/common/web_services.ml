@@ -277,5 +277,8 @@ module Make () = struct
       ~post_params:unit ()
 
   let connect_validate =
-    create ~path:(Path [ "connect"; "validate" ]) ~meth:(Get (string "code")) ()
+    create
+      ~path:(Path [ "connect"; "validate" ])
+      ~meth:(Get (string "code" ** string "callback"))
+      ()
 end

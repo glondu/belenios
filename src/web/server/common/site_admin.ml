@@ -443,6 +443,7 @@ struct
 
   type connect_code = {
     timeout : float;
+    callback : string;  (** the service provider the code is issued to *)
     user_info : Belenios_web_api.user_info;
   }
 
@@ -537,7 +538,7 @@ struct
                 let now = Unix.gettimeofday () in
                 let timeout = now +. 60. in
                 let code = generate_token 22 in
-                add_code ~now code { timeout; user_info };
+                add_code ~now code { timeout; callback; user_info };
                 let service =
                   let service =
                     Eliom.Service.extern ~prefix:server ~path:[ "return" ]
@@ -551,10 +552,10 @@ struct
                 Redirection.send (Redirection service)))
 
   let () =
-    Any.register ~service:connect_validate (fun code () ->
+    Any.register ~service:connect_validate (fun (code, callback) () ->
         let now = Unix.gettimeofday () in
         match consume_code ~now code with
-        | Some { user_info; _ } ->
+        | Some { user_info; callback = c; _ } when c = callback ->
             String.send
               ( !+Belenios_web_api.yojson_of_user_info user_info,
                 "application/json" )

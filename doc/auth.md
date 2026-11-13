@@ -37,7 +37,7 @@ sequenceDiagram
     Belenios-->>+Auth: context
     Auth->>+Browser: belenios_url, code, state
     Browser->>+Belenios: confirm_login(code, state)
-    Belenios-->>+Auth: validate(code)
+    Belenios-->>+Auth: validate(code, callback)
     Auth-->>+Belenios: user_info
     Belenios->>+Browser: ok
 ```
@@ -58,6 +58,10 @@ has the following format:
 where `server` is the base URL of the identity provider (from which
 `auth_url` is derived), and `callback` a name identifying the service
 provider (from which `belenios_url` is derived).
+
+A code is valid only for the service provider it was issued to: the
+service provider passes its `callback` to `validate`, which fails if
+it does not match.
 
 The initial motivation for introducing this protocol was to allow one
 Belenios instance to delegate its authentification to another Belenios

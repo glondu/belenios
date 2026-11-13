@@ -58,14 +58,15 @@ struct
       ~path:(Eliom.Service.Path [ "auth"; "belenios"; "return" ])
       ~meth:(Eliom.Service.Get Eliom.Parameter.any) ()
 
-  let belenios_get_info ~server ~code =
+  let belenios_get_info ~server ~callback ~code =
     let url =
       let service =
         Eliom.Service.extern ~prefix:server ~path:[ "validate" ]
-          ~meth:(Get Eliom.Parameter.(string "code"))
+          ~meth:(Get Eliom.Parameter.(string "code" ** string "callback"))
           ()
       in
-      let service = preapply ~service code in
+      (* the provider checks that the code was issued to us *)
+      let service = preapply ~service (code, callback) in
       Eliom.Eliom_uri.make_string_uri ~absolute:true ~service ()
     in
     let* x, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
@@ -113,9 +114,9 @@ struct
             Web_auth.post_login_handler =
               (fun _ a cont ->
                 let get x = List.assoc_opt x a.auth_config in
-                match get "server" with
-                | Some server ->
-                    let* info = belenios_get_info ~server ~code in
+                match (get "server", get "callback") with
+                | Some server, Some callback ->
+                    let* info = belenios_get_info ~server ~callback ~code in
                     cont info
                 | _ -> fail_http `Service_unavailable);
           }
