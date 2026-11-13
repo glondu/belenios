@@ -108,9 +108,10 @@ struct
             let* x = check None a i.username i.password in
             match x with
             | None -> Api_generic.forbidden
-            | Some { address; _ } -> (
+            | Some { username; address; _ } -> (
+                (* i.username may be the address: use the actual username *)
                 let user =
-                  { user_domain = a.auth_instance; user_name = i.username }
+                  { user_domain = a.auth_instance; user_name = username }
                 in
                 let* account = perform_admin_login a ~name:None ~address user in
                 match account with
