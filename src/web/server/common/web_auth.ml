@@ -28,7 +28,7 @@ open Belenios_server_core
 open Web_common
 open Web_auth_sig
 
-let check_allowlist a ~login =
+let check_allowlist (a : auth_config) ~login =
   match List.assoc_opt "allowlist" a.auth_config with
   | None -> Lwt.return_true
   | Some f ->
@@ -391,10 +391,10 @@ struct
 
   module State = struct
     let get_auth ~state =
-      let@ { username_or_address; auth_config = { auth_instance; _ }; _ } =
+      let@ { username_or_address; auth_config; _ } =
         Option.bind (get_auth_env ~state)
       in
-      Some { username_or_address; auth_instance }
+      Some { username_or_address; auth_config }
 
     let create_election storage state =
       let uuid = Storage.E.get_uuid storage in
