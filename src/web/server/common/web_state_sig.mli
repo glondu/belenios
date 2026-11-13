@@ -32,6 +32,7 @@ module type S = sig
 
   val signup_address : string option Eliom.Reference.eref
   val signup_env : signup_env option Eliom.Reference.eref
+  val site_login_states : Belenios.SSet.t Eliom.Reference.eref
   val set_email_env : string option Eliom.Reference.eref
   val discard : unit -> unit Lwt.t
   val get_consent_cookie : unit -> bool

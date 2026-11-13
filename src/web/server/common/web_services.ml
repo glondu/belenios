@@ -124,6 +124,12 @@ module Make () = struct
       ~meth:(Get (string "state"))
       ()
 
+  let site_login_done =
+    create
+      ~path:(Path [ "actions"; "admin-login-done" ])
+      ~meth:(Get (string "state"))
+      ()
+
   let election_login_done =
     create
       ~path:(Path [ "actions"; "voter-login-done" ])

@@ -285,6 +285,20 @@ module type S = sig
       Eliom.Service.non_ocaml )
     Eliom.Service.t
 
+  val site_login_done :
+    ( string,
+      unit,
+      Eliom.Service.get,
+      Eliom.Service.att,
+      Eliom.Service.non_co,
+      Eliom.Service.non_ext,
+      Eliom.Service.reg,
+      [ `WithoutSuffix ],
+      [ `One of string ] Eliom.Parameter.param_name,
+      unit,
+      Eliom.Service.non_ocaml )
+    Eliom.Service.t
+
   val election_login_done :
     ( uuid * string,
       unit,

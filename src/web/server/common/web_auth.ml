@@ -112,6 +112,10 @@ struct
     mutable user : timestamped_user option;
     credential : hash option;
     mutable result : Belenios_web_api.cast_result option;
+    mutable pending :
+      (user:user * name:string option * address:string option) option;
+        (** site login authenticated by an external system, waiting to be
+            completed in the browser that started it *)
   }
 
   let auth_env = ref SMap.empty
@@ -151,11 +155,31 @@ struct
         username_or_address;
         credential;
         result = None;
+        pending = None;
       }
     in
     let state = find_state () in
     auth_env := SMap.add state x a;
     (state, x)
+
+  (* Site logins are bound to the browser session that started them,
+     to prevent login CSRF *)
+  let bind_site_state ~state =
+    let* s = Eliom.Reference.get Web_state.site_login_states in
+    let s = SSet.filter (fun x -> SMap.mem x !auth_env) s in
+    Eliom.Reference.set Web_state.site_login_states (SSet.add state s)
+
+  let add_site_auth_env ~auth_config ~kind ~extern ~handler () =
+    let state, env =
+      add_auth_env ~auth_config ~kind ~extern ~handler
+        ~username_or_address:`Username ()
+    in
+    let* () = bind_site_state ~state in
+    Lwt.return (state, env)
+
+  let is_site_state_bound ~state =
+    let* s = Eliom.Reference.get Web_state.site_login_states in
+    Lwt.return (SSet.mem state s)
 
   let del_auth_env ~state =
     let e = get_auth_env ~state in
@@ -220,47 +244,71 @@ struct
     | `Election _ -> preapply ~service:election_login state
     | `Site cont -> preapply ~service:site_login (Some service, cont)
 
+  let restart_login_page (a : auth_config) kind ~state =
+    let service = restart_login a.auth_instance kind ~state in
+    Pages_common.login_failed ~service ()
+    >>= Eliom.Registration.Html.send ~code:401
+
+  let authentication_impossible () =
+    Pages_common.authentication_impossible () >>= Eliom.Registration.Html.send
+
+  let finish_site_login ~extern ~state a kind ~name ~address user =
+    let* bound = is_site_state_bound ~state in
+    if bound then
+      let* account = perform_admin_login a ~name ~address user in
+      match account with
+      | Ok account ->
+          let* token = Api_generic.new_token account user in
+          let* () = Web_state.discard () in
+          let* () =
+            Eliom.Reference.set Web_state.site_user
+              (Some (user, account, token.token))
+          in
+          exec ~extern ~login:true ~state kind
+      | Error () -> restart_login_page a kind ~state
+    else authentication_impossible ()
+
   let run_post_login_handler ~auth_system ~state { post_login_handler } =
     match get_auth_env ~state with
     | Some ({ extern; auth_config = a; kind; _ } as env) ->
         let uuid = match kind with `Site _ -> None | `Election u -> Some u in
-        let restart_login () =
-          let service = restart_login a.auth_instance kind ~state in
-          Pages_common.login_failed ~service ()
-          >>= Eliom.Registration.Html.send ~code:401
-        in
+        let restart_login () = restart_login_page a kind ~state in
         if auth_system = a.auth_system then
           let cont : Belenios_web_api.user_info option -> _ = function
-            | Some { login; name; address; timestamp } ->
+            | Some { login; name; address; timestamp } -> (
                 let user : user = { domain = a.auth_instance; name = login } in
                 let () = env.user <- Some { user; name; timestamp } in
-                let@ () =
-                 fun cont ->
-                  match uuid with
-                  | None -> (
-                      let* account =
-                        perform_admin_login a ~name ~address user
-                      in
-                      match account with
-                      | Ok account ->
-                          let* token = Api_generic.new_token account user in
-                          let* () = Web_state.discard () in
-                          let* () =
-                            Eliom.Reference.set Web_state.site_user
-                              (Some (user, account, token.token))
-                          in
-                          cont ()
-                      | Error () -> restart_login ())
-                  | Some _ -> cont ()
-                in
-                exec ~extern ~login:true ~state kind
+                match kind with
+                | `Election _ -> exec ~extern ~login:true ~state kind
+                | `Site _ when extern ->
+                    (* We may be in a cross-site request, where the
+                       session cookie is not sent: finish the login in a
+                       same-site request *)
+                    let () = env.pending <- Some (~user, ~name, ~address) in
+                    let service = preapply ~service:site_login_done state in
+                    Pages_common.html_redirection
+                      (make_absolute_string_uri ~service ())
+                    >>= Eliom.Registration.Html.send
+                | `Site _ ->
+                    finish_site_login ~extern ~state a kind ~name ~address user)
             | None -> restart_login ()
           in
           post_login_handler uuid a cont
         else restart_login ()
-    | _ ->
-        Pages_common.authentication_impossible ()
-        >>= Eliom.Registration.Html.send
+    | _ -> authentication_impossible ()
+
+  let site_login_done_handler state =
+    match get_auth_env ~state with
+    | Some
+        ({
+           auth_config = a;
+           kind = `Site _ as kind;
+           pending = Some (~user, ~name, ~address);
+           _;
+         } as env) ->
+        let () = env.pending <- None in
+        finish_site_login ~extern:false ~state a kind ~name ~address user
+    | _ -> authentication_impossible ()
 
   let auth_systems = ref ([] : (string * auth_system) list)
 
@@ -338,9 +386,10 @@ struct
           in
           match List.assoc_opt auth_config.auth_system !auth_systems with
           | Some { extern; handler; _ } ->
-              add_auth_env ~auth_config ~kind ~extern ~handler
-                ~username_or_address:`Username ()
-              |> cont
+              let* x =
+                add_site_auth_env ~auth_config ~kind ~extern ~handler ()
+              in
+              cont x
           | None -> fail_http `Not_found)
     in
     let { kind; auth_config; _ } = env in
@@ -378,6 +427,10 @@ struct
         logout_handler cont)
 
   let () =
+    Eliom.Registration.Any.register ~service:site_login_done (fun state () ->
+        site_login_done_handler state)
+
+  let () =
     Eliom.Registration.Any.register ~service:election_login (fun x () ->
         login_handler (`Election x))
 
@@ -388,9 +441,8 @@ struct
         match List.assoc_opt auth_config.auth_system !auth_systems with
         | Some { extern; handler; _ } ->
             let kind = `Site (default_admin ContSiteHome) in
-            let state, env =
-              add_auth_env ~auth_config ~kind ~extern ~handler
-                ~username_or_address:`Username ()
+            let* state, env =
+              add_site_auth_env ~auth_config ~kind ~extern ~handler ()
             in
             get_pre_login_handler ~state env
         | None -> return @@ Html (Eliom.Content.Html.F.div []))
