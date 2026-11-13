@@ -1,9 +1,11 @@
 4.0.0 (dev)
 ===========
 
- * Switch from `atdgen` to `ppx_yojson_conv` for serialization: it
-   changes they way some types are serialized to JSON, making the new
-   version not backward-compatible
+ * Software stack:
+   + Switch from `atdgen` to `ppx_yojson_conv` for serialization: it
+     changes they way some types are serialized to JSON, making the
+     new version not backward-compatible
+   + Update Eliom (to version 13) and Node stack
  * Cryptographic changes:
    + Bump crypto version to 2
    + Systematically use RFC9380's `hash_to_field` to avoid a bias in
@@ -27,14 +29,21 @@
      questions)
    + Restructure public credentials
    + Raise to 256 bits the entropy of seeds used for private keys
+ * Command-line tool:
+   + Bugfix: invalid ballots were not reported by `election verify`
+   + More checks and reporting in `election verify`
+   + Fail cleanly on malformed archives
  * Web server:
+   + Avoid global resources in development environments
    + New pool structure; bump its version to 2
    + Many changes in web API; bump its version to 7
    + Add default election preferences to admin UI
    + Use OIDC sub claim as login inside Belenios
    + Move hmac to Authorization header in send-message endpoints
    + Allow direct API use without token by a logged in administrator
-     (identified by a cookie)
+     (identified by a cookie, for GET requests only)
+   + Make `deny_revote` a per-election setting instead of a
+     server-wide configuration option
    + Trustee management:
      - Add a notion of electoral board: a set of trustees that work
        together on one or more elections; they have their own uuid
@@ -53,6 +62,15 @@
      - Add filter by username prefix in voters view
    + Voter interface:
      - Fix bug with "Move to" dropdown in STV mode
+   + Election interface:
+     - Display fingerprint of the encrypted tally after shuffles in
+       audit data
+   + Harden authentication and access control
+   + Documentation:
+     - Fix Docker demo
+     - Document ownership of drafts and electoral boards in the API
+     - Document e-mail authentication
+     - Recommend `samesite=lax` for cookies in reverse-proxy setups
    + Tests:
      - Fix scaling test and add a scaling scenario to CI
    + Translations:
