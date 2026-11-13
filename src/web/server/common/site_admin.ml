@@ -126,17 +126,37 @@ struct
 
   module SetEmailOtp = Otp.Make (SetEmailSender) ()
 
+  (* minimum delay (in seconds) between two codes sent for the same
+     account, so that an account cannot be used to send codes to many
+     addresses *)
+  let set_email_min_delay = 60.
+
+  (* account id -> time of the last code sent *)
+  let set_email_sent = Hashtbl.create 16
+
+  let may_send_set_email_code id =
+    let now = Unix.gettimeofday () in
+    Hashtbl.filter_map_inplace
+      (fun _ t -> if now < t +. set_email_min_delay then Some t else None)
+      set_email_sent;
+    if Hashtbl.mem set_email_sent id then false
+    else (
+      Hashtbl.replace set_email_sent id now;
+      true)
+
   let () =
     Any.register ~service:set_email_post (fun () address ->
         let@ _, account, _ = with_site_user in
         if is_email ~blacklist:!Web_config.blacklisted_domains address then
-          let* () =
-            Eliom.Reference.set Web_state.set_email_env (Some address)
-          in
           let* r =
-            SetEmailOtp.generate ~context:()
-              ~recipient:{ name = account.name; address }
-              ~payload:() ()
+            if may_send_set_email_code account.id then
+              let* () =
+                Eliom.Reference.set Web_state.set_email_env (Some address)
+              in
+              SetEmailOtp.generate ~context:()
+                ~recipient:{ name = account.name; address }
+                ~payload:() ()
+            else Lwt.return_error ()
           in
           Pages_admin.set_email_confirm r >>= Html.send
         else
