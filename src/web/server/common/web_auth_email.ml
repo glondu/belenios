@@ -26,6 +26,8 @@ open Belenios_storage_api
 open Belenios_server_core
 open Web_common
 
+let check_allowlist = Web_auth.check_allowlist
+
 module Make
     (Web_i18n : Web_i18n_sig.S)
     (Web_state : Web_state_sig.S)
@@ -122,11 +124,33 @@ struct
       | Some { state = Some { lang; _ }; _ } -> lang
       | _ -> None
     in
+    (* for site logins, the address can be anything: do not send codes
+       to addresses that will not be allowed to log in anyway *)
+    let* allowed =
+      match (uuid, Web_auth.State.get_auth ~state) with
+      | None, Some { auth_instance; _ } -> (
+          match
+            List.find_opt
+              (fun (x : auth_config) -> x.auth_instance = auth_instance)
+              !Web_config.site_auth_config
+          with
+          | Some a -> check_allowlist a ~login:name
+          | None -> Lwt.return_false)
+      | None, None -> Lwt.return_false
+      | Some _, _ -> Lwt.return_true
+    in
     match (ok, address) with
     | true, Some address ->
         let recipient : recipient = { name; address } in
         let* r =
-          Otp.generate ?lang ~context:uuid ~recipient ~state ~payload:() ()
+          if allowed then
+            Otp.generate ?lang ~context:uuid ~recipient ~state ~payload:() ()
+          else
+            let () =
+              Printf.ksprintf Ocsigen.Messages.warning
+                "Not sending OTP to %S: not allowed to log in" address
+            in
+            Lwt.return_error ()
         in
         Web_auth.State.set_data ~state (Data_email recipient);
         let address = if show_email_address then Some r else None in
