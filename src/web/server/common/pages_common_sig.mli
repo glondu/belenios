@@ -221,6 +221,8 @@ module type S = sig
   val login_email_not_now :
     unit -> [> Html_types.div ] Eliom.Content.Html.elt Lwt.t
 
+  val login_throttled : unit -> [> `Html ] Eliom.Content.Html.F.elt Lwt.t
+
   val authentication_impossible :
     unit -> [> Html_types.html ] Eliom.Content.Html.F.elt Lwt.t
 

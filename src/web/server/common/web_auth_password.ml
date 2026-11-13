@@ -72,16 +72,18 @@ struct
             Lwt.return (r, update)
         | Some _ -> failwith "invalid password authentication for election"
       in
-      let&* ({ salt; hashed = hash; _ } as r) = Lopt.get_value r in
-      let ~ok, ~obsolete = Password.check ~salt ~hash ~password in
-      let* () =
-        if obsolete then
-          let ~salt, ~hash = Password.hash ~password in
-          update { r with salt; hashed = hash }
-        else Lwt.return_unit
-      in
-      if ok then Lwt.return_some r else Lwt.return_none
-    else Lwt.return_none
+      match Lopt.get_value r with
+      | None -> Lwt.return @@ Error `Bad
+      | Some ({ salt; hashed = hash; _ } as r) ->
+          let ~ok, ~obsolete = Password.check ~salt ~hash ~password in
+          let* () =
+            if obsolete then
+              let ~salt, ~hash = Password.hash ~password in
+              update { r with salt; hashed = hash }
+            else Lwt.return_unit
+          in
+          Lwt.return (if ok then Ok r else Error `Bad)
+    else Lwt.return @@ Error `Throttled
 
   let handler uuid (a : auth_config) =
     let module X = struct
@@ -105,8 +107,9 @@ struct
             let@ i = body.run !*Belenios_web_api.auth_password_info_of_yojson in
             let* x = check None a i.username i.password in
             match x with
-            | None -> Api_generic.forbidden
-            | Some { username; address; _ } ->
+            | Error `Throttled -> Api_generic.too_many_requests
+            | Error `Bad -> Api_generic.forbidden
+            | Ok { username; address; _ } ->
                 (* i.username may be the address: use the actual username *)
                 let user : user =
                   { domain = a.auth_instance; name = username }
@@ -119,17 +122,20 @@ struct
     Web_auth.register ~auth_system:"password"
       { handler; extern = false; dispatch }
 
+  exception Throttled
+
   let password_handler () (state, (name, password)) =
-    run_post_login_handler ~state
-      {
-        Web_auth.post_login_handler =
-          (fun uuid a cont ->
-            let* result =
-              let* x = check uuid a name password in
-              Lwt.return
-                (match x with
-                | None -> None
-                | Some { username; address; _ } ->
+    Lwt.catch
+      (fun () ->
+        run_post_login_handler ~state
+          {
+            Web_auth.post_login_handler =
+              (fun uuid a cont ->
+                let* x = check uuid a name password in
+                match x with
+                | Error `Throttled -> Lwt.fail Throttled
+                | Error `Bad -> cont None
+                | Ok { username; address; _ } ->
                     let info : Belenios_web_api.user_info =
                       {
                         login = username;
@@ -138,10 +144,13 @@ struct
                         timestamp = None;
                       }
                     in
-                    Some info)
-            in
-            cont result);
-      }
+                    cont (Some info));
+          })
+      (function
+        | Throttled ->
+            Pages_common.login_throttled ()
+            >>= Eliom.Registration.Html.send ~code:429
+        | e -> Lwt.reraise e)
 
   let () =
     Eliom.Registration.Any.register ~service:Web_services.password_post

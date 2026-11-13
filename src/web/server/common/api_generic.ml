@@ -104,6 +104,7 @@ let method_not_allowed = return_jstatus `Method_not_allowed
 let precondition_failed = return_jstatus `Precondition_failed
 let conflict = return_jstatus `Conflict
 let request_entity_too_large = return_jstatus `Request_entity_too_large
+let too_many_requests = return_jstatus `Too_many_requests
 let service_unavailable = return_jstatus `Service_unavailable
 
 let handle_ifmatch ifmatch current cont =

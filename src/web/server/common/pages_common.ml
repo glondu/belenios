@@ -563,6 +563,15 @@ struct
     let open (val l) in
     return @@ div [ txt (s_ "You cannot log in now. Please try later.") ]
 
+  let login_throttled () =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let title = s_ "Authentication failed" in
+    let content =
+      [ div [ txt (s_ "You cannot log in now. Please try later.") ] ]
+    in
+    base ~title ~content ()
+
   let authentication_impossible () =
     let* l = get_preferred_gettext () in
     let open (val l) in
