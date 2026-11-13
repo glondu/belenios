@@ -67,7 +67,7 @@ type election_env = {
 
 type auth_env = {
   username_or_address : [ `Username | `Address ];
-  auth_instance : string;
+  auth_config : auth_config;
 }
 
 module type STATE = sig

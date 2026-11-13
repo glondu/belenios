@@ -101,8 +101,29 @@ struct
 
   module Otp = Otp.Make (Sender) ()
 
-  let handle_email_post ~state ?(show_email_address = false) name ok =
+  (* [captcha] is [None] if no captcha was presented, or [Some ok] if
+     one was checked *)
+  let handle_email_post ~state ?(show_email_address = false) ~captcha name =
     let name = String.trim name in
+    let fail () =
+      run_post_login_handler ~state
+        { Web_auth.post_login_handler = (fun _ _ cont -> cont None) }
+    in
+    (* the state must come from a login with an e-mail authentication
+       instance, and a captcha must have been solved if it requires
+       one *)
+    let@ a cont =
+      match Web_auth.State.get_auth ~state with
+      | Some { auth_config = { auth_system = "email"; _ } as a; _ } -> (
+          let use_captcha =
+            List.assoc_opt "use_captcha" a.auth_config = Some "true"
+          in
+          match captcha with
+          | None when use_captcha -> fail ()
+          | None | Some true -> cont a
+          | Some false -> fail ())
+      | _ -> fail ()
+    in
     let election_env = Web_auth.State.get_election ~state in
     let uuid =
       let@ { uuid; _ } = Option.bind election_env in
@@ -127,20 +148,12 @@ struct
     (* for site logins, the address can be anything: do not send codes
        to addresses that will not be allowed to log in anyway *)
     let* allowed =
-      match (uuid, Web_auth.State.get_auth ~state) with
-      | None, Some { auth_instance; _ } -> (
-          match
-            List.find_opt
-              (fun (x : auth_config) -> x.auth_instance = auth_instance)
-              !Web_config.site_auth_config
-          with
-          | Some a -> check_allowlist a ~login:name
-          | None -> Lwt.return_false)
-      | None, None -> Lwt.return_false
-      | Some _, _ -> Lwt.return_true
+      match uuid with
+      | None -> check_allowlist a ~login:name
+      | Some _ -> Lwt.return_true
     in
-    match (ok, address) with
-    | true, Some address ->
+    match address with
+    | Some address ->
         let recipient : recipient = { name; address } in
         let* r =
           if allowed then
@@ -156,15 +169,13 @@ struct
         let address = if show_email_address then Some r else None in
         Pages_common.email_login ?lang ?address ~state site_or_election
         >>= Eliom.Registration.Html.send
-    | _ ->
-        run_post_login_handler ~state
-          { Web_auth.post_login_handler = (fun _ _ cont -> cont None) }
+    | None -> fail ()
 
   let () =
     Eliom.Registration.Any.register ~service:Web_services.email_election_login
       (fun state () ->
         match Web_auth.State.get_auth ~state with
-        | Some { username_or_address; auth_instance } -> (
+        | Some { username_or_address; auth_config = { auth_instance; _ } } -> (
             let@ precast_data cont =
               let x = Web_auth.State.get_election ~state in
               match x with
@@ -174,7 +185,8 @@ struct
             in
             match precast_data with
             | Some { credential_record = { cr_username = Some name; _ }; _ } ->
-                handle_email_post ~show_email_address:true ~state name true
+                handle_email_post ~show_email_address:true ~state ~captcha:None
+                  name
             | _ ->
                 let* fragment =
                   Pages_common.login_email `Election username_or_address ~state
@@ -188,13 +200,13 @@ struct
 
   let () =
     Eliom.Registration.Any.register ~service:Web_services.email_post
-      (fun () (state, name) -> handle_email_post ~state name true)
+      (fun () (state, name) -> handle_email_post ~state ~captcha:None name)
 
   let () =
     Eliom.Registration.Any.register ~service:Web_services.email_captcha_post
       (fun () (state, (challenge, (response, name))) ->
         let* b = Web_captcha.check_captcha ~challenge ~response in
-        handle_email_post ~state name b)
+        handle_email_post ~state ~captcha:(Some b) name)
 
   let () =
     Eliom.Registration.Any.register ~service:Web_services.email_login_post
