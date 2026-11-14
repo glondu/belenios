@@ -2,9 +2,9 @@
 ===========
 
  * Software stack:
-   + Switch from `atdgen` to `ppx_yojson_conv` for serialization: it
-     changes they way some types are serialized to JSON, making the
-     new version not backward-compatible
+   + Switch from `atdgen` to a custom serialization library: it
+     changes the way some types are serialized to JSON, making the new
+     version not backward-compatible
    + Update Eliom (to version 13) and Node stack
  * Cryptographic changes:
    + Bump crypto version to 2
@@ -34,8 +34,11 @@
    + More checks and reporting in `election verify`
    + Fail cleanly on malformed archives
  * Web server:
-   + Avoid global resources in development environments
+   + Avoid using global resources in development environments
    + New pool structure; bump its version to 2
+   + Store administrator passwords in the spool instead of handling a
+     CSV file outside of it; a new `belenios-tool spool` command
+     allows a one-time import of a CSV file to the spool
    + Many changes in web API; bump its version to 7
    + Add default election preferences to admin UI
    + Use OIDC sub claim as login inside Belenios
@@ -73,6 +76,8 @@
      - Recommend `samesite=lax` for cookies in reverse-proxy setups
    + Tests:
      - Fix scaling test and add a scaling scenario to CI
+     - Fix flakiness in webdriver scenarios by making them wait in a
+       smarter way
    + Translations:
      - Add Estonian, Hebrew, Lao
 
