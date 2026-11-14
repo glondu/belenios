@@ -1436,6 +1436,9 @@ module MakeBackend
             let oc = Lwt_io.of_fd ~mode:Output fd in
             let* () = Lwt_io.write_line oc (string_of_sealing_event event) in
             let* () = Lwt_io.flush oc in
+            let* () = fsync fd in
+            (* the file may have just been created *)
+            let* () = Filesystem.fsync_dir (Filename.dirname filename) in
             Lwt.return_true)
           (fun () -> close fd))
       (fun _ -> Lwt.return_false)

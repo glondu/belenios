@@ -35,14 +35,29 @@ let read_file f =
       Lwt.return_some f)
     (fun _ -> Lwt.return_none)
 
+let fsync_dir dir =
+  let open Lwt_unix in
+  let* fd = openfile dir [ O_RDONLY; O_CLOEXEC ] 0 in
+  Lwt.finalize (fun () -> fsync fd) (fun () -> close fd)
+
+(* The new contents and the rename must be on disk before returning:
+   callers acknowledge operations (e.g. ballot casting) once this
+   returns. *)
 let write_file f x =
   let fnew = f ^ ".new" in
   let* () =
-    let open Lwt_io in
-    let@ oc = with_file ~perm:0o600 ~mode:Output fnew in
-    write oc x
+    let open Lwt_unix in
+    let* fd = openfile fnew [ O_WRONLY; O_CREAT; O_TRUNC; O_CLOEXEC ] 0o600 in
+    Lwt.finalize
+      (fun () ->
+        let oc = Lwt_io.of_fd ~mode:Output fd in
+        let* () = Lwt_io.write oc x in
+        let* () = Lwt_io.flush oc in
+        fsync fd)
+      (fun () -> close fd)
   in
-  Lwt_unix.rename fnew f
+  let* () = Lwt_unix.rename fnew f in
+  fsync_dir (Filename.dirname f)
 
 let cleanup_file f =
   Lwt.catch (fun () -> Lwt_unix.unlink f) (fun _ -> Lwt.return_unit)
