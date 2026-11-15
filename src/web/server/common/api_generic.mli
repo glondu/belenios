@@ -36,7 +36,7 @@ val get_account_user : token_user -> (account * user) option
 
 exception Error of error
 
-type generic_content = String of string | Path of string
+type generic_content = String of string | Stream of file_stream
 type generic = { mime : string; content : generic_content }
 
 type result =

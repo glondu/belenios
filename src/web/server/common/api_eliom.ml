@@ -56,9 +56,15 @@ module Api_result = Eliom.Mkreg.Make (struct
         | String body ->
             Cohttp_lwt_unix.Server.respond_string ~headers ~body ~status:`OK ()
             |> return_response
-        | Path fname ->
-            Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
-            |> return_response)
+        | Stream { length; stream } ->
+            let encoding : Cohttp.Transfer.encoding =
+              match length with Some n -> Fixed n | None -> Chunked
+            in
+            let body =
+              Ocsigen.Response.Body.of_cohttp ~encoding @@ `Stream stream
+            in
+            Lwt.return @@ Ocsigen.Response.respond ~headers ~status:`OK ~body ()
+        )
     | `EventStream x ->
         let headers =
           Cohttp.Header.add headers "content-type" "text/event-stream"

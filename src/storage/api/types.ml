@@ -276,3 +276,7 @@ type ('a, 'b) credentials_records = {
   records : ('a, 'b) credentials_records_object;
 }
 [@@deriving yojson]
+
+(** {1 Contents served as a stream} *)
+
+type file_stream = { length : int64 option; stream : string Lwt_stream.t }

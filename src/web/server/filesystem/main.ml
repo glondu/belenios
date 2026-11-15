@@ -55,7 +55,7 @@ let rmdir dir =
 module type BACKEND = sig
   type nonrec 'a file = 'a file
 
-  val get_unixfilename : unit -> 'a file -> string Lwt.t
+  val get_confidential_archive : uuid -> file_stream option Lwt.t
   val new_election : unit -> uuid Lwt.t
   val new_trustees : unit -> uuid Lwt.t
   val add_election_to_trustees : trustees:uuid -> election:uuid -> unit Lwt.t
@@ -567,13 +567,44 @@ module MakeBackend
       | _ -> Lwt.fail @@ Not_implemented "get_archive"
     else Lwt.fail Not_found
 
-  let get_unixfilename (type t) : t file -> _ = function
-    | Election (_, (Private_creds | Sealing_log : t election_file)) as x -> (
-        match get_props x with
-        | Concrete f -> Lwt.return f
-        | _ -> Lwt.fail @@ Not_implemented "get_as_file")
-    | Election (uuid, Confidential_archive) -> get_archive uuid
-    | _ -> Lwt.fail Not_found
+  (* As in Cohttp_lwt_unix.Server.respond_file, the file is closed
+     once the stream has been read entirely; also when the stream is
+     collected. *)
+  let stream_file fname =
+    let count = 16384 in
+    let* ic =
+      Lwt_io.open_file ~buffer:(Lwt_bytes.create count) ~mode:Input fname
+    in
+    let* length = Lwt_io.length ic in
+    let stream =
+      Lwt_stream.from (fun () ->
+          Lwt.catch
+            (fun () ->
+              let* buf = Lwt_io.read ~count ic in
+              Lwt.return (if buf = "" then None else Some buf))
+            (fun e ->
+              Printf.ksprintf Ocsigen.Messages.errlog
+                "Error while reading %s: %s" fname (Printexc.to_string e);
+              Lwt.return_none))
+    in
+    let close _ =
+      Lwt.async (fun () ->
+          Lwt.catch (fun () -> Lwt_io.close ic) (fun _ -> Lwt.return_unit))
+    in
+    Lwt.on_success (Lwt_stream.closed stream) close;
+    (* the stream is not read entirely when the client disconnects *)
+    Gc.finalise close stream;
+    Lwt.return { length = Some length; stream }
+
+  let get_confidential_archive uuid =
+    Lwt.try_bind
+      (fun () ->
+        let* fname = get_archive uuid in
+        stream_file fname)
+      Lwt.return_some
+      (function
+        | Not_found | Unix.Unix_error (ENOENT, _, _) -> Lwt.return_none
+        | e -> Lwt.reraise e)
 
   let account_id_promise = ref Lwt.return_unit
 
@@ -1227,7 +1258,9 @@ module MakeBackend
 
   let append_sealing uuid event =
     let open Lwt_unix in
-    let* filename = get_unixfilename (Election (uuid, Sealing_log)) in
+    let filename =
+      match get_props (Election (uuid, Sealing_log)) with Concrete f -> f
+    in
     let* fd = openfile filename [ O_CREAT; O_WRONLY; O_APPEND ] 0o644 in
     Lwt.catch
       (fun () ->
@@ -1244,7 +1277,6 @@ module MakeBackend
       (fun _ -> Lwt.return_false)
 
   module Backend : Election_ops.BACKEND = struct
-    let get_unixfilename = get_unixfilename
     let get = get
     let set = set
     let del = del
@@ -1286,8 +1318,8 @@ module MakeBackend
     let module X = struct
       type nonrec 'a file = 'a file
 
-      let get_unixfilename () f =
-        with_lock_file f (fun () -> get_unixfilename f)
+      let get_confidential_archive uuid =
+        with_lock (Election uuid) (fun () -> get_confidential_archive uuid)
 
       let get () f = with_lock_file f (fun () -> get f)
       let set () f s x = with_lock_file f (fun () -> set f s x)
@@ -1432,9 +1464,9 @@ module Make (Config : CONFIG) : STORAGE = struct
   let get_user_id = Accounts_cache.get_user_id
   let get_elections_by_owner = Elections_cache.get_elections_by_owner
 
-  let get_unixfilename tx f =
+  let get_confidential_archive tx uuid =
     let module T = (val tx : BACKEND) in
-    T.get_unixfilename () f
+    T.get_confidential_archive uuid
 
   let get tx f =
     let module T = (val tx : BACKEND) in
@@ -1577,7 +1609,7 @@ module Make (Config : CONFIG) : STORAGE = struct
 
     let with_transaction uuid f = with_transaction (fun x -> f (uuid, x))
     let new_election = new_election
-    let get_unixfilename (uuid, x) f = get_unixfilename x (Election (uuid, f))
+    let get_confidential_archive (uuid, x) = get_confidential_archive x uuid
     let get (uuid, x) f = get x (Election (uuid, f))
     let set (uuid, x) f = set x (Election (uuid, f))
     let del (uuid, x) f = del x (Election (uuid, f))

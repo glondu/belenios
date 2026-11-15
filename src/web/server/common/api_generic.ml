@@ -75,7 +75,7 @@ let () =
 
 exception Error of Belenios_web_api.error
 
-type generic_content = String of string | Path of string
+type generic_content = String of string | Stream of file_stream
 type generic = { mime : string; content : generic_content }
 
 type result =

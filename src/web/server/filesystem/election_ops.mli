@@ -30,7 +30,6 @@ type 'a file =
   | Account of 'a account_file
 
 module type BACKEND = sig
-  val get_unixfilename : 'a file -> string Lwt.t
   val get : 'a file -> 'a lopt Lwt.t
   val set : 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
   val del : 'a file -> unit Lwt.t

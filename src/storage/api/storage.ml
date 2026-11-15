@@ -80,9 +80,9 @@ module E = struct
     let module S = (val get_backend ()) in
     S.E.new_election ()
 
-  let get_unixfilename tx f =
+  let get_confidential_archive tx =
     let module T = (val tx : TX) in
-    T.S.get_unixfilename T.tx f
+    T.S.get_confidential_archive T.tx
 
   let get tx f =
     let module T = (val tx : TX) in

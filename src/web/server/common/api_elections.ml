@@ -669,13 +669,13 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       | _ -> method_not_allowed)
   | [ "archive.zip" ] -> (
       match method_ with
-      | `GET ->
+      | `GET -> (
           let@ _ = with_administrator token metadata in
-          Lwt.try_bind
-            (fun () -> Storage.E.get_unixfilename s Confidential_archive)
-            (fun x ->
-              return_generic { mime = "application/zip"; content = Path x })
-            (function Not_found -> not_found | e -> Lwt.reraise e)
+          let* x = Storage.E.get_confidential_archive s in
+          match x with
+          | Some x ->
+              return_generic { mime = "application/zip"; content = Stream x }
+          | None -> not_found)
       | _ -> method_not_allowed)
   | [ "logo" ] -> (
       let set_logo logo =

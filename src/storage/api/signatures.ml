@@ -90,7 +90,7 @@ module type ELECTION_TRANSACTION = sig
   val get_credential_props :
     t -> ('a, 'b) spec -> hash -> 'a public_credential_with_id option Lwt.t
 
-  val get_unixfilename : t -> 'a election_file -> string Lwt.t
+  val get_confidential_archive : t -> file_stream option Lwt.t
   val archive_election : t -> unit Lwt.t
   val delete_election : t -> unit Lwt.t
   val get_voters_config : t -> voters_config option Lwt.t
