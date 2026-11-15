@@ -34,7 +34,7 @@ let init_api_token set_api_token ?ui hash =
   | `Error -> Lwt.return_unit
   | _ ->
       let open Js_of_ocaml_lwt.XmlHttpRequest in
-      let* x = get !!"api-token" in
+      let* x = with_busy (fun () -> get !!"api-token") in
       if x.code = 200 then (
         set_api_token x.content;
         Lwt.return_unit)
@@ -65,7 +65,7 @@ let raw_delete_with_token ?ifmatch ~token url =
     | None -> ifmatch
     | Some token -> ("Authorization", "Bearer " ^ token) :: ifmatch
   in
-  perform_raw_url ~headers ~override_method:`DELETE !/url
+  with_busy (fun () -> perform_raw_url ~headers ~override_method:`DELETE !/url)
 
 let raw_put_with_token ~ifmatch ~token x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
@@ -76,7 +76,8 @@ let raw_put_with_token ~ifmatch ~token x url =
     | Some token -> ("Authorization", "Bearer " ^ token) :: ifmatch
   in
   let contents = `String x in
-  perform_raw_url ~headers ~contents ~override_method:`PUT !/url
+  with_busy (fun () ->
+      perform_raw_url ~headers ~contents ~override_method:`PUT !/url)
 
 let raw_put_blob_with_token ~token x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
@@ -88,7 +89,8 @@ let raw_put_blob_with_token ~token x url =
   let contents =
     `Blob (File.blob_from_any ~contentType:"image/png" [ `arrayBuffer x ])
   in
-  perform_raw_url ~headers ~contents ~override_method:`PUT !/url
+  with_busy (fun () ->
+      perform_raw_url ~headers ~contents ~override_method:`PUT !/url)
 
 let raw_post_with_token ?lang ?ifmatch ~token x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
@@ -105,7 +107,8 @@ let raw_post_with_token ?lang ?ifmatch ~token x url =
     | Some token -> ("Authorization", "Bearer " ^ token) :: headers
   in
   let contents = `String x in
-  perform_raw_url ~headers ~contents ~override_method:`POST !/url
+  with_busy (fun () ->
+      perform_raw_url ~headers ~contents ~override_method:`POST !/url)
 
 let bad_result = Lwt.return (Error BadResult)
 
@@ -116,7 +119,7 @@ let raw_get_with_token ~token of_string url =
     | None -> None
     | Some token -> Some [ ("Authorization", "Bearer " ^ token) ]
   in
-  let* x = perform_raw_url ?headers !/url in
+  let* x = with_busy (fun () -> perform_raw_url ?headers !/url) in
   match x.code with
   | 200 ->
       let ifmatch = sha256_b64 x.content in

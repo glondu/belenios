@@ -38,6 +38,24 @@ let return_unit = Js.some ()
 let alert s = Dom_html.window##alert (Js.string s)
 let confirm s = Dom_html.window##confirm (Js.string s) |> Js.to_bool
 
+(* Number of requests in progress or scheduled, exposed as the
+   data-busy attribute of the document element so that automated
+   tests can wait for the page to settle. It is decremented in the
+   same JavaScript task as the code using the response runs. *)
+let busy = ref 0
+
+let set_busy n =
+  busy := n;
+  document##.documentElement##setAttribute
+    (Js.string "data-busy")
+    (Js.string (string_of_int n))
+
+let with_busy f =
+  set_busy (!busy + 1);
+  Lwt.finalize f (fun () ->
+      set_busy (!busy - 1);
+      Lwt.return_unit)
+
 let prompt s =
   let x = Dom_html.window##prompt (Js.string s) (Js.string "") in
   Js.Opt.to_option (Js.Opt.map x Js.to_string)
@@ -176,7 +194,7 @@ let set_form_target id target uuid token =
 
 let redirect_if_admin target uuid token cont =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let* x = get !!"api-token" in
+  let* x = with_busy (fun () -> get !!"api-token") in
   if x.code = 200 then (
     let url = Printf.sprintf "%s/%s/%s" target uuid token in
     Dom_html.window##.location##replace (Js.string url);

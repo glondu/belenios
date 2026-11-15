@@ -393,7 +393,7 @@ let show_root main =
   let () =
     let@ () = Lwt.async in
     let url = Printf.sprintf "banner?lang=%s" (Language.unwrap lang) in
-    let* x = Js_of_ocaml_lwt.XmlHttpRequest.get url in
+    let* x = with_busy (fun () -> Js_of_ocaml_lwt.XmlHttpRequest.get url) in
     match x.code with
     | 200 ->
         let dom = Tyxml_js.To_dom.of_div banner in

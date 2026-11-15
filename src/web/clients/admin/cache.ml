@@ -298,6 +298,7 @@ let delayed_sync delay =
   pending_sync.promise <- t;
   pending_sync.pending <- true;
   let@ () = Lwt.async in
+  let@ () = with_busy in
   let* () = t in
   let* () = pending_sync.promise in
   if pending_sync.pending then (
