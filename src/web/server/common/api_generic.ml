@@ -80,8 +80,6 @@ type generic = { mime : string; content : generic_content }
 
 type result =
   [ `Json of Http.Status.standard * string
-  | `Bel of string
-  | `Sealing_log of string
   | `Generic of generic
   | `EventStream of string Lwt_stream.t ]
 

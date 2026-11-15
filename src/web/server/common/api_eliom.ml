@@ -50,16 +50,6 @@ module Api_result = Eliom.Mkreg.Make (struct
         in
         Cohttp_lwt_unix.Server.respond_string ~headers ~status ~body ()
         |> return_response
-    | `Bel fname ->
-        let headers =
-          Cohttp.Header.add headers "content-type" "application/x-belenios"
-        in
-        Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
-        |> return_response
-    | `Sealing_log fname ->
-        let headers = Cohttp.Header.add headers "content-type" "text/plain" in
-        Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
-        |> return_response
     | `Generic x -> (
         let headers = Cohttp.Header.add headers "content-type" x.mime in
         match x.content with

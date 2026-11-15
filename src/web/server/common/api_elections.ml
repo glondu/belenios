@@ -508,9 +508,12 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
   | [ "sealing-log" ] -> (
       let@ _ = with_administrator token metadata in
       match method_ with
-      | `GET ->
-          let* path = Storage.E.get_unixfilename s Sealing_log in
-          Lwt.return @@ `Sealing_log path
+      | `GET -> (
+          let* x = Storage.E.get s Sealing_log in
+          match Lopt.get_string x with
+          | Some content ->
+              return_generic { mime = "text/plain"; content = String content }
+          | None -> not_found)
       | _ -> method_not_allowed)
   | [ "voters" ] -> (
       let@ _ = with_administrator token metadata in
