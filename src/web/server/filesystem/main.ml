@@ -720,6 +720,16 @@ module MakeBackend
     | None -> "election_dynamic_records.json"
     | Some p -> Printf.sprintf "election_dynamic_records-%s.json" p
 
+  let () =
+    get_election_dynamic_records_files :=
+      fun uuid ->
+        let* bits = get_bits uuid in
+        if bits = 0 then Lwt.return [ dynamic_election_file None ]
+        else
+          seq_of_bits bits |> List.of_seq
+          |> List.map (fun p -> dynamic_election_file (Some p))
+          |> Lwt.return
+
   let dynamic_ballot_file = function
     | None -> "ballot_dynamic_records.json"
     | Some p -> Printf.sprintf "ballot_dynamic_records-%s.json" p
