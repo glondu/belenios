@@ -54,6 +54,7 @@ class helpers : session -> object
   method with_single_element :
     'a. selector:string -> unit -> (element -> 'a Lwt.t) -> 'a Lwt.t
 
+  method wait_for_elements : selector:string -> element list Lwt.t
   method fill_with : selector:string -> string -> unit Lwt.t
   method click_on : selector:string -> unit Lwt.t
   method click_on_last_button : unit Lwt.t

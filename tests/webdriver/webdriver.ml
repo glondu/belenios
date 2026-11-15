@@ -51,6 +51,26 @@ let get_sessionId x =
 
 exception Error of string * int * string
 
+(* How long to wait for the page to settle, for an element or for a
+   dialog, and how often to check. *)
+let settle_timeout = 30.
+let poll_interval = 0.1
+
+let poll ~what f =
+  let deadline = Unix.gettimeofday () +. settle_timeout in
+  let rec loop () =
+    let* x = f () in
+    match x with
+    | Some x -> Lwt.return x
+    | None ->
+        if Unix.gettimeofday () > deadline then
+          Printf.ksprintf failwith "timeout while waiting for %s" what
+        else
+          let* () = Lwt_unix.sleep poll_interval in
+          loop ()
+  in
+  loop ()
+
 let () =
   Printexc.register_printer (function
     | Error (what, code, x) ->
@@ -90,6 +110,8 @@ let start_session ~implicit_timeout ~headless ~url =
                 `Assoc
                   [
                     ("timeouts", `Assoc [ ("implicit", `Int implicit_timeout) ]);
+                    (* keep dialogs open for the test to handle them *)
+                    ("unhandledPromptBehavior", `String "ignore");
                     ("moz:firefoxOptions", moz_options);
                     ("goog:chromeOptions", goog_options);
                   ] );
@@ -122,14 +144,60 @@ class webdriver { implicit_timeout; prefix; session } =
     let* _ = handle_reply action x in
     Lwt.return_unit
   in
+  let alert_present () =
+    let url =
+      Printf.sprintf "%s/session/%s/alert/text" prefix session |> Uri.of_string
+    in
+    let* response, body = Cohttp_lwt_unix.Client.get url in
+    let* () = Cohttp_lwt.Body.drain_body body in
+    Lwt.return (Cohttp.Code.code_of_status response.status = 200)
+  in
+  (* the page is idle when no request is in progress (see with_busy in
+     the browser clients), or when a dialog is waiting for an answer *)
+  let wait_idle () =
+    let url =
+      Printf.sprintf "%s/session/%s/execute/sync" prefix session
+      |> Uri.of_string
+    in
+    let body () =
+      `Assoc
+        [
+          ( "script",
+            `String
+              "return document.documentElement.getAttribute(\"data-busy\");" );
+          ("args", `List []);
+        ]
+      |> Yojson.Safe.to_string |> Cohttp_lwt.Body.of_string
+    in
+    poll ~what:"the page to settle" (fun () ->
+        let* alert = alert_present () in
+        if alert then Lwt.return_some ()
+        else
+          let* response, x =
+            Cohttp_lwt_unix.Client.post ~chunked ~headers ~body:(body ()) url
+          in
+          let* x = Cohttp_lwt.Body.to_string x in
+          match Cohttp.Code.code_of_status response.status with
+          | 200 -> (
+              match get_value (Yojson.Safe.from_string x) with
+              | Some (`String "0") | Some `Null | None -> Lwt.return_some ()
+              | _ -> Lwt.return_none)
+          | _ -> (* e.g. the page is being loaded *) Lwt.return_none)
+  in
   let alert_action action =
+    let* () =
+      poll ~what:"a dialog" (fun () ->
+          let* x = alert_present () in
+          Lwt.return (if x then Some () else None))
+    in
     let url =
       Printf.sprintf "%s/session/%s/alert/%s" prefix session action
       |> Uri.of_string
     in
     let* x = Cohttp_lwt_unix.Client.post ~chunked ~headers ~body url in
     let* _ = handle_reply action x in
-    Lwt_unix.sleep implicit_timeout_s
+    let* () = Lwt_unix.sleep implicit_timeout_s in
+    wait_idle ()
   in
   let get_elements_generic ~url ~selector =
     let body =
@@ -153,7 +221,9 @@ class webdriver { implicit_timeout; prefix; session } =
     | _ -> []
   in
   object (self)
-    method implicit_wait = Lwt_unix.sleep implicit_timeout_s
+    method implicit_wait =
+      let* () = Lwt_unix.sleep implicit_timeout_s in
+      wait_idle ()
 
     method navigate_to url =
       let body =
@@ -290,12 +360,19 @@ class helpers session =
     method with_single_element :
         'a. selector:string -> unit -> (element -> 'a Lwt.t) -> 'a Lwt.t =
       fun ~selector () f ->
-        let* x = self#get_elements ~selector in
-        match x with
-        | [ x ] -> f x
-        | _ ->
-            Printf.ksprintf failwith "not exactly 1 element returned by %s"
-              selector
+        let* x =
+          let what = Printf.sprintf "exactly 1 element matching %s" selector in
+          poll ~what (fun () ->
+              let* x = self#get_elements ~selector in
+              match x with [ x ] -> Lwt.return_some x | _ -> Lwt.return_none)
+        in
+        f x
+
+    method wait_for_elements ~selector =
+      let what = Printf.sprintf "elements matching %s" selector in
+      poll ~what (fun () ->
+          let* x = self#get_elements ~selector in
+          Lwt.return (if x = [] then None else Some x))
 
     method fill_with ~selector text =
       let@ element = self#with_single_element ~selector () in

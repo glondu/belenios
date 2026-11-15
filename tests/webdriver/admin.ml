@@ -235,7 +235,7 @@ module Make (Config : CONFIG) = struct
     let* () =
       Lwt_list.iter_s
         (fun _ ->
-          let* elements = session#get_elements ~selector:".add_question" in
+          let* elements = session#wait_for_elements ~selector:".add_question" in
           match elements with
           | [] -> Lwt.fail @@ Failure "could not find .add_question"
           | e :: _ ->
@@ -267,7 +267,7 @@ module Make (Config : CONFIG) = struct
     session#click_on ~selector:"#add_trustee_popup button:nth-child(2)"
 
   let collect_trustee_links session trustees =
-    let* elements = session#get_elements ~selector:"button.send_link" in
+    let* elements = session#wait_for_elements ~selector:"button.send_link" in
     List.combine trustees elements
     |> Lwt_list.map_s (fun ((t : trustee), e) ->
         let* () = session#click e in
@@ -327,7 +327,7 @@ module Make (Config : CONFIG) = struct
         let* () = session#click_on ~selector:"#main_zone" in
         match ext with
         | None -> (
-            let* x = session#get_elements ~selector:"#cred_link_target" in
+            let* x = session#wait_for_elements ~selector:"#cred_link_target" in
             match x with
             | [ x ] -> (
                 let* x =
@@ -379,7 +379,7 @@ module Make (Config : CONFIG) = struct
     let* () = Config.(session#set_window_rect ~width ~height ()) in
     let* () = close_cookie_disclaimer_if_needed session in
     let* () = session#click_on ~selector:"#generate_key" in
-    let* x = session#get_elements ~selector:"#private_key" in
+    let* x = session#wait_for_elements ~selector:"#private_key" in
     match x with
     | [ x ] -> (
         let* () = session#click x in
@@ -425,7 +425,7 @@ module Make (Config : CONFIG) = struct
     let* () = close_cookie_disclaimer_if_needed session in
     let* () = session#click_on ~selector:"#generate_key" in
     let* private_key =
-      let* x = session#get_elements ~selector:"#private_key" in
+      let* x = session#wait_for_elements ~selector:"#private_key" in
       match x with
       | [ x ] -> (
           let* () = session#scrollIntoView "private_key" in
@@ -446,16 +446,8 @@ module Make (Config : CONFIG) = struct
     in
     let wait () =
       let* () = switch_window () in
-      let rec wait_done n =
-        let* () = Lwt_unix.sleep 1. in
-        let* x = session#get_elements ~selector:"#pedersen_done" in
-        match x with
-        | [] ->
-            if n > 0 then wait_done (n - 1)
-            else failwith "#pedersen_done did not appear"
-        | _ -> Lwt.return_unit
-      in
-      wait_done 5
+      let* _ = session#wait_for_elements ~selector:"#pedersen_done" in
+      Lwt.return_unit
     in
     Lwt.return (private_key, wait)
 
@@ -617,10 +609,9 @@ module Make (Config : CONFIG) = struct
             if
               String.starts_with url
                 ~prefix:(Printf.sprintf "%s/election#" belenios)
-            then (
-              let* x = session#get_elements ~selector:".result_question" in
-              if x = [] then failwith "no results";
-              Lwt.return_unit)
+            then
+              let* _ = session#wait_for_elements ~selector:".result_question" in
+              Lwt.return_unit
             else loop ws
       in
       loop windows
