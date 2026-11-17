@@ -22,7 +22,6 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
-open Belenios_server_core
 
 module type INPUT = sig
   type session
@@ -152,65 +151,4 @@ module Make (I : INPUT) () = struct
     match IMap.find_opt user cache with
     | None -> Lwt.return []
     | Some xs -> Lwt.return xs
-
-  let extract_automatic_data_draft s uuid =
-    let* draft = I.get s (Election (uuid, Draft)) in
-    let&* _ = Lopt.get_string draft in
-    let* dates =
-      let* x = I.get s (Election (uuid, Dates)) in
-      let&* x = Lopt.get_value x in
-      Lwt.return_some x
-    in
-    let&* dates = dates in
-    let t = dates.creation in
-    let next_t = add_days t Defaults.days_to_delete in
-    Lwt.return_some (`Destroy, uuid, next_t)
-
-  let extract_automatic_data_validated s uuid =
-    let* state =
-      let* x = I.get s (Election (uuid, State)) in
-      match Lopt.get_value x with
-      | None -> Lwt.return `Archived
-      | Some x -> Lwt.return @@ to_election_state x
-    in
-    let* dates =
-      let* x = I.get s (Election (uuid, Dates)) in
-      match Lopt.get_value x with
-      | None -> Lwt.return Belenios_storage_api.default_election_dates
-      | Some x -> Lwt.return x
-    in
-    match state with
-    | `Draft ->
-        let t = dates.creation in
-        let next_t = add_days t Defaults.days_to_delete in
-        Lwt.return_some (`Destroy, uuid, next_t)
-    | `Open | `Closed | `Shuffling | `EncryptedTally ->
-        let t = Option.value dates.finalization ~default:dates.creation in
-        let next_t = add_days t Defaults.days_to_delete in
-        Lwt.return_some (`Delete, uuid, next_t)
-    | `Tallied ->
-        let t = Option.value dates.tally ~default:dates.creation in
-        let next_t = add_days t Defaults.days_to_archive in
-        Lwt.return_some (`Archive, uuid, next_t)
-    | `Archived ->
-        let t = Option.value dates.archive ~default:dates.creation in
-        let next_t = add_days t Defaults.days_to_delete in
-        Lwt.return_some (`Delete, uuid, next_t)
-
-  let try_extract extract s uuid =
-    Lwt.catch (fun () -> extract s uuid) (fun _ -> Lwt.return_none)
-
-  let get_next_actions () =
-    let* elections =
-      let@ s = I.with_transaction in
-      I.list_elections s
-    in
-    Lwt_list.filter_map_s
-      (fun uuid ->
-        let@ s = I.with_transaction in
-        let* r = try_extract extract_automatic_data_draft s uuid in
-        match r with
-        | None -> try_extract extract_automatic_data_validated s uuid
-        | x -> Lwt.return x)
-      elections
 end

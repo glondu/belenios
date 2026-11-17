@@ -53,6 +53,10 @@ let get_user_id x =
   let module X = (val get_backend ()) in
   X.get_user_id x
 
+let list_elections () =
+  let module X = (val get_backend ()) in
+  X.list_elections ()
+
 let get_elections_by_owner x =
   let module X = (val get_backend ()) in
   X.get_elections_by_owner x

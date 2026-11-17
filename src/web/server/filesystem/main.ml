@@ -1462,6 +1462,7 @@ module Make (Config : CONFIG) : STORAGE = struct
       (fun f -> with_transaction_generic (`Restricted f))
 
   let get_user_id = Accounts_cache.get_user_id
+  let list_elections () = Elections_input.(with_transaction list_elections)
   let get_elections_by_owner = Elections_cache.get_elections_by_owner
 
   let get_confidential_archive tx uuid =
@@ -1560,49 +1561,6 @@ module Make (Config : CONFIG) : STORAGE = struct
     let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
     T.new_account_id ()
-
-  let process_election_for_data_policy (action, uuid, next_t) =
-    let uuid_s = Uuid.to_string uuid in
-    let now = datetime_now () in
-    let archive s uuid =
-      let module S = (val s : BACKEND) in
-      S.archive_election uuid
-    in
-    let delete s uuid =
-      let module S = (val s : BACKEND) in
-      S.delete_election uuid
-    in
-    let action, comment =
-      match action with
-      | `Destroy -> (delete, "destroyed")
-      | `Delete -> (delete, "deleted")
-      | `Archive -> (archive, "archived")
-    in
-    let@ s = with_transaction in
-    if now > next_t then
-      let* () = action s uuid in
-      Lwt.return
-        (Printf.ksprintf Ocsigen.Messages.warning
-           "Election %s has been automatically %s" uuid_s comment)
-    else Lwt.return_unit
-
-  let rec data_policy_loop () =
-    let open Ocsigen.Messages in
-    let* () =
-      if readonly.get () then (
-        accesslog "Data policy process skipped because of readonly mode";
-        Lwt.return_unit)
-      else
-        let () = accesslog "Data policy process started" in
-        let* elections = Elections_cache.get_next_actions () in
-        let* () = Lwt_list.iter_s process_election_for_data_policy elections in
-        let () = accesslog "Data policy process completed" in
-        Lwt.return_unit
-    in
-    let* () = Lwt_unix.sleep 3600. in
-    data_policy_loop ()
-
-  let () = Lwt.async data_policy_loop
 
   module E : ELECTION_TRANSACTION = struct
     type nonrec t = uuid * t

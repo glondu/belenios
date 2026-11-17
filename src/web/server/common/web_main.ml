@@ -368,6 +368,7 @@ module Make () = struct
 
   let () = Api_elections.state_module := Some (module Web_auth.State)
   let () = Lwt.async Mails_voter_bulk.process_bulk_emails
+  let () = Lwt.async Data_policy.loop
 end
 
 let main () =

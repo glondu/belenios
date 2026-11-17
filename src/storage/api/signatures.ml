@@ -153,5 +153,6 @@ module type STORAGE = sig
   module A : ACCOUNT_TRANSACTION
 
   val get_user_id : user -> int option Lwt.t
+  val list_elections : unit -> uuid list Lwt.t
   val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
 end
