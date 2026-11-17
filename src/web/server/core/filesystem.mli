@@ -27,6 +27,7 @@ val file_exists : string -> bool Lwt.t
 val read_file : string -> string option Lwt.t
 val write_file : string -> string -> unit Lwt.t
 val cleanup_file : string -> unit Lwt.t
+val remove_tree : string -> unit Lwt.t
 val fsync_dir : string -> unit Lwt.t
 
 (** {1 Misc} *)

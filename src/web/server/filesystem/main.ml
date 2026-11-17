@@ -47,11 +47,6 @@ let some_string_or_value (type a b) (f : a file)
   | String -> Lopt.some_string s.of_string x
   | Value -> Lopt.some_value s.to_string x
 
-let rmdir dir =
-  let command = ("rm", [| "rm"; "-rf"; dir |]) in
-  let* _ = Lwt_process.exec command in
-  Lwt.return_unit
-
 module type BACKEND = sig
   type nonrec 'a file = 'a file
 
@@ -444,7 +439,7 @@ module MakeBackend
         let fname_new = fname ^ ".new" in
         let* () = copy_file (temp_dir // "archive.zip") fname_new in
         let* () = Lwt_unix.rename fname_new fname in
-        rmdir temp_dir
+        Filesystem.remove_tree temp_dir
     | _ ->
         Printf.ksprintf Ocsigen.Messages.errlog
           "Error while creating archive.zip for election %s, temporary \
@@ -845,7 +840,10 @@ module MakeBackend
   (** {1 Cleaning operations} *)
 
   let delete_draft_election uuid =
-    let* () = rmdir (Config.spool_dir // "elections" // Uuid.to_string uuid) in
+    let* () =
+      Filesystem.remove_tree
+        (Config.spool_dir // "elections" // Uuid.to_string uuid)
+    in
     Elections_cache.clear ();
     Lwt.return_unit
 
@@ -1543,7 +1541,15 @@ module Make (Config : CONFIG) : STORAGE = struct
                     in
                     if kept = [] then (
                       Printf.ksprintf accesslog "Removing trustees %s" uuid_s;
-                      rmdir (Config.spool_dir // "trustees" // uuid_s))
+                      Lwt.catch
+                        (fun () ->
+                          Filesystem.remove_tree
+                            (Config.spool_dir // "trustees" // uuid_s))
+                        (fun e ->
+                          Printf.ksprintf errlog
+                            "Error removing trustees %s: %s" uuid_s
+                            (Printexc.to_string e);
+                          Lwt.return_unit))
                     else Lwt.return_unit)
           in
           accesslog "Trustees garbage collection finished";

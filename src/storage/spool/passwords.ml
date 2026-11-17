@@ -156,18 +156,14 @@ let import ~spool ~db ~force records =
     Printf.ksprintf failwith "password database %s already exists" db
   else
     let* () = Files.mkdir parent in
-    let remove_if_exists d =
-      let* b = Files.file_exists d in
-      if b then Files.remove_tree d else Lwt.return_unit
-    in
-    let* () = remove_if_exists tmp in
-    let* () = remove_if_exists old in
+    let* () = Files.remove_tree tmp in
+    let* () = Files.remove_tree old in
     let* () = make_dirs tmp in
     let* () = Lwt_list.iter_s (fun r -> set ~dir:tmp r) records in
     let* () = if exists then Lwt_unix.rename dir old else Lwt.return_unit in
     let* () = Lwt_unix.rename tmp dir in
     let* () = Files.fsync_dir parent in
-    remove_if_exists old
+    Files.remove_tree old
 
 let export ~spool ~db =
   let dir = dir ~spool db in

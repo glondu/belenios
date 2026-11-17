@@ -44,6 +44,7 @@ val mkdir : string -> unit Lwt.t
     durable. *)
 
 val remove_tree : string -> unit Lwt.t
-(** Recursively removes a directory, without following symbolic links. *)
+(** Recursively removes a directory, without following symbolic links. Does
+    nothing if it does not exist. *)
 
 val fsync_dir : string -> unit Lwt.t

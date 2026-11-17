@@ -83,7 +83,7 @@ let mkdir dir =
       | Unix.Unix_error (Unix.EEXIST, _, _) -> Lwt.return_unit
       | e -> Lwt.reraise e)
 
-let rec remove_tree dir =
+let rec remove_tree_exn dir =
   let* xs = Lwt_unix.files_of_directory dir |> Lwt_stream.to_list in
   let* () =
     Lwt_list.iter_s
@@ -93,8 +93,16 @@ let rec remove_tree dir =
           let f = Filename.concat dir x in
           let* st = Lwt_unix.lstat f in
           match st.st_kind with
-          | S_DIR -> remove_tree f
+          | S_DIR -> remove_tree_exn f
           | _ -> Lwt_unix.unlink f)
       xs
   in
   Lwt_unix.rmdir dir
+
+let remove_tree dir =
+  Lwt.try_bind
+    (fun () -> Lwt_unix.lstat dir)
+    (fun _ -> remove_tree_exn dir)
+    (function
+      | Unix.Unix_error (Unix.ENOENT, _, _) -> Lwt.return_unit
+      | e -> Lwt.reraise e)
