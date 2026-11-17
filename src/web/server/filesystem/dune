@@ -5,6 +5,7 @@
  (libraries
   belenios_server_core
   belenios_storage_api
+  belenios_spool
   calendar
   ocsigenserver.baselib
   ocsigenserver

@@ -119,124 +119,18 @@ module MakeBackend
   let get_object : (uuid -> hash -> string option Lwt.t) ref =
     ref (fun _ _ -> assert false)
 
-  module PasswordRecordsCacheTypes = struct
-    type key = Admin of string
-    type value = password_record SMap.t * password_record SMap.t
-  end
+  (** {1 Administrator passwords} *)
 
-  module PasswordRecordsCache =
-    Ocsigen_base.Cache.Make (PasswordRecordsCacheTypes)
+  module Passwords = Belenios_spool.Passwords
 
-  exception Password_db_not_found
+  let get_password_record_admin db (key : admin_password_kind) =
+    let dir = Passwords.dir ~spool:Config.spool_dir db in
+    match key with
+    | Username username -> Passwords.get_by_username ~dir ~username
+    | Address address -> Passwords.get_by_address ~dir ~address
 
-  let raw_get_password_records (key : PasswordRecordsCacheTypes.key) =
-    let* csv =
-      match key with
-      | Admin file ->
-          let*& csv = Filesystem.read_file file in
-          let* csv = Lwt_preemptive.detach csv_of_string csv in
-          Lwt.return_some csv
-    in
-    let* csv =
-      match csv with
-      | None -> Lwt.fail Password_db_not_found
-      | Some x -> Lwt.return x
-    in
-    Lwt_list.fold_left_s
-      (fun ((username_indexed, address_indexed) as accu) r ->
-        let@ r cont =
-          match r with
-          | username :: salt :: hashed :: address :: _ ->
-              cont { username; salt; hashed; address = Some address }
-          | username :: salt :: hashed :: _ ->
-              cont { username; salt; hashed; address = None }
-          | _ -> Lwt.return accu
-        in
-        let username_indexed =
-          SMap.add (String.lowercase_ascii r.username) r username_indexed
-        in
-        let address_indexed =
-          match r.address with
-          | None -> address_indexed
-          | Some a -> SMap.add (String.lowercase_ascii a) r address_indexed
-        in
-        Lwt.return (username_indexed, address_indexed))
-      (SMap.empty, SMap.empty) csv
-
-  let password_records_cache =
-    new PasswordRecordsCache.cache raw_get_password_records ~timer:3600. 100
-
-  let get_password_record_generic where who =
-    Lwt.try_bind
-      (fun () -> password_records_cache#find where)
-      (fun (u, a) ->
-        let key, map =
-          match (who : admin_password_kind) with
-          | Username u' -> (u', u)
-          | Address a' -> (a', a)
-        in
-        let&** r = SMap.find_opt (String.lowercase_ascii key) map in
-        r |> Lopt.some_value !+yojson_of_password_record |> Lwt.return)
-      (function Password_db_not_found -> Lopt.none_lwt | e -> Lwt.reraise e)
-
-  let get_password_record_admin file who =
-    get_password_record_generic (Admin file) who
-
-  let set_password_record_generic read write key data =
-    let { username; salt; hashed; address } =
-      !*password_record_of_yojson data
-    in
-    let update r =
-      match address with
-      | None ->
-          let xs = match r with _ :: _ :: _ :: xs -> xs | _ -> [] in
-          username :: salt :: hashed :: xs
-      | Some address ->
-          let xs = match r with _ :: _ :: _ :: _ :: xs -> xs | _ -> [] in
-          username :: salt :: hashed :: address :: xs
-    in
-    let@ csv cont =
-      let* x = read () in
-      match x with
-      | None -> Lwt.fail (Failure "missing password database")
-      | Some x -> cont x
-    in
-    let rec update_by_username x accu = function
-      | (u :: _ as r) :: rs when String.lowercase_ascii u = x ->
-          List.rev_append (update r :: accu) rs
-      | r :: rs -> update_by_username x (r :: accu) rs
-      | [] -> List.rev_append (update [] :: accu) []
-    in
-    let rec update_by_address x accu = function
-      | (_ :: _ :: _ :: u :: _ as r) :: rs when String.lowercase_ascii u = x ->
-          List.rev_append (update r :: accu) rs
-      | r :: rs -> update_by_address x (r :: accu) rs
-      | [] -> List.rev_append (update [] :: accu) []
-    in
-    let csv =
-      match (key : admin_password_kind) with
-      | Username u -> update_by_username (String.lowercase_ascii u) [] csv
-      | Address u -> update_by_address (String.lowercase_ascii u) [] csv
-    in
-    write csv
-
-  let set_password_record_admin file key data =
-    match Lopt.get_string data with
-    | None -> assert false
-    | Some data ->
-        let* () =
-          set_password_record_generic
-            (fun () ->
-              let*& csv = Filesystem.read_file file in
-              let* csv = Lwt_preemptive.detach csv_of_string csv in
-              Lwt.return_some csv)
-            (fun csv ->
-              let* csv = Lwt_preemptive.detach string_of_csv csv in
-              Filesystem.write_file file csv)
-            key data
-        in
-        password_records_cache#remove (Admin file);
-        Lwt.return_unit
+  let set_password_record_admin db r =
+    Passwords.set ~dir:(Passwords.dir ~spool:Config.spool_dir db) r
 
   (** {1 Generic operations} *)
 
@@ -338,8 +232,7 @@ module MakeBackend
         match get_credentials_file_props uuid f with
         | Concrete fname -> Concrete (spool_credentials uuid fname))
     | Account (Auth_db f) -> Concrete (SMap.find f Config.maps)
-    | Account (Admin_password (file, key)) ->
-        Admin_password (SMap.find file Config.maps, key)
+    | Account (Admin_password (file, key)) -> Admin_password (file, key)
 
   let file_exists (type t) (x : t file) =
     match get_props x with
@@ -367,7 +260,10 @@ module MakeBackend
         let* x = Filesystem.read_file path in
         let&** x = x in
         x |> some_string_or_value f String |> Lwt.return
-    | Admin_password (file, key) -> get_password_record_admin file key
+    | Admin_password (db, key) ->
+        let* x = get_password_record_admin db key in
+        let&** x = x in
+        x |> some_string_or_value f Value |> Lwt.return
 
   let set (type t u) (f : t file) (spec : (t, u) string_or_value_spec)
       (data : u) =
@@ -380,7 +276,10 @@ module MakeBackend
             let* () = Filesystem.write_file fname data in
             let () = clear_caches f in
             Lwt.return_unit)
-    | Admin_password (file, key) -> set_password_record_admin file key data
+    | Admin_password (db, _) -> (
+        match Lopt.get_value data with
+        | None -> assert false
+        | Some r -> set_password_record_admin db r)
 
   let get_group uuid : (module GROUP) option Lwt.t =
     let* x = get (Election (uuid, Draft)) in

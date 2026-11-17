@@ -6,4 +6,5 @@
   (re_export belenios-lib.messages)
   (re_export belenios-lib.api)
   (re_export belenios_storage_api)
+  belenios_spool
   (re_export belenios_cohttp)))

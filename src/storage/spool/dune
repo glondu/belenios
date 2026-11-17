@@ -1,0 +1,5 @@
+(library
+ (name belenios_spool)
+ (preprocess
+  (pps ppx_yojson_conv))
+ (libraries unix lwt lwt.unix ppx_yojson_conv_lib belenios-lib))

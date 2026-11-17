@@ -205,13 +205,15 @@ type voters_config = {
 }
 [@@deriving yojson]
 
-type password_record = {
+type password_record = Belenios_spool.Passwords.record = {
   username : string;
   salt : string;
   hashed : string;
-  address : string option; [@yoson.option]
+  address : string option;
 }
-[@@deriving yojson]
+
+let password_record_of_yojson = Belenios_spool.Passwords.record_of_yojson
+let yojson_of_password_record = Belenios_spool.Passwords.yojson_of_record
 
 (** {1 Running elections} *)
 

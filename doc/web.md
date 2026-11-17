@@ -106,16 +106,27 @@ site. Available authentication methods:
  * `<dummy>`: just asks for a name. No security is intended. This is
    useful for debugging or demonstration purposes but obviously not
    suitable for production
- * `<password>`: password-based authentication. It takes as parameter
-   a file, in CSV format, where each line consists of:
+ * `<password>`: password-based authentication. Its `db` attribute
+   names a password database, stored in the spool (in
+   `passwords/<db>`); a database that does not exist yet is empty.
+   Databases can be converted from and to CSV files, where each line
+   consists of:
     + a user name
     + a salt
     + SHA256(salt concatenated with password)
     + an e-mail address
 
-   Additional fields are ignored. In the sample `password_db.csv`
-   file, a fifth field with the plaintext password is included. The
-   sample file has been generated with the following shell command:
+   Additional fields are ignored. The conversions are done offline
+   (while the server is stopped), with:
+
+        belenios-tool spool filesystem passwords import --spool <spool> --db <db> < file.csv
+        belenios-tool spool filesystem passwords export --spool <spool> --db <db> > file.csv
+
+   `import` refuses to replace an existing database unless `--force`
+   is given. In the sample `password_db.csv` file, a fifth field with
+   the plaintext password is included; `demo/run-server.sh` imports it
+   as `local_passwords` when it creates the spool. The sample file has
+   been generated with the following shell command:
 
    `for u in $(seq 1 5); do PASS=$(pwgen -s 12); echo "user$u,$(echo -n "$PASS" | belenios-tool hash-password),user$u@example.com,$PASS"; done`
 

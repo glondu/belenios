@@ -9,4 +9,5 @@
   cmdliner
   belenios_cohttp
   belenios-platform-native
-  belenios-lib.api))
+  belenios-lib.api
+  belenios_spool))

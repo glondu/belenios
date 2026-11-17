@@ -21,46 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-
-let file_exists f =
-  Lwt.try_bind
-    (fun () -> Lwt_unix.(access f [ R_OK ]))
-    (fun () -> Lwt.return_true)
-    (fun _ -> Lwt.return_false)
-
-let read_file f =
-  Lwt.catch
-    (fun () ->
-      let* f = Lwt_io.chars_of_file f |> Lwt_stream.to_string in
-      Lwt.return_some f)
-    (fun _ -> Lwt.return_none)
-
-let fsync_dir dir =
-  let open Lwt_unix in
-  let* fd = openfile dir [ O_RDONLY; O_CLOEXEC ] 0 in
-  Lwt.finalize (fun () -> fsync fd) (fun () -> close fd)
-
-(* The new contents and the rename must be on disk before returning:
-   callers acknowledge operations (e.g. ballot casting) once this
-   returns. *)
-let write_file f x =
-  let fnew = f ^ ".new" in
-  let* () =
-    let open Lwt_unix in
-    let* fd = openfile fnew [ O_WRONLY; O_CREAT; O_TRUNC; O_CLOEXEC ] 0o600 in
-    Lwt.finalize
-      (fun () ->
-        let oc = Lwt_io.of_fd ~mode:Output fd in
-        let* () = Lwt_io.write oc x in
-        let* () = Lwt_io.flush oc in
-        fsync fd)
-      (fun () -> close fd)
-  in
-  let* () = Lwt_unix.rename fnew f in
-  fsync_dir (Filename.dirname f)
-
-let cleanup_file f =
-  Lwt.catch (fun () -> Lwt_unix.unlink f) (fun _ -> Lwt.return_unit)
+include Belenios_spool.Files
 
 let read_file_i18n ~lang f =
   let* f =

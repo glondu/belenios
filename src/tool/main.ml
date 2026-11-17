@@ -379,6 +379,7 @@ let cmds =
     Bench.cmd;
     Shasum.cmd;
     Hash_password.cmd;
+    Spool.cmd;
     Setup.cmd;
     Election_cmd.cmd;
     Events.cmd;

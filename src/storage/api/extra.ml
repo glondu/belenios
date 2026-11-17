@@ -54,6 +54,3 @@ let yojson_of_wrapped_draft_election
     (W (w, Draft (_, x)) : wrapped_draft_election) : Json.t =
   let module G = (val w) in
   [%yojson_of_group: _ raw_draft_election] x
-
-let csv_of_string = split_lines >> List.map (String.split_on_char ',')
-let string_of_csv = List.map (String.concat ",") >> join_lines

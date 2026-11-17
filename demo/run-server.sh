@@ -53,9 +53,12 @@ if ! [ -d $BELENIOS_VARDIR/spool ]; then
     mkdir -p $BELENIOS_VARDIR/spool/trustees
     mkdir -p $BELENIOS_VARDIR/spool/credentials
     echo 2 > $BELENIOS_VARDIR/spool/version
+    if [ -f demo/password_db.csv ]; then
+        $BELENIOS_BINDIR/belenios-tool spool filesystem passwords import \
+            --spool $BELENIOS_VARDIR/spool --db local_passwords \
+            < demo/password_db.csv
+    fi
 fi
-
-touch $BELENIOS_VARDIR/password_db.csv
 
 sed \
     -e "s@_VARDIR_@$BELENIOS_VARDIR@g" \
