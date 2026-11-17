@@ -154,6 +154,8 @@ module Make (I : INPUT) () = struct
     | Some xs -> Lwt.return xs
 
   let extract_automatic_data_draft s uuid =
+    let* draft = I.get s (Election (uuid, Draft)) in
+    let&* _ = Lopt.get_string draft in
     let* dates =
       let* x = I.get s (Election (uuid, Dates)) in
       let&* x = Lopt.get_value x in
