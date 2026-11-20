@@ -96,7 +96,7 @@ type shuffle_token = {
 
 type shuffle_state = {
   skipped : skipped_shufflers;
-  token : shuffle_token option; [@yoson.option]
+  token : shuffle_token option; [@yojson.option]
 }
 [@@deriving yojson]
 
@@ -219,14 +219,14 @@ let yojson_of_password_record = Belenios_spool.Passwords.yojson_of_record
 
 type election_dates = {
   creation : int64;
-  finalization : int64 option; [@yoson.option]
-  tally : int64 option; [@yoson.option]
-  archive : int64 option; [@yoson.option]
-  last_mail : int64 option; [@yoson.option]
-  auto_open : int64 option; [@yoson.option]
-  auto_close : int64 option; [@yoson.option]
-  publish : int64 option; [@yoson.option]
-  grace_period : int64 option; [@yoson.option]
+  finalization : int64 option; [@yojson.option]
+  tally : int64 option; [@yojson.option]
+  archive : int64 option; [@yojson.option]
+  last_mail : int64 option; [@yojson.option]
+  auto_open : int64 option; [@yojson.option]
+  auto_close : int64 option; [@yojson.option]
+  publish : int64 option; [@yojson.option]
+  grace_period : int64 option; [@yojson.option]
 }
 [@@deriving yojson]
 
