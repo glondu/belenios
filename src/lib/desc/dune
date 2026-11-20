@@ -1,0 +1,4 @@
+(library
+ (name desc)
+ (public_name belenios-lib.desc)
+ (libraries yojson))
