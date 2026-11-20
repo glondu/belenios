@@ -22,58 +22,57 @@
 
 (** {1 Predefined types} *)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios
 open Belenios_web_api
 
 (** {1 Web-specific types} *)
 
-type user = { domain : string; name : string } [@@deriving yojson]
+type user = { domain : string; name : string } [@@deriving desc]
 
 type auth_config = {
   auth_system : string;
   auth_instance : string;
   auth_config : (string * string) list;
-  auth_portal : string option; [@yojson.option]
+  auth_portal : string option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type sealed = {
-  date_open : int64 option; [@yojson.option]
-  date_close : int64 option; [@yojson.option]
-  date_publish : int64 option; [@yojson.option]
+  date_open : int64 option;
+  date_close : int64 option;
+  date_publish : int64 option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
-type sealing_op = [ `Seal of sealed | `Unseal ] [@@deriving yojson]
-type sealing_event = { date : int64; op : sealing_op } [@@deriving yojson]
+type sealing_op = [ `Seal of sealed | `Unseal ] [@@deriving desc]
+type sealing_event = { date : int64; op : sealing_op } [@@deriving desc]
 
 type metadata = {
   owners : int list;
-  auth_config : auth_config list option; [@yojson.option]
-  cred_authority_info : cred_authority_info option; [@yojson.option]
-  trustees : uuid option; [@yojson.option]
-  languages : string list option; [@yojson.option]
-  contact : string option; [@yojson.option]
-  booth_version : int option; [@yojson.option]
-  billing_request : string option; [@yojson.option]
-  sealed : bool option; [@yojson.option]
-  logo : string option; [@yojson.option]
+  auth_config : auth_config list option;
+  cred_authority_info : cred_authority_info option;
+  trustees : uuid option;
+  languages : string list option;
+  contact : string option;
+  booth_version : int option;
+  billing_request : string option;
+  sealed : bool option;
+  logo : string option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type extended_record = { username : string; date : int64; credential : string }
-[@@deriving yojson]
+[@@deriving desc]
 
 type credential_mapping = { credential : string; ballot : hash }
-[@@deriving yojson]
+[@@deriving desc]
 
-type credential_dynamic_record = { ballot : hash } [@@deriving yojson]
+type credential_dynamic_record = { ballot : hash } [@@deriving desc]
 
 type credential_dynamic_records = credential_dynamic_record option hmap
-[@@deriving yojson]
+[@@deriving desc]
 
-type election_dynamic_records = election_record option hmap [@@deriving yojson]
+type election_dynamic_records = election_record option hmap [@@deriving desc]
 
 type election_state =
   [ `Draft
@@ -83,29 +82,29 @@ type election_state =
   | `EncryptedTally
   | `Tallied
   | `Archived ]
-[@@deriving yojson]
+[@@deriving desc]
 
-type skipped_shufflers = string list [@@deriving yojson]
+type skipped_shufflers = string list [@@deriving desc]
 
 type shuffle_token = {
   trustee : external_trustee;
   trustee_id : int;
   name : string;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type shuffle_state = {
   skipped : skipped_shufflers;
-  token : shuffle_token option; [@yojson.option]
+  token : shuffle_token option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type stored_election_state_without_shuffling =
   [ `Open | `Closed | `EncryptedTally | `Tallied ]
 
 type stored_election_state =
   [ `Open | `Closed | `Shuffling of shuffle_state | `EncryptedTally | `Tallied ]
-[@@deriving yojson]
+[@@deriving desc]
 
 let to_election_state = function
   | #stored_election_state_without_shuffling as x -> x
@@ -117,46 +116,46 @@ type ('a, 'b) draft_basic_trustee = {
   address : string;
   name : string;
   token : string;
-  mutable parameters : ('a, 'b) basic_parameters option; [@yojson.option]
+  mutable parameters : ('a, 'b) basic_parameters option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) draft_threshold_trustee = {
   address : string;
   name : string;
   token : string;
-  mutable step : int option; [@yojson.option]
-  mutable cert : ('a, 'b) pedersen_cert option; [@yojson.option]
-  mutable polynomial : ('a, 'b) polynomial option; [@yojson.option]
-  mutable vinput : ('a, 'b) vinput option; [@yojson.option]
-  mutable voutput : ('a, 'b) voutput option; [@yojson.option]
+  mutable step : int option;
+  mutable cert : ('a, 'b) pedersen_cert option;
+  mutable polynomial : ('a, 'b) polynomial option;
+  mutable vinput : ('a, 'b) vinput option;
+  mutable voutput : ('a, 'b) voutput option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) draft_basic_params = {
   mutable trustees : ('a, 'b) draft_basic_trustee list;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) draft_threshold_params = {
   algorithm : string;
-  mutable threshold : int option; [@yojson.option]
+  mutable threshold : int option;
   mutable trustees : ('a, 'b) draft_threshold_trustee list;
-  mutable parameters : ('a, 'b) threshold_parameters option; [@yojson.option]
-  mutable error : string option; [@yojson.option]
+  mutable parameters : ('a, 'b) threshold_parameters option;
+  mutable error : string option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) draft_trustees_mode =
   [ `Basic of ('a, 'b) draft_basic_params
   | `Threshold of ('a, 'b) draft_threshold_params ]
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) draft_trustees = {
   step : int;
   mode : ('a, 'b) draft_trustees_mode;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) raw_draft_election = {
   version : int;
@@ -165,37 +164,32 @@ type ('a, 'b) raw_draft_election = {
   public_creds : string;
   mutable public_creds_received : bool;
   mutable public_creds_certificate : ('a, 'b) credentials_certificate option;
-      [@yojson.option]
-  mutable credential_authority_visited : bool;
-      [@default false] [@yojson_drop_default ( = )]
-  mutable voter_authentication_visited : bool;
-      [@default false] [@yojson_drop_default ( = )]
-  mutable pending_credentials : bool;
-      [@default false] [@yojson_drop_default ( = )]
-  mutable private_creds_downloaded : bool;
-      [@default false] [@yojson_drop_default ( = )]
+  mutable credential_authority_visited : bool; [@default false]
+  mutable voter_authentication_visited : bool; [@default false]
+  mutable pending_credentials : bool; [@default false]
+  mutable private_creds_downloaded : bool; [@default false]
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {1 Administrator accounts} *)
 
 type account = {
   id : int;
   name : string;
-  email : string option; [@yojson.option]
+  email : string option;
   last_connected : int64;
   authentications : user list;
-  consent : int64 option; [@yojson.option]
-  capabilities : int option; [@yojson.option]
-  language : string option; [@yojson.option]
-  voters_limit : int option; [@yojson.option]
+  consent : int64 option;
+  capabilities : int option;
+  language : string option;
+  voters_limit : int option;
   preferences : preferences;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {1 Views} *)
 
-type username_or_address = [ `Username | `Address ] [@@deriving yojson]
+type username_or_address = [ `Username | `Address ] [@@deriving desc]
 
 type voters_config = {
   has_explicit_weights : bool;
@@ -203,7 +197,7 @@ type voters_config = {
   nb_voters : int;
   bits : int;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type password_record = Belenios_spool.Passwords.record = {
   username : string;
@@ -219,18 +213,18 @@ let yojson_of_password_record = Belenios_spool.Passwords.yojson_of_record
 
 type election_dates = {
   creation : int64;
-  finalization : int64 option; [@yojson.option]
-  tally : int64 option; [@yojson.option]
-  archive : int64 option; [@yojson.option]
-  last_mail : int64 option; [@yojson.option]
-  auto_open : int64 option; [@yojson.option]
-  auto_close : int64 option; [@yojson.option]
-  publish : int64 option; [@yojson.option]
-  grace_period : int64 option; [@yojson.option]
+  finalization : int64 option;
+  tally : int64 option;
+  archive : int64 option;
+  last_mail : int64 option;
+  auto_open : int64 option;
+  auto_close : int64 option;
+  publish : int64 option;
+  grace_period : int64 option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
-type credentials_seed = { seed : string; token : string } [@@deriving yojson]
+type credentials_seed = { seed : string; token : string } [@@deriving desc]
 
 type ('a, 'b) credentials_params = {
   belenios_url : string;
@@ -238,7 +232,7 @@ type ('a, 'b) credentials_params = {
   group : string;
   certificate : ('a, 'b) credentials_certificate;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type wrapped_credentials_params =
   | W :
@@ -260,24 +254,24 @@ let yojson_of_wrapped_credentials_params : wrapped_credentials_params -> json =
 type 'a credentials_record = {
   login : string;
   credential : 'a;
-  address : string option; [@yojson.option]
-  weight : weight option; [@yojson.option]
+  address : string option;
+  weight : weight option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) credentials_records_item =
   ('a, 'b, string) encrypted_msg credentials_record
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) credentials_records_object =
   ('a, 'b) credentials_records_item smap
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) credentials_records = {
   algorithm : string;
   records : ('a, 'b) credentials_records_object;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {1 Contents served as a stream} *)
 

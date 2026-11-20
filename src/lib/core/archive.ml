@@ -19,15 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Common_types
 open Crypto_types
 open Signatures_core
 open Common
 open Events
 
-type location = { offset : int64; length : int64 } [@@deriving yojson]
-type header = { version : int; timestamp : int64 } [@@deriving yojson]
+type location = { offset : int64; length : int64 } [@@deriving desc]
+type header = { version : int; timestamp : int64 } [@@deriving desc]
 type data_or_event = Data | Event of event
 type record = { typ : data_or_event; hash : hash; location : location }
 

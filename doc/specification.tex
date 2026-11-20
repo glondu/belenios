@@ -533,14 +533,14 @@ their contents, encoded in hexadecimal.
   \right\}\\
   \texttt{event\_type}=
   \begin{array}{l}
-    \texttt{["Setup"]}\\
-    \mid\texttt{["Ballot"]}
-    \mid\texttt{["EndBallots"]}\\
-    \mid\texttt{["EncryptedTally"]}\\
-    \mid\texttt{["Shuffle"]}
-    \mid\texttt{["EndShuffles"]}\\
-    \mid\texttt{["PartialDecryption"]}
-    \mid\texttt{["Result"]}
+    \texttt{"Setup"}\\
+    \mid\texttt{"Ballot"}
+    \mid\texttt{"EndBallots"}\\
+    \mid\texttt{"EncryptedTally"}\\
+    \mid\texttt{"Shuffle"}
+    \mid\texttt{"EndShuffles"}\\
+    \mid\texttt{"PartialDecryption"}
+    \mid\texttt{"Result"}
   \end{array}
 \end{gather*}
 
@@ -1033,8 +1033,8 @@ The administrator fills it as follows:
 \begin{gather*}
   \texttt{trustees}=\texttt{trustee\_kind}^\ast\\
   \texttt{trustee\_kind}=
-  [\texttt{"Single"},\texttt{basic\_parameters}]\mid
-  [\texttt{"Pedersen"},\texttt{threshold\_parameters}]
+  \{\texttt{"Single"}:\texttt{basic\_parameters}\}\mid
+  \{\texttt{"Pedersen"}:\texttt{threshold\_parameters}\}
 \end{gather*}
 
 A $\texttt{trustees}$ structure is associated to each election. Such a
@@ -1049,13 +1049,13 @@ The generality of this definition allows to mix mandatory and optional
 trustees during decryption. For example, in an election with 3
 mandatory trustees, the $\texttt{trustees}$ structure will look like:
 \[
-  [[\texttt{"Single"},\dotsc],[\texttt{"Single"},\dotsc],[\texttt{"Single"},\dotsc]]
+  [\{\texttt{"Single"}:\dotsc\},\{\texttt{"Single"}:\dotsc\},\{\texttt{"Single"}:\dotsc\}]
 \]
 and in an election where only one trustee is mandatory, and a subset
 of another set of trustees (with a threshold) is needed to decrypt the
 result, will have a $\texttt{trustees}$ structure that looks like:
 \[
-  [[\texttt{"Single"},\dotsc],[\texttt{"Pedersen"},\dotsc]]
+  [\{\texttt{"Single"}:\dotsc\},\{\texttt{"Pedersen"}:\dotsc\}]
 \]
 As explained in section~\ref{process-filling-trustees}, the sub-keys
 of each item (\texttt{"Single"} or \texttt{"Pedersen"}) are then

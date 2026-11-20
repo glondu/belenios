@@ -19,17 +19,17 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type raw_ballots = int array array [@@deriving yojson]
-type processed_ballots = int list list [@@deriving yojson]
+type raw_ballots = int array array [@@deriving desc]
+type processed_ballots = int list list [@@deriving desc]
 
 type event =
   [ `Win of int list
   | `Lose of int
   | `TieWin of int list
   | `TieLose of int list ]
-[@@deriving yojson]
+[@@deriving desc]
 
-type events = event list [@@deriving yojson]
+type events = event list [@@deriving desc]
 
 type result = {
   ballots : processed_ballots;
@@ -37,6 +37,6 @@ type result = {
   events : events;
   winners : int list;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 val compute : nseats:int -> raw_ballots -> result

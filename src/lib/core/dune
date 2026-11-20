@@ -7,7 +7,8 @@
   digestif
   (re_export yojson)
   (re_export ppx_yojson_conv_lib)
+  (re_export belenios-lib.desc)
   (re_export re)
   (re_export belenios-platform))
  (preprocess
-  (pps ppx_inline_test ppx_yojson_conv ppx_yojson_group)))
+  (pps ppx_inline_test ppx_yojson_conv ppx_desc ppx_yojson_group)))

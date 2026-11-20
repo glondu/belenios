@@ -32,13 +32,13 @@ let datetime_of_yojson = function
   | x -> of_yojson_error "string expected" x
 
 type extended_record = { username : string; date : int64; credential : string }
-[@@deriving yojson]
+[@@deriving desc]
 
 type authentication_method = [ `CAS of string | `Import of string | `Unknown ]
-[@@deriving yojson]
+[@@deriving desc]
 
-type credential_method = [ `Automatic | `Manual ] [@@deriving yojson]
-type deleted_trustee = [ `Single | `Pedersen of int * int ] [@@deriving yojson]
+type credential_method = [ `Automatic | `Manual ] [@@deriving desc]
+type deleted_trustee = [ `Single | `Pedersen of int * int ] [@@deriving desc]
 
 type deleted_election = {
   uuid : uuid;
@@ -52,4 +52,4 @@ type deleted_election = {
   trustees : deleted_trustee list;
   has_weights : bool;
 }
-[@@deriving yojson]
+[@@deriving desc]

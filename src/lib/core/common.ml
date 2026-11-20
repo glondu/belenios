@@ -365,7 +365,7 @@ let uniq_first (type a) ?(compare = Stdlib.compare) xs =
   loop S.empty [] xs
 
 module Voter = struct
-  type t = voter [@@deriving yojson]
+  type t = voter [@@deriving desc]
 
   let get_weight ({ weight; _ } : t) = Option.value ~default:Weight.one weight
 

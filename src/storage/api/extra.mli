@@ -26,8 +26,8 @@ type ('a, 'b) draft_election =
   | Draft :
       'q Election.version * ('a, 'b) raw_draft_election
       -> ('a, 'b) draft_election
-[@@deriving yojson]
+[@@deriving desc]
 
 type wrapped_draft_election =
   | W : ('a, 'b) group * ('a, 'b) draft_election -> wrapped_draft_election
-[@@deriving yojson]
+[@@deriving desc]

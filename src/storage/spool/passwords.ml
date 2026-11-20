@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt.Syntax
 open Belenios
 
@@ -27,9 +26,9 @@ type record = {
   username : string;
   salt : string;
   hashed : string;
-  address : string option; [@yojson.option]
+  address : string option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 let ( let*& ) x f =
   let* x = x in

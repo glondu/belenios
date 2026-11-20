@@ -20,7 +20,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 include Question_types
 module Homomorphic = Question_h
 module Non_homomorphic = Question_nh
@@ -40,19 +39,30 @@ let lookup_type type_ =
   in
   loop types
 
-let t_of_yojson x =
-  let x = generic_question_of_yojson string_of_yojson Fun.id x in
-  match lookup_type x.type_ with
-  | None ->
-      Printf.ksprintf invalid_arg "%s: unsupported type %s" __FUNCTION__ x.type_
-  | Some q ->
-      let module Q = (val q) in
-      Q { x with type_ = (module Q); value = Q.question_of_yojson x.value }
+(* [{"type":…,"value":…,"extra":…}]: [value] is decoded according to
+   [type]. *)
+let t_d : t Desc.Core.t =
+  Desc.Core.map
+    (generic_question_d Desc.Core.string Desc.Core.json)
+    (fun x ->
+      match lookup_type x.type_ with
+      | None ->
+          Printf.ksprintf invalid_arg "%s: unsupported type %s" __FUNCTION__
+            x.type_
+      | Some q ->
+          let module Q = (val q) in
+          Q
+            {
+              x with
+              type_ = (module Q);
+              value = Desc.Json.of_json Q.question_d x.value;
+            })
+    (fun (Q x) ->
+      let open (val x.type_) in
+      { x with type_; value = Desc.Json.to_json question_d x.value })
 
-let yojson_of_t (Q x : t) =
-  let open (val x.type_) in
-  yojson_of_generic_question yojson_of_string yojson_of_question
-    { x with type_ }
+let yojson_of_t = Desc.Json.to_json t_d
+let t_of_yojson = Desc.Json.of_json t_d
 
 let is_nh_question (Q x : t) =
   let open (val x.type_) in

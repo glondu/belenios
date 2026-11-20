@@ -27,16 +27,20 @@ type ('a, 'b) draft_election =
       'q Belenios.Election.version * ('a, 'b) raw_draft_election
       -> ('a, 'b) draft_election
 
-let draft_election_of_yojson of_yojson1 of_yojson2 x =
-  let abstract = raw_draft_election_of_yojson Fun.id Fun.id x in
-  let open Belenios.Election in
-  match version_of_int abstract.version with
-  | Version v ->
-      let x = raw_draft_election_of_yojson of_yojson1 of_yojson2 x in
-      Draft (v, x)
+let draft_election_d a b =
+  Desc.Core.map (raw_draft_election_d a b)
+    (fun x ->
+      match Belenios.Election.version_of_int x.version with
+      | Version v -> Draft (v, x))
+    (fun (Draft (_, x)) -> x)
 
-let yojson_of_draft_election to_yojson1 to_yojson2 (Draft (_, x)) =
-  yojson_of_raw_draft_election to_yojson1 to_yojson2 x
+let draft_election_of_yojson f g =
+  Desc.Json.of_json
+    (draft_election_d (Desc.Json.of_decoder f) (Desc.Json.of_decoder g))
+
+let yojson_of_draft_election f g =
+  Desc.Json.to_json
+    (draft_election_d (Desc.Json.of_encoder f) (Desc.Json.of_encoder g))
 
 type wrapped_draft_election =
   | W : ('a, 'b) group * ('a, 'b) draft_election -> wrapped_draft_election
@@ -54,3 +58,7 @@ let yojson_of_wrapped_draft_election
     (W (w, Draft (_, x)) : wrapped_draft_election) : Json.t =
   let module G = (val w) in
   [%yojson_of_group: _ raw_draft_election] x
+
+let wrapped_draft_election_d =
+  Desc.Core.custom "wrapped_draft_election" yojson_of_wrapped_draft_election
+    wrapped_draft_election_of_yojson

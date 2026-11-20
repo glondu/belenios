@@ -1,0 +1,3 @@
+(executable
+ (name roundtrip)
+ (libraries belenios-platform-native belenios-lib belenios-lib.v2))

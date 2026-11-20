@@ -38,9 +38,9 @@ let lookup_type (type a) (type_ : a question_type) =
   in
   loop types
 
-type question = Belenios_core.Question.t [@@deriving yojson]
-type answer = Json.t [@@deriving yojson]
-type result = Json.t [@@deriving yojson]
+type question = Belenios_core.Question.t [@@deriving desc]
+type answer = Json.t [@@deriving desc]
+type result = Json.t [@@deriving desc]
 
 let is_nh_question = is_nh_question
 
@@ -51,9 +51,9 @@ let get_complexity (Q q : question) =
 module Make (G : GROUP) = struct
   module G = G
 
-  type nonrec question = question [@@deriving yojson]
-  type nonrec answer = answer [@@deriving yojson]
-  type nonrec result = result [@@deriving yojson]
+  type nonrec question = question [@@deriving desc]
+  type nonrec answer = answer [@@deriving desc]
+  type nonrec result = result [@@deriving desc]
 
   let create_answer (Q q : question) ~public_key ~prefix m =
     let open (val lookup_type q.type_) in

@@ -26,7 +26,7 @@ module Homomorphic = Question_h
 module Non_homomorphic = Question_nh
 module Lists = Question_l
 
-type t = wrapped_question [@@deriving yojson]
+type t = wrapped_question [@@deriving desc]
 
 val erase_question : t -> t
 val check_question : (module GROUP) Lazy.t -> t -> (unit, question_error) result

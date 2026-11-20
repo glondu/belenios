@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios
@@ -31,7 +30,7 @@ type stored_private_key = {
   token : string;
   seed : string;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 let seed = ref None
 let refresh = ref Fun.id

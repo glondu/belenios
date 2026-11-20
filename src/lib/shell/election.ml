@@ -64,6 +64,10 @@ let versioned_template_of_yojson x =
 
 let yojson_of_versioned_template (Template (V2, x)) = yojson_of_template x
 
+let versioned_template_d =
+  Desc.Core.custom "versioned_template" yojson_of_versioned_template
+    versioned_template_of_yojson
+
 let election_uuid_of_string_ballot x =
   let j = Json.of_string x in
   match j with
@@ -109,6 +113,7 @@ let yojson_of_t x =
   let module X = (val x : ELECTION) in
   X.json
 
+let t_d = Desc.Core.custom "election" yojson_of_t t_of_yojson
 let supported_crypto_versions = [ Version V2 ]
 
 (** Computing checksums *)

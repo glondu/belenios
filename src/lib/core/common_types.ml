@@ -32,8 +32,9 @@ let () =
     | _ -> None)
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-let yojson_of_generic_string to_string x = yojson_of_string @@ to_string x
-let generic_string_of_yojson of_string x = of_string @@ string_of_yojson x
+
+let string_based of_string to_string =
+  Desc.Core.map Desc.Core.string of_string to_string
 
 type 'a serializers = { of_string : string -> 'a; to_string : 'a -> string }
 type number = Z.t
@@ -41,16 +42,18 @@ type number = Z.t
 module Json = struct
   type t = Yojson.Safe.t
 
+  let t_d = Desc.Core.json
   let yojson_of_t = Fun.id
   let t_of_yojson = Fun.id
   let to_string x = Yojson.Safe.to_string x
   let of_string x = Yojson.Safe.from_string x
 end
 
-type json = Json.t [@@deriving yojson]
+type json = Json.t [@@deriving desc]
 
-let yojson_of_number = yojson_of_generic_string Z.to_string
-let number_of_yojson = generic_string_of_yojson Z.of_string
+let number_d = string_based Z.of_string Z.to_string
+let yojson_of_number = Desc.Json.to_json number_d
+let number_of_yojson = Desc.Json.of_json number_d
 
 module Uuid = struct
   type t = string
@@ -75,12 +78,13 @@ module Uuid = struct
     else Printf.ksprintf invalid_arg "%S is not a valid UUID" x
 
   let to_string = Fun.id
-  let yojson_of_t = yojson_of_generic_string to_string
-  let t_of_yojson = generic_string_of_yojson of_string
+  let t_d = string_based of_string to_string
+  let yojson_of_t = Desc.Json.to_json t_d
+  let t_of_yojson = Desc.Json.of_json t_d
   let dummy = of_string (String.make min_length '1')
 end
 
-type uuid = Uuid.t [@@deriving yojson]
+type uuid = Uuid.t [@@deriving desc]
 
 module Hash = struct
   type t = string
@@ -113,14 +117,15 @@ module Hash = struct
 
   let hash_string x = Digestif.SHA256.(x |> digest_string |> to_hex)
   let hash_yojson x = x |> Json.to_string |> hash_string
-  let yojson_of_t = yojson_of_generic_string to_hex
-  let t_of_yojson = generic_string_of_yojson of_hex
+  let t_d = string_based of_hex to_hex
+  let yojson_of_t = Desc.Json.to_json t_d
+  let t_of_yojson = Desc.Json.of_json t_d
 end
 
-type hash = Hash.t [@@deriving yojson]
+type hash = Hash.t [@@deriving desc]
 
 module Weight = struct
-  type t = int64 [@@deriving yojson]
+  type t = int64 [@@deriving desc]
 
   let zero = 0L
   let one = 1L
@@ -152,7 +157,7 @@ module Weight = struct
   let compare = Int64.compare
 end
 
-type weight = Weight.t [@@deriving yojson]
+type weight = Weight.t [@@deriving desc]
 
 module Array = struct
   include Stdlib.Array
@@ -207,14 +212,18 @@ end
 module Shape = struct
   type 'a t = Atomic of 'a | Array of 'a t array
 
-  let rec yojson_of_t to_yojson : 'a t -> json = function
-    | Array xs -> `List (Array.map (yojson_of_t to_yojson) xs |> Array.to_list)
-    | Atomic o -> to_yojson o
+  (* Untagged: an array for [Array], the value itself for [Atomic]. *)
+  let t_d a =
+    let open Desc.Core in
+    fix "shape" (fun self ->
+        let array = case "Array" (array self) (fun x -> Array x)
+        and atomic = case "Atomic" a (fun x -> Atomic x) in
+        untagged [ Any array; Any atomic ] (function
+          | Array x -> Value (array, x)
+          | Atomic x -> Value (atomic, x)))
 
-  let rec t_of_yojson of_yojson : json -> 'a t = function
-    | `List xs -> Array (List.map (t_of_yojson of_yojson) xs |> Array.of_list)
-    | o -> Atomic (of_yojson o)
-
+  let yojson_of_t f = Desc.Json.to_json (t_d (Desc.Json.of_encoder f))
+  let t_of_yojson f = Desc.Json.of_json (t_d (Desc.Json.of_decoder f))
   let of_array x = Array (Array.map (fun x -> Atomic x) x)
 
   let to_array = function
@@ -261,55 +270,44 @@ module Shape = struct
     | _, _, _ -> invalid_arg "Shape.forall3"
 end
 
-type 'a shape = 'a Shape.t [@@deriving yojson]
+type 'a shape = 'a Shape.t [@@deriving desc]
 
 module SMap = struct
   include Map.Make (String)
 
-  let yojson_of_t yojson_of_b xs : json =
-    `Assoc (bindings xs |> List.map (fun (a, b) -> (a, yojson_of_b b)))
-
-  let t_of_yojson b_of_yojson : json -> _ = function
-    | `Assoc xs ->
-        List.fold_left (fun accu (a, b) -> add a (b_of_yojson b) accu) empty xs
-    | x -> of_yojson_error "object expected" x
+  let t_d v = Desc.Core.map (Desc.Core.sorted_assoc v) of_list to_list
+  let yojson_of_t f = Desc.Json.to_json (t_d (Desc.Json.of_encoder f))
+  let t_of_yojson f = Desc.Json.of_json (t_d (Desc.Json.of_decoder f))
 end
 
-type 'a smap = 'a SMap.t [@@deriving yojson]
+type 'a smap = 'a SMap.t [@@deriving desc]
 
 module HMap = struct
   include Map.Make (Hash)
 
-  let yojson_of_t yojson_of_b xs : json =
-    `Assoc
-      (bindings xs |> List.map (fun (a, b) -> (Hash.to_hex a, yojson_of_b b)))
+  let t_d v =
+    Desc.Core.map (Desc.Core.sorted_assoc v)
+      (List.fold_left (fun accu (a, b) -> add (Hash.of_hex a) b accu) empty)
+      (fun xs -> bindings xs |> List.map (fun (a, b) -> (Hash.to_hex a, b)))
 
-  let t_of_yojson b_of_yojson : json -> _ = function
-    | `Assoc xs ->
-        List.fold_left
-          (fun accu (a, b) -> add (Hash.of_hex a) (b_of_yojson b) accu)
-          empty xs
-    | x -> of_yojson_error "object expected" x
+  let yojson_of_t f = Desc.Json.to_json (t_d (Desc.Json.of_encoder f))
+  let t_of_yojson f = Desc.Json.of_json (t_d (Desc.Json.of_decoder f))
 end
 
-type 'a hmap = 'a HMap.t [@@deriving yojson]
+type 'a hmap = 'a HMap.t [@@deriving desc]
 
 (** {2 Misc} *)
 
-type voter = {
-  login : string;
-  address : string option; [@yojson.option]
-  weight : weight option; [@yojson.option]
-}
-[@@deriving yojson]
+type voter = { login : string; address : string option; weight : weight option }
+[@@deriving desc]
 
-type voter_list = voter list [@@deriving yojson]
-type voters = voter smap [@@deriving yojson]
-type recipient = { name : string; address : string } [@@deriving yojson]
+type voter_list = voter list [@@deriving desc]
+type voters = voter smap [@@deriving desc]
+type recipient = { name : string; address : string } [@@deriving desc]
 
 type 'a public_credential = {
   credential : 'a;
-  weight : weight option; [@yojson.option]
-  username : string option; [@yojson.option]
+  weight : weight option;
+  username : string option;
 }
-[@@deriving yojson]
+[@@deriving desc]

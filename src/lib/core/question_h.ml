@@ -20,7 +20,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Common_types
 open Crypto_types
 open Question_types
@@ -32,20 +31,20 @@ type question = {
   max : int;
   question : string;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) answer = {
   choices : 'a ciphertext array;
   individual_proofs : 'b disjunctive_proof array;
   overall_proof : 'b disjunctive_proof;
-  blank_proof : 'b disjunctive_proof option; [@yojson.option]
+  blank_proof : 'b disjunctive_proof option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 (** An answer to a question. It consists of a weight for each choice, a proof
     that each of these weights is 0 or 1, and an overall proof that the total
     weight is within bounds. *)
 
-type result = weight array [@@deriving yojson]
+type result = weight array [@@deriving desc]
 type _ id += Id : question id
 
 let type_ = "Homomorphic"

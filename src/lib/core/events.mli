@@ -30,35 +30,35 @@ type event_type =
   | `EndShuffles
   | `PartialDecryption
   | `Result ]
-[@@deriving yojson]
+[@@deriving desc]
 
 type setup_data = {
   election : hash;
   trustees : hash;
   credentials : hash;
-  credentials_certificate : hash option; [@yojson.option]
+  credentials_certificate : hash option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type event = {
-  parent : hash option; [@yojson.option]
+  parent : hash option;
   height : int;
   typ : event_type; [@key "type"]
-  payload : hash option; [@yojson.option]
+  payload : hash option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
-type last_event = { height : int; hash : hash; pos : int64 } [@@deriving yojson]
+type last_event = { height : int; hash : hash; pos : int64 } [@@deriving desc]
 
 type roots = {
-  setup_data : hash option; [@yojson.option]
-  last_ballot_event : hash option; [@yojson.option]
-  encrypted_tally : hash option; [@yojson.option]
-  last_shuffle_event : hash option; [@yojson.option]
-  last_pd_event : hash option; [@yojson.option]
-  result : hash option; [@yojson.option]
+  setup_data : hash option;
+  last_ballot_event : hash option;
+  encrypted_tally : hash option;
+  last_shuffle_event : hash option;
+  last_pd_event : hash option;
+  result : hash option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 val empty_roots : roots
 val update_roots : hash -> event -> roots -> roots

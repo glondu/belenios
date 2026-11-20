@@ -23,15 +23,15 @@ open Types
 
 type draft = Draft : 'a Belenios.Election.version * raw_draft -> draft
 
-let draft_of_yojson x =
-  let abstract = raw_draft_of_yojson x in
-  let open Belenios.Election in
-  match version_of_int abstract.version with
-  | Version v ->
-      let x = raw_draft_of_yojson x in
-      Draft (v, x)
+let draft_d =
+  Desc.Core.map raw_draft_d
+    (fun x ->
+      match Belenios.Election.version_of_int x.version with
+      | Version v -> Draft (v, x))
+    (fun (Draft (_, x)) -> x)
 
-let yojson_of_draft (Draft (_, x)) = yojson_of_raw_draft x
+let draft_of_yojson = Desc.Json.of_json draft_d
+let yojson_of_draft = Desc.Json.to_json draft_d
 
 let remaining_credits (xs : credentials_credits) =
   xs

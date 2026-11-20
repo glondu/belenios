@@ -168,7 +168,8 @@ module Events : CMDLINER_MODULE = struct
     let* index = Tool_events.get_index ~file in
     let event_typ =
       get_mandatory_opt "--type" event_typ
-      |> Printf.sprintf "[%S]" |> !*event_type_of_yojson
+      |> (fun x -> `String x)
+      |> event_type_of_yojson
     in
     let* payloads = lines_of_stdin () in
     let payload =

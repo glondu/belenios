@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt
 open Lwt.Syntax
 open Eliom.Service
@@ -33,21 +32,21 @@ type oidc_configuration = {
   token_endpoint : string;
   userinfo_endpoint : string;
 }
-[@@deriving yojson] [@@yojson.allow_extra_fields]
+[@@deriving desc]
 
 type oidc_tokens = {
   access_token : string;
   token_type : string;
   id_token : string;
 }
-[@@deriving yojson] [@@yojson.allow_extra_fields]
+[@@deriving desc]
 
 type oidc_userinfo = {
   sub : string;
-  name : string option; [@yojson.option]
-  email : string option; [@yojson.option]
+  name : string option;
+  email : string option;
 }
-[@@deriving yojson] [@@yojson.allow_extra_fields]
+[@@deriving desc]
 
 module Make (Web_services : Web_services_sig.S) (Web_auth : Web_auth_sig.S) =
 struct

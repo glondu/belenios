@@ -20,26 +20,25 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios_core
 open Belenios_web_api
 
 type material_message = {
   recipient : recipient;
   material : string;
-  weight : weight option; [@yojson.option]
-  metadata : message_metadata option; [@yojson.option]
+  weight : weight option;
+  metadata : message_metadata option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type code_message = {
   lang : string;
   recipient : recipient;
-  uuid : uuid option; [@yojson.option]
-  state : string option; [@yojson.option]
+  uuid : uuid option;
+  state : string option;
   code : string;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type confirmation_message = {
   lang : string;
@@ -48,7 +47,7 @@ type confirmation_message = {
   contact : string option;
   confirmation : confirmation;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type trustee_link_message = {
   recipient : recipient;
@@ -58,7 +57,7 @@ type trustee_link_message = {
   belenios_url : string;
   admin_id : int;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type credentials_seed_message = {
   uuid : uuid;
@@ -68,7 +67,7 @@ type credentials_seed_message = {
   cred_authority_info : cred_authority_info;
   seed : string;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type message =
   [ `Account_create of code_message
@@ -79,7 +78,7 @@ type message =
   | `Mail_login of code_message
   | `Trustee_link of trustee_link_message
   | `Credentials_seed of credentials_seed_message ]
-[@@deriving yojson]
+[@@deriving desc]
 
 type message_payload = { timestamp : int64; message : message }
-[@@deriving yojson]
+[@@deriving desc]

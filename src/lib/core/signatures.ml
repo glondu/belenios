@@ -30,9 +30,9 @@ open Signatures_core
 module type QUESTION_OPS = sig
   module G : GROUP
 
-  type question [@@deriving yojson]
-  type answer [@@deriving yojson]
-  type result [@@deriving yojson]
+  type question [@@deriving desc]
+  type answer [@@deriving desc]
+  type result [@@deriving desc]
 
   val create_answer :
     question -> public_key:G.t -> prefix:string -> int Shape.t -> answer
@@ -67,7 +67,7 @@ module type ELECTION_BASE = sig
 end
 
 module type ELECTION_RESULT = sig
-  type result [@@deriving yojson]
+  type result [@@deriving desc]
 
   val of_generic_result : json array -> result
   val to_generic_result : result -> json array
@@ -326,9 +326,9 @@ module type GROUP_SIG = sig
 end
 
 module type QUESTION_SIG = sig
-  type question [@@deriving yojson]
-  type answer [@@deriving yojson]
-  type result [@@deriving yojson]
+  type question [@@deriving desc]
+  type answer [@@deriving desc]
+  type result [@@deriving desc]
 
   val is_nh_question : question -> bool
   val get_complexity : question -> complexity

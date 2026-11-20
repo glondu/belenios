@@ -98,7 +98,7 @@ val remove_special_characters : string -> string
 val uniq_first : ?compare:('a -> 'a -> int) -> 'a list -> 'a list
 
 module Voter : sig
-  type t = voter [@@deriving yojson]
+  type t = voter [@@deriving desc]
 
   val get_weight : t -> Weight.t
   val validate : voters -> (unit, t) Stdlib.result

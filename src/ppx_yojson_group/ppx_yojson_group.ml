@@ -49,6 +49,14 @@ let derive_yojson_of_lid lid =
       failwith
         "[%yojson_of_group] functor application in type path not supported"
 
+(* Foo.Bar.my_type -> Foo.Bar.my_type_d *)
+let derive_desc_lid lid =
+  match lid with
+  | Lident name -> Lident (name ^ "_d")
+  | Ldot (path, name) -> Ldot (path, name ^ "_d")
+  | Lapply _ ->
+      failwith "[%desc_of_group] functor application in type path not supported"
+
 (* Shared: parse (w : _ t) and call [derive_lid] and [make_args] to build the expansion *)
 let expand_witness ~derive_lid ~make_args ~ctxt ty =
   let loc = Expansion_context.Extension.extension_point_loc ctxt in
@@ -74,7 +82,24 @@ let yojson_of_witness_extension =
            (Nolabel, [%expr !&G.to_string]); (Nolabel, [%expr !&G.Zq.to_string]);
          ]))
 
+let desc_of_witness_extension =
+  Extension.V3.declare "desc_of_group" Extension.Context.expression
+    Ast_pattern.(ptyp __)
+    (expand_witness ~derive_lid:derive_desc_lid ~make_args:(fun ~loc ->
+         [
+           ( Nolabel,
+             [%expr Desc.Core.map Desc.Core.string G.of_string G.to_string] );
+           ( Nolabel,
+             [%expr
+               Desc.Core.map Desc.Core.string G.Zq.of_string G.Zq.to_string] );
+         ]))
+
 let () =
   Driver.register_transformation
-    ~extensions:[ witness_of_yojson_extension; yojson_of_witness_extension ]
+    ~extensions:
+      [
+        witness_of_yojson_extension;
+        yojson_of_witness_extension;
+        desc_of_witness_extension;
+      ]
     "ppx_group_witness"

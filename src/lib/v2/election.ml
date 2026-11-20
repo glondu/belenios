@@ -82,6 +82,7 @@ module Parse (R : RAW_ELECTION) () = struct
 
   type result = json
 
+  let result_d = Desc.Core.json
   let yojson_of_result = Fun.id
   let result_of_yojson = Fun.id
   let of_generic_result x = `List (x |> Array.to_list)
