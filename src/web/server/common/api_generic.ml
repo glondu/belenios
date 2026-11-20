@@ -28,18 +28,18 @@ open Web_common
 
 let ( let& ) = Option.bind
 
-type token = { expiration : float; account : account; user : user }
+type token = { expiration : int64; account : account; user : user }
 
 let tokens = ref SMap.empty
 
 let new_token account user : auth_token Lwt.t =
   let token = generate_token 22 in
-  let expiration = Unix.gettimeofday () +. 86400. in
+  let expiration = Int64.add (datetime_now ()) 86400L in
   tokens := SMap.add token { expiration; account; user } !tokens;
   Lwt.return { token; expiration }
 
 let filter tokens =
-  let now = Unix.gettimeofday () in
+  let now = datetime_now () in
   SMap.filter (fun _ { expiration; _ } -> now < expiration) tokens
 
 let lookup_token token =
@@ -226,14 +226,14 @@ let put_account ((a, set) : account updatable) (u : user) (b : api_account) =
 let msgcache = ref HMap.empty
 
 let filter_msgcache ~now cache =
-  HMap.filter (fun _ timestamp -> now < timestamp +. 600.) cache
+  HMap.filter (fun _ timestamp -> now < Int64.add timestamp 600L) cache
 
 let post_send_message ?internal ~key ~hmac
     (m : Belenios_messages.message_payload) =
-  let now = Unix.gettimeofday () in
+  let now = datetime_now () in
   let cache = filter_msgcache ~now !msgcache in
   msgcache := cache;
-  if now < m.timestamp +. 600. then
+  if now < Int64.add m.timestamp 600L then
     if HMap.mem hmac cache then forbidden
     else if Belenios_messages.check_message ~key ~hmac m then
       let* r = Send_message.send ?internal m.message in

@@ -299,7 +299,7 @@ let process_resend_request (r : credentials_resend) (type a b)
           | `All_voters -> `All_voters
           | `Missing_voters -> `Missing_voters
           | `Some_voters _ -> `Some_voters);
-      timestamp = Unix.gettimeofday ();
+      timestamp = datetime_now ();
     }
   in
   let* success =
@@ -421,7 +421,7 @@ let process_request : credentials_request -> _ = function
       let* () = Mails_voter_bulk.submit_bulk_emails jobs in
       let* () = Storage.C.del s Credentials_seed in
       let* () =
-        let timestamp = Unix.gettimeofday () in
+        let timestamp = datetime_now () in
         let credits =
           !Web_config.credentials_server_multiplier *. float n
           |> Float.floor |> Float.to_int

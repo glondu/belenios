@@ -42,7 +42,10 @@ module App (U : UI) = struct
       match x with Ok (x, _) -> cont x | Error _ -> fail ()
     in
     let format_credit (x : Belenios_web_api.credentials_credit) =
-      let t = new%js Js.date_fromTimeValue (Js.float (x.timestamp *. 1000.)) in
+      let t =
+        new%js Js.date_fromTimeValue
+          (Js.float (Int64.to_float x.timestamp *. 1000.))
+      in
       let t = Js.to_string t##toLocaleString in
       tr
         [

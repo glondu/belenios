@@ -81,5 +81,5 @@ type message =
   | `Credentials_seed of credentials_seed_message ]
 [@@deriving yojson]
 
-type message_payload = { timestamp : float; message : message }
+type message_payload = { timestamp : int64; message : message }
 [@@deriving yojson]

@@ -34,5 +34,5 @@ type bulk_processed = { mode : bulk_mode; processed : int } [@@deriving yojson]
 
 (** {1 OTP logging} *)
 
-type otp_record = { recipient : string; code : string; expiration_time : float }
+type otp_record = { recipient : string; code : string; expiration_time : int64 }
 [@@deriving yojson]

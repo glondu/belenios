@@ -59,9 +59,9 @@ module Make (I : SENDER) () = struct
   type code = {
     code : string;
     mutable payload : payload;
-    expiration_time : float;
+    expiration_time : int64;
     mutable trials_left : int;
-    sent_time : float;
+    sent_time : int64;
     sent : (string, unit) result Lwt.t;
   }
 
@@ -70,20 +70,20 @@ module Make (I : SENDER) () = struct
 
   (* minimum delay (in seconds) between two codes sent to the same
      address *)
-  let min_delay = 60.
+  let min_delay = 60L
 
   let filter_codes_by_time now table =
     SMap.filter (fun _ { expiration_time; _ } -> now <= expiration_time) table
 
   let is_throttled now { sent_time; sent; _ } =
-    now < sent_time +. min_delay
+    now < Int64.add sent_time min_delay
     &&
     match Lwt.state sent with
     | Return (Error ()) | Fail _ -> false
     | _ -> true
 
   let generate ?lang ~context ~(recipient : recipient) ?state ~payload () =
-    let now = Unix.gettimeofday () in
+    let now = datetime_now () in
     let codes_ = filter_codes_by_time now !codes in
     match SMap.find_opt recipient.address codes_ with
     | Some x when is_throttled now x ->
@@ -94,7 +94,7 @@ module Make (I : SENDER) () = struct
         x.sent
     | previous ->
         let code = generate_numeric 6 in
-        let expiration_time = now +. 900. in
+        let expiration_time = Int64.add now 900L in
         let () =
           let x = { recipient = recipient.address; code; expiration_time } in
           let msg =
@@ -124,7 +124,7 @@ module Make (I : SENDER) () = struct
         sent
 
   let check ~address ~code =
-    let now = Unix.gettimeofday () in
+    let now = datetime_now () in
     let codes_ = filter_codes_by_time now !codes in
     codes := codes_;
     match SMap.find_opt address codes_ with

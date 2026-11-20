@@ -316,7 +316,7 @@ let append index ops =
 let init ~file ~election ~trustees ~public_creds =
   let* b = Lwt_unix.file_exists file in
   if b then Printf.ksprintf failwith "%s already exists" file;
-  let timestamp = Unix.time () |> Int64.of_float in
+  let timestamp = datetime_now () in
   let header = Archive.make_header ~timestamp in
   let index =
     {

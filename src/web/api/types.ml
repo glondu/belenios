@@ -293,7 +293,7 @@ type credentials_credit = {
   credits : int;
   success : bool;
   kind : credentials_credit_kind;
-  timestamp : float;
+  timestamp : int64;
 }
 [@@deriving yojson]
 
@@ -483,7 +483,7 @@ type cast_result = (confirmation, cast_error) result [@@deriving yojson]
 
 (** {1 Authentication API} *)
 
-type auth_token = { token : string; expiration : float } [@@deriving yojson]
+type auth_token = { token : string; expiration : int64 } [@@deriving yojson]
 
 (** {1 Dummy authentication related types} *)
 

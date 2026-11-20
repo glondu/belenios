@@ -63,9 +63,9 @@ type stats = {
   gid : int option; [@yojson.option]
   rdev : int option; [@yojson.option]
   size : int64 option; [@yojson.option]
-  atime : float option; [@yojson.option]
-  mtime : float option; [@yojson.option]
-  ctime : float option; [@yojson.option]
+  atime : int64 option; [@yojson.option]
+  mtime : int64 option; [@yojson.option]
+  ctime : int64 option; [@yojson.option]
   contents : stats file_contents option; [@yojson.option]
 }
 [@@deriving yojson]
@@ -139,9 +139,9 @@ let rec measure pool full cfg ign path =
     gid = make "gid" st.st_gid;
     rdev = make "rdev" st.st_rdev;
     size = make "size" st.st_size;
-    atime = make "atime" st.st_atime;
-    mtime = make "mtime" st.st_mtime;
-    ctime = make "ctime" st.st_ctime;
+    atime = make "atime" (Int64.of_float st.st_atime);
+    mtime = make "mtime" (Int64.of_float st.st_mtime);
+    ctime = make "ctime" (Int64.of_float st.st_ctime);
     contents;
   }
   |> Lwt.return
