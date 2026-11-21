@@ -242,9 +242,3 @@ let () =
   Printexc.register_printer (function
     | Error (p, m) -> Some ("Desc.Json.Error: " ^ error_to_string (p, m))
     | _ -> None)
-
-let of_encoder f =
-  Core.custom "encoder" f (fun _ -> invalid_arg "Desc.Json.of_encoder")
-
-let of_decoder g =
-  Core.custom "decoder" (fun _ -> invalid_arg "Desc.Json.of_decoder") g

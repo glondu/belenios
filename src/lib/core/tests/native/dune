@@ -14,11 +14,10 @@
   hex
   digestif
   yojson
-  ppx_yojson_conv_lib
   belenios-lib.desc
   re
   lwt)
  (preprocess
-  (pps ppx_inline_test ppx_yojson_conv ppx_desc ppx_yojson_group))
+  (pps ppx_inline_test ppx_desc ppx_yojson_group))
  (inline_tests
   (flags -verbose)))

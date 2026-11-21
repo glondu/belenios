@@ -20,16 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios_platform
-
-let () =
-  Printexc.register_printer (function
-    | Of_yojson_error (e, j) ->
-        Some
-          (Printf.sprintf "Of_yojson_error(%s, %s)" (Printexc.to_string e)
-             (Yojson.Safe.to_string j))
-    | _ -> None)
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 

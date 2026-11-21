@@ -57,15 +57,15 @@ let get_counting_method extra =
   | Some (`Assoc o as extra) -> (
       match List.assoc_opt "method" o with
       | Some (`String "MajorityJudgment") -> (
-          match mj_extra_of_yojson extra with
+          match Desc.Json.of_json mj_extra_d extra with
           | x -> `MajorityJudgment x
           | exception _ -> `None)
       | Some (`String "Schulze") -> (
-          match schulze_extra_of_yojson extra with
+          match Desc.Json.of_json schulze_extra_d extra with
           | x -> `Schulze x
           | exception _ -> `None)
       | Some (`String "STV") -> (
-          match stv_extra_of_yojson extra with
+          match Desc.Json.of_json stv_extra_d extra with
           | x -> `STV x
           | exception _ -> `None)
       | _ -> `None)

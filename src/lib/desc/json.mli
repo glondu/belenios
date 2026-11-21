@@ -36,13 +36,3 @@ val of_json : 'a Core.t -> Core.json -> 'a
 
 val to_string : 'a Core.t -> 'a -> string
 val of_string : 'a Core.t -> string -> 'a
-
-(** {2 Transition from ppx_yojson_conv}
-
-    The converters generated with [[@@deriving desc]] keep the names and types
-    of those of ppx_yojson_conv ([yojson_of_foo], [foo_of_yojson]), taking
-    converters for type parameters. These turn such converters into descriptions
-    usable in one direction only. *)
-
-val of_encoder : ('a -> Core.json) -> 'a Core.t
-val of_decoder : (Core.json -> 'a) -> 'a Core.t

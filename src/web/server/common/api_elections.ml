@@ -630,7 +630,7 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       | `GET ->
           let@ () = handle_generic_error in
           let* x = Storage.E.get_dynamic_records s Ballot prefix in
-          x |> yojson_of_ballot_dynamic_records |> return_yojson `OK
+          x |> Desc.Json.to_json ballot_dynamic_records_d |> return_yojson `OK
       | _ -> method_not_allowed)
   | [ "objects"; hash ] -> (
       match method_ with
@@ -724,7 +724,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       let@ account, _ = Option.unwrap unauthorized (get_account_user token) in
       let get () =
         let* elections = Storage.get_elections_by_owner account.id in
-        Lwt.return @@ yojson_of_summary_list elections
+        Lwt.return @@ Desc.Json.to_json summary_list_d elections
       in
       match method_ with
       | `GET -> handle_get get
@@ -746,7 +746,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       in
       let get () =
         let* x = get_election_status s in
-        Lwt.return @@ yojson_of_election_status x
+        Lwt.return @@ Desc.Json.to_json election_status_d x
       in
       let@ () = handle_generic_error in
       match method_ with
@@ -887,7 +887,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       let@ s = Storage.E.with_transaction uuid in
       let get () =
         let* x = Web_persist.get_election_automatic_dates s in
-        Lwt.return @@ yojson_of_election_auto_dates x
+        Lwt.return @@ Desc.Json.to_json election_auto_dates_d x
       in
       match method_ with
       | `GET -> handle_get get

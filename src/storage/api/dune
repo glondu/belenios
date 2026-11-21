@@ -1,5 +1,5 @@
 (library
  (name belenios_storage_api)
  (preprocess
-  (pps ppx_yojson_conv ppx_desc ppx_yojson_group))
+  (pps ppx_desc ppx_yojson_group))
  (libraries lwt xml-light belenios-lib.api belenios_spool))

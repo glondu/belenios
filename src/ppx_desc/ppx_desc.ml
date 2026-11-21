@@ -22,8 +22,6 @@
 (* [[@@deriving desc]]: for a type [('a, 'b) foo], generates
 
    - [foo_d : 'a Desc.Core.t -> 'b Desc.Core.t -> ('a, 'b) foo Desc.Core.t];
-   - during the transition from ppx_yojson_conv, [yojson_of_foo] and
-     [foo_of_yojson], with the same types as those of ppx_yojson_conv.
 
    A type [M.bar] is described by [M.bar_d]; [int], [int64], [string],
    [bool], [unit], [list], [array] and [option] by the corresponding
@@ -382,33 +380,11 @@ let str_of_td ~rec_flag ~group td =
       params body
   in
   let desc = fun_of "_desc_" body in
-  let applied conv =
-    eapply ~loc
-      (evar ~loc (desc_name name))
-      (List.map
-         (fun p -> [%expr [%e evar ~loc conv] [%e evar ~loc ("_f_" ^ p)]])
-         params)
-  in
-  let applied conv =
-    if params = [] then evar ~loc (desc_name name) else applied conv
-  in
-  let to_json =
-    fun_of "_f_"
-      [%expr fun x -> Desc.Json.to_json [%e applied "Desc.Json.of_encoder"] x]
-  in
-  let of_json =
-    fun_of "_f_"
-      [%expr fun x -> Desc.Json.of_json [%e applied "Desc.Json.of_decoder"] x]
-  in
   let bind n e =
     pstr_value ~loc Nonrecursive
       [ value_binding ~loc ~pat:(pvar ~loc n) ~expr:e ]
   in
-  [
-    bind (desc_name name) desc;
-    bind ("yojson_of_" ^ name) to_json;
-    bind (name ^ "_of_yojson") of_json;
-  ]
+  [ bind (desc_name name) desc ]
 
 let str_type_decl ~ctxt:_ (rec_flag, tds) =
   let rec_flag = really_recursive rec_flag tds in

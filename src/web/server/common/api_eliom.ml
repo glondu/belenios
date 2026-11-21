@@ -173,7 +173,7 @@ module Make (Web_state : Web_state_sig.S) = struct
         in
         let get () =
           let x = Api_generic.get_account account user in
-          Lwt.return @@ yojson_of_api_account x
+          Lwt.return @@ Desc.Json.to_json api_account_d x
         in
         match method_ with
         | `GET -> handle_get get

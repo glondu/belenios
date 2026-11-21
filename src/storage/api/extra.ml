@@ -39,7 +39,7 @@ type wrapped_draft_election =
 
 let wrapped_draft_election_of_yojson (x : Json.t) : wrapped_draft_election =
   let { version; group; _ } : _ raw_draft_election =
-    raw_draft_election_of_yojson Fun.id Fun.id x
+    Desc.Json.of_json (raw_draft_election_d Desc.Core.json Desc.Core.json) x
   in
   let module G = (val Group.make { version; group }) in
   let (Version v) = Election.version_of_int version in

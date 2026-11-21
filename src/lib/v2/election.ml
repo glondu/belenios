@@ -57,7 +57,7 @@ let make_raw_election (template : template) ~uuid ~group ~public_key =
 
 module Parse (R : RAW_ELECTION) () = struct
   let json = Json.of_string R.raw_election
-  let j = params_of_yojson Fun.id json
+  let j = Desc.Json.of_json (params_d Desc.Core.json) json
 
   module G = (val Group.of_string j.group)
 

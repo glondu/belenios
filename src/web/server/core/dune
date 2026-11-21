@@ -1,7 +1,7 @@
 (library
  (name belenios_server_core)
  (preprocess
-  (pps ppx_yojson_conv ppx_desc))
+  (pps ppx_desc))
  (libraries
   (re_export belenios-lib.messages)
   (re_export belenios-lib.api)

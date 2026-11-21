@@ -2,5 +2,5 @@
  (name belenios_messages)
  (public_name belenios-lib.messages)
  (preprocess
-  (pps ppx_yojson_conv ppx_desc))
+  (pps ppx_desc))
  (libraries unix cryptokit belenios-lib.api))

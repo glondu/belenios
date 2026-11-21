@@ -164,20 +164,6 @@ let () =
     {|{"Node":["Leaf",1,{"Node":["Leaf",2,"Leaf"]}]}|};
   roundtrip "signature" (M.t_d Core.string) { M.v = "a"; w = None }
     {|{"v":"a"}|};
-  check_string "compat encoder" {|{"left":1,"right":["a"]}|}
-    (Yojson.Safe.to_string
-       (yojson_of_pair
-          (fun i -> `Int i)
-          (fun s -> `String s)
-          { left = 1; right = [ "a" ] }));
-  check_string "compat decoder" "1,a"
-    (let p =
-       pair_of_yojson
-         (function `Int i -> i | _ -> assert false)
-         (function `String s -> s | _ -> assert false)
-         (Yojson.Safe.from_string {|{"left":1,"right":["a"]}|})
-     in
-     Printf.sprintf "%d,%s" p.left (String.concat ";" p.right));
   let m = SMap.of_list [ ("b", 2); ("a", 1); ("ä", 3) ] in
   roundtrip ~equal:(SMap.equal Int.equal) "sorted keys" (smap_d Core.int) m
     {|{"a":1,"b":2,"ä":3}|};
