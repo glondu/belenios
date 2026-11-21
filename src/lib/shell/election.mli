@@ -37,7 +37,6 @@ val version_of_int : int -> some_version
 
 type versioned_template =
   | Template : 'a version * template -> versioned_template
-[@@deriving desc]
 
 val election_uuid_of_string_ballot : string -> uuid
 val has_nh_questions : versioned_template -> bool

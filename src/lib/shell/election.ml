@@ -56,19 +56,6 @@ let version_of_int = function
 type versioned_template =
   | Template : 'a version * template -> versioned_template
 
-let versioned_template_of_yojson x =
-  match get_version x with
-  | 2 -> Template (V2, Desc.Json.of_json template_d x)
-  | n ->
-      Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
-
-let yojson_of_versioned_template (Template (V2, x)) =
-  Desc.Json.to_json template_d x
-
-let versioned_template_d =
-  Desc.Core.custom "versioned_template" yojson_of_versioned_template
-    versioned_template_of_yojson
-
 let election_uuid_of_string_ballot x =
   let j = Json.of_string x in
   match j with
