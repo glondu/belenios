@@ -120,6 +120,7 @@ module Hash = struct
   let t_d = string_based of_hex to_hex
   let yojson_of_t = Desc.Json.to_json t_d
   let t_of_yojson = Desc.Json.of_json t_d
+  let hash_desc d x = x |> Desc.Json.to_json d |> hash_yojson
 end
 
 type hash = Hash.t [@@deriving desc]

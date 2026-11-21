@@ -160,12 +160,6 @@ struct
   let yojson_of_t = Desc.Json.to_json t_d
 end
 
-let ( !$ ) of_string =
-  Ppx_yojson_conv_lib.Yojson_conv.string_of_yojson >> of_string
-
-let ( !& ) to_string =
-  to_string >> Ppx_yojson_conv_lib.Yojson_conv.yojson_of_string
-
 let ( !* ) = Desc.Json.of_string
 let ( !+ ) = Desc.Json.to_string
 

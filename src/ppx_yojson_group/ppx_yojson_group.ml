@@ -31,24 +31,6 @@ let extract_type_constructor ~loc ty =
         (Location.error_extensionf ~loc
            "expected a type constructor, e.g. (w : _ Foo.Bar.my_type)")
 
-(* Foo.Bar.my_type -> Foo.Bar.my_type_of_yojson *)
-let derive_of_yojson_lid lid =
-  match lid with
-  | Lident name -> Lident (name ^ "_of_yojson")
-  | Ldot (path, name) -> Ldot (path, name ^ "_of_yojson")
-  | Lapply _ ->
-      failwith
-        "[%group_of_yojson] functor application in type path not supported"
-
-(* Foo.Bar.my_type -> Foo.Bar.yojson_of_my_type *)
-let derive_yojson_of_lid lid =
-  match lid with
-  | Lident name -> Lident ("yojson_of_" ^ name)
-  | Ldot (path, name) -> Ldot (path, "yojson_of_" ^ name)
-  | Lapply _ ->
-      failwith
-        "[%yojson_of_group] functor application in type path not supported"
-
 (* Foo.Bar.my_type -> Foo.Bar.my_type_d *)
 let derive_desc_lid lid =
   match lid with
@@ -66,40 +48,13 @@ let expand_witness ~derive_lid ~make_args ~ctxt ty =
       let fn_lid = { txt = derive_lid lid; loc = lid_loc } in
       pexp_apply ~loc (pexp_ident ~loc fn_lid) (make_args ~loc)
 
-let witness_of_yojson_extension =
-  Extension.V3.declare "group_of_yojson" Extension.Context.expression
-    Ast_pattern.(ptyp __)
-    (expand_witness ~derive_lid:derive_of_yojson_lid ~make_args:(fun ~loc ->
-         [
-           (Nolabel, [%expr !$G.of_string]); (Nolabel, [%expr !$G.Zq.of_string]);
-         ]))
-
-let yojson_of_witness_extension =
-  Extension.V3.declare "yojson_of_group" Extension.Context.expression
-    Ast_pattern.(ptyp __)
-    (expand_witness ~derive_lid:derive_yojson_of_lid ~make_args:(fun ~loc ->
-         [
-           (Nolabel, [%expr !&G.to_string]); (Nolabel, [%expr !&G.Zq.to_string]);
-         ]))
-
 let desc_of_witness_extension =
   Extension.V3.declare "desc_of_group" Extension.Context.expression
     Ast_pattern.(ptyp __)
     (expand_witness ~derive_lid:derive_desc_lid ~make_args:(fun ~loc ->
-         [
-           ( Nolabel,
-             [%expr Desc.Core.map Desc.Core.string G.of_string G.to_string] );
-           ( Nolabel,
-             [%expr
-               Desc.Core.map Desc.Core.string G.Zq.of_string G.Zq.to_string] );
-         ]))
+         [ (Nolabel, [%expr G.t_d]); (Nolabel, [%expr G.Zq.t_d]) ]))
 
 let () =
   Driver.register_transformation
-    ~extensions:
-      [
-        witness_of_yojson_extension;
-        yojson_of_witness_extension;
-        desc_of_witness_extension;
-      ]
+    ~extensions:[ desc_of_witness_extension ]
     "ppx_group_witness"

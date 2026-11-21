@@ -157,7 +157,9 @@ module App (U : UI) = struct
             let* x = Api.(get (election_object uuid h) `Nobody) in
             match x with
             | Ok (x, _) ->
-                cont @@ [%group_of_yojson: _ credentials_certificate] x
+                cont
+                @@ Desc.Json.of_json [%desc_of_group: _ credentials_certificate]
+                     x
             | Error _ -> fail ())
       in
       let@ () =
@@ -166,7 +168,7 @@ module App (U : UI) = struct
           certificate.message.uuid = uuid
           && certificate.message.voter_list_length
              = HMap.cardinal
-                 (public_credentials_of_yojson !$E.G.of_string credentials)
+                 (Desc.Json.of_json (public_credentials_d E.G.t_d) credentials)
           && certificate.message.public_creds_hash
              = Hash.hash_yojson credentials
           && C.check certificate

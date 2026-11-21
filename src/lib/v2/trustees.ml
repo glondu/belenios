@@ -57,9 +57,7 @@ module MakeCert (P : PKI) = struct
       compute_polynomial ~seed ~threshold:context.context.threshold
     in
     let coefexps = compute_coefexps polynomial in
-    let coefexps =
-      { coefexps } |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
-    in
+    let coefexps = { coefexps } |> Hash.hash_desc (coefexps_d G.t_d) in
     let signed =
       P.sign xch_cert_keys sk
         {
@@ -168,7 +166,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
     let certs = Array.map (fun (x : _ pedersen_cert) -> x.message) t.certs in
     Array.for_all2
       (fun (cert : (_, _ pedersen_context) cert_keys) x ->
-        let hash = x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson in
+        let hash = x |> Hash.hash_desc (coefexps_d G.t_d) in
         hash = cert.context.coefexps)
       certs t.coefexps
     && (let sigs = t.signatures in
@@ -355,11 +353,7 @@ module MakePedersen (C : CHANNELS) = struct
     Lwt.return { secrets; coefexps; signature }
 
   let step3_check (certs : certs) i (polynomial : polynomial) =
-    let hash =
-      polynomial.coefexps
-      |> yojson_of_coefexps !&G.to_string
-      |> Hash.hash_yojson
-    in
+    let hash = polynomial.coefexps |> Hash.hash_desc (coefexps_d G.t_d) in
     hash = certs.certs.(i).message.context.coefexps
     && P.verify Comb.xch_certs certs.certs.(i).message.verification
          { message = certs; signature = polynomial.signature }
@@ -375,7 +369,7 @@ module MakePedersen (C : CHANNELS) = struct
     let coefexps = Array.map (fun (x : polynomial) -> x.coefexps) polynomials in
     Array.iteri
       (fun i x ->
-        let hash = x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson in
+        let hash = x |> Hash.hash_desc (coefexps_d G.t_d) in
         if hash = certs.(i).context.coefexps then
           if threshold = Array.length x.coefexps then ()
           else
@@ -424,9 +418,7 @@ module MakePedersen (C : CHANNELS) = struct
     let coefexps =
       Array.init n (fun i ->
           let x = vinput.coefexps.(i) in
-          let hash =
-            x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
-          in
+          let hash = x |> Hash.hash_desc (coefexps_d G.t_d) in
           if hash <> certs.(i).context.coefexps then
             raise
               (PedersenFailure
@@ -463,9 +455,7 @@ module MakePedersen (C : CHANNELS) = struct
     let coefexps =
       Array.init n (fun i ->
           let x = (polynomials.(i) : polynomial).coefexps in
-          let hash =
-            x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
-          in
+          let hash = x |> Hash.hash_desc (coefexps_d G.t_d) in
           if hash <> certs.(i).context.coefexps then
             raise
               (PedersenFailure
@@ -495,9 +485,7 @@ module MakePedersen (C : CHANNELS) = struct
                  (Printf.sprintf "coefexps %d does not validate" (i + 1)))
           in
           let x = polynomials.(i).coefexps in
-          let hash =
-            x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
-          in
+          let hash = x |> Hash.hash_desc (coefexps_d G.t_d) in
           if hash <> certs'.(i).context.coefexps then fail ();
           let r = x.coefexps in
           if not (threshold = Array.length r) then fail ();

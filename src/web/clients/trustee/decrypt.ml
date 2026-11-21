@@ -35,7 +35,7 @@ let compute_partial_decryption (type a b) (election : (a, b) Election.u) trustee
   let module W = (val election) in
   let module G = W.G in
   let encrypted_tally =
-    encrypted_tally_of_yojson !$W.G.of_string encrypted_tally
+    Desc.Json.of_json (encrypted_tally_d W.G.t_d) encrypted_tally
   in
   let module T = (val Trustees.get_by_version W.version) in
   let module P = Pki.Make (W.G) in
@@ -55,7 +55,8 @@ let compute_partial_decryption (type a b) (election : (a, b) Election.u) trustee
         Lwt.return (P.derive_sk private_key, KG.derive private_key)
   in
   W.E.compute_factor encrypted_tally ~sk ~pdk
-  |> [%yojson_of_group: _ partial_decryption] |> Lwt.return
+  |> Desc.Json.to_json [%desc_of_group: _ partial_decryption]
+  |> Lwt.return
 
 let decrypt ~token (type a b) (election : (a, b) Election.u)
     (trustee : (a, b) tally_trustee) =

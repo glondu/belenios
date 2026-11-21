@@ -51,13 +51,13 @@ let wrapped_draft_election_of_yojson (x : Json.t) : wrapped_draft_election =
   in
   let module G = (val Group.make { version; group }) in
   let (Version v) = Election.version_of_int version in
-  let x = [%group_of_yojson: _ raw_draft_election] x in
+  let x = Desc.Json.of_json [%desc_of_group: _ raw_draft_election] x in
   W ((module G), Draft (v, x))
 
 let yojson_of_wrapped_draft_election
     (W (w, Draft (_, x)) : wrapped_draft_election) : Json.t =
   let module G = (val w) in
-  [%yojson_of_group: _ raw_draft_election] x
+  Desc.Json.to_json [%desc_of_group: _ raw_draft_election] x
 
 let wrapped_draft_election_d =
   Desc.Core.custom "wrapped_draft_election" yojson_of_wrapped_draft_election

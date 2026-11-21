@@ -309,8 +309,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
             credentials
             |> HMap.map (fun x ->
                 ({ x with id = None } : _ public_credential_props))
-            |> yojson_of_public_credentials !&G.to_string
-            |> Hash.hash_yojson
+            |> Hash.hash_desc (public_credentials_d G.t_d)
           in
           public_creds_hash = certificate.message.public_creds_hash
         in
@@ -658,7 +657,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
               | None -> Lwt.return_none
               | Some x ->
                   Lwt.return_some
-                  @@ yojson_of_public_credentials !&G.to_string x)
+                  @@ Desc.Json.to_json (public_credentials_d G.t_d) x)
       | `POST -> (
           let@ who =
             with_administrator_or_credential_authority token se metadata

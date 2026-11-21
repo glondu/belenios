@@ -53,7 +53,7 @@ let make_raw_election (template : template) ~uuid ~group ~public_key =
       deny_revote = template.deny_revote;
     }
   in
-  yojson_of_params !&G.to_string params
+  Desc.Json.to_json (params_d G.t_d) params
 
 module Parse (R : RAW_ELECTION) () = struct
   let json = Json.of_string R.raw_election
@@ -61,7 +61,7 @@ module Parse (R : RAW_ELECTION) () = struct
 
   module G = (val Group.of_string j.group)
 
-  let params = params_of_yojson !$G.of_string json
+  let params = Desc.Json.of_json (params_d G.t_d) json
   let version = params.version
   let uuid = params.uuid
 
@@ -165,10 +165,10 @@ module MakeElection (W : ELECTION_DATA) = struct
          W.template.questions answers
 
   let check_rawballot rawballot =
-    match rawballot |> Json.of_string |> [%group_of_yojson: _ ballot] with
+    match rawballot |> Desc.Json.of_string [%desc_of_group: _ ballot] with
     | exception e -> Error (`SerializationError (Printexc.to_string e))
     | ballot ->
-        if ballot |> [%yojson_of_group: _ ballot] |> Json.to_string = rawballot
+        if ballot |> Desc.Json.to_string [%desc_of_group: _ ballot] = rawballot
         then
           Ok
             {

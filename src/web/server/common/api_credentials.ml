@@ -65,9 +65,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft)) voters
   in
   let records = SMap.of_list records in
   let public_creds_hash =
-    creds.public_creds
-    |> yojson_of_public_credentials !&G.to_string
-    |> Hash.hash_yojson
+    creds.public_creds |> Hash.hash_desc (public_credentials_d G.t_d)
   in
   let raw_certificate : (_, _) raw_credentials_certificate =
     {

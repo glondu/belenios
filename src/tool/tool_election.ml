@@ -442,9 +442,7 @@ let make file =
       let* encrypted_tally, latest_encrypted_tally =
         try
           let* latest, x = Lazy.force encrypted_tally in
-          let latest =
-            Hash.hash_yojson @@ yojson_of_encrypted_tally !&G.to_string latest
-          in
+          let latest = Hash.hash_desc (encrypted_tally_d G.t_d) latest in
           Lwt.return (Some x.encrypted_tally, Some latest)
         with _ -> Lwt.return (None, None)
       in
