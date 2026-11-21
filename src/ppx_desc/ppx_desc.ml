@@ -27,7 +27,11 @@
    [bool], [unit], [list], [array] and [option] by the corresponding
    functions of [Desc.Core]. Record fields of type [_ option] are
    optional (left out when [None]). Attributes on record fields: [[@key
-   "name"]] (JSON key), [[@default expr]] (left out when equal to [expr]). *)
+   "name"]] (JSON key), [[@default expr]] (left out when equal to [expr]).
+
+   [[%desc_of_group: _ M.foo]] expands to [M.foo_d G.t_d G.Zq.t_d]: the
+   description of a type parameterized by group elements and scalars,
+   instantiated with those of the module [G] in scope. *)
 
 open Ppxlib
 open Ast_builder.Default
@@ -411,6 +415,26 @@ let sig_of_td td =
   ]
 
 let sig_type_decl ~ctxt:_ (_rec_flag, tds) = List.concat_map sig_of_td tds
+
+let desc_of_group =
+  Extension.V3.declare "desc_of_group" Extension.Context.expression
+    Ast_pattern.(ptyp __)
+    (fun ~ctxt ty ->
+      let loc = Expansion_context.Extension.extension_point_loc ctxt in
+      match ty.ptyp_desc with
+      | Ptyp_constr ({ txt = lid; loc = lid_loc }, _) ->
+          let f =
+            pexp_ident ~loc
+              { txt = map_lid ~loc:lid_loc desc_name lid; loc = lid_loc }
+          in
+          [%expr [%e f] G.t_d G.Zq.t_d]
+      | _ ->
+          Location.raise_errorf ~loc
+            "ppx_desc: expected a type constructor, e.g. [%%desc_of_group: _ \
+             Foo.t]")
+
+let () =
+  Driver.register_transformation ~extensions:[ desc_of_group ] "desc_of_group"
 
 let () =
   Deriving.add "desc"
