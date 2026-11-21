@@ -1,3 +1,4 @@
 (test
  (name test_crypto_std)
+ (modules test_crypto_std)
  (libraries belenios-platform-native belenios_core hex))
