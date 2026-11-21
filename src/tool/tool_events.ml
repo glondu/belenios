@@ -161,7 +161,7 @@ let get_data i x = gethash ~index:i.map ~filename:i.file x
 
 let get_event i x =
   let* x = gethash ~index:i.map ~filename:i.file x in
-  Lwt.return @@ Option.map !*event_of_yojson x
+  Lwt.return @@ Option.map !*event_d x
 
 let get_last_event i =
   i.last_event |> Option.map (yojson_of_event >> Hash.hash_yojson)
@@ -181,8 +181,7 @@ let fold_on_event_payload_hashes index typ last_event f accu =
               loop parent x
           | _ ->
               Printf.ksprintf failwith "ill-formed %s event at height %d"
-                (!+yojson_of_event_type e.typ)
-                e.height
+                (!+event_type_d e.typ) e.height
         else Lwt.return accu
   in
   loop last_event accu
@@ -295,7 +294,7 @@ let append index ops =
             in
             let event = { parent; height; typ; payload } in
             let typ = Archive.Event event in
-            let event_s = !+yojson_of_event event in
+            let event_s = !+event_d event in
             let event_h = Hash.hash_string event_s in
             let roots = Events.update_roots event_h event roots in
             let items = (typ, event_s) :: items in
@@ -341,7 +340,7 @@ let init ~file ~election ~trustees ~public_creds =
       credentials_certificate = None;
     }
   in
-  let setup_data_s = !+yojson_of_setup_data setup_data in
+  let setup_data_s = !+setup_data_d setup_data in
   let* () =
     append index
       [

@@ -321,15 +321,20 @@ type wrapped_trustees_status =
       ('a, 'b) group * ('a, 'b) trustees_status
       -> wrapped_trustees_status
 
-let wrapped_trustees_status_of_yojson x =
-  let { version; group; _ } = trustees_status_of_yojson Fun.id Fun.id x in
-  let module G = (val Group.make { version; group }) in
-  let x = [%group_of_yojson: _ trustees_status] x in
-  Wrapped_trustees_status ((module G), x)
-
-let yojson_of_wrapped_trustees_status (Wrapped_trustees_status (w, x)) =
-  let module G = (val w) in
-  [%yojson_of_group: _ trustees_status] x
+(* Decoded in two passes: the group, then the status in this group. *)
+let wrapped_trustees_status_d : wrapped_trustees_status Desc.Core.t =
+  let of_json x =
+    let { version; group; _ } =
+      Desc.Json.of_json (trustees_status_d Desc.Core.json Desc.Core.json) x
+    in
+    let module G = (val Group.make { version; group }) in
+    let x = Desc.Json.of_json [%desc_of_group: _ trustees_status] x in
+    Wrapped_trustees_status ((module G), x)
+  and to_json (Wrapped_trustees_status (w, x)) =
+    let module G = (val w) in
+    Desc.Json.to_json [%desc_of_group: _ trustees_status] x
+  in
+  Desc.Core.custom "wrapped_trustees_status" to_json of_json
 
 type send_link_payload = { address : string; langs : string list }
 [@@deriving desc]

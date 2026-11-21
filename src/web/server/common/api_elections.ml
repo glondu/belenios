@@ -321,15 +321,15 @@ let post_partial_decryption s (election : Election.t) ~trustee_id
         |> List.flatten |> Array.of_list |> Lwt.return
   in
   let vk, pvk = pks.(trustee_id - 1) in
-  let pd = !*[%group_of_yojson: _ partial_decryption] partial_decryption in
+  let pd = !*[%desc_of_group: _ partial_decryption] partial_decryption in
   let* et =
     let* x = Public_archive.get_latest_encrypted_tally s in
     match x with
     | None -> assert false
-    | Some x -> Lwt.return @@ !*(encrypted_tally_of_yojson !$W.(G.of_string)) x
+    | Some x -> Lwt.return @@ !*(encrypted_tally_d W.G.t_d) x
   in
   if
-    !+[%yojson_of_group: _ partial_decryption] pd = partial_decryption
+    !+[%desc_of_group: _ partial_decryption] pd = partial_decryption
     && W.E.check_factor et ~vk ~pvk pd
   then
     let pd = (trustee_id, partial_decryption) in
@@ -346,7 +346,7 @@ let post_shuffle s (election : Election.t) ~token ~shuffle =
         (fun () ->
           let module W = (val election) in
           let module G = W.G in
-          let shuffle = !*[%group_of_yojson: _ shuffle] shuffle in
+          let shuffle = !*[%desc_of_group: _ shuffle] shuffle in
           let@ vk cont =
             let* trustees = Public_archive.get_trustees s (module W.G) in
             match Lopt.get_value trustees with
@@ -460,8 +460,7 @@ let handle_trustee ~token method_ body s (metadata : metadata)
             find_trustee_private_key metadata trustee_id (module G)
           in
           return_json `OK
-            (!+[%yojson_of_group: _ election_trustee_status]
-               (`Tally private_key))
+            (!+[%desc_of_group: _ election_trustee_status] (`Tally private_key))
       | `POST -> (
           let@ trustee_id = with_trustee token metadata in
           let@ () = handle_generic_error in
@@ -478,7 +477,7 @@ let handle_trustee ~token method_ body s (metadata : metadata)
       match method_ with
       | `GET ->
           return_json `OK
-            (!+[%yojson_of_group: _ election_trustee_status] `Shuffle)
+            (!+[%desc_of_group: _ election_trustee_status] `Shuffle)
       | `POST -> (
           let@ token = Option.unwrap unauthorized token.token in
           let@ () = handle_generic_error in
@@ -503,7 +502,7 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       | `GET ->
           let* x = Web_persist.get_audit_cache s in
           let@ x = Option.unwrap not_found x in
-          return_json `OK @@ !+yojson_of_audit_cache x
+          return_json `OK @@ !+audit_cache_d x
       | _ -> method_not_allowed)
   | [ "sealing-log" ] -> (
       let@ _ = with_administrator token metadata in
@@ -521,7 +520,7 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       | `GET ->
           let@ () = handle_generic_error in
           let* x = Storage.get_all_voters s in
-          return_json `OK (!+yojson_of_voters x)
+          return_json `OK (!+voters_d x)
       | _ -> method_not_allowed)
   | [ "records" ] -> (
       let@ _ = with_administrator token metadata in
@@ -529,7 +528,7 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       | `GET ->
           let@ () = handle_generic_error in
           let* x = get_records s in
-          return_json `OK (!+yojson_of_election_records x)
+          return_json `OK (!+election_records_d x)
       | _ -> method_not_allowed)
   | [ "partial-decryptions" ] -> (
       match method_ with
@@ -537,7 +536,7 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
           let* x = get_partial_decryptions s (module W.G) metadata in
-          return_json `OK (!+yojson_of_partial_decryptions x)
+          return_json `OK (!+partial_decryptions_d x)
       | _ -> method_not_allowed)
   | [ "nh-ciphertexts" ] -> (
       match method_ with
@@ -565,13 +564,13 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
           let* x = get_shuffles s metadata in
-          return_json `OK (!+yojson_of_shuffles x)
+          return_json `OK (!+shuffles_d x)
       | _ -> method_not_allowed)
   | [ "shuffles"; shuffler ] -> (
       match method_ with
       | `POST -> (
           let@ _ = with_administrator token metadata in
-          let@ request = body.run !*shuffler_request_of_yojson in
+          let@ request = body.run !*shuffler_request_d in
           let@ () = handle_generic_error in
           match request with
           | `Skip ->
@@ -665,7 +664,7 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
       | `GET ->
           let@ () = handle_generic_error in
           let* x = Public_archive.get_roots s in
-          return_json `OK (!+yojson_of_roots x)
+          return_json `OK (!+roots_d x)
       | _ -> method_not_allowed)
   | [ "archive.zip" ] -> (
       match method_ with
@@ -730,11 +729,11 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | `GET -> handle_get get
       | `POST -> (
           let@ () = handle_ifmatch ifmatch get in
-          let@ draft = body.run !*draft_of_yojson in
+          let@ draft = body.run !*draft_d in
           let@ () = handle_generic_error in
           let* uuid = Api_drafts.post_drafts account draft in
           match uuid with
-          | Some uuid -> return_json `OK (!+yojson_of_uuid uuid)
+          | Some uuid -> return_json `OK (!+uuid_d uuid)
           | None -> forbidden)
       | _ -> method_not_allowed)
   | [ uuid ] -> (
@@ -754,7 +753,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | `POST -> (
           let@ () = handle_ifmatch ifmatch get in
           let@ _ = with_administrator token metadata in
-          let@ request = body.run !*admin_request_of_yojson in
+          let@ request = body.run !*admin_request_d in
           match request with
           | (`Open | `Close) as x ->
               let@ () =
@@ -880,9 +879,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
                                 | None -> precondition_failed
                                 | Some tp -> cont [ `Pedersen tp ])))
                   in
-                  trustees
-                  |> !+[%yojson_of_group: _ trustees]
-                  |> return_json `OK)
+                  trustees |> !+[%desc_of_group: _ trustees] |> return_json `OK)
       | _ -> method_not_allowed)
   | [ uuid; "automatic-dates" ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
@@ -906,7 +903,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
             if metadata.sealed = Some true then forbidden else cont ()
           in
           let@ () = handle_ifmatch ifmatch get in
-          let@ d = body.run !*election_auto_dates_of_yojson in
+          let@ d = body.run !*election_auto_dates_d in
           let@ () = handle_generic_error in
           let* () = Web_persist.set_election_automatic_dates s d in
           ok

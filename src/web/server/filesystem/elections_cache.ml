@@ -73,10 +73,8 @@ module Make (I : INPUT) () = struct
       match roots.setup_data with
       | None -> Lwt.fail Exit
       | Some setup_data ->
-          let* setup_data = get_object !*setup_data_of_yojson setup_data in
-          let* election =
-            get_object !*Election.t_of_yojson setup_data.election
-          in
+          let* setup_data = get_object !*setup_data_d setup_data in
+          let* election = get_object !*Election.t_d setup_data.election in
           let module W = (val election) in
           Lwt.return W.template.name
     in

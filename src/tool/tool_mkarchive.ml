@@ -31,7 +31,7 @@ let get_last_event dir =
         let* accu_event =
           if Filename.check_suffix file ".event.json" then
             let* event_s = string_of_file (dir // file) in
-            let event = !*event_of_yojson event_s in
+            let event = !*event_d event_s in
             match accu_event with
             | Some (old : event) when old.height > event.height ->
                 Lwt.return accu_event
@@ -46,7 +46,7 @@ let get_last_event dir =
 let mkarchive dir =
   let* header =
     let* x = string_of_file (dir // "BELENIOS") in
-    Lwt.return @@ !*Archive.header_of_yojson x
+    Lwt.return @@ !*Archive.header_d x
   in
   let* last_event, files = get_last_event dir in
   let last_event =

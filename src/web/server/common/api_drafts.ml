@@ -503,13 +503,13 @@ let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
   let body =
     `NewRequest
       { belenios_url = !Web_config.prefix ^ "/"; uuid; info; token; admin_id }
-    |> !+Belenios_web_api.yojson_of_credentials_request
+    |> !+Belenios_web_api.credentials_request_d
     |> Cohttp_lwt.Body.of_string
   in
   let prefix =
     Printf.sprintf "initiate_credential_authority_protocol[%s]%s"
       (Uuid.to_string uuid)
-      (!+yojson_of_cred_authority_info info)
+      (!+cred_authority_info_d info)
   in
   Lwt.catch
     (fun () ->
@@ -665,9 +665,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
           in
           if Web_persist.get_credentials_status uuid se <> `None then forbidden
           else
-            let@ x =
-              body.run !*(public_credentials_with_id_of_yojson !$G.of_string)
-            in
+            let@ x = body.run !*(public_credentials_with_id_d G.t_d) in
             match (who, x) with
             | `Administrator account, c when HMap.is_empty c -> (
                 let@ () = handle_generic_error in
@@ -701,7 +699,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       | `GET, _ -> handle_get get
       | `PUT, `Administrator account ->
           let@ () = handle_ifmatch ifmatch get in
-          let@ draft = body.run !*draft_of_yojson in
+          let@ draft = body.run !*draft_d in
           let@ () = handle_generic_error in
           let se, metadata = draft_of_api account uuid se metadata draft in
           let* () = set se in
@@ -709,7 +707,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           ok
       | `POST, `Administrator a ->
           let@ () = handle_ifmatch ifmatch get in
-          let@ x = body.run !*draft_request_of_yojson in
+          let@ x = body.run !*draft_request_d in
           let@ () = handle_generic_error in
           post_draft_status ~admin_id:a.id s uuid (wse, wset)
             (metadata, set_metadata) x
@@ -723,7 +721,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_ifmatch ifmatch get in
           if Web_persist.get_credentials_status uuid se <> `None then forbidden
           else
-            let@ voters = body.run !*voters_of_yojson in
+            let@ voters = body.run !*voters_d in
             let@ () = handle_generic_error in
             let* () = put_draft_voters s voters in
             ok
@@ -735,7 +733,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
               forbidden
             else cont ()
           in
-          let@ request = body.run !*voters_request_of_yojson in
+          let@ request = body.run !*voters_request_d in
           let@ () = handle_generic_error in
           match request with
           | `Add voters ->
@@ -778,6 +776,6 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       | `GET ->
           let@ () = handle_generic_error in
           let* x = get_draft_status s uuid se metadata in
-          return_json `OK (!+yojson_of_draft_status x)
+          return_json `OK (!+draft_status_d x)
       | _ -> method_not_allowed)
   | _ -> not_found

@@ -263,6 +263,9 @@ let spec : _ Signatures_core.spec =
     scalar = Type.Id.make ();
   }
 
+let t_d = Desc.Core.map Desc.Core.string of_string to_string
+let t_of_yojson = Desc.Json.of_json t_d
+let yojson_of_t = Desc.Json.to_json t_d
 let cofactor = Zq.of_int 8
 
 let get_generator i =

@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
@@ -295,12 +294,12 @@ module MakeBackend
                 match x with
                 | None -> Lwt.return_none
                 | Some setup_data -> (
-                    let setup_data = !*setup_data_of_yojson setup_data in
+                    let setup_data = !*setup_data_d setup_data in
                     let* x = !get_object uuid setup_data.election in
                     match x with
                     | None -> Lwt.return_none
                     | Some election ->
-                        let election = !*Election.t_of_yojson election in
+                        let election = !*Election.t_d election in
                         let module W = (val election) in
                         Lwt.return_some (module W.G : GROUP)))))
 
@@ -664,17 +663,11 @@ module MakeBackend
     | Election -> dynamic_election_file
     | Ballot -> dynamic_ballot_file
 
-  let dynamic_hmap_of_yojson (type a) : a dynamic_record_file -> json -> a hmap
-      = function
-    | Credential -> [%of_yojson: credential_dynamic_record option hmap]
-    | Election -> [%of_yojson: Belenios_web_api.election_record option hmap]
-    | Ballot -> [%of_yojson: ballot_dynamic_record hmap]
-
-  let yojson_of_dynamic_hmap (type a) : a dynamic_record_file -> a hmap -> json
-      = function
-    | Credential -> [%yojson_of: credential_dynamic_record option hmap]
-    | Election -> [%yojson_of: Belenios_web_api.election_record option hmap]
-    | Ballot -> [%yojson_of: ballot_dynamic_record hmap]
+  let dynamic_hmap_d (type a) : a dynamic_record_file -> a hmap Desc.Core.t =
+    function
+    | Credential -> hmap_d (Desc.Core.option credential_dynamic_record_d)
+    | Election -> hmap_d (Desc.Core.option Belenios_web_api.election_record_d)
+    | Ballot -> hmap_d ballot_dynamic_record_d
 
   let get_dynamic_records uuid f h =
     let* bits = get_bits uuid in
@@ -684,7 +677,7 @@ module MakeBackend
         let* x = Filesystem.read_file path in
         match x with
         | None -> HMap.empty |> Lwt.return
-        | Some x -> x |> !*(dynamic_hmap_of_yojson f) |> Lwt.return)
+        | Some x -> x |> !*(dynamic_hmap_d f) |> Lwt.return)
     | bits, All ->
         let* files =
           seq_of_bits bits |> List.of_seq
@@ -692,7 +685,7 @@ module MakeBackend
               let path = spool_elections uuid (dynamic_file f (Some p)) in
               let* x = Filesystem.read_file path in
               let&* x = x in
-              match !*(dynamic_hmap_of_yojson f) x with
+              match !*(dynamic_hmap_d f) x with
               | exception _ -> Lwt.return_none
               | x -> Lwt.return_some x)
         in
@@ -706,21 +699,21 @@ module MakeBackend
         let* x = Filesystem.read_file path in
         match x with
         | None -> HMap.empty |> Lwt.return
-        | Some x -> x |> !*(dynamic_hmap_of_yojson f) |> Lwt.return)
+        | Some x -> x |> !*(dynamic_hmap_d f) |> Lwt.return)
     | _, Prefix p -> (
         assert (check_prefix bits p);
         let path = spool_elections uuid (dynamic_file f (Some p)) in
         let* x = Filesystem.read_file path in
         match x with
         | None -> HMap.empty |> Lwt.return
-        | Some x -> x |> !*(dynamic_hmap_of_yojson f) |> Lwt.return)
+        | Some x -> x |> !*(dynamic_hmap_d f) |> Lwt.return)
 
   let set_dynamic_records' uuid f h data =
     let* bits = get_bits uuid in
     match (bits, h) with
     | 0, _ ->
         let path = spool_elections uuid (dynamic_file f None) in
-        let data = !+(yojson_of_dynamic_hmap f) data in
+        let data = !+(dynamic_hmap_d f) data in
         Filesystem.write_file path data
     | bits, All ->
         HMap.fold
@@ -734,18 +727,18 @@ module MakeBackend
         |> SMap.bindings
         |> Lwt_list.iter_p (fun (p, x) ->
             let path = spool_elections uuid (dynamic_file f (Some p)) in
-            let x = !+(yojson_of_dynamic_hmap f) x in
+            let x = !+(dynamic_hmap_d f) x in
             Filesystem.write_file path x)
     | bits, Hash h ->
         let path =
           spool_elections uuid (dynamic_file f (Some (get_prefix bits h)))
         in
-        let data = !+(yojson_of_dynamic_hmap f) data in
+        let data = !+(dynamic_hmap_d f) data in
         Filesystem.write_file path data
     | _, Prefix p ->
         assert (check_prefix bits p);
         let path = spool_elections uuid (dynamic_file f (Some p)) in
-        let data = !+(yojson_of_dynamic_hmap f) data in
+        let data = !+(dynamic_hmap_d f) data in
         Filesystem.write_file path data
 
   let set_dynamic_records uuid f data = set_dynamic_records' uuid f All data
@@ -808,12 +801,10 @@ module MakeBackend
           let& h = roots.setup_data in
           let* x = !get_object uuid h in
           let& x = x in
-          let setup_data = x |> !*setup_data_of_yojson in
+          let setup_data = x |> !*setup_data_d in
           let* x = !get_object uuid setup_data.credentials in
           let& x = x in
-          let public_creds =
-            x |> !*(public_credentials_of_yojson !$G.of_string)
-          in
+          let public_creds = x |> !*(public_credentials_d G.t_d) in
           cont
             (HMap.map
                (fun x -> ({ x with id = None } : _ public_credential_props))
@@ -1126,7 +1117,7 @@ module MakeBackend
               let event =
                 { parent = event_parent; height = event_height; typ; payload }
               in
-              let event_s = !+yojson_of_event event in
+              let event_s = !+event_d event in
               let event_h = Hash.hash_string event_s in
               let accu = (Archive.Event event, event_s) :: accu in
               ( Some event_h,
@@ -1164,7 +1155,7 @@ module MakeBackend
         Lwt.finalize
           (fun () ->
             let oc = Lwt_io.of_fd ~mode:Output fd in
-            let* () = Lwt_io.write_line oc (!+yojson_of_sealing_event event) in
+            let* () = Lwt_io.write_line oc (!+sealing_event_d event) in
             let* () = Lwt_io.flush oc in
             let* () = fsync fd in
             (* the file may have just been created *)
@@ -1187,8 +1178,7 @@ module MakeBackend
     let delete_live_data = delete_live_data
 
     let write_deleted_file uuid de =
-      de
-      |> !+yojson_of_deleted_election
+      de |> !+deleted_election_d
       |> (fun x -> x ^ "\n")
       |> Filesystem.write_file (spool_elections uuid deleted_filename)
 

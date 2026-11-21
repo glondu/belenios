@@ -112,6 +112,9 @@ module Make (B : LIBSODIUM_STUBS) = struct
 
   let hash_to_int = G.hash_to_int
   let spec = G.spec
+  let t_d = Desc.Core.map Desc.Core.string of_string to_string
+  let t_of_yojson = Desc.Json.of_json t_d
+  let yojson_of_t = Desc.Json.to_json t_d
 
   let%test
       [%name

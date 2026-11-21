@@ -22,7 +22,6 @@
 open Belenios
 open Types
 open Common
-open Ppx_yojson_conv_lib.Yojson_conv
 
 type ('user, 'get, 'post) t = {
   path : string;
@@ -40,41 +39,41 @@ type user = [ nobody | admin | credauth | trustee ]
 let configuration =
   {
     path = "configuration";
-    of_string = !*configuration_of_yojson;
-    to_string = !+yojson_of_configuration;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*configuration_d;
+    to_string = !+configuration_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let account =
   {
     path = "account";
-    of_string = !*api_account_of_yojson;
-    to_string = !+yojson_of_api_account;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*api_account_d;
+    to_string = !+api_account_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let draft uuid =
   {
     path = Printf.sprintf "elections/%s/draft" (Uuid.to_string uuid);
-    of_string = !*draft_of_yojson;
-    to_string = !+yojson_of_draft;
-    to_string_post = !+yojson_of_draft_request;
+    of_string = !*draft_d;
+    to_string = !+draft_d;
+    to_string_post = !+draft_request_d;
   }
 
 let draft_status uuid =
   {
     path = Printf.sprintf "elections/%s/draft/status" (Uuid.to_string uuid);
-    of_string = !*draft_status_of_yojson;
-    to_string = !+yojson_of_draft_status;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*draft_status_d;
+    to_string = !+draft_status_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let draft_voters uuid =
   {
     path = Printf.sprintf "elections/%s/draft/voters" (Uuid.to_string uuid);
-    of_string = !*voters_of_yojson;
-    to_string = !+yojson_of_voters;
-    to_string_post = !+yojson_of_voters_request;
+    of_string = !*voters_d;
+    to_string = !+voters_d;
+    to_string_post = !+voters_request_d;
   }
 
 let draft_public_credentials uuid (type a b) (w : (a, b) group) =
@@ -83,9 +82,9 @@ let draft_public_credentials uuid (type a b) (w : (a, b) group) =
     path =
       Printf.sprintf "elections/%s/draft/credentials/public"
         (Uuid.to_string uuid);
-    of_string = !*(public_credentials_of_yojson !$G.of_string);
-    to_string = !+(yojson_of_public_credentials !&G.to_string);
-    to_string_post = !+(yojson_of_public_credentials_with_id !&G.to_string);
+    of_string = !*(public_credentials_d G.t_d);
+    to_string = !+(public_credentials_d G.t_d);
+    to_string_post = !+(public_credentials_with_id_d G.t_d);
   }
 
 let draft_private_credentials uuid =
@@ -93,9 +92,9 @@ let draft_private_credentials uuid =
     path =
       Printf.sprintf "elections/%s/draft/credentials/private"
         (Uuid.to_string uuid);
-    of_string = !*private_credentials_of_yojson;
-    to_string = !+yojson_of_private_credentials;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*private_credentials_d;
+    to_string = !+private_credentials_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let draft_credentials_token uuid =
@@ -105,31 +104,31 @@ let draft_credentials_token uuid =
         (Uuid.to_string uuid);
     of_string = Fun.id;
     to_string = Fun.id;
-    to_string_post = !+yojson_of_unit;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let trustees_root =
   {
     path = "trustees";
-    of_string = !*unit_of_yojson;
-    to_string = !+yojson_of_unit;
-    to_string_post = !+yojson_of_trustees_root_request;
+    of_string = !*Desc.Core.unit;
+    to_string = !+Desc.Core.unit;
+    to_string_post = !+trustees_root_request_d;
   }
 
 let trustees_uuid uuid =
   {
     path = Printf.sprintf "trustees/%s" (Uuid.to_string uuid);
-    of_string = !*wrapped_trustees_status_of_yojson;
-    to_string = !+yojson_of_wrapped_trustees_status;
-    to_string_post = !+yojson_of_trustees_uuid_request;
+    of_string = !*wrapped_trustees_status_d;
+    to_string = !+wrapped_trustees_status_d;
+    to_string_post = !+trustees_uuid_request_d;
   }
 
 let trustees_trustee uuid ~token (type a b) (w : (a, b) group) =
   let module G = (val w) in
   {
     path = Printf.sprintf "trustees/%s/%s/trustee" (Uuid.to_string uuid) token;
-    of_string = !*[%group_of_yojson: _ trustees_trustee_status];
-    to_string = !+[%yojson_of_group: _ trustees_trustee_status];
+    of_string = !*[%desc_of_group: _ trustees_trustee_status];
+    to_string = !+[%desc_of_group: _ trustees_trustee_status];
     to_string_post = Json.to_string;
   }
 
@@ -137,25 +136,25 @@ let election_trustee uuid (type a b) (w : (a, b) group) =
   let module G = (val w) in
   {
     path = Printf.sprintf "elections/%s/trustee" (Uuid.to_string uuid);
-    of_string = !*[%group_of_yojson: _ election_trustee_status];
-    to_string = !+[%yojson_of_group: _ election_trustee_status];
+    of_string = !*[%desc_of_group: _ election_trustee_status];
+    to_string = !+[%desc_of_group: _ election_trustee_status];
     to_string_post = Json.to_string;
   }
 
 let elections =
   {
     path = "elections";
-    of_string = !*summary_list_of_yojson;
-    to_string = !+yojson_of_summary_list;
-    to_string_post = !+yojson_of_draft;
+    of_string = !*summary_list_d;
+    to_string = !+summary_list_d;
+    to_string_post = !+draft_d;
   }
 
 let election uuid =
   {
     path = Printf.sprintf "elections/%s/election" (Uuid.to_string uuid);
-    of_string = !*Election.t_of_yojson;
-    to_string = !+Election.yojson_of_t;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*Election.t_d;
+    to_string = !+Election.t_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_logo uuid =
@@ -163,24 +162,24 @@ let election_logo uuid =
     path = Printf.sprintf "elections/%s/logo" (Uuid.to_string uuid);
     of_string = Fun.id;
     to_string = Fun.id;
-    to_string_post = !+yojson_of_unit;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_trustees uuid (type a b) (w : (a, b) group) =
   let module G = (val w) in
   {
     path = Printf.sprintf "elections/%s/trustees" (Uuid.to_string uuid);
-    of_string = !*[%group_of_yojson: _ trustees];
-    to_string = !+[%yojson_of_group: _ trustees];
-    to_string_post = !+yojson_of_unit;
+    of_string = !*[%desc_of_group: _ trustees];
+    to_string = !+[%desc_of_group: _ trustees];
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_status uuid =
   {
     path = Printf.sprintf "elections/%s" (Uuid.to_string uuid);
-    of_string = !*election_status_of_yojson;
-    to_string = !+yojson_of_election_status;
-    to_string_post = !+yojson_of_admin_request;
+    of_string = !*election_status_d;
+    to_string = !+election_status_d;
+    to_string_post = !+admin_request_d;
   }
 
 let election_sealing_log uuid =
@@ -188,64 +187,64 @@ let election_sealing_log uuid =
     path = Printf.sprintf "elections/%s/sealing-log" (Uuid.to_string uuid);
     of_string = Fun.id;
     to_string = Fun.id;
-    to_string_post = !+yojson_of_unit;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_auto_dates uuid =
   {
     path = Printf.sprintf "elections/%s/automatic-dates" (Uuid.to_string uuid);
-    of_string = !*election_auto_dates_of_yojson;
-    to_string = !+yojson_of_election_auto_dates;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*election_auto_dates_d;
+    to_string = !+election_auto_dates_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_voters uuid =
   {
     path = Printf.sprintf "elections/%s/voters" (Uuid.to_string uuid);
-    of_string = !*voters_of_yojson;
-    to_string = !+yojson_of_voters;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*voters_d;
+    to_string = !+voters_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_records uuid =
   {
     path = Printf.sprintf "elections/%s/records" (Uuid.to_string uuid);
-    of_string = !*election_records_of_yojson;
-    to_string = !+yojson_of_election_records;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*election_records_d;
+    to_string = !+election_records_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_nh_ciphertexts uuid =
   {
     path = Printf.sprintf "elections/%s/nh-ciphertexts" (Uuid.to_string uuid);
-    of_string = !*Fun.id;
-    to_string = !+Fun.id;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*Desc.Core.json;
+    to_string = !+Desc.Core.json;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_encrypted_tally uuid =
   {
     path = Printf.sprintf "elections/%s/encrypted-tally" (Uuid.to_string uuid);
-    of_string = !*Fun.id;
-    to_string = !+Fun.id;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*Desc.Core.json;
+    to_string = !+Desc.Core.json;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_partial_decryptions uuid =
   {
     path =
       Printf.sprintf "elections/%s/partial-decryptions" (Uuid.to_string uuid);
-    of_string = !*partial_decryptions_of_yojson;
-    to_string = !+yojson_of_partial_decryptions;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*partial_decryptions_d;
+    to_string = !+partial_decryptions_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_shuffles uuid =
   {
     path = Printf.sprintf "elections/%s/shuffles" (Uuid.to_string uuid);
-    of_string = !*shuffles_of_yojson;
-    to_string = !+yojson_of_shuffles;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*shuffles_d;
+    to_string = !+shuffles_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_shuffle uuid x =
@@ -253,25 +252,25 @@ let election_shuffle uuid x =
     path =
       Printf.sprintf "elections/%s/shuffles/%s" (Uuid.to_string uuid)
         (Uri.pct_encode x);
-    of_string = !*unit_of_yojson;
-    to_string = !+yojson_of_unit;
-    to_string_post = !+yojson_of_shuffler_request;
+    of_string = !*Desc.Core.unit;
+    to_string = !+Desc.Core.unit;
+    to_string_post = !+shuffler_request_d;
   }
 
 let election_roots uuid =
   {
     path = Printf.sprintf "elections/%s/roots" (Uuid.to_string uuid);
-    of_string = !*roots_of_yojson;
-    to_string = !+yojson_of_roots;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*roots_d;
+    to_string = !+roots_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_last_event uuid =
   {
     path = Printf.sprintf "elections/%s/last-event" (Uuid.to_string uuid);
-    of_string = !*last_event_of_yojson;
-    to_string = !+yojson_of_last_event;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*last_event_d;
+    to_string = !+last_event_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_object uuid x =
@@ -279,47 +278,47 @@ let election_object uuid x =
     path =
       Printf.sprintf "elections/%s/objects/%s" (Uuid.to_string uuid)
         (Hash.to_hex x);
-    of_string = !*Fun.id;
-    to_string = !+Fun.id;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*Desc.Core.json;
+    to_string = !+Desc.Core.json;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_audit_cache uuid =
   {
     path = Printf.sprintf "elections/%s/audit-cache" (Uuid.to_string uuid);
-    of_string = !*audit_cache_of_yojson;
-    to_string = !+yojson_of_audit_cache;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*audit_cache_d;
+    to_string = !+audit_cache_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let election_ballots uuid =
   {
     path = Printf.sprintf "elections/%s/ballots" (Uuid.to_string uuid);
-    of_string = !*ballots_info_of_yojson;
-    to_string = !+yojson_of_ballots_info;
-    to_string_post = !+Fun.id;
+    of_string = !*ballots_info_d;
+    to_string = !+ballots_info_d;
+    to_string_post = !+Desc.Core.json;
   }
 
 let election_ballots_ uuid prefix =
   {
     path = Printf.sprintf "elections/%s/ballots/%s" (Uuid.to_string uuid) prefix;
-    of_string = !*ballot_dynamic_records_of_yojson;
-    to_string = !+yojson_of_ballot_dynamic_records;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*ballot_dynamic_records_d;
+    to_string = !+ballot_dynamic_records_d;
+    to_string_post = !+Desc.Core.unit;
   }
 
 let credentials_server =
   {
     path = "credentials/server";
-    of_string = !*unit_of_yojson;
-    to_string = !+yojson_of_unit;
-    to_string_post = !+yojson_of_credentials_request;
+    of_string = !*Desc.Core.unit;
+    to_string = !+Desc.Core.unit;
+    to_string_post = !+credentials_request_d;
   }
 
 let credentials_credits uuid =
   {
     path = Printf.sprintf "credentials/server/credits/%s" (Uuid.to_string uuid);
-    of_string = !*credentials_credits_of_yojson;
-    to_string = !+yojson_of_credentials_credits;
-    to_string_post = !+yojson_of_unit;
+    of_string = !*credentials_credits_d;
+    to_string = !+credentials_credits_d;
+    to_string_post = !+Desc.Core.unit;
   }

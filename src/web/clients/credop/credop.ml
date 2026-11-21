@@ -51,10 +51,7 @@ module App (U : UI) = struct
         [
           td [ txt t ];
           td [ txt @@ string_of_int x.credits ];
-          td
-            [
-              txt @@ !+Belenios_web_api.yojson_of_credentials_credit_kind x.kind;
-            ];
+          td [ txt @@ !+Belenios_web_api.credentials_credit_kind_d x.kind ];
           td [ txt @@ string_of_bool x.success ];
         ]
     in

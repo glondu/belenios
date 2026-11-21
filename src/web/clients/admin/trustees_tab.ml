@@ -464,7 +464,7 @@ let trustee_request req =
   let uuid = get_current_uuid () in
   Cache.invalidate Cache.e_status;
   let* status = Cache.get_until_success Cache.e_status in
-  let ifmatch = Some (sha256_b64 @@ !+yojson_of_election_status status) in
+  let ifmatch = Some (sha256_b64 @@ !+election_status_d status) in
   let* x = Api.(post ?ifmatch (election_status uuid) !user req) in
   match x.code with
   | 200 ->

@@ -83,7 +83,7 @@ module MakeReader (M : IO_READER) = struct
     let* { name; size; _ } = raw_read_header f buffer in
     let* header = raw_read_body f buffer size in
     if name = "BELENIOS" then
-      match !*header_of_yojson header with
+      match !*header_d header with
       | header when header.version = 1 -> M.return header
       | _ -> M.fail (Failure "unsupported archive header")
       | exception _ -> M.fail (Failure "ill-formed archive header found")
@@ -115,7 +115,7 @@ module MakeReader (M : IO_READER) = struct
       match typ with
       | `Event -> (
           let* body = raw_read_body f buffer size in
-          match !*event_of_yojson body with
+          match !*event_d body with
           | event -> M.return @@ Event event
           | exception _ -> ill_formed ())
       | `Data ->
@@ -177,7 +177,7 @@ module MakeWriter (M : IO_WRITER) = struct
     loop 0 (String.length body)
 
   let write_header f header =
-    let bel_header = !+yojson_of_header header in
+    let bel_header = !+header_d header in
     let tar_header =
       let size = String.length bel_header |> Int64.of_int in
       let timestamp = header.timestamp in
@@ -245,7 +245,7 @@ struct
     | None ->
         let msg =
           Printf.sprintf "missing payload in event %s"
-            (!+yojson_of_event_type event.typ)
+            (!+event_type_d event.typ)
         in
         M.fail (Failure msg)
     | Some hash -> get_hash hash
@@ -258,20 +258,19 @@ struct
       | None -> M.return accu
       | Some parent ->
           let* previous = get_hash parent in
-          let previous = !*event_of_yojson previous in
+          let previous = !*event_d previous in
           loop previous (previous :: accu)
     in
     let* events = loop last [ last ] in
     let rec loop height parent prev_typ = function
       | [] -> M.return ()
       | event :: events ->
-          let event_s = !+yojson_of_event event in
+          let event_s = !+event_d event in
           let event_h = Hash.hash_string event_s in
           if not (is_valid_transition prev_typ event.typ) then
             let msg =
               Printf.sprintf "unexpected %s event at height %d"
-                (!+yojson_of_event_type event.typ)
-                height
+                (!+event_type_d event.typ) height
             in
             M.fail (Failure msg)
           else if event.parent = parent && event.height = height then
@@ -303,7 +302,7 @@ struct
                     credentials;
                     credentials_certificate;
                   } =
-                    !*setup_data_of_yojson payload
+                    !*setup_data_d payload
                   in
                   let* election = get_hash election in
                   let* trustees = get_hash trustees in
@@ -327,9 +326,7 @@ struct
                   M.return ()
               | `EncryptedTally ->
                   let* payload = get_payload event in
-                  let sized_et =
-                    !*(sized_encrypted_tally_of_yojson hash_of_yojson) payload
-                  in
+                  let sized_et = !*(sized_encrypted_tally_d hash_d) payload in
                   let et_h = sized_et.encrypted_tally in
                   let* et_s = get_hash et_h in
                   let* _ = W.write_record archive ~timestamp Data et_s in
@@ -340,7 +337,7 @@ struct
                   M.return ()
               | `Shuffle | `PartialDecryption ->
                   let* payload = get_payload event in
-                  let owned = !*(owned_of_yojson hash_of_yojson) payload in
+                  let owned = !*(owned_d hash_d) payload in
                   let it_h = owned.payload in
                   let* it_s = get_hash it_h in
                   let* _ = W.write_record archive ~timestamp Data it_s in

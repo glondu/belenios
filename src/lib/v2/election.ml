@@ -135,11 +135,7 @@ module MakeElection (W : ELECTION_DATA) = struct
   let create_answer y zkp q m = Q.create_answer q ~public_key:y ~prefix:zkp m
 
   let xch_ballot =
-    {
-      dst = dst_prefix ^ "-ballot";
-      of_yojson = [%group_of_yojson: _ raw_ballot];
-      to_yojson = [%yojson_of_group: _ raw_ballot];
-    }
+    { dst = dst_prefix ^ "-ballot"; desc = [%desc_of_group: _ raw_ballot] }
 
   let create_ballot ~sk m =
     let election_uuid = W.uuid in
@@ -220,11 +216,7 @@ module MakeElection (W : ELECTION_DATA) = struct
     loop 0 0
 
   let xch_shuffle =
-    {
-      dst = dst_prefix ^ "-shuffle";
-      of_yojson = [%group_of_yojson: _ raw_shuffle];
-      to_yojson = [%yojson_of_group: _ raw_shuffle];
-    }
+    { dst = dst_prefix ^ "-shuffle"; desc = [%desc_of_group: _ raw_shuffle] }
 
   let shuffle_ciphertexts ~sk cc =
     let rec loop i accu =
@@ -262,8 +254,7 @@ module MakeElection (W : ELECTION_DATA) = struct
   let xch_partial_decryption =
     {
       dst = dst_prefix ^ "-partial_decryption";
-      of_yojson = [%group_of_yojson: _ raw_partial_decryption];
-      to_yojson = [%yojson_of_group: _ raw_partial_decryption];
+      desc = [%desc_of_group: _ raw_partial_decryption];
     }
 
   let compute_factor c ~sk ~pdk =

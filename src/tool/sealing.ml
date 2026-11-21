@@ -29,8 +29,6 @@ type sealing_config = (string * sealing_config_item) list
 let sealing_config_d : sealing_config Desc.Core.t =
   Desc.Core.assoc sealing_config_item_d
 
-let sealing_config_of_yojson = Desc.Json.of_json sealing_config_d
-
 type file_kind = [ `REG | `DIR | `CHR | `BLK | `LNK | `FIFO | `SOCK ]
 [@@deriving desc]
 
@@ -60,7 +58,7 @@ type stats = {
 [@@deriving desc]
 
 let parse_config x =
-  !*sealing_config_of_yojson x
+  !*sealing_config_d x
   |> List.map (fun (r, i) ->
       (Re.Str.regexp r, List.fold_left (Fun.flip SSet.add) SSet.empty i))
 
@@ -147,7 +145,7 @@ let main full cfg path jobs =
   let ign = find_ign cfg path in
   let pool = Lwt_pool.create jobs (fun () -> Lwt.return_unit) in
   let* x = measure pool full cfg ign path in
-  let* () = Lwt_io.printl (!+yojson_of_stats x) in
+  let* () = Lwt_io.printl (!+stats_d x) in
   Lwt.return_unit
 
 open Cmdliner

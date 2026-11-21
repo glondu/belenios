@@ -115,7 +115,7 @@ let load_and_check_private_key (type a b) (group : (a, b) group) (vk : a)
   let dom = ref None in
   let i =
     let@ s = make_private_key_input in
-    match !*stored_private_key_of_yojson s with
+    match !*stored_private_key_d s with
     | { seed = s; _ } when check_seed s ->
         seed := Some s;
         let () =

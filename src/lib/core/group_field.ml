@@ -120,5 +120,8 @@ let make description ff_params =
         h
 
     let spec : _ spec = { version = 2; group = description; element; scalar }
+    let t_d = Desc.Core.map Desc.Core.string of_string to_string
+    let t_of_yojson = Desc.Json.of_json t_d
+    let yojson_of_t = Desc.Json.to_json t_d
   end in
   (module G : GROUP)

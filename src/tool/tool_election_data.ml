@@ -67,7 +67,7 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
         let* x = get_data x in
         match x with
         | None -> failwith "could not get setup data"
-        | Some x -> Lwt.return @@ !*setup_data_of_yojson x)
+        | Some x -> Lwt.return @@ !*setup_data_d x)
 
   let raw_election =
     let* setup_data = setup_data in
@@ -80,7 +80,7 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
     let* setup_data = setup_data in
     let* x = get_data setup_data.credentials in
     let module G = (val w) in
-    Lwt.return @@ Option.map !*(public_credentials_of_yojson !$G.of_string) x
+    Lwt.return @@ Option.map !*(public_credentials_d G.t_d) x
 
   let get_credentials_certificate () =
     let* setup_data = setup_data in
@@ -116,7 +116,7 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
     in
     let& x = roots.encrypted_tally in
     let*& x = get_data x in
-    let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
+    let x = !*(sized_encrypted_tally_d hash_d) x in
     let*& y = get_data x.encrypted_tally in
     Lwt.return_some (y, x)
 
@@ -131,7 +131,7 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
           match xx with
           | None -> failwith "could not get shuffle"
           | Some y -> (
-              let owned = !*(owned_of_yojson hash_of_yojson) y in
+              let owned = !*(owned_d hash_d) y in
               let* xx = get_data owned.payload in
               match xx with
               | None -> failwith "could not get shuffle payload"
@@ -151,7 +151,7 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
           match xx with
           | None -> failwith "could not get partial decryption"
           | Some y -> (
-              let owned = !*(owned_of_yojson hash_of_yojson) y in
+              let owned = !*(owned_d hash_d) y in
               let* xx = get_data owned.payload in
               match xx with
               | None -> failwith "could not get partial decryption payload"
@@ -226,7 +226,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
 
   let trustees =
     let* trustees_as_string = trustees_as_string in
-    Lwt.return @@ Option.map !*[%group_of_yojson: _ trustees] trustees_as_string
+    Lwt.return @@ Option.map !*[%desc_of_group: _ trustees] trustees_as_string
 
   let pks =
     lazy
@@ -329,7 +329,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
             match x with
             | Error e ->
                 Printf.ksprintf failwith "error while casting ballot %s: %s"
-                  (sha256_b64 b) (!+yojson_of_cast_error e)
+                  (sha256_b64 b) (!+cast_error_d e)
             | Ok (hash, x) ->
                 let ballot_id = Hash.to_b64 hash in
                 cast_all ((hash, x) :: accu) (SSet.add ballot_id seen) bs)
@@ -355,7 +355,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
          let* x = Lazy.force unverified_ballots in
          x
          |> List.rev_map (fun (_, _, w, b) ->
-             (w, !*[%group_of_yojson: _ ballot] b))
+             (w, !*[%desc_of_group: _ ballot] b))
          |> Lwt.return
        in
        let total_weight =
@@ -399,7 +399,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
       (let* x = Lazy.force shuffles_as_text in
        x
        |> Option.map
-            (List.map (fun (x, t) -> (!*[%group_of_yojson: _ shuffle] x, t)))
+            (List.map (fun (x, t) -> (!*[%desc_of_group: _ shuffle] x, t)))
        |> Lwt.return)
 
   let shuffles_hash =
@@ -413,9 +413,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
        match x with
        | None -> failwith "encrypted tally is missing"
        | Some (x, ntally) -> (
-           let raw_encrypted_tally =
-             !*(encrypted_tally_of_yojson !$G.of_string) x
-           in
+           let raw_encrypted_tally = !*(encrypted_tally_d G.t_d) x in
            let* x = Lazy.force shuffles in
            match Option.map List.rev x with
            | Some ((s, _) :: _) ->
@@ -430,9 +428,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
   let result =
     lazy
       (let* x = get_result () in
-       x
-       |> Option.map !*(election_result_of_yojson result_of_yojson)
-       |> Lwt.return)
+       x |> Option.map !*(election_result_d result_d) |> Lwt.return)
 
   let fsck = fsck
 

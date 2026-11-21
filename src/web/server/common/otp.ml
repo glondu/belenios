@@ -97,9 +97,7 @@ module Make (I : SENDER) () = struct
         let expiration_time = Int64.add now 900L in
         let () =
           let x = { recipient = recipient.address; code; expiration_time } in
-          let msg =
-            Printf.sprintf "Sending OTP %s" (!+yojson_of_otp_record x)
-          in
+          let msg = Printf.sprintf "Sending OTP %s" (!+otp_record_d x) in
           Ocsigen.Messages.accesslog msg
         in
         (* requesting a new code must not give more trials, otherwise the

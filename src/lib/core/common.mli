@@ -69,8 +69,8 @@ end) : FIELD with type t = Z.t
 
 val ( !$ ) : (string -> 'a) -> json -> 'a
 val ( !& ) : ('a -> string) -> 'a -> json
-val ( !* ) : (json -> 'a) -> string -> 'a
-val ( !+ ) : ('a -> json) -> 'a -> string
+val ( !* ) : 'a Desc.Core.t -> string -> 'a
+val ( !+ ) : 'a Desc.Core.t -> 'a -> string
 val compare_b64 : string -> string -> int
 
 module SSet : Set.S with type elt = string

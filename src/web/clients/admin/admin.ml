@@ -281,7 +281,7 @@ let rec page_body () =
         | Some d -> (
             let* x =
               Api.(post ?ifmatch elections !user (Draft (v, d)))
-              |> wrap !*uuid_of_yojson
+              |> wrap !*uuid_d
             in
             match x with
             | Ok uuid ->

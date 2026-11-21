@@ -337,7 +337,7 @@ let tabs x =
           if not confirm then Lwt.return_unit
           else
             let* status = Cache.get_until_success Cache.e_status in
-            let ifmatch = sha256_b64 @@ !+yojson_of_election_status status in
+            let ifmatch = sha256_b64 @@ !+election_status_d status in
             let ifmatch = Some ifmatch in
             let* x =
               Api.(
@@ -355,7 +355,7 @@ let tabs x =
                       let* nb_shufflers = nb_shufflers () in
                       if nb_shufflers = 1 then (
                         let ifmatch =
-                          Some (sha256_b64 @@ !+yojson_of_election_status status)
+                          Some (sha256_b64 @@ !+election_status_d status)
                         in
                         let* x =
                           Api.(
@@ -728,7 +728,7 @@ let parse_voters voters =
   if voters = "" then []
   else
     match voters.[0] with
-    | '[' -> !*voter_list_of_yojson voters
+    | '[' -> !*voter_list_d voters
     | _ -> voters |> split_lines |> List.map parse_voter_csv
 
 let try_voters uuid voters =
@@ -752,14 +752,14 @@ let try_voters uuid voters =
         match x.code with
         | 200 -> ()
         | 400 -> (
-            match !*request_status_of_yojson x.content with
+            match !*request_status_d x.content with
             | { error = `VoterListError e; _ } ->
                 let detail =
                   match e with
                   | `Duplicate login ->
                       Printf.sprintf (f_ "duplicate voter: %s") login
                   | `BadVoter v ->
-                      Printf.sprintf (f_ "bad voter: %s") (!+yojson_of_voter v)
+                      Printf.sprintf (f_ "bad voter: %s") (!+voter_d v)
                   | `TotalWeightTooBig (x, y) ->
                       Printf.sprintf
                         (f_ "total weight too big: %s/%s")
@@ -888,7 +888,7 @@ let voters_content () =
         | Error msg -> popup_failsync msg
         | Ok () ->
             let* voters = Cache.get_until_success Cache.voters in
-            let ifmatch = sha256_b64 @@ !+yojson_of_voters voters in
+            let ifmatch = sha256_b64 @@ !+voters_d voters in
             let* () =
               let@ from_uuid = popup_choose_elec uuid in
               let r = `Import from_uuid in
@@ -1586,7 +1586,7 @@ let credauth_changeable_content uuid draft currsel =
       match res.code with
       | 200 -> !update_election_main ()
       | code -> (
-          match !*request_status_of_yojson res.content with
+          match !*request_status_d res.content with
           | { error = `ValidationError `NoVoters; _ } ->
               alert @@ s_ "The voter list is empty!";
               Lwt.return_unit
@@ -1816,7 +1816,7 @@ let credauth_server_content uuid =
         a_data
           ~a:[ a_onclick_lwt onclick ]
           ~mime_type:"text/plain"
-          ~data:(!+yojson_of_private_credentials p)
+          ~data:(!+private_credentials_d p)
           ~filename:(Printf.sprintf "codes-%s.txt" (Uuid.to_string uuid))
         @@ s_ "the private parts of the credentials"
       in
@@ -2032,7 +2032,7 @@ let create_content () =
                 Election { uuid; status = Running; tab = CreateOpenClose };
               !update_election_main ()
           | 400 -> (
-              match !*request_status_of_yojson x.content with
+              match !*request_status_d x.content with
               | exception _ -> fail ()
               | status -> (
                   match status.error with
@@ -2078,7 +2078,7 @@ let open_close_content () =
   Cache.invalidate Cache.e_status;
   (* Could have changed due to automatic dates *)
   let* status = Cache.get_until_success Cache.e_status in
-  let ifmatch = sha256_b64 @@ !+yojson_of_election_status status in
+  let ifmatch = sha256_b64 @@ !+election_status_d status in
   let ifmatch = Some ifmatch in
   let is_open = if status.state = `Open then true else false in
   let curr, action, request =

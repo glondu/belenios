@@ -45,7 +45,7 @@ let post_ballot uuid ~ballot =
           | _ -> fail ())
       | _ | (exception _) -> fail ())
   | 400 -> (
-      match !*Belenios_web_api.request_status_of_yojson x.content with
+      match !*Belenios_web_api.request_status_d x.content with
       | { error = `CastError e; _ } -> Lwt.return @@ Error e
       | _ | (exception _) -> fail ())
   | _ -> fail ()

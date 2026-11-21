@@ -123,8 +123,7 @@ let compute_checksums (type a b) (election : (a, b) u) trustees
     =
   let module W = (val election) in
   let ec_public_credentials =
-    Hash.hash_string
-      (!+(yojson_of_public_credentials !&W.G.to_string) public_credentials)
+    Hash.hash_string (!+(public_credentials_d W.G.t_d) public_credentials)
   in
   let ec_num_voters = HMap.cardinal public_credentials in
   let ec_weights =

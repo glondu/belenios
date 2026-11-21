@@ -36,13 +36,13 @@ let get_data = Storage.E.get_object
 
 let get_event s x =
   let* x = get_data s x in
-  x |> Option.map !*event_of_yojson |> Lwt.return
+  x |> Option.map !*event_d |> Lwt.return
 
 let get_from_setup_data s f =
   let* x = get_roots s in
   let&* x = x.setup_data in
   let*& x = get_data s x in
-  get_data s (f (!*setup_data_of_yojson x))
+  get_data s (f (!*setup_data_d x))
 
 let fold_on_event_payload_hashes s typ last_event f accu =
   let rec loop e accu =
@@ -74,8 +74,7 @@ let get_trustees s (type a b) (w : (a, b) group) =
    fun cont ->
     match x with
     | None -> cont ()
-    | Some x ->
-        Lwt.return @@ Lopt.some_string !*[%group_of_yojson: _ trustees] x
+    | Some x -> Lwt.return @@ Lopt.some_string !*[%desc_of_group: _ trustees] x
   in
   let uuid = Storage.E.get_uuid s in
   let msg =
@@ -87,7 +86,7 @@ let get_election s =
   let* x = get_from_setup_data s (fun x -> x.election) in
   match x with
   | None -> Lopt.none_lwt
-  | Some x -> Lwt.return @@ Lopt.some_string !*Election.t_of_yojson x
+  | Some x -> Lwt.return @@ Lopt.some_string !*Election.t_d x
 
 module ElectionCacheTypes = struct
   type key = uuid
@@ -129,13 +128,12 @@ let get_partial_decryptions s (type a b) (w : (a, b) group) =
   | Some x ->
       fold_on_event_payloads s `PartialDecryption x
         (fun _ x accu ->
-          let x = !*(owned_of_yojson hash_of_yojson) x in
+          let x = !*(owned_d hash_d) x in
           let* pd =
             let* x = get_data s x.payload in
             match x with
             | None -> assert false
-            | Some x ->
-                Lwt.return @@ !*[%group_of_yojson: _ partial_decryption] x
+            | Some x -> Lwt.return @@ !*[%desc_of_group: _ partial_decryption] x
           in
           let x = { x with payload = pd } in
           Lwt.return @@ (x :: accu))
@@ -147,15 +145,14 @@ let get_public_creds s (type a b) (w : (a, b) group) =
   | None -> assert false
   | Some x ->
       let module G = (val w) in
-      Lwt.return @@ !*(public_credentials_of_yojson !$G.of_string) x
+      Lwt.return @@ !*(public_credentials_d G.t_d) x
 
 let get_owned_shuffles s =
   let* x = get_roots s in
   let&* x = x.last_shuffle_event in
   let* x =
     fold_on_event_payloads s `Shuffle x
-      (fun h x accu ->
-        Lwt.return @@ ((h, !*(owned_of_yojson hash_of_yojson) x) :: accu))
+      (fun h x accu -> Lwt.return @@ ((h, !*(owned_d hash_d) x) :: accu))
       []
   in
   Lwt.return_some x
@@ -187,14 +184,14 @@ let get_nh_ciphertexts s =
           match x with
           | None -> assert false
           | Some x -> (
-              let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
+              let x = !*(sized_encrypted_tally_d hash_d) x in
               let* x = get_data s x.encrypted_tally in
               match x with
               | None -> assert false
               | Some x ->
-                  !*(encrypted_tally_of_yojson !$W.G.of_string) x
+                  !*(encrypted_tally_d W.G.t_d) x
                   |> W.E.extract_nh_ciphertexts
-                  |> !+(yojson_of_nh_ciphertexts !&W.G.to_string)
+                  |> !+(nh_ciphertexts_d W.G.t_d)
                   |> Lwt.return)))
   | Some x -> (
       let* x = get_event s x in
@@ -208,20 +205,14 @@ let get_nh_ciphertexts s =
               match x with
               | None -> assert false
               | Some x -> (
-                  let x = !*(owned_of_yojson hash_of_yojson) x in
+                  let x = !*(owned_d hash_d) x in
                   let* x = get_data s x.payload in
                   match x with
                   | None -> assert false
                   | Some x ->
-                      let x =
-                        !*(shuffle_of_yojson
-                             !$W.(G.of_string)
-                             !$W.(G.Zq.of_string))
-                          x
-                      in
+                      let x = !*(shuffle_d W.G.t_d W.G.Zq.t_d) x in
                       Lwt.return
-                      @@ !+(yojson_of_nh_ciphertexts !&W.G.to_string)
-                           x.message.ciphertexts))))
+                      @@ !+(nh_ciphertexts_d W.G.t_d) x.message.ciphertexts))))
 
 let get_shuffles s =
   let* x = get_owned_shuffles s in
@@ -248,13 +239,13 @@ let get_latest_encrypted_tally s =
     match x with
     | None -> assert false
     | Some x -> (
-        let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
+        let x = !*(sized_encrypted_tally_d hash_d) x in
         let* x = get_data s x.encrypted_tally in
         match x with
         | None -> assert false
-        | Some x -> cont @@ !*(encrypted_tally_of_yojson !$W.G.of_string) x)
+        | Some x -> cont @@ !*(encrypted_tally_d W.G.t_d) x)
   in
   let* nh = get_nh_ciphertexts s in
-  let nh = !*(nh_ciphertexts_of_yojson !$W.G.of_string) nh in
+  let nh = !*(nh_ciphertexts_d W.G.t_d) nh in
   let tally = W.E.merge_nh_ciphertexts nh tally in
-  Lwt.return_some @@ !+(yojson_of_encrypted_tally !&W.G.to_string) tally
+  Lwt.return_some @@ !+(encrypted_tally_d W.G.t_d) tally

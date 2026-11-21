@@ -58,7 +58,7 @@ let main uuid url dir action =
   match action with
   | `Vote (privcred, choice) ->
       let* choice =
-        let* x = load_from_file !*plaintext_of_yojson choice in
+        let* x = load_from_file !*plaintext_d choice in
         match x with
         | Some [ c ] -> Lwt.return c
         | _ -> failwith "invalid choice file"

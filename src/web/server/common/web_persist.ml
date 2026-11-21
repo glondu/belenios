@@ -93,16 +93,16 @@ let append_to_shuffles s (type a b) (election : (a, b) Election.u) owner
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
-  let shuffle_s = !+[%yojson_of_group: _ shuffle] shuffle in
+  let shuffle_s = !+[%desc_of_group: _ shuffle] shuffle in
   let shuffle_h = Hash.hash_string shuffle_s in
   let* last_nh = Public_archive.get_nh_ciphertexts s in
-  let last_nh = !*(nh_ciphertexts_of_yojson !$W.G.of_string) last_nh in
+  let last_nh = !*(nh_ciphertexts_d W.G.t_d) last_nh in
   if
-    !+[%yojson_of_group: _ shuffle] shuffle = shuffle_s
+    !+[%desc_of_group: _ shuffle] shuffle = shuffle_s
     && W.E.check_shuffle ~vk last_nh shuffle
   then
     let owned = { owner; payload = shuffle_h } in
-    let owned_s = !+(yojson_of_owned yojson_of_hash) owned in
+    let owned_s = !+(owned_d hash_d) owned in
     let* x =
       Storage.E.append s ~last
         [
@@ -116,8 +116,8 @@ let append_to_shuffles s (type a b) (election : (a, b) Election.u) owner
     | false -> Lwt.fail @@ Failure "race condition in append_to_shuffles"
   else Lwt.return_none
 
-let make_result_transaction yojson_of_result result =
-  let payload = !+(yojson_of_election_result yojson_of_result) result in
+let make_result_transaction result_d result =
+  let payload = !+(election_result_d result_d) result in
   [ Data payload; Event (`Result, Some (Hash.hash_string payload)) ]
 
 let internal_release_tally ~force s set_state =
@@ -163,14 +163,14 @@ let internal_release_tally ~force s set_state =
     let* x = Public_archive.get_latest_encrypted_tally s in
     match x with
     | None -> assert false
-    | Some x -> Lwt.return @@ !*(encrypted_tally_of_yojson !$W.G.of_string) x
+    | Some x -> Lwt.return @@ !*(encrypted_tally_d W.G.t_d) x
   in
   let* sized =
     let* x = Public_archive.get_sized_encrypted_tally s in
     match x with
     | None -> assert false
     | Some x ->
-        let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
+        let x = !*(sized_encrypted_tally_d hash_d) x in
         Lwt.return { x with encrypted_tally = tally }
   in
   let* server_pd, transactions =
@@ -185,10 +185,9 @@ let internal_release_tally ~force s set_state =
         let pdk = KG.derive seed in
         let pd = W.E.compute_factor tally ~sk ~pdk in
         let owned = { owner; payload = pd } in
-        let pd = !+[%yojson_of_group: _ partial_decryption] pd in
+        let pd = !+[%desc_of_group: _ partial_decryption] pd in
         let payload =
-          { owner; payload = Hash.hash_string pd }
-          |> !+(yojson_of_owned yojson_of_hash)
+          { owner; payload = Hash.hash_string pd } |> !+(owned_d hash_d)
         in
         let transaction =
           [
@@ -203,9 +202,7 @@ let internal_release_tally ~force s set_state =
   let pds = pds @ [ server_pd ] in
   match W.E.compute_result sized pds trustees with
   | Ok result ->
-      let result_transaction =
-        make_result_transaction W.yojson_of_result result
-      in
+      let result_transaction = make_result_transaction W.result_d result in
       let@ () =
        fun cont ->
         let* x =
@@ -308,8 +305,7 @@ let release_tally s =
 
 let add_partial_decryption s (owner, pd) =
   let payload =
-    { owner; payload = Hash.hash_string pd }
-    |> !+(yojson_of_owned yojson_of_hash)
+    { owner; payload = Hash.hash_string pd } |> !+(owned_d hash_d)
   in
   let* x =
     Storage.E.append s
@@ -379,12 +375,12 @@ let raw_compute_encrypted_tally s (election : Election.t) =
            match ballot with
            | None -> assert false
            | Some ballot ->
-               let ballot = !*[%group_of_yojson: _ ballot] ballot in
+               let ballot = !*[%desc_of_group: _ ballot] ballot in
                Lwt.return ((weight, ballot) :: accu))
          []
   in
   let tally = W.E.process_ballots ballots in
-  let tally_s = !+(yojson_of_encrypted_tally !&W.G.to_string) tally in
+  let tally_s = !+(encrypted_tally_d W.G.t_d) tally in
   let payload =
     {
       num_tallied = List.length ballots;
@@ -394,7 +390,7 @@ let raw_compute_encrypted_tally s (election : Election.t) =
           Weight.zero ballots;
       encrypted_tally = Hash.hash_string tally_s;
     }
-    |> !+(yojson_of_sized_encrypted_tally yojson_of_hash)
+    |> !+(sized_encrypted_tally_d hash_d)
   in
   let* x =
     Storage.E.append s ~last
@@ -558,7 +554,7 @@ let compute_audit_cache s =
       let* encrypted_tally =
         let* x = Public_archive.get_sized_encrypted_tally s in
         let&* x = x in
-        let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
+        let x = !*(sized_encrypted_tally_d hash_d) x in
         Lwt.return_some x.encrypted_tally
       in
       let* latest_encrypted_tally =
@@ -646,7 +642,7 @@ let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
   in
   let body =
     `Validate { uuid; token; metadata }
-    |> !+Belenios_web_api.yojson_of_credentials_request
+    |> !+Belenios_web_api.credentials_request_d
     |> Cohttp_lwt.Body.of_string
   in
   Lwt.catch
@@ -726,10 +722,8 @@ let initialize_events s (type a b) (w : (a, b) group)
     (se : (a, b) raw_draft_election) raw_election (trustees : (a, b) trustees)
     (public_creds : a public_credentials) =
   let module G = (val w) in
-  let raw_trustees = !+[%yojson_of_group: _ trustees] trustees in
-  let raw_public_creds =
-    !+(yojson_of_public_credentials !&G.to_string) public_creds
-  in
+  let raw_trustees = !+[%desc_of_group: _ trustees] trustees in
+  let raw_public_creds = !+(public_credentials_d G.t_d) public_creds in
   let setup_election = Hash.hash_string raw_election in
   let setup_trustees = Hash.hash_string raw_trustees in
   let setup_credentials = Hash.hash_string raw_public_creds in
@@ -737,7 +731,7 @@ let initialize_events s (type a b) (w : (a, b) group)
     match se.public_creds_certificate with
     | None -> ([], None)
     | Some c ->
-        let raw = c |> !+[%yojson_of_group: _ credentials_certificate] in
+        let raw = c |> !+[%desc_of_group: _ credentials_certificate] in
         ([ Data raw ], Some (Hash.hash_string raw))
   in
   let setup_data =
@@ -748,7 +742,7 @@ let initialize_events s (type a b) (w : (a, b) group)
       credentials_certificate = setup_credentials_certificate;
     }
   in
-  let setup_data_s = !+yojson_of_setup_data setup_data in
+  let setup_data_s = !+setup_data_d setup_data in
   let* x =
     [
       [ Data raw_election; Data raw_trustees; Data raw_public_creds ];
@@ -903,7 +897,7 @@ let compute_encrypted_tally s =
         let* () = set_state `Shuffling in
         (* perform server-side shuffle *)
         let* cc = Public_archive.get_nh_ciphertexts s in
-        let cc = !*(nh_ciphertexts_of_yojson !$W.G.of_string) cc in
+        let cc = !*(nh_ciphertexts_d W.G.t_d) cc in
         let shuffle = W.E.shuffle_ciphertexts ~sk cc in
         let* x = append_to_shuffles s (module W) 1 ~vk shuffle in
         match x with

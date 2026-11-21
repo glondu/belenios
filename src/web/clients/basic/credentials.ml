@@ -77,9 +77,7 @@ let show main uuid =
               let* Credential.{ private_creds; public_with_ids; _ } =
                 Cred.generate xs
               in
-              let t, _ =
-                textarea (!+yojson_of_private_credentials private_creds)
-              in
+              let t, _ = textarea (!+private_credentials_d private_creds) in
               let button_container = div [] |> Tyxml_js.To_dom.of_div in
               let b =
                 let@ () = button "Send public credentials to server" in

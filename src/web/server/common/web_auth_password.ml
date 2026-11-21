@@ -104,7 +104,7 @@ struct
     | [] -> (
         match method_ with
         | `POST -> (
-            let@ i = body.run !*Belenios_web_api.auth_password_info_of_yojson in
+            let@ i = body.run !*Belenios_web_api.auth_password_info_d in
             let* x = check None a i.username i.password in
             match x with
             | Error `Throttled -> Api_generic.too_many_requests

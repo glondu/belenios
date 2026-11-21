@@ -122,7 +122,7 @@ module Make (Web_state : Web_state_sig.S) = struct
         match method_ with
         | `GET ->
             let x = Api_generic.get_configuration () in
-            return_json `OK (!+yojson_of_configuration x)
+            return_json `OK (!+configuration_d x)
         | _ -> method_not_allowed)
     | [ "readonly" ] -> (
         match method_ with
@@ -163,7 +163,7 @@ module Make (Web_state : Web_state_sig.S) = struct
         in
         match (method_, !Web_config.internal_send_message) with
         | `POST, Some key ->
-            let@ x = body.run !*Belenios_messages.message_payload_of_yojson in
+            let@ x = body.run !*Belenios_messages.message_payload_d in
             let@ () = handle_generic_error in
             Api_generic.post_send_message ?internal ~key ~hmac x
         | _ -> method_not_allowed)
@@ -179,7 +179,7 @@ module Make (Web_state : Web_state_sig.S) = struct
         | `GET -> handle_get get
         | `PUT ->
             let@ () = handle_ifmatch ifmatch get in
-            let@ x = body.run !*api_account_of_yojson in
+            let@ x = body.run !*api_account_d in
             let@ () = handle_generic_error in
             let@ s = Storage.A.with_transaction in
             let@ account, set = Accounts.update_account_by_id s account.id in
@@ -197,8 +197,7 @@ module Make (Web_state : Web_state_sig.S) = struct
             match !get_result ~state with
             | None -> not_found
             | Some result ->
-                return_json `OK
-                  (!+Belenios_web_api.yojson_of_cast_result result))
+                return_json `OK (!+Belenios_web_api.cast_result_d result))
         | _ -> method_not_allowed)
     | "trustees" :: endpoint ->
         Api_trustees.dispatch ~token ~ifmatch endpoint method_ body

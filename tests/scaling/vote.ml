@@ -33,7 +33,7 @@ module Make (P : PARAMS) () = struct
 
   let () = Stdlib.Random.self_init ()
 
-  module W = (val !*Election.t_of_yojson P.raw_election)
+  module W = (val !*Election.t_d P.raw_election)
   module G = W.G
 
   module Cred =
@@ -70,7 +70,7 @@ module Make (P : PARAMS) () = struct
   let voter_login ~username ~state =
     let body =
       { username }
-      |> !+Belenios_web_api.yojson_of_auth_dummy_info
+      |> !+Belenios_web_api.auth_dummy_info_d
       |> Cohttp_lwt.Body.of_string
     in
     let headers =
@@ -128,7 +128,7 @@ module Make (P : PARAMS) () = struct
     match x with
     | Ok sk ->
         let ballot = W.E.create_ballot ~sk (random_choice ()) in
-        let ballot = !+[%yojson_of_group: _ ballot] ballot in
+        let ballot = !+[%desc_of_group: _ ballot] ballot in
         submit_ballot ~username ~ballot
     | Error _ ->
         Printf.ksprintf failwith "error in deriving key from %s" credential
@@ -279,7 +279,7 @@ module MakeMaster (P : PARAMS_MASTER) = struct
     let* credentials =
       let open Lwt_io in
       let* x = chars_of_file credentials |> Lwt_stream.to_string in
-      x |> !*private_credentials_of_yojson |> Lwt.return
+      x |> !*private_credentials_d |> Lwt.return
     in
     let* success, time =
       if concurrency < 1 then failwith "concurrency must be >= 1"

@@ -117,7 +117,7 @@ let handle_generic_error f =
   Lwt.catch f (function
     | Error error ->
         let request_status = { code = 400; status = "Bad Request"; error } in
-        return_json `Bad_request (!+yojson_of_request_status request_status)
+        return_json `Bad_request (!+request_status_d request_status)
     | Readonly_storage ->
         let request_status =
           {
@@ -126,15 +126,13 @@ let handle_generic_error f =
             error = `ReadonlyStorage;
           }
         in
-        return_json `Service_unavailable
-          (!+yojson_of_request_status request_status)
+        return_json `Service_unavailable (!+request_status_d request_status)
     | exn ->
         let error = `GenericError (Printexc.to_string exn) in
         let request_status =
           { code = 500; status = "Internal Server Error"; error }
         in
-        return_json `Internal_server_error
-          (!+yojson_of_request_status request_status))
+        return_json `Internal_server_error (!+request_status_d request_status))
 
 let handle_get get =
   let@ () = handle_generic_error in

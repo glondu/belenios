@@ -206,8 +206,7 @@ type password_record = Belenios_spool.Passwords.record = {
   address : string option;
 }
 
-let password_record_of_yojson = Belenios_spool.Passwords.record_of_yojson
-let yojson_of_password_record = Belenios_spool.Passwords.yojson_of_record
+let password_record_d = Belenios_spool.Passwords.record_d
 
 (** {1 Running elections} *)
 
@@ -239,17 +238,20 @@ type wrapped_credentials_params =
       ('a, 'b) group * ('a, 'b) credentials_params
       -> wrapped_credentials_params
 
-let wrapped_credentials_params_of_yojson : json -> wrapped_credentials_params =
- fun x ->
-  let { version; group; _ } = credentials_params_of_yojson Fun.id Fun.id x in
-  let module G = (val Group.make { version; group }) in
-  let x = [%group_of_yojson: _ credentials_params] x in
-  W ((module G), x)
-
-let yojson_of_wrapped_credentials_params : wrapped_credentials_params -> json =
- fun (W (w, x)) ->
-  let module G = (val w) in
-  [%yojson_of_group: _ credentials_params] x
+(* Decoded in two passes: the group, then the parameters in this group. *)
+let wrapped_credentials_params_d : wrapped_credentials_params Desc.Core.t =
+  let of_json x =
+    let { version; group; _ } =
+      Desc.Json.of_json (credentials_params_d Desc.Core.json Desc.Core.json) x
+    in
+    let module G = (val Group.make { version; group }) in
+    let x = Desc.Json.of_json [%desc_of_group: _ credentials_params] x in
+    W ((module G), x)
+  and to_json (W (w, x)) =
+    let module G = (val w) in
+    Desc.Json.to_json [%desc_of_group: _ credentials_params] x
+  in
+  Desc.Core.custom "wrapped_credentials_params" to_json of_json
 
 type 'a credentials_record = {
   login : string;

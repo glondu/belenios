@@ -195,11 +195,7 @@ module type ELECTION = sig
        and type result_type = result
 end
 
-type 'a exchangeable = {
-  dst : string;
-  to_yojson : 'a -> json;
-  of_yojson : json -> 'a;
-}
+type 'a exchangeable = { dst : string; desc : 'a Desc.Core.t }
 
 module type PKI = sig
   module Group : GROUP

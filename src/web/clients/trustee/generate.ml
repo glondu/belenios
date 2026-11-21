@@ -53,9 +53,7 @@ let generate_basic (type a b) (w : (a, b) group) ~name ~uuid ~token ~index () =
   let mime_type = "application/json"
   and filename uuid =
     Printf.sprintf "private_key-%s-%d.json" (Uuid.to_string uuid) index
-  and private_key =
-    !+yojson_of_stored_private_key { uuid; index; token; seed }
-  in
+  and private_key = !+stored_private_key_d { uuid; index; token; seed } in
   { private_key; public_key; fingerprint; mime_type; filename }
 
 let generate_threshold (type a b) (w : (a, b) group) context ~uuid ~token ~index
@@ -69,17 +67,13 @@ let generate_threshold (type a b) (w : (a, b) group) context ~uuid ~token ~index
   Common.seed := Some seed;
   let fingerprint =
     sha256_b64
-    @@ !+(yojson_of_cert_keys !&G.to_string
-            (yojson_of_pedersen_context yojson_of_index))
-         cert.message
+    @@ !+(cert_keys_d G.t_d (pedersen_context_d index_d)) cert.message
   in
   let public_key = [%yojson_of_group: _ pedersen_cert] cert in
   let mime_type = "application/json"
   and filename uuid =
     Printf.sprintf "private_key-%s-%d.json" (Uuid.to_string uuid) index
-  and private_key =
-    !+yojson_of_stored_private_key { uuid; index; token; seed }
-  in
+  and private_key = !+stored_private_key_d { uuid; index; token; seed } in
   { private_key; public_key; fingerprint; mime_type; filename }
 
 let threshold_step (type a b) (w : (a, b) group) (pedersen : (a, b) pedersen)

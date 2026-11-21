@@ -141,7 +141,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft)) voters
   let url = Printf.sprintf "%sapi/credentials/belenios" r.belenios_url in
   let body =
     { certificate; token = r.token; public_credentials = creds.public_with_ids }
-    |> !+[%yojson_of_group: _ credentials_response]
+    |> !+[%desc_of_group: _ credentials_response]
     |> Cohttp_lwt.Body.of_string
   in
   let* x, body = Cohttp_lwt_unix.Client.post ~body (Uri.of_string url) in
@@ -220,7 +220,7 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
     match x with
     | None -> Lwt.return_none
     | Some x -> (
-        let event = !*event_of_yojson x in
+        let event = !*event_d x in
         match event.typ with
         | `Ballot -> (
             match event.payload with
@@ -230,7 +230,7 @@ let get_missing_voters ~belenios_url ~seed uuid (type a b) (w : (a, b) group)
                 match b with
                 | None -> Lwt.return_none
                 | Some b ->
-                    let ballot = !*[%group_of_yojson: _ ballot] b in
+                    let ballot = !*[%desc_of_group: _ ballot] b in
                     let c = ballot.message.credential in
                     Lwt.return_some (c, event.parent)))
         | _ -> Lwt.return_none)
@@ -347,7 +347,7 @@ let process_request : credentials_request -> _ = function
         let* body = Cohttp_lwt.Body.to_string body in
         match Cohttp.Code.code_of_status x.status with
         | 200 -> (
-            match !*draft_of_yojson body with
+            match !*draft_d body with
             | exception _ -> return_yojson `Bad_gateway `Null
             | x -> cont x)
         | code -> return_yojson `Bad_gateway (`Int code)
@@ -366,7 +366,7 @@ let process_request : credentials_request -> _ = function
         let* body = Cohttp_lwt.Body.to_string body in
         match Cohttp.Code.code_of_status x.status with
         | 200 -> (
-            match !*voters_of_yojson body with
+            match !*voters_d body with
             | exception _ -> return_yojson `Bad_gateway `Null
             | x -> cont x)
         | code -> return_yojson `Bad_gateway (`Int code)
@@ -459,7 +459,7 @@ let dispatch endpoint method_ body =
   | [ "server" ] -> (
       match method_ with
       | `POST ->
-          let@ request = body.run !*credentials_request_of_yojson in
+          let@ request = body.run !*credentials_request_d in
           let@ () = handle_generic_error in
           process_request request
       | _ -> method_not_allowed)
@@ -496,7 +496,7 @@ let dispatch endpoint method_ body =
       | `POST -> (
           let@ response_s = body.run Fun.id in
           let response =
-            !*(credentials_response_of_yojson Fun.id Fun.id) response_s
+            !*(credentials_response_d Desc.Core.json Desc.Core.json) response_s
           in
           let certificate = response.certificate in
           let uuid = certificate.message.uuid in
@@ -508,7 +508,7 @@ let dispatch endpoint method_ body =
           | Some (W (w, (Draft (_, se) as x))) ->
               let module G = (val w) in
               let response =
-                !*[%group_of_yojson: _ credentials_response] response_s
+                !*[%desc_of_group: _ credentials_response] response_s
               in
               if se.public_creds = response.token then
                 let set ?billing:_ x = set Value (W (w, x)) in

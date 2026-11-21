@@ -50,8 +50,7 @@ struct
           | None -> { kind = `Site; username = None }
         in
         String.send
-          ( !+Belenios_web_api.yojson_of_connect_context context,
-            "application/json" ))
+          (!+Belenios_web_api.connect_context_d context, "application/json"))
 
   let login_belenios =
     Eliom.Service.create
@@ -73,7 +72,7 @@ struct
     let* info = Cohttp_lwt.Body.to_string body in
     match Cohttp.Code.code_of_status x.status with
     | 200 -> (
-        match !*Belenios_web_api.user_info_of_yojson info with
+        match !*Belenios_web_api.user_info_d info with
         | x -> Lwt.return_some x
         | exception _ -> Lwt.return_none)
     | _ -> Lwt.return_none

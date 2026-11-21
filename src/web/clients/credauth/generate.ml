@@ -31,7 +31,7 @@ open Belenios_js.Session
 
 let do_generate (type a b) (w : (a, b) group) uuid ~voters :
     a Credential.batch Lwt.t =
-  let voters = !*voters_of_yojson voters in
+  let voters = !*voters_d voters in
   let module G = (val w) in
   let module Cred =
     Credential.Make
@@ -51,10 +51,8 @@ let make_submit_credentials_div (type a b) (w : (a, b) group) ~uuid ~token
   let module G = (val w) in
   let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
-  let public_credentials =
-    !+(yojson_of_public_credentials !&G.to_string) c.public_creds
-  in
-  let private_credentials = !+yojson_of_private_credentials c.private_creds in
+  let public_credentials = !+(public_credentials_d G.t_d) c.public_creds in
+  let private_credentials = !+private_credentials_d c.private_creds in
   let submit_div = Dom_html.createDiv document in
   let submit_btn =
     let@ () =
@@ -172,7 +170,7 @@ let generate configuration uuid ~token =
     let* x = Api.(get (draft_voters uuid) (`Credauth token)) in
     match x with Error _ -> error () | Ok (x, _) -> cont x
   in
-  let voters = !+yojson_of_voters voters' in
+  let voters = !+voters_d voters' in
   let header = h3 [ txt @@ s_ "Credential generation" ] in
   let link_div =
     let url =

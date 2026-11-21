@@ -47,8 +47,7 @@ let hmac ~key x =
 let wrap_message ~key (message : message) =
   let timestamp = datetime_now () in
   let payload = { timestamp; message } in
-  payload |> !+yojson_of_message_payload |> hmac ~key |> fun hmac ->
-  (~payload, ~hmac)
+  payload |> !+message_payload_d |> hmac ~key |> fun hmac -> (~payload, ~hmac)
 
 let check_message ~key ~hmac:hmac' (message : message_payload) =
-  message |> !+yojson_of_message_payload |> hmac ~key |> fun x -> hmac' = x
+  message |> !+message_payload_d |> hmac ~key |> fun x -> hmac' = x

@@ -155,6 +155,9 @@ struct
   let ( * ) x y = Z.(erem (x * y) q)
   let ( =% ) x y = compare x y = 0
   let random = random_modulo q
+  let t_d = Desc.Core.map Desc.Core.string of_string to_string
+  let t_of_yojson = Desc.Json.of_json t_d
+  let yojson_of_t = Desc.Json.to_json t_d
 end
 
 let ( !$ ) of_string =
@@ -163,8 +166,8 @@ let ( !$ ) of_string =
 let ( !& ) to_string =
   to_string >> Ppx_yojson_conv_lib.Yojson_conv.yojson_of_string
 
-let ( !* ) of_yojson = Json.of_string >> of_yojson
-let ( !+ ) to_yojson = to_yojson >> Json.to_string
+let ( !* ) = Desc.Json.of_string
+let ( !+ ) = Desc.Json.to_string
 
 let b64_order =
   "+/0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ"

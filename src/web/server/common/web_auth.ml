@@ -73,8 +73,7 @@ let admin_cont a ~address user =
   match account with
   | Ok account ->
       let* token = Api_generic.new_token account user in
-      Api_generic.return_json `OK
-      @@ !+Belenios_web_api.yojson_of_auth_token token
+      Api_generic.return_json `OK @@ !+Belenios_web_api.auth_token_d token
   | Error () -> Api_generic.forbidden
 
 (* Forward reference set in Web_main *)

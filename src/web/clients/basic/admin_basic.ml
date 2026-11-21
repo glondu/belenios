@@ -84,18 +84,16 @@ let rec show_root main =
   let* configuration, configuration_opt =
     let* x = Api.(get configuration `Nobody) in
     let@ c, _ = with_ok_opt "configuration" x in
-    Lwt.return [ txt (!+yojson_of_configuration c) ]
+    Lwt.return [ txt (!+configuration_d c) ]
   in
   let* account, account_opt =
     let* x = Api.(get account !user) in
     let@ account, ifmatch = with_ok_opt "account" x in
-    let account_str = !+yojson_of_api_account account in
+    let account_str = !+api_account_d account in
     let t, tget = textarea ~rows:2 account_str in
     let b =
       let@ () = button "Save changes" in
-      let* x =
-        Api.(put ~ifmatch account !user (!*api_account_of_yojson (tget ())))
-      in
+      let* x = Api.(put ~ifmatch account !user (!*api_account_d (tget ()))) in
       let@ () = show_in main in
       let msg =
         match x.code with
@@ -177,15 +175,12 @@ let rec show_root main =
     | _ -> None
   in
   let create =
-    let value =
-      match template with None -> "" | Some x -> !+yojson_of_draft x
-    in
+    let value = match template with None -> "" | Some x -> !+draft_d x in
     let t, tget = textarea value in
     let b =
       let@ () = button "Create new draft" in
       let* x =
-        Api.(post elections !user (!*draft_of_yojson (tget ())))
-        |> wrap !*uuid_of_yojson
+        Api.(post elections !user (!*draft_d (tget ()))) |> wrap !*uuid_d
       in
       match x with
       | Ok uuid ->
