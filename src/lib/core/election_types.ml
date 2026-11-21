@@ -20,32 +20,27 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Common_types
 
 type ('a, 'b) public_credential_props = {
   credential : 'a;
-  weight : weight option; [@yojson.option]
-  id : 'b option; [@yojson.option]
+  weight : weight option;
+  id : 'b option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
-type 'a public_credential = ('a, unit) public_credential_props
-[@@deriving yojson]
-
-type 'a public_credentials = 'a public_credential hmap [@@deriving yojson]
+type 'a public_credential = ('a, unit) public_credential_props [@@deriving desc]
+type 'a public_credentials = 'a public_credential hmap [@@deriving desc]
 
 type 'a public_credential_with_id = ('a, string) public_credential_props
-[@@deriving yojson]
+[@@deriving desc]
 
 type 'a public_credentials_with_id = 'a public_credential_with_id hmap
-[@@deriving yojson]
+[@@deriving desc]
 
-type private_credentials = string smap [@@deriving yojson]
-type lang_dir = [ `Ltr | `Rtl ] [@@deriving yojson]
-
-type credential_authority = [ `Server | `External of string ]
-[@@deriving yojson]
+type private_credentials = string smap [@@deriving desc]
+type lang_dir = [ `Ltr | `Rtl ] [@@deriving desc]
+type credential_authority = [ `Server | `External of string ] [@@deriving desc]
 
 type template = {
   description : string;
@@ -53,50 +48,47 @@ type template = {
   questions : Question.t array;
   administrator : string;
   credential_authority : credential_authority;
-  language : (string * lang_dir) option; [@yojson.option]
-  deny_revote : bool; [@default false] [@yojson_drop_default ( = )]
+  language : (string * lang_dir) option;
+  deny_revote : bool; [@default false]
 }
-[@@deriving yojson]
+[@@deriving desc]
 (** Election template. *)
 
-type 'result election_result = { result : 'result } [@@deriving yojson]
+type 'result election_result = { result : 'result } [@@deriving desc]
 
-type trustee_checksum = {
-  checksum : hash;
-  name : string option; [@yojson.option]
-}
-[@@deriving yojson]
+type trustee_checksum = { checksum : hash; name : string option }
+[@@deriving desc]
 
 type trustee_threshold_set = {
   trustees : trustee_checksum list;
   threshold : int;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type weight_checksums = { total : weight; min : weight; max : weight }
-[@@deriving yojson]
+[@@deriving desc]
 
 type election_checksums = {
   election : hash;
   trustees_basic : trustee_checksum list;
   trustees_threshold : trustee_threshold_set list;
   num_voters : int;
-  weights : weight_checksums option; [@yojson.option]
+  weights : weight_checksums option;
   public_credentials : hash;
-  shuffles : trustee_checksum list option; [@yojson.option]
-  encrypted_tally : hash option; [@yojson.option]
-  latest_encrypted_tally : hash option; [@yojson.option]
-  final : hash option; [@yojson.option]
+  shuffles : trustee_checksum list option;
+  encrypted_tally : hash option;
+  latest_encrypted_tally : hash option;
+  final : hash option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type audit_cache = {
   voters_hash : hash;
   checksums : election_checksums;
-  threshold : int option; [@yojson.option]
-  sealing_log : hash option; [@yojson.option]
+  threshold : int option;
+  sealing_log : hash option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
-type ballot_dynamic_record = { weight : weight } [@@deriving yojson]
-type ballot_dynamic_records = ballot_dynamic_record hmap [@@deriving yojson]
+type ballot_dynamic_record = { weight : weight } [@@deriving desc]
+type ballot_dynamic_records = ballot_dynamic_record hmap [@@deriving desc]

@@ -38,10 +38,8 @@ let get_exn f url x =
   | Some x -> Lwt.return x
   | None -> Printf.ksprintf failwith "%s/%s not found" url x
 
-let get_last_event url = get_exn !*last_event_of_yojson url "last-event"
-
-let get_archive_header url =
-  get_exn !*Archive.header_of_yojson url "archive-header"
+let get_last_event url = get_exn !*last_event_d url "last-event"
+let get_archive_header url = get_exn !*Archive.header_d url "archive-header"
 
 let get_hash_base base =
   match base with
@@ -86,7 +84,7 @@ let mkarchive base url fd =
   let* last_event =
     let* x = IoArchiver.get_hash last.hash in
     match x with
-    | Some x -> Lwt.return @@ !*event_of_yojson x
+    | Some x -> Lwt.return @@ !*event_d x
     | None -> Printf.ksprintf failwith "last event not found at %s" url
   in
   Archiver.write_archive oc header last_event

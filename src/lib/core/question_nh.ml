@@ -20,33 +20,25 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Signatures_core
 open Crypto_types
 open Question_types
 
 (** {2 Questions and answers} *)
 
-type question = { answers : string array; question : string }
-[@@deriving yojson]
+type question = { answers : string array; question : string } [@@deriving desc]
 
 type ('a, 'b) answer = { choices : 'a ciphertext; proof : 'b proof }
-[@@deriving yojson]
+[@@deriving desc]
 (** An answer to a question. *)
 
-type result = int array array [@@deriving yojson]
+type result = int array array [@@deriving desc]
 
 (** {2 Counting methods} *)
 
-type mj_extra = { blank : bool; grades : string array }
-[@@deriving yojson] [@@yojson.allow_extra_fields]
-
-type schulze_extra = { blank : bool }
-[@@deriving yojson] [@@yojson.allow_extra_fields]
-
-type stv_extra = { blank : bool; seats : int }
-[@@deriving yojson] [@@yojson.allow_extra_fields]
-
+type mj_extra = { blank : bool; grades : string array } [@@deriving desc]
+type schulze_extra = { blank : bool } [@@deriving desc]
+type stv_extra = { blank : bool; seats : int } [@@deriving desc]
 type _ id += Id : question id
 
 let type_ = "NonHomomorphic"
@@ -65,15 +57,15 @@ let get_counting_method extra =
   | Some (`Assoc o as extra) -> (
       match List.assoc_opt "method" o with
       | Some (`String "MajorityJudgment") -> (
-          match mj_extra_of_yojson extra with
+          match Desc.Json.of_json mj_extra_d extra with
           | x -> `MajorityJudgment x
           | exception _ -> `None)
       | Some (`String "Schulze") -> (
-          match schulze_extra_of_yojson extra with
+          match Desc.Json.of_json schulze_extra_d extra with
           | x -> `Schulze x
           | exception _ -> `None)
       | Some (`String "STV") -> (
-          match stv_extra_of_yojson extra with
+          match Desc.Json.of_json stv_extra_d extra with
           | x -> `STV x
           | exception _ -> `None)
       | _ -> `None)

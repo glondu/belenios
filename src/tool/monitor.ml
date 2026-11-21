@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt.Syntax
 open Belenios
 open Common
@@ -482,12 +481,12 @@ let check_hash_ballots data =
   let ballots1 =
     match data.ballots with
     | None -> assert false
-    | Some x -> !*ballot_dynamic_records_of_yojson x
+    | Some x -> !*ballot_dynamic_records_d x
   in
   let ballots2 =
     match data.ballot_summary with
     | None -> assert false
-    | Some x -> !*ballot_dynamic_records_of_yojson x
+    | Some x -> !*ballot_dynamic_records_d x
   in
   if HMap.equal Stdlib.( = ) ballots1 ballots2 then
     let* () = logf "Successfully checked hash of ballots of %s" data.uuid in
@@ -504,13 +503,13 @@ let check_audit_cache data =
   let audit_cache =
     match data.audit_cache with
     | None -> assert false
-    | Some x -> !*audit_cache_of_yojson x
+    | Some x -> !*audit_cache_d x
   in
   let* () = logf "Checking audit cache of %s..." data.uuid in
   let checksums1 =
     match data.checksums with
     | None -> assert false
-    | Some x -> !*election_checksums_of_yojson x
+    | Some x -> !*election_checksums_d x
   in
   let checksums2 = audit_cache.checksums in
   let () =
@@ -719,9 +718,7 @@ let check_static_files ~hashref ~beleniospath ~url ~outputref ~sighashref =
     logf "[%.0f] Starting monitoring static files." (Unix.gettimeofday ())
   in
   let* hashref = Lwt_io.chars_of_file hashref |> Lwt_stream.to_string in
-  let tmp_reference =
-    !*(smap_of_yojson (option_of_yojson hash_of_yojson)) hashref
-  in
+  let tmp_reference = !*(smap_d (Desc.Core.option hash_d)) hashref in
   let* reference =
     tmp_reference |> SMap.to_seq |> Lwt_seq.of_seq
     |> Lwt_seq.fold_left_s
@@ -795,7 +792,7 @@ let check_static_files ~hashref ~beleniospath ~url ~outputref ~sighashref =
     | true, Some outputref ->
         let* () = Lwt_io.printlf "Writing new reference file" in
         new_reference
-        |> !+(yojson_of_smap yojson_of_hash)
+        |> !+(smap_d hash_d)
         |> Lwt_stream.of_string
         |> Lwt_io.chars_to_file outputref
     | _ -> Lwt.return_unit
@@ -817,7 +814,7 @@ let check_static_files ~hashref ~beleniospath ~url ~outputref ~sighashref =
         let* r = p#status in
         match r with
         | WEXITED 0 ->
-            let signed_ref = !*(smap_of_yojson hash_of_yojson) stdout in
+            let signed_ref = !*(smap_d hash_d) stdout in
             if SMap.equal Stdlib.( = ) signed_ref new_reference then
               logf "Successfully check signature of hash of static files"
             else

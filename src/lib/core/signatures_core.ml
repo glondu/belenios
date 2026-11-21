@@ -23,7 +23,7 @@ open Belenios_platform
 
 (** A finite integer field, suitable for scalar operations of a group. *)
 module type FIELD = sig
-  type t
+  type t [@@deriving desc]
 
   val q : Z.t
   val zero : t
@@ -63,7 +63,7 @@ module type GROUP = sig
   module Zq : FIELD
   (** The type of scalars. *)
 
-  type t
+  type t [@@deriving desc]
   (** The type of elements. Note that it may be larger than the group itself,
       hence the [check] function below. *)
 

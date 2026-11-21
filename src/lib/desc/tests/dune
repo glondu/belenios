@@ -1,0 +1,5 @@
+(test
+ (name test_desc)
+ (libraries desc yojson)
+ (preprocess
+  (pps ppx_desc)))

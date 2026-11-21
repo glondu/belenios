@@ -37,7 +37,6 @@ val version_of_int : int -> some_version
 
 type versioned_template =
   | Template : 'a version * template -> versioned_template
-[@@deriving yojson]
 
 val election_uuid_of_string_ballot : string -> uuid
 val has_nh_questions : versioned_template -> bool
@@ -51,7 +50,7 @@ val make_raw_election :
   public_key:string ->
   json
 
-type t = (module ELECTION) [@@deriving yojson]
+type t = (module ELECTION) [@@deriving desc]
 type ('a, 'b) u = (module ELECTION with type G.t = 'a and type G.Zq.t = 'b)
 
 val supported_crypto_versions : some_version list

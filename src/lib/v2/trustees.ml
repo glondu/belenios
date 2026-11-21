@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt.Syntax
 open Belenios_core
 
@@ -37,12 +36,7 @@ module MakeCert (P : PKI) = struct
   let xch_cert_keys =
     {
       dst = dst_prefix ^ "-pedersen-cert";
-      to_yojson =
-        yojson_of_cert_keys !&G.to_string
-          (yojson_of_pedersen_context yojson_of_full_context);
-      of_yojson =
-        cert_keys_of_yojson !$G.of_string
-          (pedersen_context_of_yojson full_context_of_yojson);
+      desc = cert_keys_d G.t_d (pedersen_context_d full_context_d);
     }
 
   let compute_polynomial ~seed ~threshold =
@@ -63,9 +57,7 @@ module MakeCert (P : PKI) = struct
       compute_polynomial ~seed ~threshold:context.context.threshold
     in
     let coefexps = compute_coefexps polynomial in
-    let coefexps =
-      { coefexps } |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
-    in
+    let coefexps = { coefexps } |> Hash.hash_desc (coefexps_d G.t_d) in
     let signed =
       P.sign xch_cert_keys sk
         {
@@ -120,8 +112,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let xch_single_verification_key =
     {
       dst = dst_prefix ^ "-verification_key";
-      of_yojson = [%group_of_yojson: _ raw_trustee_public_key];
-      to_yojson = [%yojson_of_group: _ raw_trustee_public_key];
+      desc = [%desc_of_group: _ raw_trustee_public_key];
     }
 
   let check_single (trustee : _ trustee_public_key) =
@@ -131,8 +122,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let xch_basic_cert =
     {
       dst = dst_prefix ^ "-basic-cert";
-      of_yojson = cert_keys_of_yojson !$G.of_string unit_of_yojson;
-      to_yojson = yojson_of_cert_keys !&G.to_string yojson_of_unit;
+      desc = cert_keys_d G.t_d Desc.Core.unit;
     }
 
   let check_basic (trustee : _ basic_parameters) =
@@ -144,22 +134,19 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let xch_certs =
     {
       dst = dst_prefix ^ "-pedersen-certs";
-      of_yojson = [%group_of_yojson: _ pedersen_certs];
-      to_yojson = [%yojson_of_group: _ pedersen_certs];
+      desc = [%desc_of_group: _ pedersen_certs];
     }
 
   let xch_verification_key =
     {
       dst = dst_prefix ^ "-outer-verification_key";
-      of_yojson = [%group_of_yojson: _ trustee_public_key];
-      to_yojson = [%yojson_of_group: _ trustee_public_key];
+      desc = [%desc_of_group: _ trustee_public_key];
     }
 
   let xch_decryption_key =
     {
       dst = dst_prefix ^ "-pedersen-decryption_key";
-      of_yojson = partial_decryption_key_of_yojson !$G.Zq.of_string;
-      to_yojson = yojson_of_partial_decryption_key !&G.Zq.to_string;
+      desc = partial_decryption_key_d G.Zq.t_d;
     }
 
   let check_pedersen (t : _ threshold_parameters) =
@@ -179,7 +166,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
     let certs = Array.map (fun (x : _ pedersen_cert) -> x.message) t.certs in
     Array.for_all2
       (fun (cert : (_, _ pedersen_context) cert_keys) x ->
-        let hash = x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson in
+        let hash = x |> Hash.hash_desc (coefexps_d G.t_d) in
         hash = cert.context.coefexps)
       certs t.coefexps
     && (let sigs = t.signatures in
@@ -296,14 +283,7 @@ module MakePedersen (C : CHANNELS) = struct
   module V = MakeVerificator (G)
 
   let xch_decryption_key = Comb.xch_decryption_key
-
-  let xch_secret =
-    {
-      dst = dst_prefix ^ "-secret";
-      of_yojson = secret_of_yojson !$Zq.of_string;
-      to_yojson = yojson_of_secret !&Zq.to_string;
-    }
-
+  let xch_secret = { dst = dst_prefix ^ "-secret"; desc = secret_d Zq.t_d }
   let random () = Zq.random (Crypto_primitives.get_rng ())
 
   let step1 context =
@@ -373,11 +353,7 @@ module MakePedersen (C : CHANNELS) = struct
     Lwt.return { secrets; coefexps; signature }
 
   let step3_check (certs : certs) i (polynomial : polynomial) =
-    let hash =
-      polynomial.coefexps
-      |> yojson_of_coefexps !&G.to_string
-      |> Hash.hash_yojson
-    in
+    let hash = polynomial.coefexps |> Hash.hash_desc (coefexps_d G.t_d) in
     hash = certs.certs.(i).message.context.coefexps
     && P.verify Comb.xch_certs certs.certs.(i).message.verification
          { message = certs; signature = polynomial.signature }
@@ -393,7 +369,7 @@ module MakePedersen (C : CHANNELS) = struct
     let coefexps = Array.map (fun (x : polynomial) -> x.coefexps) polynomials in
     Array.iteri
       (fun i x ->
-        let hash = x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson in
+        let hash = x |> Hash.hash_desc (coefexps_d G.t_d) in
         if hash = certs.(i).context.coefexps then
           if threshold = Array.length x.coefexps then ()
           else
@@ -442,9 +418,7 @@ module MakePedersen (C : CHANNELS) = struct
     let coefexps =
       Array.init n (fun i ->
           let x = vinput.coefexps.(i) in
-          let hash =
-            x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
-          in
+          let hash = x |> Hash.hash_desc (coefexps_d G.t_d) in
           if hash <> certs.(i).context.coefexps then
             raise
               (PedersenFailure
@@ -481,9 +455,7 @@ module MakePedersen (C : CHANNELS) = struct
     let coefexps =
       Array.init n (fun i ->
           let x = (polynomials.(i) : polynomial).coefexps in
-          let hash =
-            x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
-          in
+          let hash = x |> Hash.hash_desc (coefexps_d G.t_d) in
           if hash <> certs.(i).context.coefexps then
             raise
               (PedersenFailure
@@ -513,9 +485,7 @@ module MakePedersen (C : CHANNELS) = struct
                  (Printf.sprintf "coefexps %d does not validate" (i + 1)))
           in
           let x = polynomials.(i).coefexps in
-          let hash =
-            x |> yojson_of_coefexps !&G.to_string |> Hash.hash_yojson
-          in
+          let hash = x |> Hash.hash_desc (coefexps_d G.t_d) in
           if hash <> certs'.(i).context.coefexps then fail ();
           let r = x.coefexps in
           if not (threshold = Array.length r) then fail ();

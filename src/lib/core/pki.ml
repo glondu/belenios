@@ -48,13 +48,11 @@ module Make (G : GROUP) = struct
 
   (** Generic signature *)
 
-  let sign { dst; to_yojson; _ } sk message =
+  let sign { dst; desc; _ } sk message =
     let w = random () in
     let commitment = G.(g **~ w) in
     let vk = G.(g **~ sk) in
-    let prefix =
-      Printf.sprintf "%s|%s" (G.to_string vk) (!+to_yojson message)
-    in
+    let prefix = Printf.sprintf "%s|%s" (G.to_string vk) (!+desc message) in
     let challenge = G.hash ~dst prefix [| commitment |] in
     let response = G.Zq.(w - (sk * challenge)) in
     let signature = { challenge; response } in
@@ -63,7 +61,7 @@ module Make (G : GROUP) = struct
   let verify xch vk { message; signature = { challenge; response } } =
     let commitment = G.((g **~ response) *~ (vk **~ challenge)) in
     let prefix =
-      Printf.sprintf "%s|%s" (G.to_string vk) (!+(xch.to_yojson) message)
+      Printf.sprintf "%s|%s" (G.to_string vk) (!+(xch.desc) message)
     in
     G.Zq.(challenge =% G.hash ~dst:xch.dst prefix [| commitment |])
 
@@ -71,7 +69,7 @@ module Make (G : GROUP) = struct
 
   let encrypt ~algorithm xch y plaintext =
     let module E = (val Crypto_primitives.get_endecrypt algorithm) in
-    let plaintext = !+(xch.to_yojson) plaintext in
+    let plaintext = !+(xch.desc) plaintext in
     let r = random () in
     let key = random () in
     let key = G.(g **~ key) in
@@ -103,7 +101,7 @@ module Make (G : GROUP) = struct
     match x with
     | None -> Lwt.return_none
     | Some x -> (
-        try Lwt.return_some @@ !*(xch.of_yojson) x with _ -> Lwt.return_none)
+        try Lwt.return_some @@ !*(xch.desc) x with _ -> Lwt.return_none)
 end
 
 module MakeChannels (P : PKI) = struct
@@ -114,18 +112,16 @@ module MakeChannels (P : PKI) = struct
   type public_key = P.public_key
   type 'a msg = (public_key, private_key, 'a) sent_msg
 
-  let cast_xch_inner { dst; of_yojson; to_yojson } =
+  let cast_xch_inner { dst; desc } =
     {
       dst = dst ^ "-channel_msg_inner";
-      to_yojson = [%yojson_of_group: _ channel_msg] to_yojson;
-      of_yojson = [%group_of_yojson: _ channel_msg] of_yojson;
+      desc = [%desc_of_group: _ channel_msg] desc;
     }
 
-  let cast_xch_outer { dst; of_yojson; to_yojson } =
+  let cast_xch_outer { dst; desc } =
     {
       dst = dst ^ "-channel_msg_outer";
-      to_yojson = [%yojson_of_group: _ signed_msg] to_yojson;
-      of_yojson = [%group_of_yojson: _ signed_msg] of_yojson;
+      desc = [%desc_of_group: _ signed_msg] desc;
     }
 
   let send ~algorithm xch sk recipient message =

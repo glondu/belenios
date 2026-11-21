@@ -65,7 +65,7 @@ module Tkeygen : CMDLINER_MODULE = struct
         0 8
       |> String.uppercase_ascii
     in
-    let pub = !+[%yojson_of_group: _ basic_parameters] parameters in
+    let pub = !+[%desc_of_group: _ basic_parameters] parameters in
     Printf.printf "I: keypair %s has been generated\n%!" id;
     let pubkey = ("public key", id ^ ".pubkey", 0o444, pub) in
     let privkey = ("private key", id ^ ".privkey", 0o400, seed) in
@@ -106,7 +106,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let get_context () =
       let fname = get_mandatory_opt "--threshold-context" context in
       let* x = string_of_file fname in
-      let context = !*common_context_of_yojson x in
+      let context = !*common_context_d x in
       try
         let size = Array.length context.names in
         let threshold = context.threshold in
@@ -128,14 +128,14 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let module T = Trustees.MakePedersen (C) in
     let get_certs () =
       let certs = get_mandatory_opt "--certs" certs in
-      let* x = load_from_file !*[%group_of_yojson: _ pedersen_cert] certs in
+      let* x = load_from_file !*[%desc_of_group: _ pedersen_cert] certs in
       match x with
       | None -> Printf.ksprintf failwith "%s does not exist" certs
       | Some l -> Lwt.return @@ Array.of_list l
     in
     let get_polynomials () =
       let polynomials = get_mandatory_opt "--polynomials" polynomials in
-      let* x = load_from_file !*[%group_of_yojson: _ polynomial] polynomials in
+      let* x = load_from_file !*[%desc_of_group: _ polynomial] polynomials in
       match x with
       | None -> Printf.ksprintf failwith "%s does not exist" polynomials
       | Some l -> Lwt.return @@ Array.of_list l
@@ -147,16 +147,14 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let key, cert = T.step1 { context; index } in
         let id =
           sha256_hex
-          @@ !+(yojson_of_cert_keys !&G.to_string
-                  (yojson_of_pedersen_context yojson_of_index))
-               cert.message
+          @@ !+(cert_keys_d G.t_d (pedersen_context_d index_d)) cert.message
         in
         Printf.eprintf "I: certificate %s has been generated\n%!" id;
         let pub =
           ( "certificate",
             id ^ ".cert",
             0o444,
-            !+[%yojson_of_group: _ pedersen_cert] cert )
+            !+[%desc_of_group: _ pedersen_cert] cert )
         in
         let prv = ("private key", id ^ ".key", 0o400, key) in
         let* () = save pub in
@@ -172,7 +170,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
         let* polynomial = T.step3 { context; certs } key in
-        Lwt_io.printl (!+[%yojson_of_group: _ polynomial] polynomial)
+        Lwt_io.printl (!+[%desc_of_group: _ polynomial] polynomial)
     | 4 ->
         let* context = get_context () in
         let* certs = get_certs () in
@@ -185,8 +183,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
           if i < n then
             let id =
               sha256_hex
-              @@ !+(yojson_of_cert_keys !&G.to_string
-                      (yojson_of_pedersen_context yojson_of_index))
+              @@ !+(cert_keys_d G.t_d (pedersen_context_d index_d))
                    certs.(i).message
             in
             let fn = id ^ ".vinput" in
@@ -196,7 +193,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
                 with_file ~flags:[ O_WRONLY; O_CREAT ] ~perm:0o444 ~mode:Output
                   fn
               in
-              write_line oc (!+[%yojson_of_group: _ vinput] vinputs.(i))
+              write_line oc (!+[%desc_of_group: _ vinput] vinputs.(i))
             in
             let* () = Lwt_io.eprintlf "I: wrote %s" fn in
             loop (i + 1)
@@ -207,9 +204,9 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* context = get_context () in
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
-        let vinput = read_line () |> !*[%group_of_yojson: _ vinput] in
+        let vinput = read_line () |> !*[%desc_of_group: _ vinput] in
         let* voutput = T.step5 { context; certs } key vinput in
-        Lwt_io.printl (!+[%yojson_of_group: _ voutput] voutput)
+        Lwt_io.printl (!+[%desc_of_group: _ voutput] voutput)
     | 6 ->
         let* context = get_context () in
         let* certs = get_certs () in
@@ -218,7 +215,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         assert (n = Array.length polynomials);
         let* lines = lines_of_stdin () in
         let voutputs =
-          lines |> List.map !*[%group_of_yojson: _ voutput] |> Array.of_list
+          lines |> List.map !*[%desc_of_group: _ voutput] |> Array.of_list
         in
         assert (n = Array.length voutputs);
         let tparams = T.step6 { context; certs } polynomials voutputs in
@@ -226,8 +223,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
           if i < n then
             let id =
               sha256_hex
-              @@ !+(yojson_of_cert_keys !&G.to_string
-                      (yojson_of_pedersen_context yojson_of_index))
+              @@ !+(cert_keys_d G.t_d (pedersen_context_d index_d))
                    certs.(i).message
             in
             let fn = id ^ ".dkey" in
@@ -238,7 +234,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
                   fn
               in
               write_line oc
-              @@ !+[%yojson_of_group: _ sent_partial_decryption_key]
+              @@ !+[%desc_of_group: _ sent_partial_decryption_key]
                    voutputs.(i).private_key
             in
             let* () = Lwt_io.eprintlf "I: wrote %s" fn in
@@ -246,7 +242,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
           else Lwt.return_unit
         in
         let* () = loop 0 in
-        Lwt_io.printl (!+[%yojson_of_group: _ threshold_parameters] tparams)
+        Lwt_io.printl (!+[%desc_of_group: _ threshold_parameters] tparams)
     | _ -> failwith "invalid step"
 
   let step_t =
@@ -323,7 +319,7 @@ module Credgen : CMDLINER_MODULE = struct
       | None, Some f, None ->
           let* x = string_of_file f in
           let x =
-            x |> !*voter_list_of_yojson
+            x |> !*voter_list_d
             |> List.fold_left (fun accu v -> SMap.add v.login v accu) SMap.empty
           in
           Lwt.return @@ `Generate x
@@ -347,20 +343,15 @@ module Credgen : CMDLINER_MODULE = struct
       let base = dir // timestamp in
       let* () =
         save params_priv base
-          (as_json SMap.cardinal
-             !+yojson_of_private_credentials
-             c.private_creds)
+          (as_json SMap.cardinal !+private_credentials_d c.private_creds)
       in
       let* () =
         save params_pub base
           (as_json HMap.cardinal
-             !+(yojson_of_public_credentials_with_id !&G.to_string)
+             !+(public_credentials_with_id_d G.t_d)
              c.public_with_ids)
       in
-      let h =
-        sha256_b64
-          (!+(yojson_of_public_credentials !&G.to_string) c.public_creds)
-      in
+      let h = sha256_b64 (!+(public_credentials_d G.t_d) c.public_creds) in
       Lwt_io.printlf "The fingerprint of public credentials is %s" h
     in
     match action with
@@ -435,7 +426,7 @@ module Mktrustees : CMDLINER_MODULE = struct
         | None -> Lwt.return_nil
         | Some t ->
             t
-            |> List.map !*(basic_parameters_of_yojson Fun.id Fun.id)
+            |> List.map !*(basic_parameters_d Desc.Core.json Desc.Core.json)
             |> List.map (fun x -> `Single x)
             |> Lwt.return
       in
@@ -444,12 +435,13 @@ module Mktrustees : CMDLINER_MODULE = struct
         match x with
         | None -> Lwt.return_nil
         | Some t ->
-            t |> !*(threshold_parameters_of_yojson Fun.id Fun.id) |> fun x ->
-            Lwt.return [ `Pedersen x ]
+            t |> !*(threshold_parameters_d Desc.Core.json Desc.Core.json)
+            |> fun x -> Lwt.return [ `Pedersen x ]
       in
       match singles @ pedersens with
       | [] -> failwith "trustees are missing"
-      | trustees -> !+(yojson_of_trustees Fun.id Fun.id) trustees |> Lwt.return
+      | trustees ->
+          !+(trustees_d Desc.Core.json Desc.Core.json) trustees |> Lwt.return
     in
     let* trustees = get_trustees () in
     let open Lwt_io in
@@ -482,9 +474,9 @@ module Mkelection : CMDLINER_MODULE = struct
     let module K = Trustees.MakeCombinator (G) in
     let template =
       let (Version v) = Election.version_of_int version in
-      Election.Template (v, !*template_of_yojson template)
+      Election.Template (v, !*template_d template)
     in
-    let trustees = !*[%group_of_yojson: _ trustees] trustees in
+    let trustees = !*[%desc_of_group: _ trustees] trustees in
     let y = K.combine_keys trustees in
     let public_key = G.to_string y in
     let params =

@@ -20,8 +20,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
-
 type cast_error =
   [ `DuplicateBallot
   | `ExpiredBallot
@@ -37,7 +35,7 @@ type cast_error =
   | `UnauthorizedVoter
   | `ElectionClosed
   | `UnexpectedResponse ]
-[@@deriving yojson]
+[@@deriving desc]
 
-type sub_batch_item = { base : string; public : string } [@@deriving yojson]
-type sub_batch = sub_batch_item list [@@deriving yojson]
+type sub_batch_item = { base : string; public : string } [@@deriving desc]
+type sub_batch = sub_batch_item list [@@deriving desc]

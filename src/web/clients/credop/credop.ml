@@ -42,16 +42,16 @@ module App (U : UI) = struct
       match x with Ok (x, _) -> cont x | Error _ -> fail ()
     in
     let format_credit (x : Belenios_web_api.credentials_credit) =
-      let t = new%js Js.date_fromTimeValue (Js.float (x.timestamp *. 1000.)) in
+      let t =
+        new%js Js.date_fromTimeValue
+          (Js.float (Int64.to_float x.timestamp *. 1000.))
+      in
       let t = Js.to_string t##toLocaleString in
       tr
         [
           td [ txt t ];
           td [ txt @@ string_of_int x.credits ];
-          td
-            [
-              txt @@ !+Belenios_web_api.yojson_of_credentials_credit_kind x.kind;
-            ];
+          td [ txt @@ !+Belenios_web_api.credentials_credit_kind_d x.kind ];
           td [ txt @@ string_of_bool x.success ];
         ]
     in
@@ -128,14 +128,14 @@ module App (U : UI) = struct
         | Some h -> (
             let* x = Api.(get (election_object uuid h) `Nobody) in
             match x with
-            | Ok (x, _) -> cont @@ setup_data_of_yojson x
+            | Ok (x, _) -> cont @@ Desc.Json.of_json setup_data_d x
             | Error _ -> fail ())
       in
       let@ election cont =
         let h = setup.election in
         let* x = Api.(get (election_object uuid h) `Nobody) in
         match x with
-        | Ok (x, _) -> cont @@ Election.t_of_yojson x
+        | Ok (x, _) -> cont @@ Desc.Json.of_json Election.t_d x
         | Error _ -> fail ()
       in
       let@ credentials cont =
@@ -157,7 +157,9 @@ module App (U : UI) = struct
             let* x = Api.(get (election_object uuid h) `Nobody) in
             match x with
             | Ok (x, _) ->
-                cont @@ [%group_of_yojson: _ credentials_certificate] x
+                cont
+                @@ Desc.Json.of_json [%desc_of_group: _ credentials_certificate]
+                     x
             | Error _ -> fail ())
       in
       let@ () =
@@ -166,7 +168,7 @@ module App (U : UI) = struct
           certificate.message.uuid = uuid
           && certificate.message.voter_list_length
              = HMap.cardinal
-                 (public_credentials_of_yojson !$E.G.of_string credentials)
+                 (Desc.Json.of_json (public_credentials_d E.G.t_d) credentials)
           && certificate.message.public_creds_hash
              = Hash.hash_yojson credentials
           && C.check certificate

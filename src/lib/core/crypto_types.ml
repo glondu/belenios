@@ -20,36 +20,35 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Common_types
 
 (** {2 Basic cryptographic datastructures} *)
 
-type group_specification = { version : int; group : string } [@@deriving yojson]
+type group_specification = { version : int; group : string } [@@deriving desc]
 
-type 'a ciphertext = { alpha : 'a; beta : 'a } [@@deriving yojson]
+type 'a ciphertext = { alpha : 'a; beta : 'a } [@@deriving desc]
 (** An ElGamal ciphertext. *)
 
-type 'a proof = { challenge : 'a; response : 'a } [@@deriving yojson]
+type 'a proof = { challenge : 'a; response : 'a } [@@deriving desc]
 (** A Fiat-Shamir non-interactive zero-knowledge proof of knowledge (ZKP). *)
 
-type 'a disjunctive_proof = 'a proof array [@@deriving yojson]
+type 'a disjunctive_proof = 'a proof array [@@deriving desc]
 (** A disjunctive ZKP. The size of the array is the number of disjuncts. *)
 
 (** {2 PKI support} *)
 
 type ('a, 'b, 'c) channel_msg = { recipient : 'a; message : 'c }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b, 'c) signed_msg = { message : 'c; signature : 'b proof }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b, 'c) encrypted_msg = { alpha : 'a; beta : 'a; data : string }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b, 'c) sent_msg =
   ('a, 'b, ('a, 'b, ('a, 'b, 'c) channel_msg) signed_msg) encrypted_msg
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {2 Ballots} *)
 
@@ -59,41 +58,38 @@ type ('a, 'b) raw_ballot = {
   credential : 'a;
   answers : json array;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) ballot = ('a, 'b, ('a, 'b) raw_ballot) signed_msg
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {2 Trustees} *)
 
-type ('a, 'b) raw_trustee_public_key = {
-  public_key : 'a;
-  name : string option; [@yojson.option]
-}
-[@@deriving yojson]
+type ('a, 'b) raw_trustee_public_key = { public_key : 'a; name : string option }
+[@@deriving desc]
 
 type ('a, 'b) trustee_public_key =
   ('a, 'b, ('a, 'b) raw_trustee_public_key) signed_msg
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'context) cert_keys = {
   context : 'context;
   verification : 'a;
   encryption : 'a;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {2 Finite fields} *)
 
-type ff_embedding = { padding : int; bits_per_int : int } [@@deriving yojson]
+type ff_embedding = { padding : int; bits_per_int : int } [@@deriving desc]
 
 type ff_params = {
   g : number;
   p : number;
   q : number;
-  embedding : ff_embedding option; [@yojson.option]
+  embedding : ff_embedding option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 (** Parameters for a multiplicative subgroup of a finite field. *)
 
 (** {2 Credentials protocol} *)
@@ -105,66 +101,66 @@ type ('a, 'b) raw_credentials_certificate = {
   verification_key : 'a;
   encryption_key : 'a;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) credentials_certificate =
   ('a, 'b, ('a, 'b) raw_credentials_certificate) signed_msg
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {2 Tallying} *)
 
 type ('a, 'b) partial_decryption_factor = { factor : 'a; proof : 'b proof }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) raw_partial_decryption = ('a, 'b) partial_decryption_factor shape
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) partial_decryption =
   ('a, 'b, ('a, 'b) raw_partial_decryption) signed_msg
-[@@deriving yojson]
+[@@deriving desc]
 
-type plaintext = int shape array [@@deriving yojson]
-type 'a encrypted_tally = 'a ciphertext shape [@@deriving yojson]
+type plaintext = int shape array [@@deriving desc]
+type 'a encrypted_tally = 'a ciphertext shape [@@deriving desc]
 
 type 'a sized_encrypted_tally = {
   num_tallied : int;
   total_weight : weight;
   encrypted_tally : 'a;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {2 Mixnets} *)
 
-type 'a nh_ciphertexts = 'a ciphertext array array [@@deriving yojson]
+type 'a nh_ciphertexts = 'a ciphertext array array [@@deriving desc]
 
 type ('a, 'b) shuffle_proof =
   ('a * 'a * 'a * ('a * 'a) * 'a array)
   * ('b * 'b * 'b * 'b * 'b array * 'b array)
   * 'a array
   * 'a array
-[@@deriving yojson]
+[@@deriving desc]
 
-type ('a, 'b) shuffle_proofs = ('a, 'b) shuffle_proof array [@@deriving yojson]
+type ('a, 'b) shuffle_proofs = ('a, 'b) shuffle_proof array [@@deriving desc]
 
 type ('a, 'b) raw_shuffle = {
   ciphertexts : 'a nh_ciphertexts;
   proofs : ('a, 'b) shuffle_proofs;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) shuffle = ('a, 'b, ('a, 'b) raw_shuffle) signed_msg
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {2 Basic decryption support} *)
 
 type ('a, 'b) basic_cert = ('a, 'b, ('a, unit) cert_keys) signed_msg
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) basic_parameters = {
   cert : ('a, 'b) basic_cert;
   verification_key : ('a, 'b, ('a, 'b) trustee_public_key) signed_msg;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {2 Threshold decryption support} *)
 
@@ -174,58 +170,58 @@ type common_context = {
   names : string array;
   threshold : int;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
-type index = int [@@deriving yojson]
+type index = int [@@deriving desc]
 
 type full_context = { context : common_context; index : index }
-[@@deriving yojson]
+[@@deriving desc]
 
-type 'a pedersen_context = { context : 'a; coefexps : hash } [@@deriving yojson]
+type 'a pedersen_context = { context : 'a; coefexps : hash } [@@deriving desc]
 
 type ('a, 'b) pedersen_cert =
   ('a, 'b, ('a, index pedersen_context) cert_keys) signed_msg
-[@@deriving yojson]
+[@@deriving desc]
 
-type 'a coefexps = { coefexps : 'a array } [@@deriving yojson]
+type 'a coefexps = { coefexps : 'a array } [@@deriving desc]
 
 type ('a, 'b) pedersen_certs = {
   context : common_context;
   certs : ('a, 'b) pedersen_cert array;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
-type 'a secret = { secret : 'a } [@@deriving yojson]
+type 'a secret = { secret : 'a } [@@deriving desc]
 
 type ('a, 'b) polynomial = {
   secrets : ('a, 'b, 'b secret) sent_msg array;
   coefexps : 'a coefexps;
   signature : 'b proof;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) vinput = {
   secrets : ('a, 'b, 'b secret) sent_msg array;
   coefexps : 'a coefexps array;
   signatures : 'b proof array;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
-type 'a partial_decryption_key = { decryption_key : 'a } [@@deriving yojson]
+type 'a partial_decryption_key = { decryption_key : 'a } [@@deriving desc]
 
 type ('a, 'b) sent_partial_decryption_key =
   ('a, 'b, 'b partial_decryption_key) sent_msg
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) threshold_verification_key =
   ('a, 'b, ('a, 'b) trustee_public_key) signed_msg
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) voutput = {
   private_key : ('a, 'b) sent_partial_decryption_key;
   public_key : ('a, 'b) threshold_verification_key;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) threshold_parameters = {
   context : common_context;
@@ -234,14 +230,14 @@ type ('a, 'b) threshold_parameters = {
   signatures : 'b proof array;
   verification_keys : ('a, 'b) threshold_verification_key array;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {2 Trustees} *)
 
 type ('a, 'b) trustee_kind =
   [ `Single of ('a, 'b) basic_parameters
   | `Pedersen of ('a, 'b) threshold_parameters ]
-[@@deriving yojson]
+[@@deriving desc]
 
-type ('a, 'b) trustees = ('a, 'b) trustee_kind list [@@deriving yojson]
-type 'a owned = { owner : int; payload : 'a } [@@deriving yojson]
+type ('a, 'b) trustees = ('a, 'b) trustee_kind list [@@deriving desc]
+type 'a owned = { owner : int; payload : 'a } [@@deriving desc]

@@ -28,7 +28,7 @@ type record = {
   hashed : string;
   address : string option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 val dir : spool:string -> string -> string
 (** [dir ~spool db] is the directory of database [db] ([passwords/db] in

@@ -263,6 +263,7 @@ let spec : _ Signatures_core.spec =
     scalar = Type.Id.make ();
   }
 
+let t_d = Desc.Core.map Desc.Core.string of_string to_string
 let cofactor = Zq.of_int 8
 
 let get_generator i =

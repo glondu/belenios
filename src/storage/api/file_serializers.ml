@@ -27,47 +27,37 @@ open Extra
 let get_election (type t) : t election_file -> t serializers = function
   | State ->
       {
-        of_string = !*stored_election_state_of_yojson;
-        to_string = !+yojson_of_stored_election_state;
+        of_string = !*stored_election_state_d;
+        to_string = !+stored_election_state_d;
       }
-  | Dates ->
-      {
-        of_string = !*election_dates_of_yojson;
-        to_string = !+yojson_of_election_dates;
-      }
-  | Metadata ->
-      { of_string = !*metadata_of_yojson; to_string = !+yojson_of_metadata }
+  | Dates -> { of_string = !*election_dates_d; to_string = !+election_dates_d }
+  | Metadata -> { of_string = !*metadata_d; to_string = !+metadata_d }
   | Server_seed -> { of_string = Fun.id; to_string = Fun.id }
-  | Audit_cache ->
-      {
-        of_string = !*audit_cache_of_yojson;
-        to_string = !+yojson_of_audit_cache;
-      }
-  | Last_event ->
-      { of_string = !*last_event_of_yojson; to_string = !+yojson_of_last_event }
+  | Audit_cache -> { of_string = !*audit_cache_d; to_string = !+audit_cache_d }
+  | Last_event -> { of_string = !*last_event_d; to_string = !+last_event_d }
   | Draft ->
       {
-        of_string = !*wrapped_draft_election_of_yojson;
-        to_string = !+yojson_of_wrapped_draft_election;
+        of_string = !*wrapped_draft_election_d;
+        to_string = !+wrapped_draft_election_d;
       }
   | Public_creds w ->
       let module G = (val Group.coerce w) in
       {
-        of_string = !*(public_credentials_with_id_of_yojson !$G.of_string);
-        to_string = !+(yojson_of_public_credentials_with_id !&G.to_string);
+        of_string = !*(public_credentials_with_id_d G.t_d);
+        to_string = !+(public_credentials_with_id_d G.t_d);
       }
   | Private_creds ->
       {
-        of_string = !*private_credentials_of_yojson;
-        to_string = !+yojson_of_private_credentials;
+        of_string = !*private_credentials_d;
+        to_string = !+private_credentials_d;
       }
   | Sealing_log -> { of_string = Fun.id; to_string = Fun.id }
   | Records ->
       {
-        of_string = !*Belenios_web_api.election_records_of_yojson;
-        to_string = !+Belenios_web_api.yojson_of_election_records;
+        of_string = !*Belenios_web_api.election_records_d;
+        to_string = !+Belenios_web_api.election_records_d;
       }
-  | Voters -> { of_string = !*voters_of_yojson; to_string = !+yojson_of_voters }
+  | Voters -> { of_string = !*voters_d; to_string = !+voters_d }
   | Confidential_archive ->
       {
         of_string = (fun _ -> invalid_arg "Confidential_archive.of_string");
@@ -75,27 +65,27 @@ let get_election (type t) : t election_file -> t serializers = function
       }
   | Ballots_info ->
       {
-        of_string = !*Belenios_web_api.ballots_info_of_yojson;
-        to_string = !+Belenios_web_api.yojson_of_ballots_info;
+        of_string = !*Belenios_web_api.ballots_info_d;
+        to_string = !+Belenios_web_api.ballots_info_d;
       }
 
 let get_trustees (type t) : t trustees_file -> t serializers = function
   | Trustees_metadata ->
       {
-        of_string = !*Belenios_web_api.trustees_metadata_of_yojson;
-        to_string = !+Belenios_web_api.yojson_of_trustees_metadata;
+        of_string = !*Belenios_web_api.trustees_metadata_d;
+        to_string = !+Belenios_web_api.trustees_metadata_d;
       }
   | Trustees w ->
       let module G = (val Group.coerce w) in
       {
-        of_string = !*[%group_of_yojson: _ trustees];
-        to_string = !+[%yojson_of_group: _ trustees];
+        of_string = !*[%desc_of_group: _ trustees];
+        to_string = !+[%desc_of_group: _ trustees];
       }
   | Trustees_draft w ->
       let module G = (val Group.coerce w) in
       {
-        of_string = !*[%group_of_yojson: _ draft_trustees];
-        to_string = !+[%yojson_of_group: _ draft_trustees];
+        of_string = !*[%desc_of_group: _ draft_trustees];
+        to_string = !+[%desc_of_group: _ draft_trustees];
       }
   | Trustees_private_keys w ->
       let module G = (val Group.coerce w) in
@@ -103,48 +93,41 @@ let get_trustees (type t) : t trustees_file -> t serializers = function
         of_string =
           (fun xs ->
             xs |> split_lines
-            |> List.map !*[%group_of_yojson: _ sent_partial_decryption_key]);
+            |> List.map !*[%desc_of_group: _ sent_partial_decryption_key]);
         to_string =
           (fun xs ->
             xs
-            |> List.map !+[%yojson_of_group: _ sent_partial_decryption_key]
+            |> List.map !+[%desc_of_group: _ sent_partial_decryption_key]
             |> join_lines);
       }
 
 let get_credentials (type t) : t credentials_file -> t serializers = function
   | Credentials_params ->
       {
-        of_string = !*wrapped_credentials_params_of_yojson;
-        to_string = !+yojson_of_wrapped_credentials_params;
+        of_string = !*wrapped_credentials_params_d;
+        to_string = !+wrapped_credentials_params_d;
       }
   | Credentials_metadata ->
       {
-        of_string = !*Belenios_web_api.message_metadata_of_yojson;
-        to_string = !+Belenios_web_api.yojson_of_message_metadata;
+        of_string = !*Belenios_web_api.message_metadata_d;
+        to_string = !+Belenios_web_api.message_metadata_d;
       }
   | Credentials_seed ->
-      {
-        of_string = !*credentials_seed_of_yojson;
-        to_string = !+yojson_of_credentials_seed;
-      }
+      { of_string = !*credentials_seed_d; to_string = !+credentials_seed_d }
   | Credentials_records w ->
       let module G = (val Group.coerce w) in
       {
-        of_string = !*[%group_of_yojson: _ credentials_records];
-        to_string = !+[%yojson_of_group: _ credentials_records];
+        of_string = !*[%desc_of_group: _ credentials_records];
+        to_string = !+[%desc_of_group: _ credentials_records];
       }
   | Credentials_credits ->
       {
-        of_string = !*Belenios_web_api.credentials_credits_of_yojson;
-        to_string = !+Belenios_web_api.yojson_of_credentials_credits;
+        of_string = !*Belenios_web_api.credentials_credits_d;
+        to_string = !+Belenios_web_api.credentials_credits_d;
       }
 
 let get_account (type t) : t account_file -> t serializers = function
-  | Account _ ->
-      { of_string = !*account_of_yojson; to_string = !+yojson_of_account }
+  | Account _ -> { of_string = !*account_d; to_string = !+account_d }
   | Auth_db _ -> { of_string = split_lines; to_string = join_lines }
   | Admin_password _ ->
-      {
-        of_string = !*password_record_of_yojson;
-        to_string = !+yojson_of_password_record;
-      }
+      { of_string = !*password_record_d; to_string = !+password_record_d }

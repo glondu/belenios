@@ -53,15 +53,15 @@ let make_raw_election (template : template) ~uuid ~group ~public_key =
       deny_revote = template.deny_revote;
     }
   in
-  yojson_of_params !&G.to_string params
+  Desc.Json.to_json (params_d G.t_d) params
 
 module Parse (R : RAW_ELECTION) () = struct
   let json = Json.of_string R.raw_election
-  let j = params_of_yojson Fun.id json
+  let j = Desc.Json.of_json (params_d Desc.Core.json) json
 
   module G = (val Group.of_string j.group)
 
-  let params = params_of_yojson !$G.of_string json
+  let params = Desc.Json.of_json (params_d G.t_d) json
   let version = params.version
   let uuid = params.uuid
 
@@ -82,8 +82,7 @@ module Parse (R : RAW_ELECTION) () = struct
 
   type result = json
 
-  let yojson_of_result = Fun.id
-  let result_of_yojson = Fun.id
+  let result_d = Desc.Core.json
   let of_generic_result x = `List (x |> Array.to_list)
 
   let to_generic_result = function
@@ -134,11 +133,7 @@ module MakeElection (W : ELECTION_DATA) = struct
   let create_answer y zkp q m = Q.create_answer q ~public_key:y ~prefix:zkp m
 
   let xch_ballot =
-    {
-      dst = dst_prefix ^ "-ballot";
-      of_yojson = [%group_of_yojson: _ raw_ballot];
-      to_yojson = [%yojson_of_group: _ raw_ballot];
-    }
+    { dst = dst_prefix ^ "-ballot"; desc = [%desc_of_group: _ raw_ballot] }
 
   let create_ballot ~sk m =
     let election_uuid = W.uuid in
@@ -168,10 +163,10 @@ module MakeElection (W : ELECTION_DATA) = struct
          W.template.questions answers
 
   let check_rawballot rawballot =
-    match rawballot |> Json.of_string |> [%group_of_yojson: _ ballot] with
+    match rawballot |> Desc.Json.of_string [%desc_of_group: _ ballot] with
     | exception e -> Error (`SerializationError (Printexc.to_string e))
     | ballot ->
-        if ballot |> [%yojson_of_group: _ ballot] |> Json.to_string = rawballot
+        if ballot |> Desc.Json.to_string [%desc_of_group: _ ballot] = rawballot
         then
           Ok
             {
@@ -219,11 +214,7 @@ module MakeElection (W : ELECTION_DATA) = struct
     loop 0 0
 
   let xch_shuffle =
-    {
-      dst = dst_prefix ^ "-shuffle";
-      of_yojson = [%group_of_yojson: _ raw_shuffle];
-      to_yojson = [%yojson_of_group: _ raw_shuffle];
-    }
+    { dst = dst_prefix ^ "-shuffle"; desc = [%desc_of_group: _ raw_shuffle] }
 
   let shuffle_ciphertexts ~sk cc =
     let rec loop i accu =
@@ -261,8 +252,7 @@ module MakeElection (W : ELECTION_DATA) = struct
   let xch_partial_decryption =
     {
       dst = dst_prefix ^ "-partial_decryption";
-      of_yojson = [%group_of_yojson: _ raw_partial_decryption];
-      to_yojson = [%yojson_of_group: _ raw_partial_decryption];
+      desc = [%desc_of_group: _ raw_partial_decryption];
     }
 
   let compute_factor c ~sk ~pdk =

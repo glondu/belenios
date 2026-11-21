@@ -209,16 +209,15 @@ module Credgen = struct
         end) in
     let c = Cred.generate ids in
     set_textarea "credgen_generated_creds"
-      (!+yojson_of_private_credentials c.private_creds);
+      (!+private_credentials_d c.private_creds);
     set_textarea "credgen_generated_pks"
-      (!+(yojson_of_public_credentials_with_id !&G.to_string) c.public_with_ids);
+      (!+(public_credentials_with_id_d G.t_d) c.public_with_ids);
     Lwt.return_unit
 
   let generate_n () =
     get_textarea "credgen_number" |> int_of_string |> Voter.generate |> generate
 
-  let generate_ids () =
-    get_textarea "credgen_ids" |> !*voters_of_yojson |> generate
+  let generate_ids () = get_textarea "credgen_ids" |> !*voters_d |> generate
 
   let cmds =
     [
@@ -237,13 +236,11 @@ module Schulze = struct
   open Method_schulze
 
   let compute () =
-    let ballots =
-      get_textarea "schulze_raw_plaintext_ballots" |> !*ballots_of_yojson
-    in
+    let ballots = get_textarea "schulze_raw_plaintext_ballots" |> !*ballots_d in
     let nchoices = get_input "schulze_nchoices" |> int_of_string in
     let blank_allowed = get_checked "schulze_blank" in
     let output = Method_schulze.compute ~nchoices ~blank_allowed ballots in
-    set_textarea "schulze_output" (!+yojson_of_result output);
+    set_textarea "schulze_output" (!+result_d output);
     Lwt.return_unit
 
   let cmds = [ ("do_schulze", compute) ]

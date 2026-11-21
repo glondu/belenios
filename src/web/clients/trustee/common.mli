@@ -28,7 +28,7 @@ type stored_private_key = {
   token : string;
   seed : string;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 val seed : string option ref
 val refresh : (unit -> unit) ref

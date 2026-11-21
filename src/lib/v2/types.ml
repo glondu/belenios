@@ -20,7 +20,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 module Question_ = Question
 open Belenios_core
 
@@ -34,8 +33,8 @@ type 'a params = {
   uuid : uuid;
   administrator : string;
   credential_authority : credential_authority;
-  language : (string * lang_dir) option; [@yojson.option]
-  deny_revote : bool; [@default false] [@yojson_drop_default ( = )]
+  language : (string * lang_dir) option;
+  deny_revote : bool; [@default false]
 }
-[@@deriving yojson]
+[@@deriving desc]
 (** Election parameters relevant for creating a ballot. *)

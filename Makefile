@@ -48,6 +48,8 @@ check:
 	dune runtest
 	$(MAKE) build-debug-tool
 	$(MAKE) -C tests/tool check
+	dune build tests/serialization/roundtrip.exe
+	tests/serialization/check-archives.sh tests/tool/data/*/*.bel
 
 clean:
 	dune clean

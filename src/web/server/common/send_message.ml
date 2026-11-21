@@ -72,7 +72,7 @@ let send ?internal (msg : message) =
     | (None | Some false), Some (url, key) -> (
         let ~payload, ~hmac = wrap_message ~key msg in
         let body =
-          payload |> !+yojson_of_message_payload |> Cohttp_lwt.Body.of_string
+          payload |> !+message_payload_d |> Cohttp_lwt.Body.of_string
         in
         let* response, x =
           let headers =

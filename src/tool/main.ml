@@ -150,9 +150,9 @@ module Events : CMDLINER_MODULE = struct
     let* public_creds = string_of_file public_creds in
     let public_creds =
       public_creds
-      |> !*(public_credentials_with_id_of_yojson Fun.id)
+      |> !*(public_credentials_with_id_d Desc.Core.json)
       |> HMap.map (fun x -> { x with id = None })
-      |> !+(yojson_of_public_credentials Fun.id)
+      |> !+(public_credentials_d Desc.Core.json)
     in
     let file =
       let uuid = Election.get_uuid election in
@@ -168,7 +168,8 @@ module Events : CMDLINER_MODULE = struct
     let* index = Tool_events.get_index ~file in
     let event_typ =
       get_mandatory_opt "--type" event_typ
-      |> Printf.sprintf "[%S]" |> !*event_type_of_yojson
+      |> (fun x -> `String x)
+      |> Desc.Json.of_json event_type_d
     in
     let* payloads = lines_of_stdin () in
     let payload =
@@ -245,7 +246,7 @@ module Methods : CMDLINER_MODULE = struct
     let open Method_schulze in
     let@ () = wrap_main in
     let* ballots = chars_of_stdin () in
-    let ballots = !*ballots_of_yojson ballots in
+    let ballots = !*ballots_d ballots in
     let nchoices =
       if nchoices = 0 then
         if Array.length ballots > 0 then Array.length ballots.(0) else 0
@@ -261,13 +262,13 @@ module Methods : CMDLINER_MODULE = struct
       in
       ballots
       |> Method_schulze.compute ~nchoices ~blank_allowed
-      |> !+yojson_of_result |> Lwt_io.printl
+      |> !+result_d |> Lwt_io.printl
 
   let mj nchoices ngrades blank_allowed =
     let open Method_mj in
     let@ () = wrap_main in
     let* ballots = chars_of_stdin () in
-    let ballots = !*ballots_of_yojson ballots in
+    let ballots = !*ballots_d ballots in
     let nchoices =
       if nchoices = 0 then
         if Array.length ballots > 0 then Array.length ballots.(0) else 0
@@ -288,7 +289,7 @@ module Methods : CMDLINER_MODULE = struct
       in
       ballots
       |> Method_mj.compute ~nchoices ~ngrades ~blank_allowed
-      |> !+yojson_of_result |> Lwt_io.printl
+      |> !+result_d |> Lwt_io.printl
 
   let stv nseats =
     let open Method_stv in
@@ -299,8 +300,8 @@ module Methods : CMDLINER_MODULE = struct
       | Some i -> if i > 0 then i else failcmd "invalid --nseats parameter"
     in
     let* ballots = chars_of_stdin () in
-    ballots |> !*raw_ballots_of_yojson |> Method_stv.compute ~nseats
-    |> !+yojson_of_result |> Lwt_io.printl
+    ballots |> !*raw_ballots_d |> Method_stv.compute ~nseats |> !+result_d
+    |> Lwt_io.printl
 
   let nchoices_t =
     let doc = "Number of choices. If 0, try to infer it." in

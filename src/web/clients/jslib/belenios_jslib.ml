@@ -148,9 +148,7 @@ let belenios : belenios Js.t =
       Lwt.return_unit
 
     method getLanguage = Js.string (get_language ())
-
-    method setElection x =
-      election := Some (!*Election.t_of_yojson (Js.to_string x))
+    method setElection x = election := Some (!*Election.t_d (Js.to_string x))
 
     method getFingerprint =
       match !election with
@@ -166,7 +164,7 @@ let belenios : belenios Js.t =
             (fun () ->
               let* () = Lwt_js.yield () in
               let raw = Js._JSON##stringify params |> Js.to_string in
-              let module W = (val !*Election.t_of_yojson raw) in
+              let module W = (val !*Election.t_d raw) in
               let* () = Lwt_js.yield () in
               let module Cred =
                 Credential.Make
@@ -213,12 +211,11 @@ let belenios : belenios Js.t =
               let open (val election : ELECTION_WITH_SK) in
               let open E in
               let plaintext =
-                Js._JSON##stringify plaintext
-                |> Js.to_string |> !*plaintext_of_yojson
+                Js._JSON##stringify plaintext |> Js.to_string |> !*plaintext_d
               in
               let* () = Lwt_js.yield () in
               let b = E.create_ballot ~sk plaintext in
-              let ballot' = !+[%yojson_of_group: _ ballot] b in
+              let ballot' = !+[%desc_of_group: _ ballot] b in
               if !stateful then ballot := Some ballot';
               let tracker = sha256_b64 ballot' in
               callbacks##success (Js.string ballot') (Js.string tracker);
@@ -332,9 +329,7 @@ let belenios : belenios Js.t =
           let content =
             match x.code with
             | 200 ->
-                let result =
-                  !*Belenios_web_api.cast_result_of_yojson x.content
-                in
+                let result = !*Belenios_web_api.cast_result_d x.content in
                 Belenios_js.Cast.confirmation configuration (module W) result
             | _ ->
                 let open (val !Belenios_js.I18n.gettext) in

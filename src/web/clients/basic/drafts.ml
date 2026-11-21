@@ -31,14 +31,12 @@ open Common
 
 let show_draft_main show_all uuid draft container =
   let@ () = show_in container in
-  let draft_str = !+yojson_of_draft draft in
+  let draft_str = !+draft_d draft in
   let t, tget = textarea draft_str in
   let ifmatch = sha256_b64 draft_str in
   let button_save =
     let@ () = button "Save changes" in
-    let* x =
-      Api.(put ~ifmatch (draft uuid) !user (!*draft_of_yojson (tget ())))
-    in
+    let* x = Api.(put ~ifmatch (draft uuid) !user (!*draft_d (tget ()))) in
     let@ () = show_in container in
     generic_proceed x show_all
   in
@@ -58,13 +56,12 @@ let rec show_draft_voters uuid draft container =
   let@ () = show_in container in
   let* x = Api.(get (draft_voters uuid) !user) in
   let@ voters, ifmatch = with_ok "voters" x in
-  let voters_str = !+yojson_of_voters voters in
+  let voters_str = !+voters_d voters in
   let t, tget = textarea voters_str in
   let b =
     let@ () = button "Save changes" in
     let* x =
-      Api.(
-        put ~ifmatch (draft_voters uuid) !user (!*voters_of_yojson (tget ())))
+      Api.(put ~ifmatch (draft_voters uuid) !user (!*voters_d (tget ())))
     in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_voters uuid draft container)
@@ -122,14 +119,14 @@ let rec show_draft_credentials : 'a 'b. uuid -> ('a, 'b) group -> _ -> _ =
             ])
   | Some (x, _) ->
       let module G = (val w) in
-      let t, _ = textarea (!+(yojson_of_public_credentials !&G.to_string) x) in
+      let t, _ = textarea (!+(public_credentials_d G.t_d) x) in
       Lwt.return [ t ]
 
 let rec show_draft_status uuid container =
   let@ () = show_in container in
   let* x = Api.(get (draft_status uuid) !user) in
   let@ status, _ = with_ok "status" x in
-  let t, _ = textarea (!+yojson_of_draft_status status) in
+  let t, _ = textarea (!+draft_status_d status) in
   let b label r =
     let@ () = button label in
     let* x = Api.(post (draft uuid) !user r) in

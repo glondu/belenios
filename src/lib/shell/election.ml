@@ -56,14 +56,6 @@ let version_of_int = function
 type versioned_template =
   | Template : 'a version * template -> versioned_template
 
-let versioned_template_of_yojson x =
-  match get_version x with
-  | 2 -> Template (V2, template_of_yojson x)
-  | n ->
-      Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
-
-let yojson_of_versioned_template (Template (V2, x)) = yojson_of_template x
-
 let election_uuid_of_string_ballot x =
   let j = Json.of_string x in
   match j with
@@ -109,6 +101,7 @@ let yojson_of_t x =
   let module X = (val x : ELECTION) in
   X.json
 
+let t_d = Desc.Core.custom "election" yojson_of_t t_of_yojson
 let supported_crypto_versions = [ Version V2 ]
 
 (** Computing checksums *)
@@ -118,8 +111,7 @@ let compute_checksums (type a b) (election : (a, b) u) trustees
     =
   let module W = (val election) in
   let ec_public_credentials =
-    Hash.hash_string
-      (!+(yojson_of_public_credentials !&W.G.to_string) public_credentials)
+    Hash.hash_string (!+(public_credentials_d W.G.t_d) public_credentials)
   in
   let ec_num_voters = HMap.cardinal public_credentials in
   let ec_weights =

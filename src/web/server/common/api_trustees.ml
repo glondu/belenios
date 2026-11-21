@@ -218,7 +218,9 @@ let post_trustee_basic (type a b) (w : (a, b) group)
   match t.parameters with
   | None ->
       let module T = (val Trustees.get_by_version G.spec.version) in
-      let parameters = [%group_of_yojson: _ basic_parameters] data in
+      let parameters =
+        Desc.Json.of_json [%desc_of_group: _ basic_parameters] data
+      in
       let module K = T.MakeCombinator (G) in
       if
         parameters.verification_key.message.message.name = Some t.name
@@ -309,14 +311,16 @@ let post_trustee_threshold uuid (type a b) (w : (a, b) group)
   let () =
     match t.step with
     | Some 1 ->
-        let cert = [%group_of_yojson: _ pedersen_cert] data in
+        let cert = Desc.Json.of_json [%desc_of_group: _ pedersen_cert] data in
         if K.step1_check full_context cert then (
           t.cert <- Some cert;
           t.step <- Some 2)
         else failwith "Invalid certificate"
     | Some 3 ->
         let certs = get_certs () in
-        let polynomial = [%group_of_yojson: _ polynomial] data in
+        let polynomial =
+          Desc.Json.of_json [%desc_of_group: _ polynomial] data
+        in
         if K.step3_check { context; certs } i polynomial then (
           t.polynomial <- Some polynomial;
           t.step <- Some 4)
@@ -324,7 +328,7 @@ let post_trustee_threshold uuid (type a b) (w : (a, b) group)
     | Some 5 ->
         let certs = get_certs () in
         let polynomials = get_polynomials () in
-        let voutput = [%group_of_yojson: _ voutput] data in
+        let voutput = Desc.Json.of_json [%desc_of_group: _ voutput] data in
         if K.step5_check { context; certs } i polynomials voutput then (
           t.voutput <- Some voutput;
           t.step <- Some 6)
@@ -558,7 +562,8 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
       let@ who = with_administrator_or_nobody token metadata in
       let get () =
         let* x = get_trustees who s metadata w in
-        Lwt.return @@ [%yojson_of_group: _ trustees_status] (fst x)
+        Lwt.return
+        @@ Desc.Json.to_json [%desc_of_group: _ trustees_status] (fst x)
       in
       match method_ with
       | `GET ->
@@ -571,7 +576,7 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
                 cont a.id
             | _ -> unauthorized
           in
-          let@ request = body.run !*trustees_uuid_request_of_yojson in
+          let@ request = body.run !*trustees_uuid_request_d in
           let@ request cont =
             match request with
             | `SendLink { address; langs } -> (
@@ -644,7 +649,8 @@ let dispatch_trustees uuid ~token ~ifmatch endpoint method_ body s
           let@ () =
            fun cont ->
             let* x = cont () in
-            return_yojson `OK @@ [%yojson_of_group: _ trustees_trustee_status] x
+            return_yojson `OK
+            @@ Desc.Json.to_json [%desc_of_group: _ trustees_trustee_status] x
           in
           let@ dt cont =
             match dt with
@@ -752,7 +758,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | `POST ->
           let@ account = with_administrator token in
           let@ (Create { group = { version; group }; owners }) =
-            body.run !*trustees_root_request_of_yojson
+            body.run !*trustees_root_request_d
           in
           let@ () =
            fun cont -> if List.mem account.id owners then cont () else forbidden

@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt
 open Lwt.Syntax
 open Eliom.Service
@@ -33,21 +32,21 @@ type oidc_configuration = {
   token_endpoint : string;
   userinfo_endpoint : string;
 }
-[@@deriving yojson] [@@yojson.allow_extra_fields]
+[@@deriving desc]
 
 type oidc_tokens = {
   access_token : string;
   token_type : string;
   id_token : string;
 }
-[@@deriving yojson] [@@yojson.allow_extra_fields]
+[@@deriving desc]
 
 type oidc_userinfo = {
   sub : string;
-  name : string option; [@yojson.option]
-  email : string option; [@yojson.option]
+  name : string option;
+  email : string option;
 }
-[@@deriving yojson] [@@yojson.allow_extra_fields]
+[@@deriving desc]
 
 module Make (Web_services : Web_services_sig.S) (Web_auth : Web_auth_sig.S) =
 struct
@@ -66,7 +65,7 @@ struct
 
   let oidc_get_userinfo ocfg info =
     try
-      let info = !*oidc_tokens_of_yojson info in
+      let info = !*oidc_tokens_d info in
       let access_token = info.access_token in
       let url = ocfg.userinfo_endpoint in
       let headers =
@@ -75,7 +74,7 @@ struct
       let* _, body = Cohttp_lwt_unix.Client.get ~headers (Uri.of_string url) in
       let* info = Cohttp_lwt.Body.to_string body in
       try
-        let x = !*oidc_userinfo_of_yojson info in
+        let x = !*oidc_userinfo_d info in
         let info : Belenios_web_api.user_info =
           { login = x.sub; address = x.email; name = x.name; timestamp = None }
         in
@@ -104,8 +103,7 @@ struct
     let url = server ^ "/.well-known/openid-configuration" in
     let* _, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
     let* info = Cohttp_lwt.Body.to_string body in
-    try return (!*oidc_configuration_of_yojson info)
-    with _ -> fail_http `Not_found
+    try return (!*oidc_configuration_d info) with _ -> fail_http `Not_found
 
   let split_prefix_path url =
     let n = String.length url in

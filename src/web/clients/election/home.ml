@@ -354,7 +354,7 @@ let majority_judgment_content uuid q (r : Method_mj.result) =
   let invalid =
     a_data ~mime_type:"application/json"
       ~filename:(Printf.sprintf "invalid_ballots-%s.json" (Uuid.to_string uuid))
-      ~data:(!+yojson_of_ballots r.invalid)
+      ~data:(!+ballots_d r.invalid)
     @@ Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.invalid)
   in
   let invalid = div [ invalid ] in
@@ -440,7 +440,7 @@ let stv_content uuid q (r : Method_stv.result) =
     |> List.map (fun l -> li [ txt l ])
   in
   let invalid =
-    ( r.invalid |> !+yojson_of_raw_ballots |> fun data ->
+    ( r.invalid |> !+raw_ballots_d |> fun data ->
       a_data ~mime_type:"application/json"
         ~filename:
           (Printf.sprintf "invalid_ballots-%s.json" (Uuid.to_string uuid))
@@ -458,7 +458,7 @@ let stv_content uuid q (r : Method_stv.result) =
       ]
   in
   let events =
-    r.events |> !+yojson_of_events |> fun data ->
+    r.events |> !+events_d |> fun data ->
     a_data ~mime_type:"application/json"
       ~filename:(Printf.sprintf "raw_stv_events-%s.json" (Uuid.to_string uuid))
       ~data
@@ -510,7 +510,7 @@ let format_question_result uuid r (Q question : Question.t) =
     match id with
     | Homomorphic.Id ->
         let open Homomorphic in
-        let r = !*result_of_yojson r in
+        let r = !*result_d r in
         let answers = Array.to_list q.answers in
         let answers =
           match q.blank with
@@ -539,7 +539,7 @@ let format_question_result uuid r (Q question : Question.t) =
           ]
     | Non_homomorphic.Id ->
         let open Non_homomorphic in
-        let ballots = !*result_of_yojson r in
+        let ballots = !*result_d r in
         let applied_counting_method, show_others =
           match Non_homomorphic.get_counting_method question.extra with
           | `None -> (txt "", true)
@@ -596,7 +596,7 @@ let format_question_result uuid r (Q question : Question.t) =
           ]
     | Lists.Id ->
         let open Lists in
-        let r = r |> !*result_of_yojson in
+        let r = r |> !*result_d in
         let answers = Array.to_list q.answers in
         let line_of_candidate name votes =
           tr [ td [ markup name ]; td [ txt @@ Weight.to_string votes ] ]
@@ -631,7 +631,7 @@ let make_result_div (election : Election.t) t ~result =
   let open (val !Belenios_js.I18n.gettext) in
   let open (val election) in
   let questions = template.questions in
-  let r = election_result_of_yojson result_of_yojson result in
+  let r = Desc.Json.of_json (election_result_d result_d) result in
   let nballots = t.num_tallied in
   let total_weight = t.total_weight in
   let div_total_weight =

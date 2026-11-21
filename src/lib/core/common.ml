@@ -155,16 +155,11 @@ struct
   let ( * ) x y = Z.(erem (x * y) q)
   let ( =% ) x y = compare x y = 0
   let random = random_modulo q
+  let t_d = Desc.Core.map Desc.Core.string of_string to_string
 end
 
-let ( !$ ) of_string =
-  Ppx_yojson_conv_lib.Yojson_conv.string_of_yojson >> of_string
-
-let ( !& ) to_string =
-  to_string >> Ppx_yojson_conv_lib.Yojson_conv.yojson_of_string
-
-let ( !* ) of_yojson = Json.of_string >> of_yojson
-let ( !+ ) to_yojson = to_yojson >> Json.to_string
+let ( !* ) = Desc.Json.of_string
+let ( !+ ) = Desc.Json.to_string
 
 let b64_order =
   "+/0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ"
@@ -365,7 +360,7 @@ let uniq_first (type a) ?(compare = Stdlib.compare) xs =
   loop S.empty [] xs
 
 module Voter = struct
-  type t = voter [@@deriving yojson]
+  type t = voter [@@deriving desc]
 
   let get_weight ({ weight; _ } : t) = Option.value ~default:Weight.one weight
 
@@ -411,5 +406,6 @@ module Voter = struct
   let hash voters =
     voters |> SMap.to_seq
     |> Seq.map (fun (_, (v : voter)) -> { v with address = None })
-    |> List.of_seq |> yojson_of_voter_list |> Hash.hash_yojson
+    |> List.of_seq
+    |> Hash.hash_desc voter_list_d
 end

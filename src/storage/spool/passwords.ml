@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Lwt.Syntax
 open Belenios
 
@@ -27,9 +26,9 @@ type record = {
   username : string;
   salt : string;
   hashed : string;
-  address : string option; [@yojson.option]
+  address : string option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 let ( let*& ) x f =
   let* x = x in
@@ -56,7 +55,7 @@ let lowercase = Option.map String.lowercase_ascii
 
 let read_record f =
   let*& x = Files.read_file f in
-  Lwt.return_some (!*record_of_yojson x)
+  Lwt.return_some (!*record_d x)
 
 let get_by_username ~dir ~username = read_record (user_file dir username)
 
@@ -81,7 +80,7 @@ let set ~dir r =
   let user_file = user_file dir r.username in
   let* old = read_record user_file in
   let old_address = Option.bind old (fun x -> x.address) in
-  let* () = Files.write_file user_file (!+yojson_of_record r) in
+  let* () = Files.write_file user_file (!+record_d r) in
   if lowercase old_address = lowercase r.address then Lwt.return_unit
   else
     let* () =
@@ -179,7 +178,7 @@ let export ~spool ~db =
         (fun f ->
           if Filename.check_suffix f ".json" then
             let*& x = Files.read_file (dir // "users" // f) in
-            Lwt.return_some (!*record_of_yojson x)
+            Lwt.return_some (!*record_d x)
           else Lwt.return_none)
         files
     in

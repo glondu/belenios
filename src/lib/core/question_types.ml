@@ -26,16 +26,16 @@ open Signatures_core
 type ('a, 'b) generic_question = {
   type_ : 'a; [@key "type"]
   value : 'b;
-  extra : json option; [@yojson.option]
+  extra : json option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 type _ id = ..
 
 module type QUESTION_TYPE = sig
-  type question [@@deriving yojson]
-  type ('a, 'b) answer [@@deriving yojson]
-  type result [@@deriving yojson]
+  type question [@@deriving desc]
+  type ('a, 'b) answer [@@deriving desc]
+  type result [@@deriving desc]
   type _ id += Id : question id
 
   val type_ : string

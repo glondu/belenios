@@ -127,7 +127,7 @@ let raw_get_with_token ~token of_string url =
       Lwt.return @@ Ok (x, ifmatch)
   | _ ->
       let x =
-        match !*request_status_of_yojson x.content with
+        match !*request_status_d x.content with
         | exception _ -> BadStatus (x.code, x.content)
         | status -> RequestStatus status
       in
@@ -160,7 +160,7 @@ end
 let string_of_error = function
   | BadResult -> "bad result"
   | BadStatus (code, content) -> Printf.sprintf "bad status %d: %s" code content
-  | RequestStatus e -> !+yojson_of_request_status e
+  | RequestStatus e -> !+request_status_d e
 
 let wrap of_string x =
   let open Js_of_ocaml_lwt.XmlHttpRequest in

@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios
@@ -31,7 +30,7 @@ type stored_private_key = {
   token : string;
   seed : string;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 let seed = ref None
 let refresh = ref Fun.id
@@ -116,7 +115,7 @@ let load_and_check_private_key (type a b) (group : (a, b) group) (vk : a)
   let dom = ref None in
   let i =
     let@ s = make_private_key_input in
-    match !*stored_private_key_of_yojson s with
+    match !*stored_private_key_d s with
     | { seed = s; _ } when check_seed s ->
         seed := Some s;
         let () =

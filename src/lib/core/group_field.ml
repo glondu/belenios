@@ -120,5 +120,6 @@ let make description ff_params =
         h
 
     let spec : _ spec = { version = 2; group = description; element; scalar }
+    let t_d = Desc.Core.map Desc.Core.string of_string to_string
   end in
   (module G : GROUP)

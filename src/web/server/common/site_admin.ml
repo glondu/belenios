@@ -474,7 +474,7 @@ struct
     let* context = Cohttp_lwt.Body.to_string body in
     match Cohttp.Code.code_of_status x.status with
     | 200 -> (
-        match !*Belenios_web_api.connect_context_of_yojson context with
+        match !*Belenios_web_api.connect_context_d context with
         | x -> Lwt.return_some x
         | exception _ -> Lwt.return_none)
     | _ -> Lwt.return_none
@@ -557,7 +557,6 @@ struct
         match consume_code ~now code with
         | Some { user_info; callback = c; _ } when c = callback ->
             String.send
-              ( !+Belenios_web_api.yojson_of_user_info user_info,
-                "application/json" )
+              (!+Belenios_web_api.user_info_d user_info, "application/json")
         | _ -> fail_http `Forbidden)
 end

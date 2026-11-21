@@ -47,7 +47,7 @@ struct
     | [] -> (
         match method_ with
         | `POST ->
-            let@ i = body.run !*Belenios_web_api.auth_dummy_info_of_yojson in
+            let@ i = body.run !*Belenios_web_api.auth_dummy_info_d in
             let user : user = { domain = a.auth_instance; name = i.username } in
             cont ~address:None user
         | _ -> Api_generic.method_not_allowed)

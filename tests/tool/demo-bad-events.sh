@@ -180,7 +180,7 @@ init_with_certificate () {
     CERT_H=$(add_object "$CERT" data)
     SETUP_H=$(add_object "$(jq --compact-output --arg h $CERT_H ". + {credentials_certificate: \$h}" extracted/$SETUP)" data)
     rm extracted/*.event.json
-    add_object "{\"height\":0,\"type\":[\"Setup\"],\"payload\":\"$SETUP_H\"}" event > /dev/null
+    add_object "{\"height\":0,\"type\":\"Setup\",\"payload\":\"$SETUP_H\"}" event > /dev/null
     belenios-tool archive make --dir extracted > $BEL
 }
 

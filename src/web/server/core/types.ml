@@ -22,17 +22,16 @@
 
 (** {1 Web-specific serializable datatypes} *)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios_messages
 
 (** {1 Bulk emails} *)
 
-type bulk_email = [ `Credential of material_message ] [@@deriving yojson]
-type bulk_emails = bulk_email array [@@deriving yojson]
-type bulk_mode = [ `Primary | `Secondary ] [@@deriving yojson]
-type bulk_processed = { mode : bulk_mode; processed : int } [@@deriving yojson]
+type bulk_email = [ `Credential of material_message ] [@@deriving desc]
+type bulk_emails = bulk_email array [@@deriving desc]
+type bulk_mode = [ `Primary | `Secondary ] [@@deriving desc]
+type bulk_processed = { mode : bulk_mode; processed : int } [@@deriving desc]
 
 (** {1 OTP logging} *)
 
-type otp_record = { recipient : string; code : string; expiration_time : float }
-[@@deriving yojson]
+type otp_record = { recipient : string; code : string; expiration_time : int64 }
+[@@deriving desc]

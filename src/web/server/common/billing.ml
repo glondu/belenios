@@ -35,7 +35,7 @@ module Request_table =
 
 let create ~admin_id ~uuid ~nb_voters =
   let date = datetime_now () in
-  let r = { admin_id; date; uuid; nb_voters } |> !+yojson_of_billing_request in
+  let r = { admin_id; date; uuid; nb_voters } |> !+billing_request_d in
   let rec find_id () =
     let id = generate_token 22 in
     Lwt.catch
@@ -68,7 +68,7 @@ let lookup id =
   Lwt.catch
     (fun () ->
       let* x = Request_table.find id in
-      Lwt.return_some @@ !*billing_request_of_yojson x)
+      Lwt.return_some @@ !*billing_request_d x)
     (function Not_found -> Lwt.return_none | e -> Lwt.fail e)
 
 (* Forward reference set in Api_drafts *)
@@ -83,7 +83,7 @@ let dispatch ~token:_ ~ifmatch:_ endpoint method_ _body =
           let* x = lookup id in
           match x with
           | None -> not_found
-          | Some x -> return_json `OK (!+yojson_of_billing_request x))
+          | Some x -> return_json `OK (!+billing_request_d x))
       | _ -> method_not_allowed)
   | [ "requests"; id; "validate" ] -> (
       match method_ with

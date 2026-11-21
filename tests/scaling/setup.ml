@@ -95,8 +95,8 @@ module Make (P : PARAMS) = struct
     [ ("Authorization", Printf.sprintf "Bearer %s" api_token) ]
     |> Cohttp.Header.of_list
 
-  let create to_yojson endpoint x =
-    let body = !+to_yojson x |> Cohttp_lwt.Body.of_string in
+  let create desc endpoint x =
+    let body = !+desc x |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
         (Printf.ksprintf Uri.of_string endpoint api_root)
@@ -113,10 +113,10 @@ module Make (P : PARAMS) = struct
         Printf.ksprintf failwith "unexpected status %d in create(%s)" code
           (string_of_format endpoint)
 
-  let create_draft () = create yojson_of_raw_draft "%s/elections" draft
+  let create_draft () = create raw_draft_d "%s/elections" draft
 
   let create_trustees () =
-    create yojson_of_trustees_root_request "%s/trustees"
+    create trustees_root_request_d "%s/trustees"
     @@ Create { group = { version; group }; owners = [ admin_id ] }
 
   let setup_voters uuid nb_voters =
@@ -130,7 +130,7 @@ module Make (P : PARAMS) = struct
       else accu
     in
     let voters = loop nb_voters SMap.empty in
-    let body = voters |> !+yojson_of_voters |> Cohttp_lwt.Body.of_string in
+    let body = voters |> !+voters_d |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.put ~headers ~body
         (Printf.ksprintf Uri.of_string "%s/elections/%s/draft/voters" api_root
@@ -177,7 +177,7 @@ module Make (P : PARAMS) = struct
     in
     let body =
       x.public_with_ids
-      |> !+(yojson_of_public_credentials_with_id !&G.to_string)
+      |> !+(public_credentials_with_id_d G.t_d)
       |> Cohttp_lwt.Body.of_string
     in
     let* response, x =
@@ -193,8 +193,8 @@ module Make (P : PARAMS) = struct
         Printf.ksprintf failwith "unexpected status %d in setup_credentials"
           code
 
-  let send_request to_yojson endpoint uuid r =
-    let body = r |> !+to_yojson |> Cohttp_lwt.Body.of_string in
+  let send_request desc endpoint uuid r =
+    let body = r |> !+desc |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
         (Printf.ksprintf Uri.of_string endpoint api_root (Uuid.to_string uuid))
@@ -209,20 +209,17 @@ module Make (P : PARAMS) = struct
   let validate_election uuid =
     let* trustees = create_trustees () in
     let* () =
-      send_request yojson_of_trustees_uuid_request "%s/trustees/%s" trustees
-        `Validate
+      send_request trustees_uuid_request_d "%s/trustees/%s" trustees `Validate
     in
     let* () =
-      send_request yojson_of_draft_request "%s/elections/%s/draft" uuid
+      send_request draft_request_d "%s/elections/%s/draft" uuid
         (`SetTrustees (Some trustees))
     in
     let* () =
-      send_request yojson_of_draft_request "%s/elections/%s/draft" uuid
+      send_request draft_request_d "%s/elections/%s/draft" uuid
         `ValidateElection
     in
-    let* () =
-      send_request yojson_of_admin_request "%s/elections/%s" uuid `Open
-    in
+    let* () = send_request admin_request_d "%s/elections/%s" uuid `Open in
     Lwt.return_unit
 
   let main () =
@@ -231,7 +228,7 @@ module Make (P : PARAMS) = struct
     let* voters = setup_voters uuid nb_voters in
     let* private_creds = setup_credentials uuid voters in
     let* () =
-      send_request yojson_of_draft_request "%s/elections/%s/draft" uuid
+      send_request draft_request_d "%s/elections/%s/draft" uuid
         `SetCredentialAuthorityVisited
     in
     let* () =
@@ -240,7 +237,7 @@ module Make (P : PARAMS) = struct
         with_file ~mode:output
           (Printf.sprintf "scaling.%s.voters.json" (Uuid.to_string uuid))
       in
-      write f (!+yojson_of_voters voters)
+      write f (!+voters_d voters)
     in
     let* () =
       let open Lwt_io in
@@ -248,7 +245,7 @@ module Make (P : PARAMS) = struct
         with_file ~mode:output
           (Printf.sprintf "scaling.%s.privcreds.json" (Uuid.to_string uuid))
       in
-      write f (!+yojson_of_private_credentials private_creds)
+      write f (!+private_credentials_d private_creds)
     in
     if validate then validate_election uuid else Lwt.return_unit
 end
@@ -256,14 +253,14 @@ end
 let perform_login ~prefix ~username =
   let@ token cont =
     let body =
-      { username } |> !+yojson_of_auth_dummy_info |> Cohttp_lwt.Body.of_string
+      { username } |> !+auth_dummy_info_d |> Cohttp_lwt.Body.of_string
     in
     let* response, x =
       Cohttp_lwt_unix.Client.post ~body
         (Printf.ksprintf Uri.of_string "%sapi/login/admin/demo" prefix)
     in
     let* x = Cohttp_lwt.Body.to_string x in
-    let { token; _ } = !*auth_token_of_yojson x in
+    let { token; _ } = !*auth_token_d x in
     match Cohttp.Code.code_of_status response.status with
     | 200 -> cont token
     | code ->
@@ -279,7 +276,7 @@ let perform_login ~prefix ~username =
         (Printf.ksprintf Uri.of_string "%sapi/account" prefix)
     in
     let* x = Cohttp_lwt.Body.to_string x in
-    let { id; _ } = !*api_account_of_yojson x in
+    let { id; _ } = !*api_account_d x in
     match Cohttp.Code.code_of_status response.status with
     | 200 -> cont id
     | code ->

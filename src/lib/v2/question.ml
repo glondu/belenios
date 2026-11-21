@@ -38,9 +38,9 @@ let lookup_type (type a) (type_ : a question_type) =
   in
   loop types
 
-type question = Belenios_core.Question.t [@@deriving yojson]
-type answer = Json.t [@@deriving yojson]
-type result = Json.t [@@deriving yojson]
+type question = Belenios_core.Question.t [@@deriving desc]
+type answer = Json.t [@@deriving desc]
+type result = Json.t [@@deriving desc]
 
 let is_nh_question = is_nh_question
 
@@ -51,24 +51,24 @@ let get_complexity (Q q : question) =
 module Make (G : GROUP) = struct
   module G = G
 
-  type nonrec question = question [@@deriving yojson]
-  type nonrec answer = answer [@@deriving yojson]
-  type nonrec result = result [@@deriving yojson]
+  type nonrec question = question [@@deriving desc]
+  type nonrec answer = answer [@@deriving desc]
+  type nonrec result = result [@@deriving desc]
 
   let create_answer (Q q : question) ~public_key ~prefix m =
     let open (val lookup_type q.type_) in
     let open Make (G) in
-    create_answer q.value ~public_key ~prefix m |> yojson_of_answer
+    create_answer q.value ~public_key ~prefix m |> Desc.Json.to_json answer_d
 
   let verify_answer (Q q : question) ~public_key ~prefix a =
     let open (val lookup_type q.type_) in
     let open Make (G) in
-    a |> answer_of_yojson |> verify_answer q.value ~public_key ~prefix
+    a |> Desc.Json.of_json answer_d |> verify_answer q.value ~public_key ~prefix
 
   let extract_ciphertexts (Q q : question) a =
     let open (val lookup_type q.type_) in
     let open Make (G) in
-    a |> answer_of_yojson |> extract_ciphertexts q.value
+    a |> Desc.Json.of_json answer_d |> extract_ciphertexts q.value
 
   let process_ciphertexts (Q q : question) e =
     let open (val lookup_type q.type_) in
@@ -78,10 +78,10 @@ module Make (G : GROUP) = struct
   let compute_result ~total_weight (Q q : question) x =
     let open (val lookup_type q.type_) in
     let open Make (G) in
-    compute_result ~total_weight q.value x |> Q.yojson_of_result
+    compute_result ~total_weight q.value x |> Desc.Json.to_json Q.result_d
 
   let check_result ~total_weight (Q q : question) x r =
     let open (val lookup_type q.type_) in
     let open Make (G) in
-    r |> Q.result_of_yojson |> check_result ~total_weight q.value x
+    r |> Desc.Json.of_json Q.result_d |> check_result ~total_weight q.value x
 end

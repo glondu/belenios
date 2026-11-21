@@ -30,12 +30,12 @@ type ('a, 'b) nonzero_proof = {
   challenge : 'b;
   response : 'b * 'b;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {2 Questions and answers} *)
 
 type question = { answers : string array array; question : string }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) answer = {
   choices : 'a ciphertext array array;
@@ -44,9 +44,9 @@ type ('a, 'b) answer = {
   list_proofs : 'b disjunctive_proof array;
   nonzero_proof : ('a, 'b) nonzero_proof;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
-type result = weight array array [@@deriving yojson]
+type result = weight array array [@@deriving desc]
 
 include
   Question_types.QUESTION_TYPE

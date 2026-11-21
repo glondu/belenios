@@ -22,6 +22,6 @@
 open Types
 
 type draft = Draft : 'a Belenios.Election.version * raw_draft -> draft
-[@@deriving yojson]
+[@@deriving desc]
 
 val remaining_credits : credentials_credits -> int

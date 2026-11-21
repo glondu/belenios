@@ -20,58 +20,45 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios
 open Common
 
-type sealing_config_item = string list [@@deriving yojson]
+type sealing_config_item = string list [@@deriving desc]
 type sealing_config = (string * sealing_config_item) list
 
-let sealing_config_of_yojson : json -> sealing_config = function
-  | `Assoc o -> List.map (fun (k, v) -> (k, sealing_config_item_of_yojson v)) o
-  | x -> of_yojson_error "object expected" x
-
-let yojson_of_sealing_config : sealing_config -> json =
- fun x ->
-  `Assoc (List.map (fun (k, v) -> (k, yojson_of_sealing_config_item v)) x)
-
-let _ = yojson_of_sealing_config
+let sealing_config_d : sealing_config Desc.Core.t =
+  Desc.Core.assoc sealing_config_item_d
 
 type file_kind = [ `REG | `DIR | `CHR | `BLK | `LNK | `FIFO | `SOCK ]
-[@@deriving yojson]
+[@@deriving desc]
 
 type 'a dir_contents = (string * 'a) list
 
-let dir_contents_of_yojson of_yojson = function
-  | `Assoc o -> List.map (fun (k, v) -> (k, of_yojson v)) o
-  | x -> of_yojson_error "object expected" x
-
-let yojson_of_dir_contents to_yojson x =
-  `Assoc (List.map (fun (k, v) -> (k, to_yojson v)) x)
+let dir_contents_d = Desc.Core.assoc
 
 type 'a file_contents =
   [ `REG of hash | `DIR of 'a dir_contents | `LNK of string ]
-[@@deriving yojson]
+[@@deriving desc]
 
 type stats = {
-  dev : int option; [@yojson.option]
-  ino : int option; [@yojson.option]
-  kind : file_kind option; [@yojson.option]
-  perm : int option; [@yojson.option]
-  nlink : int option; [@yojson.option]
-  uid : int option; [@yojson.option]
-  gid : int option; [@yojson.option]
-  rdev : int option; [@yojson.option]
-  size : int64 option; [@yojson.option]
-  atime : float option; [@yojson.option]
-  mtime : float option; [@yojson.option]
-  ctime : float option; [@yojson.option]
-  contents : stats file_contents option; [@yojson.option]
+  dev : int option;
+  ino : int option;
+  kind : file_kind option;
+  perm : int option;
+  nlink : int option;
+  uid : int option;
+  gid : int option;
+  rdev : int option;
+  size : int64 option;
+  atime : int64 option;
+  mtime : int64 option;
+  ctime : int64 option;
+  contents : stats file_contents option;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 let parse_config x =
-  !*sealing_config_of_yojson x
+  !*sealing_config_d x
   |> List.map (fun (r, i) ->
       (Re.Str.regexp r, List.fold_left (Fun.flip SSet.add) SSet.empty i))
 
@@ -139,9 +126,9 @@ let rec measure pool full cfg ign path =
     gid = make "gid" st.st_gid;
     rdev = make "rdev" st.st_rdev;
     size = make "size" st.st_size;
-    atime = make "atime" st.st_atime;
-    mtime = make "mtime" st.st_mtime;
-    ctime = make "ctime" st.st_ctime;
+    atime = make "atime" (Int64.of_float st.st_atime);
+    mtime = make "mtime" (Int64.of_float st.st_mtime);
+    ctime = make "ctime" (Int64.of_float st.st_ctime);
     contents;
   }
   |> Lwt.return
@@ -158,7 +145,7 @@ let main full cfg path jobs =
   let ign = find_ign cfg path in
   let pool = Lwt_pool.create jobs (fun () -> Lwt.return_unit) in
   let* x = measure pool full cfg ign path in
-  let* () = Lwt_io.printl (!+yojson_of_stats x) in
+  let* () = Lwt_io.printl (!+stats_d x) in
   Lwt.return_unit
 
 open Cmdliner

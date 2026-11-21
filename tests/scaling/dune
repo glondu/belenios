@@ -1,7 +1,7 @@
 (executable
  (name main)
  (preprocess
-  (pps ppx_yojson_group))
+  (pps ppx_desc))
  (libraries
   belenios_cohttp
   cmdliner

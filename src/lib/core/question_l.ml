@@ -20,7 +20,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Ppx_yojson_conv_lib.Yojson_conv
 open Common_types
 open Crypto_types
 open Question_types
@@ -32,12 +31,12 @@ type ('a, 'b) nonzero_proof = {
   challenge : 'b;
   response : 'b * 'b;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 (** {2 Questions and answers} *)
 
 type question = { answers : string array array; question : string }
-[@@deriving yojson]
+[@@deriving desc]
 
 type ('a, 'b) answer = {
   choices : 'a ciphertext array array;
@@ -46,9 +45,9 @@ type ('a, 'b) answer = {
   list_proofs : 'b disjunctive_proof array;
   nonzero_proof : ('a, 'b) nonzero_proof;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
-type result = weight array array [@@deriving yojson]
+type result = weight array array [@@deriving desc]
 type _ id += Id : question id
 
 let type_ = "Lists"

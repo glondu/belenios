@@ -1,5 +1,5 @@
 (library
- (name ppx_yojson_group)
+ (name ppx_desc)
  (kind ppx_rewriter)
  (libraries ppxlib)
  (preprocess

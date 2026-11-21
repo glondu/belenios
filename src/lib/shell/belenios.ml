@@ -26,18 +26,13 @@ module Pki = Belenios_core.Pki
 module Trustees = Trustees
 
 let xch_encrypted_credential =
-  {
-    dst = dst_prefix ^ "-encrypted_credential";
-    of_yojson = Ppx_yojson_conv_lib.Yojson_conv.string_of_yojson;
-    to_yojson = Ppx_yojson_conv_lib.Yojson_conv.yojson_of_string;
-  }
+  { dst = dst_prefix ^ "-encrypted_credential"; desc = Desc.Core.string }
 
 module Credentials_certificate (G : GROUP) = struct
   let xch_credentials_certificate =
     {
       dst = dst_prefix ^ "-credentials_certificate";
-      of_yojson = [%group_of_yojson: _ raw_credentials_certificate];
-      to_yojson = [%yojson_of_group: _ raw_credentials_certificate];
+      desc = [%desc_of_group: _ raw_credentials_certificate];
     }
 
   let check (certificate : _ credentials_certificate) =

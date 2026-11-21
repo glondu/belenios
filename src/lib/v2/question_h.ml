@@ -46,12 +46,9 @@ module Make (G : GROUP) = struct
 
   (** Serializers *)
 
-  let question_of_yojson = question_of_yojson
-  let yojson_of_question = yojson_of_question
-  let answer_of_yojson = [%group_of_yojson: _ answer]
-  let yojson_of_answer = [%yojson_of_group: _ answer]
-  let result_of_yojson = result_of_yojson
-  let yojson_of_result = yojson_of_result
+  let question_d = question_d
+  let answer_d = [%desc_of_group: _ answer]
+  let result_d = result_d
 
   (** Implementation *)
 

@@ -19,17 +19,17 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type ballots = int array array [@@deriving yojson]
-type matrix = int array array [@@deriving yojson]
+type ballots = int array array [@@deriving desc]
+type matrix = int array array [@@deriving desc]
 
 type result = {
   raw : matrix;
   valid : int;
-  blank : int option; [@yojson.option]
+  blank : int option;
   invalid : ballots;
   winners : int list list;
 }
-[@@deriving yojson]
+[@@deriving desc]
 
 val compute :
   ngrades:int -> nchoices:int -> blank_allowed:bool -> ballots -> result

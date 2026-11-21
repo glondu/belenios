@@ -24,19 +24,19 @@ open Belenios_platform
 val b58_digits : string
 
 type 'a serializers = { of_string : string -> 'a; to_string : 'a -> string }
-type number = Z.t [@@deriving yojson]
+type number = Z.t [@@deriving desc]
 
 module Json : sig
-  type t = Yojson.Safe.t [@@deriving yojson]
+  type t = Yojson.Safe.t [@@deriving desc]
 
   val to_string : t -> string
   val of_string : string -> t
 end
 
-type json = Json.t [@@deriving yojson]
+type json = Json.t [@@deriving desc]
 
 module Uuid : sig
-  type t [@@deriving yojson]
+  type t [@@deriving desc]
 
   val to_string : t -> string
   val of_string : string -> t
@@ -44,10 +44,10 @@ module Uuid : sig
   val dummy : t
 end
 
-type uuid = Uuid.t [@@deriving yojson]
+type uuid = Uuid.t [@@deriving desc]
 
 module Hash : sig
-  type t [@@deriving yojson]
+  type t [@@deriving desc]
 
   val compare : t -> t -> int
   val of_hex : string -> t
@@ -56,12 +56,13 @@ module Hash : sig
   val of_b64 : string -> t
   val hash_string : string -> t
   val hash_yojson : json -> t
+  val hash_desc : 'a Desc.Core.t -> 'a -> t
 end
 
-type hash = Hash.t [@@deriving yojson]
+type hash = Hash.t [@@deriving desc]
 
 module Weight : sig
-  type t [@@deriving yojson]
+  type t [@@deriving desc]
 
   val zero : t
   val one : t
@@ -78,7 +79,7 @@ module Weight : sig
   val compare : t -> t -> int
 end
 
-type weight = Weight.t [@@deriving yojson]
+type weight = Weight.t [@@deriving desc]
 
 module Array : sig
   include module type of Stdlib.Array
@@ -97,7 +98,7 @@ module Array : sig
 end
 
 module Shape : sig
-  type 'a t = Atomic of 'a | Array of 'a t array [@@deriving yojson]
+  type 'a t = Atomic of 'a | Array of 'a t array [@@deriving desc]
 
   val of_array : 'a array -> 'a t
   val to_array : 'a t -> 'a array
@@ -111,40 +112,36 @@ module Shape : sig
   val forall3 : ('a -> 'b -> 'c -> bool) -> 'a t -> 'b t -> 'c t -> bool
 end
 
-type 'a shape = 'a Shape.t [@@deriving yojson]
+type 'a shape = 'a Shape.t [@@deriving desc]
 
 module SMap : sig
-  type +!'a t [@@deriving yojson]
+  type +!'a t [@@deriving desc]
 
   include Map.S with type 'a t := 'a t and type key = string
 end
 
-type 'a smap = 'a SMap.t [@@deriving yojson]
+type 'a smap = 'a SMap.t [@@deriving desc]
 
 module HMap : sig
-  type +!'a t [@@deriving yojson]
+  type +!'a t [@@deriving desc]
 
   include Map.S with type 'a t := 'a t and type key = hash
 end
 
-type 'a hmap = 'a HMap.t [@@deriving yojson]
+type 'a hmap = 'a HMap.t [@@deriving desc]
 
 (** {2 Misc} *)
 
-type voter = {
-  login : string;
-  address : string option; [@yojson.option]
-  weight : weight option; [@yojson.option]
-}
-[@@deriving yojson]
+type voter = { login : string; address : string option; weight : weight option }
+[@@deriving desc]
 
-type voter_list = voter list [@@deriving yojson]
-type voters = voter smap [@@deriving yojson]
-type recipient = { name : string; address : string } [@@deriving yojson]
+type voter_list = voter list [@@deriving desc]
+type voters = voter smap [@@deriving desc]
+type recipient = { name : string; address : string } [@@deriving desc]
 
 type 'a public_credential = {
   credential : 'a;
-  weight : weight option; [@yojson.option]
-  username : string option; [@yojson.option]
+  weight : weight option;
+  username : string option;
 }
-[@@deriving yojson]
+[@@deriving desc]

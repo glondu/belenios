@@ -127,7 +127,7 @@ let shuffle uuid ~token =
     Dom.appendChild container wait;
     let* shuffle_data =
       compute_shuffle ~estimation
-        (Js.string @@ Json.to_string @@ Election.yojson_of_t election)
+        (Js.string @@ Desc.Json.to_string Election.t_d election)
         (Js.string @@ Json.to_string nh_ciphertexts)
         (Js.string seed)
     in

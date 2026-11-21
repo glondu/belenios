@@ -70,15 +70,15 @@ let delete_live_election s uuid roots =
   let@ setup_data cont =
     let&! x = roots.setup_data in
     let&?? x = x in
-    cont (!*setup_data_of_yojson x)
+    cont (!*setup_data_d x)
   in
   let@ election cont =
     let&?? x = setup_data.election in
-    cont (!*Election.t_of_yojson x)
+    cont (!*Election.t_d x)
   in
   let@ trustees cont =
     let&?? x = setup_data.trustees in
-    cont (!*(trustees_of_yojson Fun.id Fun.id) x)
+    cont (!*(trustees_d Desc.Core.json Desc.Core.json) x)
   in
   let module W = (val election) in
   let module G = W.G in
@@ -135,7 +135,7 @@ let delete_live_election s uuid roots =
             let* x = S.get_object uuid e in
             match x with
             | None -> Lwt.return accu
-            | Some x -> cont (!*event_of_yojson x)
+            | Some x -> cont (!*event_d x)
           in
           match (event.typ, event.payload, event.parent) with
           | `Ballot, Some b, Some p ->
@@ -143,7 +143,7 @@ let delete_live_election s uuid roots =
                 let* x = S.get_object uuid b in
                 match x with
                 | None -> Lwt.return accu
-                | Some b -> cont (!*[%group_of_yojson: _ ballot] b)
+                | Some b -> cont (!*[%desc_of_group: _ ballot] b)
               in
               let credential = ballot.message.credential in
               if CredSet.mem credential seen then loop seen accu p
