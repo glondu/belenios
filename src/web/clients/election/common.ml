@@ -106,7 +106,7 @@ let update_cache uuid =
         | Some t ->
             let& result = Api.(get (election_object uuid result) `Nobody) in
             let& t = Api.(get (election_object uuid t) `Nobody) in
-            let t = sized_encrypted_tally_of_yojson hash_of_yojson t in
+            let t = Desc.Json.of_json (sized_encrypted_tally_d hash_d) t in
             cont (Some result, Some t))
   in
   let it =

@@ -128,14 +128,14 @@ module App (U : UI) = struct
         | Some h -> (
             let* x = Api.(get (election_object uuid h) `Nobody) in
             match x with
-            | Ok (x, _) -> cont @@ setup_data_of_yojson x
+            | Ok (x, _) -> cont @@ Desc.Json.of_json setup_data_d x
             | Error _ -> fail ())
       in
       let@ election cont =
         let h = setup.election in
         let* x = Api.(get (election_object uuid h) `Nobody) in
         match x with
-        | Ok (x, _) -> cont @@ Election.t_of_yojson x
+        | Ok (x, _) -> cont @@ Desc.Json.of_json Election.t_d x
         | Error _ -> fail ()
       in
       let@ credentials cont =

@@ -34,14 +34,6 @@ let draft_election_d a b =
       | Version v -> Draft (v, x))
     (fun (Draft (_, x)) -> x)
 
-let draft_election_of_yojson f g =
-  Desc.Json.of_json
-    (draft_election_d (Desc.Json.of_decoder f) (Desc.Json.of_decoder g))
-
-let yojson_of_draft_election f g =
-  Desc.Json.to_json
-    (draft_election_d (Desc.Json.of_encoder f) (Desc.Json.of_encoder g))
-
 type wrapped_draft_election =
   | W : ('a, 'b) group * ('a, 'b) draft_election -> wrapped_draft_election
 

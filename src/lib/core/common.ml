@@ -156,8 +156,6 @@ struct
   let ( =% ) x y = compare x y = 0
   let random = random_modulo q
   let t_d = Desc.Core.map Desc.Core.string of_string to_string
-  let t_of_yojson = Desc.Json.of_json t_d
-  let yojson_of_t = Desc.Json.to_json t_d
 end
 
 let ( !* ) = Desc.Json.of_string
@@ -408,5 +406,6 @@ module Voter = struct
   let hash voters =
     voters |> SMap.to_seq
     |> Seq.map (fun (_, (v : voter)) -> { v with address = None })
-    |> List.of_seq |> yojson_of_voter_list |> Hash.hash_yojson
+    |> List.of_seq
+    |> Hash.hash_desc voter_list_d
 end

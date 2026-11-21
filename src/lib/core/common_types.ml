@@ -43,8 +43,6 @@ module Json = struct
   type t = Yojson.Safe.t
 
   let t_d = Desc.Core.json
-  let yojson_of_t = Fun.id
-  let t_of_yojson = Fun.id
   let to_string x = Yojson.Safe.to_string x
   let of_string x = Yojson.Safe.from_string x
 end
@@ -52,8 +50,6 @@ end
 type json = Json.t [@@deriving desc]
 
 let number_d = string_based Z.of_string Z.to_string
-let yojson_of_number = Desc.Json.to_json number_d
-let number_of_yojson = Desc.Json.of_json number_d
 
 module Uuid = struct
   type t = string
@@ -79,8 +75,6 @@ module Uuid = struct
 
   let to_string = Fun.id
   let t_d = string_based of_string to_string
-  let yojson_of_t = Desc.Json.to_json t_d
-  let t_of_yojson = Desc.Json.of_json t_d
   let dummy = of_string (String.make min_length '1')
 end
 
@@ -118,8 +112,6 @@ module Hash = struct
   let hash_string x = Digestif.SHA256.(x |> digest_string |> to_hex)
   let hash_yojson x = x |> Json.to_string |> hash_string
   let t_d = string_based of_hex to_hex
-  let yojson_of_t = Desc.Json.to_json t_d
-  let t_of_yojson = Desc.Json.of_json t_d
   let hash_desc d x = x |> Desc.Json.to_json d |> hash_yojson
 end
 
@@ -223,8 +215,6 @@ module Shape = struct
           | Array x -> Value (array, x)
           | Atomic x -> Value (atomic, x)))
 
-  let yojson_of_t f = Desc.Json.to_json (t_d (Desc.Json.of_encoder f))
-  let t_of_yojson f = Desc.Json.of_json (t_d (Desc.Json.of_decoder f))
   let of_array x = Array (Array.map (fun x -> Atomic x) x)
 
   let to_array = function
@@ -277,8 +267,6 @@ module SMap = struct
   include Map.Make (String)
 
   let t_d v = Desc.Core.map (Desc.Core.sorted_assoc v) of_list to_list
-  let yojson_of_t f = Desc.Json.to_json (t_d (Desc.Json.of_encoder f))
-  let t_of_yojson f = Desc.Json.of_json (t_d (Desc.Json.of_decoder f))
 end
 
 type 'a smap = 'a SMap.t [@@deriving desc]
@@ -290,9 +278,6 @@ module HMap = struct
     Desc.Core.map (Desc.Core.sorted_assoc v)
       (List.fold_left (fun accu (a, b) -> add (Hash.of_hex a) b accu) empty)
       (fun xs -> bindings xs |> List.map (fun (a, b) -> (Hash.to_hex a, b)))
-
-  let yojson_of_t f = Desc.Json.to_json (t_d (Desc.Json.of_encoder f))
-  let t_of_yojson f = Desc.Json.of_json (t_d (Desc.Json.of_decoder f))
 end
 
 type 'a hmap = 'a HMap.t [@@deriving desc]

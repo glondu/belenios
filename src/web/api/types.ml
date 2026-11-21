@@ -115,9 +115,6 @@ let languages_d : languages Desc.Core.t =
     (List.map (fun (k, v) -> (Belenios.Language.wrap k, v)))
     (List.map (fun (k, v) -> (Belenios.Language.unwrap k, v)))
 
-let yojson_of_languages = Desc.Json.to_json languages_d
-let languages_of_yojson = Desc.Json.of_json languages_d
-
 type configuration = {
   restricted_mode : bool;
   vendor : string;

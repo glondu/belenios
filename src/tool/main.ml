@@ -169,7 +169,7 @@ module Events : CMDLINER_MODULE = struct
     let event_typ =
       get_mandatory_opt "--type" event_typ
       |> (fun x -> `String x)
-      |> event_type_of_yojson
+      |> Desc.Json.of_json event_type_d
     in
     let* payloads = lines_of_stdin () in
     let payload =

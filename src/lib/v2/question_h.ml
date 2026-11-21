@@ -49,12 +49,6 @@ module Make (G : GROUP) = struct
   let question_d = question_d
   let answer_d = [%desc_of_group: _ answer]
   let result_d = result_d
-  let question_of_yojson = question_of_yojson
-  let yojson_of_question = yojson_of_question
-  let answer_of_yojson = Desc.Json.of_json answer_d
-  let yojson_of_answer = Desc.Json.to_json answer_d
-  let result_of_yojson = result_of_yojson
-  let yojson_of_result = yojson_of_result
 
   (** Implementation *)
 

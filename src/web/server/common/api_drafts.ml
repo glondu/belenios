@@ -692,7 +692,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       let@ who = with_administrator_or_nobody token metadata in
       let get () =
         let* x = api_of_draft se metadata in
-        Lwt.return @@ yojson_of_draft x
+        Lwt.return @@ Desc.Json.to_json draft_d x
       in
       match (method_, who) with
       | `GET, _ -> handle_get get
@@ -713,7 +713,9 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
       | _ -> method_not_allowed)
   | [ "voters" ] -> (
       let@ who = with_administrator_or_credential_authority token se metadata in
-      let get () = Storage.get_all_voters s |> Lwt.map yojson_of_voters in
+      let get () =
+        Storage.get_all_voters s |> Lwt.map (Desc.Json.to_json voters_d)
+      in
       match (method_, who) with
       | `GET, _ -> handle_get get
       | `PUT, `Administrator _ ->

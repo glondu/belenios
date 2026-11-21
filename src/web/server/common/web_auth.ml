@@ -534,7 +534,9 @@ struct
                   env.user <- Some { user; name = None; timestamp = None };
                   let* x = !election_cast_confirm_handler_ref ~state in
                   match x with
-                  | Ok _ -> Api_generic.return_yojson `OK (yojson_of_uuid uuid)
+                  | Ok _ ->
+                      Api_generic.return_yojson `OK
+                        (Desc.Json.to_json uuid_d uuid)
                   | Error _ -> Api_generic.forbidden
                 in
                 dispatch a endpoint method_ body cont)

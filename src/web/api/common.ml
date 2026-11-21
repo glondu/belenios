@@ -30,9 +30,6 @@ let draft_d =
       | Version v -> Draft (v, x))
     (fun (Draft (_, x)) -> x)
 
-let draft_of_yojson = Desc.Json.of_json draft_d
-let yojson_of_draft = Desc.Json.to_json draft_d
-
 let remaining_credits (xs : credentials_credits) =
   xs
   |> List.filter (fun x -> x.success)

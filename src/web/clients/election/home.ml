@@ -631,7 +631,7 @@ let make_result_div (election : Election.t) t ~result =
   let open (val !Belenios_js.I18n.gettext) in
   let open (val election) in
   let questions = template.questions in
-  let r = election_result_of_yojson result_of_yojson result in
+  let r = Desc.Json.of_json (election_result_d result_d) result in
   let nballots = t.num_tallied in
   let total_weight = t.total_weight in
   let div_total_weight =

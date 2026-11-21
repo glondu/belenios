@@ -423,7 +423,6 @@ let sig_of_td td =
     List.fold_right (fun a acc -> ptyp_arrow ~loc Nolabel a acc) args res
   in
   let var p = ptyp_var ~loc p in
-  let json = [%type: Desc.Core.json] in
   let v n ty =
     psig_value ~loc
       (value_description ~loc ~name:{ txt = n; loc } ~type_:ty ~prim:[])
@@ -433,14 +432,6 @@ let sig_of_td td =
       (arrows
          (List.map (fun p -> [%type: [%t var p] Desc.Core.t]) params)
          [%type: [%t t] Desc.Core.t]);
-    v ("yojson_of_" ^ name)
-      (arrows
-         (List.map (fun p -> [%type: [%t var p] -> [%t json]]) params)
-         [%type: [%t t] -> [%t json]]);
-    v (name ^ "_of_yojson")
-      (arrows
-         (List.map (fun p -> [%type: [%t json] -> [%t var p]]) params)
-         [%type: [%t json] -> [%t t]]);
   ]
 
 let sig_type_decl ~ctxt:_ (_rec_flag, tds) = List.concat_map sig_of_td tds

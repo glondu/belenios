@@ -141,7 +141,7 @@ let rec show main uuid =
     [
       div [ a ~href:"#" "Home" ];
       h1 [ txt "Raw election" ];
-      div [ txt @@ Json.to_string @@ Election.yojson_of_t raw_election ];
+      div [ txt @@ Desc.Json.to_string Election.t_d raw_election ];
       h1 [ txt "Status" ];
       div [ txt @@ !+election_status_d status ];
       h1 [ txt "Actions" ];

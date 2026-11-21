@@ -163,9 +163,7 @@ let get_event i x =
   let* x = gethash ~index:i.map ~filename:i.file x in
   Lwt.return @@ Option.map !*event_d x
 
-let get_last_event i =
-  i.last_event |> Option.map (yojson_of_event >> Hash.hash_yojson)
-
+let get_last_event i = i.last_event |> Option.map (Hash.hash_desc event_d)
 let get_roots i = i.roots
 
 let fold_on_event_payload_hashes index typ last_event f accu =
@@ -289,8 +287,7 @@ let append index ops =
             let parent, height =
               match last_event with
               | None -> (None, 0)
-              | Some x ->
-                  (Some (Hash.hash_yojson @@ yojson_of_event x), x.height + 1)
+              | Some x -> (Some (Hash.hash_desc event_d x), x.height + 1)
             in
             let event = { parent; height; typ; payload } in
             let typ = Archive.Event event in

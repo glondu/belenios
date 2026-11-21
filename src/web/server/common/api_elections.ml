@@ -647,7 +647,8 @@ let dispatch_election ~token endpoint method_ body s (election : Election.t)
           match Lopt.get_value x with
           | Some { finalization = Some timestamp; _ } ->
               Archive.make_header ~timestamp
-              |> Archive.yojson_of_header |> return_yojson `OK
+              |> Desc.Json.to_json Archive.header_d
+              |> return_yojson `OK
           | _ -> not_found)
       | _ -> method_not_allowed)
   | [ "last-event" ] -> (

@@ -61,9 +61,6 @@ let t_d : t Desc.Core.t =
       let open (val x.type_) in
       { x with type_; value = Desc.Json.to_json question_d x.value })
 
-let yojson_of_t = Desc.Json.to_json t_d
-let t_of_yojson = Desc.Json.of_json t_d
-
 let is_nh_question (Q x : t) =
   let open (val x.type_) in
   match Id with Non_homomorphic.Id -> true | _ -> false
