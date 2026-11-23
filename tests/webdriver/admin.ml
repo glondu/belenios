@@ -301,7 +301,14 @@ module Make (Config : CONFIG) = struct
           let* () =
             session#fill_with ~selector:"#thresh_val" (string_of_int t)
           in
-          session#click_on ~selector:"#main_zone"
+          (* Leave the field so that its change event is fired. Do not
+             click somewhere for that: depending on the window size, the
+             click may land on a button. *)
+          let* _ =
+            session#execute
+              ~script:{|document.getElementById("thresh_val").blur();|} ~args:[]
+          in
+          session#implicit_wait
     in
     let* () = session#click_on ~selector:"#trustee_proc_but button" in
     let* () = session#accept in
