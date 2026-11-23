@@ -1,3 +1,35 @@
+3.4.0 (dev)
+===========
+
+ * Software stack:
+   + Support Eliom 13, ocsigenserver 8 and js_of_ocaml 6.5 (via
+     eliom-compat and ocsigenserver-compat), in addition to the
+     previously supported versions
+ * Cryptographic fixes:
+   + Add a missing group membership check (thanks to Lucca Hirschi)
+ * Command-line tool:
+   + Bugfix: invalid ballots were not reported by `election verify`
+   + More checks in `election verify`, including the order of events
+   + Fail cleanly on malformed archives
+ * Web server:
+   + Harden authentication and access control
+   + Make spool writes durable
+   + Avoid using global resources in development environments
+   + Recommend `samesite=lax` for cookies in reverse-proxy setups
+   + Voter interface:
+     - Fix bug with "Move to" dropdown in STV mode
+   + Election interface:
+     - Display fingerprint of the encrypted tally after shuffles in
+       audit data
+   + Trustee interface:
+     - Update the instructions for trustees
+   + Remove the empty footer left after closing the terms of service
+     banner
+   + Documentation:
+     - Fix Docker demo
+   + Tests:
+     - Make webdriver scenarios more robust
+
 3.3.0 (2026-07-02)
 ==================
 
