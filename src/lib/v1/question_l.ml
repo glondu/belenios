@@ -254,7 +254,8 @@ module Make (G : GROUP) = struct
   let verify_nonzero_proof y zkp { alpha; beta } proof =
     (* check proof of "{ alpha; beta } encrypts something non-zero" *)
     let { ncommitment; nchallenge; nresponse = t1, t2 } = proof in
-    (not (ncommitment =~ one))
+    G.check ncommitment
+    && (not (ncommitment =~ one))
     &&
     let a1 = (alpha **~ t1) *~ (g **~ t2) in
     let a2 = (beta **~ t1) *~ (y **~ t2) *~ (ncommitment **~ nchallenge) in
