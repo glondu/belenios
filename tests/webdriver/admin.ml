@@ -392,6 +392,7 @@ module Make (Config : CONFIG) = struct
         | Some (`String x) ->
             let private_key = decode_data_uri x in
             (* TODO: check fingerprint *)
+            let* () = session#scrollIntoView "submit_public_key" in
             let* () = session#click_on ~selector:"#submit_public_key" in
             Lwt.return private_key
         | _ -> assert false)
