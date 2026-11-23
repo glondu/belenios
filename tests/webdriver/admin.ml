@@ -281,6 +281,16 @@ module Make (Config : CONFIG) = struct
         @@ List.map (function `String x -> x | _ -> assert false) xs
     | _ -> assert false
 
+  (* Leave a field so that its change event is fired. Do not click
+     somewhere for that: depending on the window size, the click may
+     land on a button. *)
+  let blur (session : Webdriver.helpers) id =
+    let* _ =
+      session#execute ~script:"document.getElementById(arguments[0]).blur();"
+        ~args:[ `String id ]
+    in
+    session#implicit_wait
+
   let set_trustees session { mode; trustees } =
     Printf.printf "    Setting trustees...\n%!";
     let* () = session#click_on ~selector:"#tab_trustees" in
@@ -301,14 +311,7 @@ module Make (Config : CONFIG) = struct
           let* () =
             session#fill_with ~selector:"#thresh_val" (string_of_int t)
           in
-          (* Leave the field so that its change event is fired. Do not
-             click somewhere for that: depending on the window size, the
-             click may land on a button. *)
-          let* _ =
-            session#execute
-              ~script:{|document.getElementById("thresh_val").blur();|} ~args:[]
-          in
-          session#implicit_wait
+          blur session "thresh_val"
     in
     let* () = session#click_on ~selector:"#trustee_proc_but button" in
     let* () = session#accept in
@@ -332,7 +335,7 @@ module Make (Config : CONFIG) = struct
     | Some { name; ext } -> (
         let* () = session#click_on ~selector:"#rad_ext" in
         let* () = session#fill_with ~selector:"#cred_auth_name_inp" name in
-        let* () = session#click_on ~selector:"#main_zone" in
+        let* () = blur session "cred_auth_name_inp" in
         match ext with
         | None -> (
             let* x = session#get_elements ~selector:"#cred_link_target" in
