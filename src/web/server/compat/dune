@@ -1,0 +1,20 @@
+; Eliom >= 13 and ocsigenserver >= 8 renamed their modules (Eliom_xxx
+; became Eliom.Xxx, etc.). When the compatibility packages providing
+; the old names are installed, use them; otherwise, the old names are
+; provided by Eliom and ocsigenserver themselves.
+
+(library
+ (name belenios_server_compat)
+ (modules)
+ (enabled_if %{lib-available:ocsigenserver-compat})
+ (libraries
+  (re_export eliom-compat.server)
+  (re_export ocsigenserver-compat)
+  (re_export ocsigenserver-compat.baselib)
+  (re_export ocsigenserver-compat.http)))
+
+(library
+ (name belenios_server_compat)
+ (modules)
+ (enabled_if
+  (not %{lib-available:ocsigenserver-compat})))

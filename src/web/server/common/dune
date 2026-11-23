@@ -3,6 +3,7 @@
  (libraries
   belenios_ui
   belenios_server_core
+  belenios_server_compat
   xml-light
   tyxml.functor
   ocsipersist

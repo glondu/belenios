@@ -6,7 +6,7 @@ maintainer: ["contact@belenios.net"]
 authors: ["Stéphane Glondu"]
 license: "AGPL-3"
 depends: [
-  "dune" {>= "3.14"}
+  "dune" {>= "3.15"}
   "cryptokit" {>= "1.17"}
   "odoc" {with-doc}
 ]

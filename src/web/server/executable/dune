@@ -11,4 +11,5 @@
   eliom.server
   belenios-platform-native
   belenios_server
-  belenios_storage_filesystem))
+  belenios_storage_filesystem
+  belenios_server_compat))
