@@ -49,14 +49,17 @@ let drop_leading_hash x =
   if n > 0 && x.[0] = '#' then String.sub x 1 (n - 1) else x
 
 let make_cookie_disclaimer configuration =
-  let@ () = fun cont -> if !show_consent then cont () else div [] in
+  let@ () = fun cont -> if !show_consent then Some (cont ()) else None in
   let open (val !I18n.gettext) in
   let handler _ =
     let now = datetime_now () in
     let c = get_client_configuration () in
     set_client_configuration { c with consent = Some now };
     show_consent := false;
-    let xs = document##getElementsByClassName (Js.string "cookie-disclaimer") in
+    (* remove the whole sticky footer (which only holds the disclaimer),
+       not only its contents, so that it does not cover the bottom of
+       the page *)
+    let xs = document##querySelectorAll (Js.string ".sticky-footer") in
     for i = 0 to xs##.length - 1 do
       let@ x = Js.Opt.iter (xs##item i) in
       let@ p = Js.Opt.iter x##.parentNode in
@@ -137,7 +140,7 @@ module Make (App : APP) () = struct
       let content = [ Tyxml_js.Of_dom.of_div main_zone ] in
       let sticky_footer = make_cookie_disclaimer configuration in
       Ui.base_body l ~lang_box ~full_title ~content ~footer ~warning
-        ~sticky_footer ()
+        ?sticky_footer ()
       |> Lwt.return
     in
     let () =
