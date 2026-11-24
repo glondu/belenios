@@ -1,5 +1,5 @@
-3.4.0 (dev)
-===========
+3.4.0 (2026-11-24)
+==================
 
  * Software stack:
    + Support Eliom 13, ocsigenserver 8 and js_of_ocaml 6.5 (via
