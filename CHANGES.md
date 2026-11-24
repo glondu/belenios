@@ -5,7 +5,8 @@
    + Switch from `atdgen` to a custom serialization library: it
      changes the way some types are serialized to JSON, making the new
      version not backward-compatible
-   + Update Eliom (to version 13) and Node stack
+   + Drop support for Eliom < 13 stack
+   + Update Node stack
  * Cryptographic changes:
    + Bump crypto version to 2
    + Systematically use RFC9380's `hash_to_field` to avoid a bias in
@@ -29,12 +30,7 @@
      questions)
    + Restructure public credentials
    + Raise to 256 bits the entropy of seeds used for private keys
- * Command-line tool:
-   + Bugfix: invalid ballots were not reported by `election verify`
-   + More checks and reporting in `election verify`
-   + Fail cleanly on malformed archives
  * Web server:
-   + Avoid using global resources in development environments
    + New pool structure; bump its version to 2
    + Store administrator passwords in the spool instead of handling a
      CSV file outside of it; a new `belenios-tool spool` command
@@ -63,23 +59,47 @@
      - Ignore addresses when computing voters hash
      - Make exposed records file a proper JSON
      - Add filter by username prefix in voters view
-   + Voter interface:
-     - Fix bug with "Move to" dropdown in STV mode
-   + Election interface:
-     - Display fingerprint of the encrypted tally after shuffles in
-       audit data
-   + Harden authentication and access control
    + Documentation:
-     - Fix Docker demo
      - Document ownership of drafts and electoral boards in the API
      - Document e-mail authentication
-     - Recommend `samesite=lax` for cookies in reverse-proxy setups
    + Tests:
      - Fix scaling test and add a scaling scenario to CI
      - Fix flakiness in webdriver scenarios by making them wait in a
        smarter way
    + Translations:
      - Add Estonian, Hebrew, Lao
+
+3.4.0 (2026-11-24)
+==================
+
+ * Software stack:
+   + Support Eliom 13, ocsigenserver 8 and js_of_ocaml 6.5 (via
+     eliom-compat and ocsigenserver-compat), in addition to the
+     previously supported versions
+ * Cryptographic fixes:
+   + Add a missing group membership check (thanks to Lucca Hirschi)
+ * Command-line tool:
+   + Bugfix: invalid ballots were not reported by `election verify`
+   + More checks in `election verify`, including the order of events
+   + Fail cleanly on malformed archives
+ * Web server:
+   + Harden authentication and access control
+   + Make spool writes durable
+   + Avoid using global resources in development environments
+   + Recommend `samesite=lax` for cookies in reverse-proxy setups
+   + Voter interface:
+     - Fix bug with "Move to" dropdown in STV mode
+   + Election interface:
+     - Display fingerprint of the encrypted tally after shuffles in
+       audit data
+   + Trustee interface:
+     - Update the instructions for trustees
+   + Remove the empty footer left after closing the terms of service
+     banner
+   + Documentation:
+     - Fix Docker demo
+   + Tests:
+     - Make webdriver scenarios more robust
 
 3.3.0 (2026-07-02)
 ==================
