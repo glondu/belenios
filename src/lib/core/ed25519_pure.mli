@@ -22,3 +22,4 @@
 include Signatures_core.GROUP
 
 val unsafe_of_string : string -> t
+val non_canonical_ones : string list

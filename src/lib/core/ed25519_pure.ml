@@ -196,9 +196,14 @@ let to_string p =
 let unsafe_of_string s =
   if String.length s <> hex_size then
     invalid_arg "Ed25519_pure.of_string (invalid length)";
-  match uncompress (Z.of_hex s) with
-  | Some p -> of_coordinates p
+  let raw = Z.of_hex s in
+  match uncompress raw with
   | None -> invalid_arg "Ed25519_pure.of_string (invalid compression)"
+  | Some p ->
+      (* reject non-canonical encodings (y not reduced, or sign bit set
+         with x = 0) *)
+      if Z.compare raw (compress p) = 0 then of_coordinates p
+      else invalid_arg "Ed25519_pure.of_string (non-canonical encoding)"
 
 let of_string s =
   let p = unsafe_of_string s in
@@ -291,3 +296,23 @@ let get_generator i =
 let%test [%name Printf.sprintf "Ed25519_pure.selfcheck(%s)" Common.backend_type]
     =
   check one && is_base_point g && raw_pow g l =~ one
+
+let non_canonical_ones =
+  [
+    (* y = p + 1 *)
+    "7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffee";
+    (* y = 1, with the sign bit set *)
+    "8000000000000000000000000000000000000000000000000000000000000001";
+  ]
+
+let%test
+    [%name Printf.sprintf "Ed25519_pure.non_canonical(%s)" Common.backend_type]
+    =
+  to_string one
+  = "0000000000000000000000000000000000000000000000000000000000000001"
+  && List.for_all
+       (fun s ->
+         match of_string s with
+         | _ -> false
+         | exception Invalid_argument _ -> true)
+       non_canonical_ones

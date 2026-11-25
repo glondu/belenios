@@ -103,7 +103,7 @@ module Make (B : LIBSODIUM_STUBS) = struct
     let p = G.unsafe_of_string s in
     (* libsodium rejects points of small order, including the neutral
        element, which belongs to the group *)
-    if p =~ one || B.is_valid_point (to_nacl p) = 1 then p
+    if p =~ one || B.is_valid_point (E.point_of_string s) = 1 then p
     else invalid_arg "Ed25519_libsodium.of_string (invalid group element)"
 
   let max_ints = G.max_ints
@@ -124,4 +124,15 @@ module Make (B : LIBSODIUM_STUBS) = struct
       [%name
         Printf.sprintf "Ed25519_libsodium.selfcheck(%s)" Common.backend_type] =
     (g **~ Zq.(zero - one)) *~ g =~ one && g *~ invert g =~ one
+
+  let%test
+      [%name
+        Printf.sprintf "Ed25519_libsodium.non_canonical(%s)" Common.backend_type]
+      =
+    List.for_all
+      (fun s ->
+        match of_string s with
+        | _ -> false
+        | exception Invalid_argument _ -> true)
+      G.non_canonical_ones
 end
