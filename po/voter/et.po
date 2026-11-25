@@ -43,7 +43,7 @@ msgstr " hääletussedel(id) on vastu võetud ja "
 msgid " ballot(s) have been accepted."
 msgstr " hääletussedel(id) on vastu võetud."
 
-#: src/web/clients/election/home.ml:403
+#: src/web/clients/election/home.ml:422
 msgid " for more information."
 msgstr " Lisateabe saamiseks."
 
@@ -63,11 +63,11 @@ msgstr " järgmisse lahtrisse: "
 msgid " is rejected, because "
 msgstr " lükatakse tagasi, sest "
 
-#: src/web/clients/election/home.ml:363 src/web/clients/election/home.ml:332
+#: src/web/clients/election/home.ml:382 src/web/clients/election/home.ml:351
 msgid "%d blank ballot(s)"
 msgstr "%d tühja hääletussedelit"
 
-#: src/web/clients/election/home.ml:429 src/web/clients/election/home.ml:339
+#: src/web/clients/election/home.ml:448 src/web/clients/election/home.ml:358
 msgid "%d invalid ballot(s)"
 msgstr "%d kehtetut häält"
 
@@ -77,11 +77,11 @@ msgstr ""
 "Valimistulemuste dekodeerimiseks on vaja %d järgmistest %d usaldusisikutest "
 "[avalikud võtmed]:"
 
-#: src/web/clients/election/home.ml:357 src/web/clients/election/home.ml:326
+#: src/web/clients/election/home.ml:376 src/web/clients/election/home.ml:345
 msgid "%d valid (non-blank) ballot(s)"
 msgstr "%d kehtivat (tühja väljajätmata) hääletussedelit"
 
-#: src/web/clients/election/home.ml:358 src/web/clients/election/home.ml:327
+#: src/web/clients/election/home.ml:377 src/web/clients/election/home.ml:346
 msgid "%d valid ballot(s)"
 msgstr "%d kehtivat häält"
 
@@ -97,13 +97,13 @@ msgstr "), või mis tahes ühilduv kabiin."
 msgid ", or "
 msgstr ", või "
 
-#: src/web/clients/election/home.ml:391
+#: src/web/clients/election/home.ml:410
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 "Condorceti võitja on kandidaat, keda eelistatakse kõigile teistele "
 "kandidaatidele."
 
-#: src/web/clients/election/home.ml:436
+#: src/web/clients/election/home.ml:455
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "Hääletussedel loetakse kehtetuks, kui kahele kandidaadile on antud sama "
@@ -118,7 +118,7 @@ msgstr ""
 msgid "A verification code has been sent to %s."
 msgstr "Kinnituskood on saadetud aadressile %s."
 
-#: src/web/clients/election/home.ml:279
+#: src/web/clients/election/home.ml:298
 msgid "About this election"
 msgstr "Selle valimise kohta"
 
@@ -126,7 +126,7 @@ msgstr "Selle valimise kohta"
 msgid "Accepted ballots"
 msgstr "Heakskiidetud hääletussedelid"
 
-#: src/web/clients/election/home.ml:345
+#: src/web/clients/election/home.ml:364
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "Enamusotsuse kohaselt on järjestus järgmine:"
 
@@ -163,7 +163,7 @@ msgstr ""
 msgid "Alternatively, you can follow the link:"
 msgstr "Võid ka klõpsata järgmisel lingil:"
 
-#: src/web/clients/election/home.ml:800
+#: src/web/clients/election/home.ml:819
 msgid "Audit data not available."
 msgstr "Auditiandmed puuduvad."
 
@@ -185,7 +185,8 @@ msgstr "Logi sisse %s kaudu"
 msgid "Authentication"
 msgstr "Autentida"
 
-#: src/web/server/common/pages_common.ml:427
+#: src/web/server/common/pages_common.ml:569
+#. src/web/server/common/pages_common.ml:427
 msgid "Authentication failed"
 msgstr "Autentimine ebaõnnestus"
 
@@ -195,11 +196,11 @@ msgstr ""
 "Autentimine ebaõnnestus, tõenäoliselt vale kasutajanime või parooli tõttu "
 "või seetõttu, et sul pole õigust seda toimingut teha."
 
-#: src/web/server/common/pages_common.ml:576
+#: src/web/server/common/pages_common.ml:585
 msgid "Authentication impossible"
 msgstr "Autentimine ei ole võimalik"
 
-#: src/web/server/common/pages_common.ml:571
+#: src/web/server/common/pages_common.ml:580
 msgid "Authentication is impossible."
 msgstr "Autentimine on võimatu."
 
@@ -219,7 +220,7 @@ msgstr "Vale turvakood!"
 msgid "Best regards,"
 msgstr "Parimate soovidega,"
 
-#: src/web/clients/election/home.ml:498
+#: src/web/clients/election/home.ml:517
 msgid "Blank vote"
 msgstr "Tühi hääl"
 
@@ -227,15 +228,15 @@ msgstr "Tühi hääl"
 msgid "Booths available on this server:"
 msgstr "Sellel serveril on saadaval järgmised kabiinid:"
 
-#: src/web/clients/common/secondary_ui.ml:70
+#: src/web/clients/common/secondary_ui.ml:73
 msgid "By using this site, you accept our "
 msgstr "Selle saidi kasutamisega nõustute meie "
 
-#: src/web/server/common/pages_common.ml:586
+#: src/web/server/common/pages_common.ml:595
 msgid "Click here"
 msgstr "Klõpsa siia"
 
-#: src/web/clients/common/secondary_ui.ml:80
+#: src/web/clients/common/secondary_ui.ml:83
 msgid "Close"
 msgstr "Sulge"
 
@@ -290,7 +291,7 @@ msgstr "Valimiste leht"
 msgid "Election identifier"
 msgstr "Valimiste tunnus"
 
-#: src/web/clients/jslib/belenios_jslib.ml:273
+#: src/web/clients/jslib/belenios_jslib.ml:270
 msgid "Election public URL"
 msgstr "Valimiste avalik veebilink"
 
@@ -322,13 +323,17 @@ msgstr "EBAÕNNESTUMINE!"
 msgid "File:"
 msgstr "Fail:"
 
-#: src/web/clients/election/home.ml:269
+#: src/web/clients/election/home.ml:288
 msgid "Final fingerprint"
 msgstr "Lõplik sõrmejälg"
 
-#: src/web/clients/election/home.ml:257
+#: src/web/clients/election/home.ml:276
 msgid "Fingerprint of the encrypted tally"
 msgstr "Krüpteeritud loenduse sõrmejälg"
+
+#: src/web/clients/election/home.ml:248
+msgid "Fingerprint of the encrypted tally after shuffles:"
+msgstr ""
 
 #: src/web/server/common/site_common.ml:114
 msgid "Forbidden"
@@ -351,28 +356,28 @@ msgstr "Kui eespool toodud link ei tööta:"
 msgid "If you want to vote, you must "
 msgstr "Kui soovid hääletada, pead "
 
-#: src/web/clients/election/home.ml:464
+#: src/web/clients/election/home.ml:483
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "Meie rakenduses järgime juhul, kui mitmel kandidaadil on valituks osutumise "
 "või väljalangemise hetkel võrdne häälte arv, järjekorda, milles kandidaadid "
 "valimistel loetleti."
 
-#: src/web/clients/election/home.ml:572
+#: src/web/clients/election/home.ml:591
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr ""
 "See sisaldab kõiki esitatud hääletussedelid selgelt ja juhuslikus "
 "järjekorras."
 
-#: src/web/clients/election/home.ml:553
+#: src/web/clients/election/home.ml:572
 msgid "It is up to you to apply your favorite counting method."
 msgstr "Sinu otsustada on, millist loendamisviisi sa kasutad."
 
-#: src/web/clients/election/home.ml:704
+#: src/web/clients/election/home.ml:723
 msgid "It will open at %s (time left: %s)."
 msgstr "See avatakse kell %s (jäänud aeg: %s)."
 
-#: src/web/clients/election/home.ml:569
+#: src/web/clients/election/home.ml:588
 msgid "JSON result"
 msgstr "JSON-tulemus"
 
@@ -395,17 +400,17 @@ msgstr "Sisse"
 msgid "Log in with %s"
 msgstr "Logi sisse %s-ga"
 
-#: src/web/clients/election/home.ml:475
+#: src/web/clients/election/home.ml:494
 msgid "Look at the raw events for more details."
 msgstr "Vaata täpsemaid üksikasju tooresündmuste hulgast."
 
-#: src/web/clients/election/home.ml:459
+#: src/web/clients/election/home.ml:478
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "STV-süsteemil on palju variante, mis sõltuvad näiteks sellest, kuidas "
 "lahendada viigiseisu."
 
-#: src/web/server/common/pages_common.ml:573
+#: src/web/server/common/pages_common.ml:582
 msgid "Maybe cookies are blocked."
 msgstr "Võib-olla on küpsised blokeeritud."
 
@@ -413,7 +418,7 @@ msgstr "Võib-olla on küpsised blokeeritud."
 msgid "Not found"
 msgstr "Ei leitud"
 
-#: src/web/clients/election/home.ml:642
+#: src/web/clients/election/home.ml:661
 msgid "Number of accepted ballots: "
 msgstr "Heakskiidetud hääletussedelite arv: "
 
@@ -479,15 +484,15 @@ msgstr "Hääletussedelite töötlemine"
 msgid "Public page of the election:"
 msgstr "Valimiste avalik lehekülg:"
 
-#: src/web/clients/election/home.ml:446
+#: src/web/clients/election/home.ml:465
 msgid "Raw events"
 msgstr "Toored sündmused"
 
-#: src/web/server/common/pages_common.ml:589
+#: src/web/server/common/pages_common.ml:598
 msgid "Redirection"
 msgstr "Ümbersuunamine"
 
-#: src/web/clients/election/home.ml:682
+#: src/web/clients/election/home.ml:701
 msgid "Refresh status"
 msgstr "Värskenda staatust"
 
@@ -503,11 +508,11 @@ msgstr "Tulemused avaldatakse valimiste lehel"
 msgid "Sealing log fingerprint"
 msgstr "Pitserilogi sõrmejälg"
 
-#: src/web/clients/election/home.ml:794
+#: src/web/clients/election/home.ml:813
 msgid "See accepted ballots"
 msgstr "Vaata heakskiidetud hääletussedelid"
 
-#: src/web/clients/jslib/belenios_jslib.ml:341
+#: src/web/clients/jslib/belenios_jslib.ml:336
 msgid "Session expired"
 msgstr "Seanss on aegunud"
 
@@ -515,14 +520,14 @@ msgstr "Seanss on aegunud"
 msgid "Set"
 msgstr "Komplekt"
 
-#: src/web/clients/election/home.ml:396
+#: src/web/clients/election/home.ml:415
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 "Kui Condorceti võitjat ei ole, on olemas mitu meetodit, mille abil "
 "otsustada, keda valida."
 
-#: src/web/clients/jslib/belenios_jslib.ml:278
-#. src/web/clients/jslib/belenios_jslib.ml:264
+#: src/web/clients/jslib/belenios_jslib.ml:275
+#. src/web/clients/jslib/belenios_jslib.ml:261
 msgid "Smart ballot tracker"
 msgstr "Nutikas hääletustulemuste jälgija"
 
@@ -530,7 +535,7 @@ msgstr "Nutikas hääletustulemuste jälgija"
 msgid "Specification"
 msgstr "Tehnilised andmed"
 
-#: src/web/clients/election/home.ml:767
+#: src/web/clients/election/home.ml:786
 msgid "Start"
 msgstr "Alusta"
 
@@ -549,7 +554,7 @@ msgstr "Saada kopeerimise/kleepimise teel"
 msgid "Submit by file"
 msgstr "Saada failina"
 
-#: src/web/clients/election/home.ml:471
+#: src/web/clients/election/home.ml:490
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 "Sellised kandidaadid märgitakse valimiste võidu korral „TieWin” ja kaotuse "
@@ -563,23 +568,23 @@ msgstr "Kasutustingimused"
 msgid "Thank you for voting!"
 msgstr "Täname hääletamise eest!"
 
-#: src/web/clients/election/home.ml:408
+#: src/web/clients/election/home.ml:427
 msgid "The Schulze winners are:"
 msgstr "Schulze’i võitjad on järgmised:"
 
-#: src/web/clients/election/home.ml:480
+#: src/web/clients/election/home.ml:499
 msgid "The Single Transferable Vote winners are:"
 msgstr "Ülekantava hääle süsteemi alusel valitud võitjad on:"
 
-#: src/web/clients/election/home.ml:691
+#: src/web/clients/election/home.ml:710
 msgid "The election is being prepared. Please come back later."
 msgstr "Valimisi valmistatakse ette. Palun tulge hiljem tagasi."
 
-#: src/web/clients/election/home.ml:738 src/web/clients/election/home.ml:732
+#: src/web/clients/election/home.ml:757 src/web/clients/election/home.ml:751
 msgid "The election is closed and being tallied."
 msgstr "Valimised on lõppenud ja hääli loetakse kokku."
 
-#: src/web/clients/election/home.ml:723
+#: src/web/clients/election/home.ml:742
 msgid "The election will close at %s (time left: %s)."
 msgstr "Hääletus lõpeb kell %s (jäänud aeg: %s)."
 
@@ -591,11 +596,11 @@ msgstr "Sõrmejäljed on erinevad!"
 msgid "The fingerprints match!"
 msgstr "Sõrmejäljed klapivad!"
 
-#: src/web/clients/election/home.ml:564
+#: src/web/clients/election/home.ml:583
 msgid "The raw results can be viewed in the "
 msgstr "Toored tulemused on võimalik vaadata "
 
-#: src/web/clients/election/home.ml:456
+#: src/web/clients/election/home.ml:475
 msgid "There has been at least one tie."
 msgstr "On olnud vähemalt üks viik."
 
@@ -611,15 +616,15 @@ msgstr ""
 "Seda valimist ei ole olemas. See võib juhtuda valimiste puhul, mis ei ole "
 "veel avatud või mis on kustutatud."
 
-#: src/web/clients/election/home.ml:742
+#: src/web/clients/election/home.ml:761
 msgid "This election has been tallied."
 msgstr "Selle valimise tulemused on kokku loetud."
 
-#: src/web/clients/election/home.ml:743
+#: src/web/clients/election/home.ml:762
 msgid "This election is archived."
 msgstr "Need valimised on arhiveeritud."
 
-#: src/web/clients/election/home.ml:712
+#: src/web/clients/election/home.ml:731
 msgid "This election is currently closed."
 msgstr "See hääletus on praegu lõppenud."
 
@@ -627,7 +632,7 @@ msgstr "See hääletus on praegu lõppenud."
 msgid "This vote replaces any previous vote."
 msgstr "Käesolev hääletus asendab kõik varasemad hääletused."
 
-#: src/web/clients/election/home.ml:381 src/web/clients/election/home.ml:319
+#: src/web/clients/election/home.ml:400 src/web/clients/election/home.ml:338
 msgid "Tie:"
 msgstr "Viik:"
 
@@ -639,15 +644,15 @@ msgstr "Hääletamiseks on vaja ka parooli, mis saadetakse teile eraldi e-kirjas
 msgid "To get more information, please contact:"
 msgstr "Lisateabe saamiseks võtke ühendust:"
 
-#: src/web/clients/election/home.ml:622
+#: src/web/clients/election/home.ml:641
 msgid "Total weight of accepted ballots:"
 msgstr "Vastuvõetud hääletussedelite kogukaal:"
 
-#: src/web/clients/election/home.ml:244
+#: src/web/clients/election/home.ml:262
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "Usaldusisikud segasid hääletussedelid järgmises järjekorras:"
 
-#: src/web/clients/election/home.ml:608
+#: src/web/clients/election/home.ml:627
 msgid "Unsupported question type"
 msgstr "Toetamata küsimustüüp"
 
@@ -685,7 +690,7 @@ msgstr ""
 "Hoiatus: see e-kiri sisaldab isiklikku ja konfidentsiaalset teavet ning seda "
 "ei tohi edasi saata."
 
-#: src/web/clients/election/home.ml:400
+#: src/web/clients/election/home.ml:419
 msgid "We use here the Schulze method and we refer voters to "
 msgstr "Kasutame siin Schulze’i meetodit ja suuname valijaid "
 
@@ -725,7 +730,7 @@ msgstr "Võite "
 msgid "You can also "
 msgstr "Võite ka "
 
-#: src/web/clients/election/home.ml:644
+#: src/web/clients/election/home.ml:663
 msgid "You can also download the "
 msgstr "Samuti saate alla laadida "
 
@@ -745,7 +750,8 @@ msgstr "Krüpteeritud hääletussedeli saab luua käsurea tööriista abil "
 msgid "You cannot authenticate right now."
 msgstr "Hetkel ei ole võimalik sisse logida."
 
-#: src/web/server/common/pages_common.ml:564
+#: src/web/server/common/pages_common.ml:571
+#. src/web/server/common/pages_common.ml:564
 msgid "You cannot log in now. Please try later."
 msgstr "Hetkel ei ole sisselogimine võimalik. Palun proovi hiljem uuesti."
 
@@ -818,7 +824,7 @@ msgstr "parameetrid"
 msgid "public data"
 msgstr "avalikud andmed"
 
-#: src/web/clients/election/home.ml:632
+#: src/web/clients/election/home.ml:651
 msgid "raw result"
 msgstr "töötlemata tulemus"
 
@@ -834,11 +840,11 @@ msgstr "allikad"
 msgid "start from the beginning"
 msgstr "alusta algusest"
 
-#: src/web/clients/common/secondary_ui.ml:71
+#: src/web/clients/common/secondary_ui.ml:74
 msgid "terms of service"
 msgstr "kasutustingimused"
 
-#: src/web/clients/election/home.ml:402
+#: src/web/clients/election/home.ml:421
 msgid "the Wikipedia page"
 msgstr "Wikipedia lehekülg"
 

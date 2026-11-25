@@ -42,7 +42,7 @@ msgstr " ບັດໄດ້ຖືກຍອມຮັບແລ້ວ, ແລະ "
 msgid " ballot(s) have been accepted."
 msgstr " ບັດໄດ້ຖືກຍອມຮັບແລ້ວ."
 
-#: src/web/clients/election/home.ml:403
+#: src/web/clients/election/home.ml:422
 msgid " for more information."
 msgstr " ສຳລັບຂໍ້ມູນເພີ່ມເຕີມ."
 
@@ -62,11 +62,11 @@ msgstr " ໃນຊ່ອງຕໍ່ໄປນີ້: "
 msgid " is rejected, because "
 msgstr " ຖືກປະຕິເສດ, ເນື່ອງຈາກວ່າ "
 
-#: src/web/clients/election/home.ml:363 src/web/clients/election/home.ml:332
+#: src/web/clients/election/home.ml:382 src/web/clients/election/home.ml:351
 msgid "%d blank ballot(s)"
 msgstr "%d ບັດເປົ່າ"
 
-#: src/web/clients/election/home.ml:429 src/web/clients/election/home.ml:339
+#: src/web/clients/election/home.ml:448 src/web/clients/election/home.ml:358
 msgid "%d invalid ballot(s)"
 msgstr "%d ບັດບໍ່ຖືກຕ້ອງ"
 
@@ -75,11 +75,11 @@ msgid "%d of the following %d trustees [public keys] are needed to decrypt the e
 msgstr ""
 "%d ຈາກ %d ຜູ້ຮັກສາລະຫັດ [ກະແຈສາທາລະນະ] ຕໍ່ໄປນີ້ແມ່ນຈຳເປັນເພື່ອຖອດລະຫັດຜົນການເລືອກຕັ້ງ:"
 
-#: src/web/clients/election/home.ml:357 src/web/clients/election/home.ml:326
+#: src/web/clients/election/home.ml:376 src/web/clients/election/home.ml:345
 msgid "%d valid (non-blank) ballot(s)"
 msgstr "%d ບັດທີ່ຖືກຕ້ອງ (ບໍ່ແມ່ນບັດເປົ່າ)"
 
-#: src/web/clients/election/home.ml:358 src/web/clients/election/home.ml:327
+#: src/web/clients/election/home.ml:377 src/web/clients/election/home.ml:346
 msgid "%d valid ballot(s)"
 msgstr "%d ບັດທີ່ຖືກຕ້ອງ"
 
@@ -95,12 +95,12 @@ msgstr "), ຫຼື ຄູຫາໃດໆທີ່ເຂົ້າກັນໄ�
 msgid ", or "
 msgstr ", ຫຼື "
 
-#: src/web/clients/election/home.ml:391
+#: src/web/clients/election/home.ml:410
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 "ຜູ້ຊະນະແບບ Condorcet ແມ່ນຜູ້ສະໝັກທີ່ໄດ້ຮັບຄວາມນິຍົມຫຼາຍກວ່າຜູ້ສະໝັກຄົນອື່ນໆທັງໝົດ."
 
-#: src/web/clients/election/home.ml:436
+#: src/web/clients/election/home.ml:455
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "ບັດຈະຖືວ່າບໍ່ຖືກຕ້ອງ ຖ້າຜູ້ສະໝັກສອງຄົນຖືກໃຫ້ລຳດັບຄວາມມັກດຽວກັນ ຫຼື ຖ້າລຳດັບຫາຍໄປ."
@@ -113,7 +113,7 @@ msgstr "ຂໍ້ມູນຈຳເພາະຂອງບັດທີ່ຖືກ
 msgid "A verification code has been sent to %s."
 msgstr "ລະຫັດຢືນຢັນໄດ້ຖືກສົ່ງໄປຫາ %s ແລ້ວ."
 
-#: src/web/clients/election/home.ml:279
+#: src/web/clients/election/home.ml:298
 msgid "About this election"
 msgstr "ກ່ຽວກັບການເລືອກຕັ້ງນີ້"
 
@@ -121,7 +121,7 @@ msgstr "ກ່ຽວກັບການເລືອກຕັ້ງນີ້"
 msgid "Accepted ballots"
 msgstr "ບັດທີ່ຖືກຍອມຮັບ"
 
-#: src/web/clients/election/home.ml:345
+#: src/web/clients/election/home.ml:364
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "ອີງຕາມການຕັດສິນດ້ວຍສຽງສ່ວນຫຼາຍ, ການຈັດລຳດັບແມ່ນ:"
 
@@ -155,7 +155,7 @@ msgstr "ຫຼືອີກວິທີໜຶ່ງ, ທ່ານສາມາດ�
 msgid "Alternatively, you can follow the link:"
 msgstr "ຫຼືອີກວິທີໜຶ່ງ, ທ່ານສາມາດກົດເຂົ້າລິ້ງນີ້:"
 
-#: src/web/clients/election/home.ml:800
+#: src/web/clients/election/home.ml:819
 msgid "Audit data not available."
 msgstr "ບໍ່ມີຂໍ້ມູນການກວດສອບ."
 
@@ -177,7 +177,8 @@ msgstr "ຢືນຢັນຕົວຕົນດ້ວຍ %s"
 msgid "Authentication"
 msgstr "ການຢືນຢັນຕົວຕົນ"
 
-#: src/web/server/common/pages_common.ml:427
+#: src/web/server/common/pages_common.ml:569
+#. src/web/server/common/pages_common.ml:427
 msgid "Authentication failed"
 msgstr "ການຢືນຢັນຕົວຕົນລົ້ມເຫຼວ"
 
@@ -186,11 +187,11 @@ msgid "Authentication failed, probably because of a bad username or password, or
 msgstr ""
 "ການຢືນຢັນຕົວຕົນລົ້ມເຫຼວ, ອາດຈະຍ້ອນຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ, ຫຼື ທ່ານບໍ່ໄດ້ຮັບອະນຸຍາດໃຫ້ດຳເນີນການນີ້."
 
-#: src/web/server/common/pages_common.ml:576
+#: src/web/server/common/pages_common.ml:585
 msgid "Authentication impossible"
 msgstr "ບໍ່ສາມາດຢືນຢັນຕົວຕົນໄດ້"
 
-#: src/web/server/common/pages_common.ml:571
+#: src/web/server/common/pages_common.ml:580
 msgid "Authentication is impossible."
 msgstr "ການຢືນຢັນຕົວຕົນແມ່ນເປັນໄປບໍ່ໄດ້."
 
@@ -210,7 +211,7 @@ msgstr "ລະຫັດຄວາມປອດໄພບໍ່ຖືກຕ້ອງ
 msgid "Best regards,"
 msgstr "ດ້ວຍຄວາມເຄົາລົບ,"
 
-#: src/web/clients/election/home.ml:498
+#: src/web/clients/election/home.ml:517
 msgid "Blank vote"
 msgstr "ບັດເປົ່າ"
 
@@ -218,15 +219,15 @@ msgstr "ບັດເປົ່າ"
 msgid "Booths available on this server:"
 msgstr "ຄູຫາທີ່ມີຢູ່ໃນເຊີເວີນີ້:"
 
-#: src/web/clients/common/secondary_ui.ml:70
+#: src/web/clients/common/secondary_ui.ml:73
 msgid "By using this site, you accept our "
 msgstr "ໂດຍການນຳໃຊ້ເວັບໄຊນີ້, ທ່ານຍອມຮັບ "
 
-#: src/web/server/common/pages_common.ml:586
+#: src/web/server/common/pages_common.ml:595
 msgid "Click here"
 msgstr "ກົດທີ່ນີ້"
 
-#: src/web/clients/common/secondary_ui.ml:80
+#: src/web/clients/common/secondary_ui.ml:83
 msgid "Close"
 msgstr "ປິດ"
 
@@ -281,7 +282,7 @@ msgstr "ໜ້າຫຼັກການເລືອກຕັ້ງ"
 msgid "Election identifier"
 msgstr "ລະຫັດກຳນົດການເລືອກຕັ້ງ"
 
-#: src/web/clients/jslib/belenios_jslib.ml:273
+#: src/web/clients/jslib/belenios_jslib.ml:270
 msgid "Election public URL"
 msgstr "URL ສາທາລະນະຂອງການເລືອກຕັ້ງ"
 
@@ -313,13 +314,17 @@ msgstr "ລົ້ມເຫຼວ!"
 msgid "File:"
 msgstr "ໄຟລ໌:"
 
-#: src/web/clients/election/home.ml:269
+#: src/web/clients/election/home.ml:288
 msgid "Final fingerprint"
 msgstr "ລາຍນິ້ວມືສຸດທ້າຍ"
 
-#: src/web/clients/election/home.ml:257
+#: src/web/clients/election/home.ml:276
 msgid "Fingerprint of the encrypted tally"
 msgstr "ລາຍນິ້ວມືຂອງການນັບຄະແນນທີ່ຖືກເຂົ້າລະຫັດ"
+
+#: src/web/clients/election/home.ml:248
+msgid "Fingerprint of the encrypted tally after shuffles:"
+msgstr ""
 
 #: src/web/server/common/site_common.ml:114
 msgid "Forbidden"
@@ -342,25 +347,25 @@ msgstr "ຖ້າລິ້ງຂ້າງເທິງນັ້ນໃຊ້ກາ
 msgid "If you want to vote, you must "
 msgstr "ຖ້າທ່ານຕ້ອງການລົງຄະແນນສຽງ, ທ່ານຕ້ອງ "
 
-#: src/web/clients/election/home.ml:464
+#: src/web/clients/election/home.ml:483
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "ໃນການດຳເນີນການຂອງພວກເຮົາ, ເມື່ອມີຜູ້ສະໝັກຫຼາຍຄົນໄດ້ຄະແນນເທົ່າກັນໃນຂະນະທີ່ພ້ອມຈະຖືກເລືອກ ຫຼື ຖືກຄັດອອ"
 "ກ, ພວກເຮົາຈະປະຕິບັດຕາມລຳດັບທີ່ຜູ້ສະໝັກຖືກລະບຸໄວ້ໃນການເລືອກຕັ້ງ."
 
-#: src/web/clients/election/home.ml:572
+#: src/web/clients/election/home.ml:591
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr "ມັນປະກອບດ້ວຍບັດທັງໝົດທີ່ຖືກສົ່ງເຂົ້າມາແບບເປີດເຜີຍ, ໂດຍການສຸ່ມລຳດັບ."
 
-#: src/web/clients/election/home.ml:553
+#: src/web/clients/election/home.ml:572
 msgid "It is up to you to apply your favorite counting method."
 msgstr "ມັນຂຶ້ນຢູ່ກັບທ່ານທີ່ຈະນຳໃຊ້ວິທີການນັບຄະແນນທີ່ທ່ານຕ້ອງການ."
 
-#: src/web/clients/election/home.ml:704
+#: src/web/clients/election/home.ml:723
 msgid "It will open at %s (time left: %s)."
 msgstr "ມັນຈະເປີດໃນເວລາ %s (ເວລາທີ່ເຫຼືອ: %s)."
 
-#: src/web/clients/election/home.ml:569
+#: src/web/clients/election/home.ml:588
 msgid "JSON result"
 msgstr "ຜົນລັດ JSON"
 
@@ -383,16 +388,16 @@ msgstr "ເຂົ້າສູ່ລະບົບ"
 msgid "Log in with %s"
 msgstr "ເຂົ້າສູ່ລະບົບດ້ວຍ %s"
 
-#: src/web/clients/election/home.ml:475
+#: src/web/clients/election/home.ml:494
 msgid "Look at the raw events for more details."
 msgstr "ເບິ່ງເຫດການດິບ (raw events) ສຳລັບລາຍລະອຽດເພີ່ມເຕີມ."
 
-#: src/web/clients/election/home.ml:459
+#: src/web/clients/election/home.ml:478
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "ມີຫຼາຍຮູບແບບຂອງ STV, ຂຶ້ນກັບຕົວຢ່າງເຊັ່ນ ວິທີການຕັດສິນເມື່ອຄະແນນເທົ່າກັນ."
 
-#: src/web/server/common/pages_common.ml:573
+#: src/web/server/common/pages_common.ml:582
 msgid "Maybe cookies are blocked."
 msgstr "ອາດເປັນຍ້ອນຄຸກກີ້ (cookies) ຖືກບລັອກ."
 
@@ -400,7 +405,7 @@ msgstr "ອາດເປັນຍ້ອນຄຸກກີ້ (cookies) ຖືກ�
 msgid "Not found"
 msgstr "ບໍ່ພົບ"
 
-#: src/web/clients/election/home.ml:642
+#: src/web/clients/election/home.ml:661
 msgid "Number of accepted ballots: "
 msgstr "ຈຳນວນບັດທີ່ຖືກຍອມຮັບ: "
 
@@ -462,15 +467,15 @@ msgstr "ກຳລັງປະມວນຜົນບັດ"
 msgid "Public page of the election:"
 msgstr "ໜ້າສາທາລະນະຂອງການເລືອກຕັ້ງ:"
 
-#: src/web/clients/election/home.ml:446
+#: src/web/clients/election/home.ml:465
 msgid "Raw events"
 msgstr "ເຫດການດິບ"
 
-#: src/web/server/common/pages_common.ml:589
+#: src/web/server/common/pages_common.ml:598
 msgid "Redirection"
 msgstr "ການປ່ຽນເສັ້ນທາງ"
 
-#: src/web/clients/election/home.ml:682
+#: src/web/clients/election/home.ml:701
 msgid "Refresh status"
 msgstr "ໂຫຼດສະຖານະຄືນໃໝ່"
 
@@ -486,11 +491,11 @@ msgstr "ຜົນການເລືອກຕັ້ງຈະຖືກເຜີຍ
 msgid "Sealing log fingerprint"
 msgstr "ລາຍນິ້ວມືຂອງບັນທຶກການປິດຜນຶກ"
 
-#: src/web/clients/election/home.ml:794
+#: src/web/clients/election/home.ml:813
 msgid "See accepted ballots"
 msgstr "ເບິ່ງບັດທີ່ຖືກຍອມຮັບ"
 
-#: src/web/clients/jslib/belenios_jslib.ml:341
+#: src/web/clients/jslib/belenios_jslib.ml:336
 msgid "Session expired"
 msgstr "ເຊດຊັນໝົດອາຍຸ"
 
@@ -498,12 +503,12 @@ msgstr "ເຊດຊັນໝົດອາຍຸ"
 msgid "Set"
 msgstr "ຕັ້ງຄ່າ"
 
-#: src/web/clients/election/home.ml:396
+#: src/web/clients/election/home.ml:415
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr "ມີຫຼາຍເຕັກນິກໃນການຕັດສິນໃຈເລືອກຜູ້ສະໝັກ ເມື່ອບໍ່ມີຜູ້ຊະນະແບບ Condorcet."
 
-#: src/web/clients/jslib/belenios_jslib.ml:278
-#. src/web/clients/jslib/belenios_jslib.ml:264
+#: src/web/clients/jslib/belenios_jslib.ml:275
+#. src/web/clients/jslib/belenios_jslib.ml:261
 msgid "Smart ballot tracker"
 msgstr "ລະຫັດຕິດຕາມບັດອັດສະລິຍະ"
 
@@ -511,7 +516,7 @@ msgstr "ລະຫັດຕິດຕາມບັດອັດສະລິຍະ"
 msgid "Specification"
 msgstr "ຂໍ້ມູນຈຳເພາະ"
 
-#: src/web/clients/election/home.ml:767
+#: src/web/clients/election/home.ml:786
 msgid "Start"
 msgstr "ເລີ່ມຕົ້ນ"
 
@@ -530,7 +535,7 @@ msgstr "ສົ່ງໂດຍການ ຄັດລອກ/ວາງ"
 msgid "Submit by file"
 msgstr "ສົ່ງໂດຍໄຟລ໌"
 
-#: src/web/clients/election/home.ml:471
+#: src/web/clients/election/home.ml:490
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 "ຜູ້ສະໝັກດັ່ງກ່າວຈະຖືກໝາຍວ່າ \"TieWin\" ເມື່ອພວກເຂົາໄດ້ຮັບການເລືອກຕັ້ງ ແລະ ໝາຍວ່າ \"TieLose\" ຖ້"
@@ -544,23 +549,23 @@ msgstr "ເງື່ອນໄຂການໃຫ້ບໍລິການ"
 msgid "Thank you for voting!"
 msgstr "ຂອບໃຈທີ່ມາລົງຄະແນນສຽງ!"
 
-#: src/web/clients/election/home.ml:408
+#: src/web/clients/election/home.ml:427
 msgid "The Schulze winners are:"
 msgstr "ຜູ້ຊະນະແບບ Schulze ແມ່ນ:"
 
-#: src/web/clients/election/home.ml:480
+#: src/web/clients/election/home.ml:499
 msgid "The Single Transferable Vote winners are:"
 msgstr "ຜູ້ຊະນະແບບ Single Transferable Vote ແມ່ນ:"
 
-#: src/web/clients/election/home.ml:691
+#: src/web/clients/election/home.ml:710
 msgid "The election is being prepared. Please come back later."
 msgstr "ການເລືອກຕັ້ງກຳລັງຖືກກະກຽມ. ກະລຸນາກັບມາໃໝ່ພາຍຫຼັງ."
 
-#: src/web/clients/election/home.ml:738 src/web/clients/election/home.ml:732
+#: src/web/clients/election/home.ml:757 src/web/clients/election/home.ml:751
 msgid "The election is closed and being tallied."
 msgstr "ການເລືອກຕັ້ງປິດແລ້ວ ແລະ ກຳລັງນັບຄະແນນ."
 
-#: src/web/clients/election/home.ml:723
+#: src/web/clients/election/home.ml:742
 msgid "The election will close at %s (time left: %s)."
 msgstr "ການເລືອກຕັ້ງຈະປິດໃນເວລາ %s (ເວລາທີ່ເຫຼືອ: %s)."
 
@@ -572,11 +577,11 @@ msgstr "ລາຍນິ້ວມືບໍ່ກົງກັນ!"
 msgid "The fingerprints match!"
 msgstr "ລາຍນິ້ວມືກົງກັນ!"
 
-#: src/web/clients/election/home.ml:564
+#: src/web/clients/election/home.ml:583
 msgid "The raw results can be viewed in the "
 msgstr "ຜົນລັດດິບສາມາດເບິ່ງໄດ້ໃນ "
 
-#: src/web/clients/election/home.ml:456
+#: src/web/clients/election/home.ml:475
 msgid "There has been at least one tie."
 msgstr "ມີຄະແນນເທົ່າກັນຢ່າງໜ້ອຍໜຶ່ງຄູ່."
 
@@ -590,15 +595,15 @@ msgid "This election does not exist. This may happen for elections that have not
 msgstr ""
 "ການເລືອກຕັ້ງນີ້ບໍ່ມີຢູ່. ນີ້ອາດຈະເກີດຂຶ້ນກັບການເລືອກຕັ້ງທີ່ຍັງບໍ່ທັນເປີດ ຫຼື ຖືກລຶບໄປແລ້ວ."
 
-#: src/web/clients/election/home.ml:742
+#: src/web/clients/election/home.ml:761
 msgid "This election has been tallied."
 msgstr "ການເລືອກຕັ້ງນີ້ໄດ້ຖືກນັບຄະແນນແລ້ວ."
 
-#: src/web/clients/election/home.ml:743
+#: src/web/clients/election/home.ml:762
 msgid "This election is archived."
 msgstr "ການເລືອກຕັ້ງນີ້ຖືກຈັດເກັບເຂົ້າບ່ອນເກັບມ້ຽນແລ້ວ."
 
-#: src/web/clients/election/home.ml:712
+#: src/web/clients/election/home.ml:731
 msgid "This election is currently closed."
 msgstr "ການເລືອກຕັ້ງນີ້ປິດຢູ່ໃນຂະນະນີ້."
 
@@ -606,7 +611,7 @@ msgstr "ການເລືອກຕັ້ງນີ້ປິດຢູ່ໃນຂ
 msgid "This vote replaces any previous vote."
 msgstr "ການລົງຄະແນນສຽງນີ້ຈະປ່ຽນແທນການລົງຄະແນນສຽງກ່ອນໜ້ານີ້ທັງໝົດ."
 
-#: src/web/clients/election/home.ml:381 src/web/clients/election/home.ml:319
+#: src/web/clients/election/home.ml:400 src/web/clients/election/home.ml:338
 msgid "Tie:"
 msgstr "ຄະແນນເທົ່າກັນ:"
 
@@ -618,15 +623,15 @@ msgstr "ເພື່ອລົງຄະແນນສຽງ, ທ່ານຍັງ�
 msgid "To get more information, please contact:"
 msgstr "ເພື່ອຂໍຂໍ້ມູນເພີ່ມເຕີມ, ກະລຸນາຕິດຕໍ່:"
 
-#: src/web/clients/election/home.ml:622
+#: src/web/clients/election/home.ml:641
 msgid "Total weight of accepted ballots:"
 msgstr "ນ້ຳໜັກລວມຂອງບັດທີ່ຖືກຍອມຮັບ:"
 
-#: src/web/clients/election/home.ml:244
+#: src/web/clients/election/home.ml:262
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "ຜູ້ຮັກສາລະຫັດໄດ້ສຸ່ມລຳດັບບັດຕາມລຳດັບຕໍ່ໄປນີ້:"
 
-#: src/web/clients/election/home.ml:608
+#: src/web/clients/election/home.ml:627
 msgid "Unsupported question type"
 msgstr "ປະເພດຄຳຖາມທີ່ບໍ່ຮອງຮັບ"
 
@@ -661,7 +666,7 @@ msgstr ""
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr "ຄຳເຕືອນ: ອີເມວນີ້ມີຂໍ້ມູນສ່ວນຕົວ ແລະ ຂໍ້ມູນລັບ ແລະ ບໍ່ຄວນຖືກສົ່ງຕໍ່."
 
-#: src/web/clients/election/home.ml:400
+#: src/web/clients/election/home.ml:419
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 "ພວກເຮົາໃຊ້ວິທີການ Schulze ຢູ່ທີ່ນີ້ ແລະ ພວກເຮົາແນະນຳໃຫ້ຜູ້ມີສິດເລືອກຕັ້ງໄປເບິ່ງທີ່ "
@@ -702,7 +707,7 @@ msgstr "ທ່ານສາມາດ "
 msgid "You can also "
 msgstr "ທ່ານຍັງສາມາດ "
 
-#: src/web/clients/election/home.ml:644
+#: src/web/clients/election/home.ml:663
 msgid "You can also download the "
 msgstr "ທ່ານຍັງສາມາດດາວໂຫຼດ "
 
@@ -723,7 +728,8 @@ msgstr ""
 msgid "You cannot authenticate right now."
 msgstr "ທ່ານບໍ່ສາມາດຢືນຢັນຕົວຕົນໄດ້ໃນເວລານີ້."
 
-#: src/web/server/common/pages_common.ml:564
+#: src/web/server/common/pages_common.ml:571
+#. src/web/server/common/pages_common.ml:564
 msgid "You cannot log in now. Please try later."
 msgstr "ທ່ານບໍ່ສາມາດເຂົ້າສູ່ລະບົບໄດ້ໃນເວລານີ້. ກະລຸນາລອງໃໝ່ພາຍຫຼັງ."
 
@@ -796,7 +802,7 @@ msgstr "ພາລາມິເຕີ"
 msgid "public data"
 msgstr "ຂໍ້ມູນສາທາລະນະ"
 
-#: src/web/clients/election/home.ml:632
+#: src/web/clients/election/home.ml:651
 msgid "raw result"
 msgstr "ຜົນລັດດິບ"
 
@@ -812,11 +818,11 @@ msgstr "ຊອດ (sources)"
 msgid "start from the beginning"
 msgstr "ເລີ່ມຕົ້ນໃໝ່ແຕ່ຕົ້ນ"
 
-#: src/web/clients/common/secondary_ui.ml:71
+#: src/web/clients/common/secondary_ui.ml:74
 msgid "terms of service"
 msgstr "ເງື່ອນໄຂການໃຫ້ບໍລິການ"
 
-#: src/web/clients/election/home.ml:402
+#: src/web/clients/election/home.ml:421
 msgid "the Wikipedia page"
 msgstr "ໜ້າ Wikipedia"
 

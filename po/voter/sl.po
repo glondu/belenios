@@ -44,7 +44,7 @@ msgstr " glasovnic je bilo sprejetih do zdaj in "
 msgid " ballot(s) have been accepted."
 msgstr " glasovnic je bilo sprejetih."
 
-#: src/web/clients/election/home.ml:403
+#: src/web/clients/election/home.ml:422
 msgid " for more information."
 msgstr " za več informacij."
 
@@ -64,11 +64,11 @@ msgstr " v naslednji skrinjici: "
 msgid " is rejected, because "
 msgstr " je zavrnjena, ker "
 
-#: src/web/clients/election/home.ml:363 src/web/clients/election/home.ml:332
+#: src/web/clients/election/home.ml:382 src/web/clients/election/home.ml:351
 msgid "%d blank ballot(s)"
 msgstr "%d praznih glasovnic"
 
-#: src/web/clients/election/home.ml:429 src/web/clients/election/home.ml:339
+#: src/web/clients/election/home.ml:448 src/web/clients/election/home.ml:358
 msgid "%d invalid ballot(s)"
 msgstr "%d neveljavnih glasovnic"
 
@@ -78,11 +78,11 @@ msgstr ""
 "%d od naslednjih %d zaupnikov (javnih ključev) je potrebnih za dešifriranje "
 "rezultata volitev:"
 
-#: src/web/clients/election/home.ml:357 src/web/clients/election/home.ml:326
+#: src/web/clients/election/home.ml:376 src/web/clients/election/home.ml:345
 msgid "%d valid (non-blank) ballot(s)"
 msgstr "%d veljavnih (ne-praznih) glasovnic"
 
-#: src/web/clients/election/home.ml:358 src/web/clients/election/home.ml:327
+#: src/web/clients/election/home.ml:377 src/web/clients/election/home.ml:346
 msgid "%d valid ballot(s)"
 msgstr "%d veljavnih glasovnic"
 
@@ -98,11 +98,11 @@ msgstr "), ali drugem kompatibilnem volišču."
 msgid ", or "
 msgstr ", ali "
 
-#: src/web/clients/election/home.ml:391
+#: src/web/clients/election/home.ml:410
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 
-#: src/web/clients/election/home.ml:436
+#: src/web/clients/election/home.ml:455
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 
@@ -114,7 +114,7 @@ msgstr ""
 msgid "A verification code has been sent to %s."
 msgstr "Potrditvena koda je bila poslana %s."
 
-#: src/web/clients/election/home.ml:279
+#: src/web/clients/election/home.ml:298
 msgid "About this election"
 msgstr "O teh volitvah"
 
@@ -122,7 +122,7 @@ msgstr "O teh volitvah"
 msgid "Accepted ballots"
 msgstr "Sprejete glasovnice"
 
-#: src/web/clients/election/home.ml:345
+#: src/web/clients/election/home.ml:364
 msgid "According to Majority Judgment, the ranking is:"
 msgstr ""
 
@@ -157,7 +157,7 @@ msgstr "Alternativno lahko naložite datoteko z vašo glasovnico:"
 msgid "Alternatively, you can follow the link:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:800
+#: src/web/clients/election/home.ml:819
 msgid "Audit data not available."
 msgstr ""
 
@@ -179,7 +179,8 @@ msgstr "Prijava z %s"
 msgid "Authentication"
 msgstr "Prijava"
 
-#: src/web/server/common/pages_common.ml:427
+#: src/web/server/common/pages_common.ml:569
+#. src/web/server/common/pages_common.ml:427
 msgid "Authentication failed"
 msgstr "Prijava neuspešna"
 
@@ -189,11 +190,11 @@ msgstr ""
 "Napaka pri prijavi, najverjetneje zaradi napačnega uporabniškega imena ali "
 "gesla, ali pa nimate ustreznega dovoljenja."
 
-#: src/web/server/common/pages_common.ml:576
+#: src/web/server/common/pages_common.ml:585
 msgid "Authentication impossible"
 msgstr "Prijava ni mogoča"
 
-#: src/web/server/common/pages_common.ml:571
+#: src/web/server/common/pages_common.ml:580
 msgid "Authentication is impossible."
 msgstr "Prijava ni mogoča."
 
@@ -213,7 +214,7 @@ msgstr "Neveljavna varnostna koda!"
 msgid "Best regards,"
 msgstr "S spoštovanjem,"
 
-#: src/web/clients/election/home.ml:498
+#: src/web/clients/election/home.ml:517
 msgid "Blank vote"
 msgstr "Prazen glas"
 
@@ -221,15 +222,15 @@ msgstr "Prazen glas"
 msgid "Booths available on this server:"
 msgstr "Volišča, ki so na voljo na tem strežniku:"
 
-#: src/web/clients/common/secondary_ui.ml:70
+#: src/web/clients/common/secondary_ui.ml:73
 msgid "By using this site, you accept our "
 msgstr "Z uporabo spletnega mesta se strinjate s "
 
-#: src/web/server/common/pages_common.ml:586
+#: src/web/server/common/pages_common.ml:595
 msgid "Click here"
 msgstr "Kiknite tukaj"
 
-#: src/web/clients/common/secondary_ui.ml:80
+#: src/web/clients/common/secondary_ui.ml:83
 msgid "Close"
 msgstr "Zapri"
 
@@ -284,7 +285,7 @@ msgstr "Začetna stran volitev"
 msgid "Election identifier"
 msgstr "Identifikator volitev"
 
-#: src/web/clients/jslib/belenios_jslib.ml:273
+#: src/web/clients/jslib/belenios_jslib.ml:270
 msgid "Election public URL"
 msgstr ""
 
@@ -316,13 +317,17 @@ msgstr "Napaka!"
 msgid "File:"
 msgstr "Datoteka:"
 
-#: src/web/clients/election/home.ml:269
+#: src/web/clients/election/home.ml:288
 msgid "Final fingerprint"
 msgstr "Končna zgoščena vrednost"
 
-#: src/web/clients/election/home.ml:257
+#: src/web/clients/election/home.ml:276
 msgid "Fingerprint of the encrypted tally"
 msgstr "Zgoščena vrednost šifriranega rezultata"
+
+#: src/web/clients/election/home.ml:248
+msgid "Fingerprint of the encrypted tally after shuffles:"
+msgstr ""
 
 #: src/web/server/common/site_common.ml:114
 msgid "Forbidden"
@@ -345,25 +350,25 @@ msgstr "Če zgornja povezava ne deluje:"
 msgid "If you want to vote, you must "
 msgstr "Če želite glasovati, morate "
 
-#: src/web/clients/election/home.ml:464
+#: src/web/clients/election/home.ml:483
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "V naši implementaciji se v primeru enakega števila glasov upošteva vrstni "
 "red kandidatov na glasovnici."
 
-#: src/web/clients/election/home.ml:572
+#: src/web/clients/election/home.ml:591
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr "Vsebuje vse oddane glasovnice v čistopisu in v naključnem vrstnem redu."
 
-#: src/web/clients/election/home.ml:553
+#: src/web/clients/election/home.ml:572
 msgid "It is up to you to apply your favorite counting method."
 msgstr ""
 
-#: src/web/clients/election/home.ml:704
+#: src/web/clients/election/home.ml:723
 msgid "It will open at %s (time left: %s)."
 msgstr "Odprto bo ob %s (preostali čas: %s)."
 
-#: src/web/clients/election/home.ml:569
+#: src/web/clients/election/home.ml:588
 msgid "JSON result"
 msgstr "Rezultat v obliki JSON"
 
@@ -386,15 +391,15 @@ msgstr "Prijava"
 msgid "Log in with %s"
 msgstr "Prijava z %s"
 
-#: src/web/clients/election/home.ml:475
+#: src/web/clients/election/home.ml:494
 msgid "Look at the raw events for more details."
 msgstr ""
 
-#: src/web/clients/election/home.ml:459
+#: src/web/clients/election/home.ml:478
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:573
+#: src/web/server/common/pages_common.ml:582
 msgid "Maybe cookies are blocked."
 msgstr "Morda so blokirani piškotki."
 
@@ -402,7 +407,7 @@ msgstr "Morda so blokirani piškotki."
 msgid "Not found"
 msgstr "Ni najdeno"
 
-#: src/web/clients/election/home.ml:642
+#: src/web/clients/election/home.ml:661
 msgid "Number of accepted ballots: "
 msgstr "Število sprejetih glasovnic: "
 
@@ -466,15 +471,15 @@ msgstr "Procesiranje glasovnice"
 msgid "Public page of the election:"
 msgstr "Javna stran volitev:"
 
-#: src/web/clients/election/home.ml:446
+#: src/web/clients/election/home.ml:465
 msgid "Raw events"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:589
+#: src/web/server/common/pages_common.ml:598
 msgid "Redirection"
 msgstr "Preusmeritev"
 
-#: src/web/clients/election/home.ml:682
+#: src/web/clients/election/home.ml:701
 msgid "Refresh status"
 msgstr ""
 
@@ -490,11 +495,11 @@ msgstr "Rezultati bodo objavljeni na strani volitev"
 msgid "Sealing log fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:794
+#: src/web/clients/election/home.ml:813
 msgid "See accepted ballots"
 msgstr "Poglejte sprejete glasovnice"
 
-#: src/web/clients/jslib/belenios_jslib.ml:341
+#: src/web/clients/jslib/belenios_jslib.ml:336
 msgid "Session expired"
 msgstr ""
 
@@ -502,12 +507,12 @@ msgstr ""
 msgid "Set"
 msgstr ""
 
-#: src/web/clients/election/home.ml:396
+#: src/web/clients/election/home.ml:415
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 
-#: src/web/clients/jslib/belenios_jslib.ml:278
-#. src/web/clients/jslib/belenios_jslib.ml:264
+#: src/web/clients/jslib/belenios_jslib.ml:275
+#. src/web/clients/jslib/belenios_jslib.ml:261
 msgid "Smart ballot tracker"
 msgstr ""
 
@@ -515,7 +520,7 @@ msgstr ""
 msgid "Specification"
 msgstr ""
 
-#: src/web/clients/election/home.ml:767
+#: src/web/clients/election/home.ml:786
 msgid "Start"
 msgstr "Začetek"
 
@@ -534,7 +539,7 @@ msgstr "Oddaj s kopiraj/prilepi"
 msgid "Submit by file"
 msgstr "Oddaj z datoteko"
 
-#: src/web/clients/election/home.ml:471
+#: src/web/clients/election/home.ml:490
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 
@@ -546,23 +551,23 @@ msgstr "Pogoji uporabe"
 msgid "Thank you for voting!"
 msgstr "Hvala, da ste glasovali!"
 
-#: src/web/clients/election/home.ml:408
+#: src/web/clients/election/home.ml:427
 msgid "The Schulze winners are:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:480
+#: src/web/clients/election/home.ml:499
 msgid "The Single Transferable Vote winners are:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:691
+#: src/web/clients/election/home.ml:710
 msgid "The election is being prepared. Please come back later."
 msgstr "Volitve so v pripravi. Prosimo vrnite se kasneje."
 
-#: src/web/clients/election/home.ml:738 src/web/clients/election/home.ml:732
+#: src/web/clients/election/home.ml:757 src/web/clients/election/home.ml:751
 msgid "The election is closed and being tallied."
 msgstr "Volitve so zaprte in v fazi štetja."
 
-#: src/web/clients/election/home.ml:723
+#: src/web/clients/election/home.ml:742
 msgid "The election will close at %s (time left: %s)."
 msgstr "Volitve se zaprejo ob %s (preostal čas: %s)."
 
@@ -574,11 +579,11 @@ msgstr "Zgoščene vrednosti se ne ujemajo!"
 msgid "The fingerprints match!"
 msgstr "Zgoščene vrednosti se ujemajo!"
 
-#: src/web/clients/election/home.ml:564
+#: src/web/clients/election/home.ml:583
 msgid "The raw results can be viewed in the "
 msgstr "Surovi rezultati so na voljo v "
 
-#: src/web/clients/election/home.ml:456
+#: src/web/clients/election/home.ml:475
 msgid "There has been at least one tie."
 msgstr ""
 
@@ -590,15 +595,15 @@ msgstr "Koda je 6-mestna. Lahko traja do 15 minut, da je dostavljena."
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
 msgstr ""
 
-#: src/web/clients/election/home.ml:742
+#: src/web/clients/election/home.ml:761
 msgid "This election has been tallied."
 msgstr "Volitve so bile preštete."
 
-#: src/web/clients/election/home.ml:743
+#: src/web/clients/election/home.ml:762
 msgid "This election is archived."
 msgstr "Volitve so arhivirane."
 
-#: src/web/clients/election/home.ml:712
+#: src/web/clients/election/home.ml:731
 msgid "This election is currently closed."
 msgstr "Glasovanje je trenutno zaprto."
 
@@ -606,7 +611,7 @@ msgstr "Glasovanje je trenutno zaprto."
 msgid "This vote replaces any previous vote."
 msgstr "To glasovanje nadomesti vse predhodno oddane glasovnice."
 
-#: src/web/clients/election/home.ml:381 src/web/clients/election/home.ml:319
+#: src/web/clients/election/home.ml:400 src/web/clients/election/home.ml:338
 msgid "Tie:"
 msgstr "Izenačenje:"
 
@@ -620,15 +625,15 @@ msgstr ""
 msgid "To get more information, please contact:"
 msgstr "Za več informacij kontaktirajte:"
 
-#: src/web/clients/election/home.ml:622
+#: src/web/clients/election/home.ml:641
 msgid "Total weight of accepted ballots:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:244
+#: src/web/clients/election/home.ml:262
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:608
+#: src/web/clients/election/home.ml:627
 msgid "Unsupported question type"
 msgstr ""
 
@@ -664,7 +669,7 @@ msgstr ""
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr "Opozorilo: to sporočilo vsebuje osebne in zaupne informacije."
 
-#: src/web/clients/election/home.ml:400
+#: src/web/clients/election/home.ml:419
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 
@@ -704,7 +709,7 @@ msgstr ""
 msgid "You can also "
 msgstr ""
 
-#: src/web/clients/election/home.ml:644
+#: src/web/clients/election/home.ml:663
 msgid "You can also download the "
 msgstr ""
 
@@ -724,7 +729,8 @@ msgstr ""
 msgid "You cannot authenticate right now."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:564
+#: src/web/server/common/pages_common.ml:571
+#. src/web/server/common/pages_common.ml:564
 msgid "You cannot log in now. Please try later."
 msgstr "Trenutno se ne morete prijaviti. Prosimo poskusite kasneje."
 
@@ -796,7 +802,7 @@ msgstr ""
 msgid "public data"
 msgstr ""
 
-#: src/web/clients/election/home.ml:632
+#: src/web/clients/election/home.ml:651
 msgid "raw result"
 msgstr ""
 
@@ -812,11 +818,11 @@ msgstr ""
 msgid "start from the beginning"
 msgstr ""
 
-#: src/web/clients/common/secondary_ui.ml:71
+#: src/web/clients/common/secondary_ui.ml:74
 msgid "terms of service"
 msgstr "pogoje uporabe"
 
-#: src/web/clients/election/home.ml:402
+#: src/web/clients/election/home.ml:421
 msgid "the Wikipedia page"
 msgstr ""
 

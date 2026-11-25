@@ -27,11 +27,11 @@ msgstr " Potvrzovací e-mail vám byl odeslán."
 msgid " and a password: "
 msgstr " a heslo: "
 
-#: src/web/clients/trustee/generate.ml:181
+#: src/web/clients/trustee/generate.ml:177
 msgid " and save it to a secure location."
 msgstr " a bezpečně jej ulož."
 
-#: src/web/clients/credauth/generate.ml:121
+#: src/web/clients/credauth/generate.ml:119
 msgid " and save the file to a secure location."
 msgstr " a soubor bezpečně ulož."
 
@@ -77,7 +77,7 @@ msgstr " nebo jim ručně pošlete tento odkaz:"
 msgid " or username: "
 msgstr " nebo uživatelské jméno: "
 
-#: src/web/clients/trustee/decrypt.ml:140
+#: src/web/clients/trustee/decrypt.ml:141
 msgid " your contribution to decryption."
 msgstr " můj příspěvek k dešifrování."
 
@@ -138,7 +138,7 @@ msgstr "Přijmout"
 msgid "Account management"
 msgstr "Správa účtu"
 
-#: src/web/server/common/site_admin.ml:395
+#: src/web/server/common/site_admin.ml:415
 msgid "Account not found"
 msgstr "Účet nenalezen"
 
@@ -168,7 +168,7 @@ msgstr "Administrace"
 msgid "Administrator's profile: "
 msgstr "Administrátorův profil: "
 
-#: src/web/clients/credop/credop.ml:265
+#: src/web/clients/credop/credop.ml:267
 msgid "All voters"
 msgstr "Všichni voliči"
 
@@ -180,7 +180,7 @@ msgstr "Povol prázdný volební lístek"
 msgid "An e-mail with a code has been sent to %s."
 msgstr "E-mail s kódem byl poslán na adresu %s."
 
-#: src/web/clients/admin/trustees_tab.ml:382
+#: src/web/clients/admin/trustees_tab.ml:385
 msgid "An e-mail with a link has been sent to %s."
 msgstr ""
 
@@ -188,7 +188,7 @@ msgstr ""
 msgid "An error occurred while applying the shuffle."
 msgstr "Při použití náhodného řazení došlo k chybě."
 
-#: src/web/clients/credauth/generate.ml:74
+#: src/web/clients/credauth/generate.ml:72
 msgid "An error occurred while submitting credentials!"
 msgstr "Při odesílání přihlašovacích údajů došlo k chybě!"
 
@@ -201,7 +201,7 @@ msgstr ""
 "hlasů, kterými volič disponuje (v případě, že všichni voliči nedisponují "
 "stejným počtem hlasů)."
 
-#: src/web/clients/basic/admin_basic.ml:218
+#: src/web/clients/basic/admin_basic.ml:213
 msgid "Archived elections"
 msgstr "Archivované volby"
 
@@ -264,7 +264,7 @@ msgstr "Naším serverem (není iedální pro decentralizované zabezpečení)"
 msgid "By proceeding, you authorize:"
 msgstr "Pokračováním dáváte souhlas:"
 
-#: src/web/clients/common/secondary_ui.ml:70
+#: src/web/clients/common/secondary_ui.ml:73
 msgid "By using this site, you accept our "
 msgstr "Používáním této stránky souhlasíte s našimi "
 
@@ -282,15 +282,15 @@ msgstr "Zrušit"
 msgid "Change e-mail address"
 msgstr "Změnit e-mailovou adresu"
 
-#: src/web/server/common/site_admin.ml:359
-#. src/web/server/common/site_admin.ml:244
+#: src/web/server/common/site_admin.ml:379
+#. src/web/server/common/site_admin.ml:264
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
 msgid "Change password"
 msgstr "Změnit heslo"
 
-#: src/web/clients/credop/credop.ml:272 src/web/clients/credop/credop.ml:111
+#: src/web/clients/credop/credop.ml:274 src/web/clients/credop/credop.ml:111
 msgid "Check certificate"
 msgstr "Zkontrolovat certifikát"
 
@@ -299,7 +299,7 @@ msgid "Clear logo"
 msgstr "Vyčistit logo"
 
 #: src/web/clients/admin/elections.ml:2085
-#. src/web/clients/common/secondary_ui.ml:80
+#. src/web/clients/common/secondary_ui.ml:83
 msgid "Close"
 msgstr "Zavřít"
 
@@ -311,7 +311,7 @@ msgstr "Zavřít: "
 msgid "Code"
 msgstr "Kód"
 
-#: src/web/clients/trustee/generate.ml:332
+#: src/web/clients/trustee/generate.ml:328
 msgid "Collaborative key generation"
 msgstr "Společné vytvoření klíčů"
 
@@ -359,8 +359,8 @@ msgstr ""
 msgid "Create a new election"
 msgstr "Vytvoř novou volbu"
 
-#: src/web/server/common/site_admin.ml:329
-#. src/web/server/common/site_admin.ml:200
+#: src/web/server/common/site_admin.ml:349
+#. src/web/server/common/site_admin.ml:220
 #. src/web/server/common/mails_admin.ml:56
 msgid "Create account"
 msgstr "Vytvoření účtu"
@@ -374,7 +374,7 @@ msgstr "Vytvořit účet"
 msgid "Create the election"
 msgstr "Vytvoř volbu"
 
-#: src/web/clients/admin/trustees_tab.ml:307
+#: src/web/clients/admin/trustees_tab.ml:310
 msgid "Creating board failed with code %d!"
 msgstr ""
 
@@ -394,7 +394,7 @@ msgstr "Správa autorit pro ověřování"
 msgid "Credential authority protocol"
 msgstr "Protokol autority přihlašovacích údajů"
 
-#: src/web/clients/credauth/generate.ml:176
+#: src/web/clients/credauth/generate.ml:174
 msgid "Credential generation"
 msgstr "Vytvoření přístupových kódů"
 
@@ -418,7 +418,7 @@ msgstr "Server přihlašovacích údajů:"
 msgid "Credentials are being generated on the server."
 msgstr "Pověření se generuje na serveru."
 
-#: src/web/clients/credauth/generate.ml:73
+#: src/web/clients/credauth/generate.ml:71
 msgid "Credentials have been received and checked!"
 msgstr "Přístupové kódy byyl přijaty a ověřeny!"
 
@@ -438,12 +438,12 @@ msgstr ""
 msgid "Current weighted turnout:"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:225
+#: src/web/clients/trustee/generate.ml:221
 msgid "Data submission failed! Please refresh and/or restart from the beginning."
 msgstr ""
 "Odeslání dat se nezdařilo! Obnovte stránku a/nebo začněte znovu od začátku."
 
-#: src/web/clients/trustee/generate.ml:214
+#: src/web/clients/trustee/generate.ml:210
 msgid "Data submission succeeded!"
 msgstr "Odeslání dat bylo úspěšné!"
 
@@ -520,13 +520,13 @@ msgstr ""
 msgid "Do not allow revoting"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:621
-#. src/web/clients/admin/trustees_tab.ml:524
+#: src/web/clients/admin/trustees_tab.ml:624
+#. src/web/clients/admin/trustees_tab.ml:527
 msgid "Done?"
 msgstr "Hotovo?"
 
-#: src/web/clients/credauth/generate.ml:127
-#. src/web/clients/credauth/generate.ml:119
+#: src/web/clients/credauth/generate.ml:125
+#. src/web/clients/credauth/generate.ml:117
 msgid "Download "
 msgstr "Stáhnout "
 
@@ -538,7 +538,7 @@ msgstr ""
 msgid "Download sealing log"
 msgstr "Stáhnout protokol o zapečetění"
 
-#: src/web/clients/trustee/generate.ml:179
+#: src/web/clients/trustee/generate.ml:175
 msgid "Download your "
 msgstr "Stáhněte svůj. "
 
@@ -600,7 +600,7 @@ msgstr "Stav volby"
 msgid "Elections associated to this electoral board"
 msgstr ""
 
-#: src/web/clients/basic/admin_basic.ml:212
+#: src/web/clients/basic/admin_basic.ml:207
 msgid "Elections being prepared"
 msgstr "Rozpracované volby"
 
@@ -608,7 +608,7 @@ msgstr "Rozpracované volby"
 msgid "Elections being setup:"
 msgstr "Nastavení volby:"
 
-#: src/web/clients/basic/admin_basic.ml:214
+#: src/web/clients/basic/admin_basic.ml:209
 msgid "Elections you can administer"
 msgstr "Volby, které můžeš administrovat"
 
@@ -616,9 +616,9 @@ msgstr "Volby, které můžeš administrovat"
 msgid "Erase"
 msgstr "Vymazat"
 
-#: src/web/clients/credop/credop.ml:89 src/web/clients/credauth/generate.ml:163
+#: src/web/clients/credop/credop.ml:89 src/web/clients/credauth/generate.ml:161
 #. src/web/clients/credauth/credauth.ml:36
-#. src/web/server/common/site_admin.ml:146
+#. src/web/server/common/site_admin.ml:166
 msgid "Error"
 msgstr "Chyba"
 
@@ -630,11 +630,11 @@ msgstr ""
 msgid "Error in languages: %S is not available"
 msgstr ""
 
-#: src/web/clients/trustee/shuffle.ml:82 src/web/clients/trustee/decrypt.ml:66
+#: src/web/clients/trustee/shuffle.ml:82 src/web/clients/trustee/decrypt.ml:67
 msgid "Error while loading election parameters!"
 msgstr "Chyba při načítání parametrů voleb!"
 
-#: src/web/clients/trustee/common.ml:131
+#: src/web/clients/trustee/common.ml:130
 msgid "Error while processing the private key. Did you load the right file?"
 msgstr "Chyba při zpracování soukromého klíče. Načetli jste správný soubor?"
 
@@ -658,16 +658,16 @@ msgstr "Odhaduji čas potřebný pro výpočet…"
 msgid "FAIL!"
 msgstr "CHYBA!"
 
-#: src/web/clients/admin/trustees_tab.ml:612
-#. src/web/clients/admin/trustees_tab.ml:516
+#: src/web/clients/admin/trustees_tab.ml:615
+#. src/web/clients/admin/trustees_tab.ml:519
 msgid "Failed to connect; please reload"
 msgstr "Připojení selhalo; prosím načti znovu"
 
-#: src/web/clients/admin/trustees_tab.ml:742
+#: src/web/clients/admin/trustees_tab.ml:745
 msgid "Failed with error %d!"
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:258
+#: src/web/clients/credop/credop.ml:260
 msgid "Failure"
 msgstr "Selhání"
 
@@ -675,23 +675,23 @@ msgstr "Selhání"
 msgid "Filter voters by username prefix"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:106
+#: src/web/clients/credauth/generate.ml:104
 msgid "Fingerprint of public credentials:"
 msgstr "Jedinečný otisk veřejných přístupových kódů:"
 
-#: src/web/clients/trustee/generate.ml:170
+#: src/web/clients/trustee/generate.ml:166
 msgid "Fingerprint of the public key:"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:206
+#: src/web/clients/credauth/generate.ml:204
 msgid "Fingerprint of voters:"
 msgstr "Jedinečný otisk voličů:"
 
-#: src/web/clients/credauth/generate.ml:211
+#: src/web/clients/credauth/generate.ml:209
 msgid "Generate"
 msgstr "Vytvořit"
 
-#: src/web/clients/trustee/generate.ml:121
+#: src/web/clients/trustee/generate.ml:117
 msgid "Generate a key"
 msgstr "Vytvořit klíč"
 
@@ -699,7 +699,7 @@ msgstr "Vytvořit klíč"
 msgid "Generate and send the credentials"
 msgstr "Vytvoř a pošli přístupové kódy"
 
-#: src/web/clients/trustee/decrypt.ml:98
+#: src/web/clients/trustee/decrypt.ml:99
 msgid "Generate your contribution to decryption"
 msgstr "Vytvořit můj příspěvek k dešifrování"
 
@@ -747,11 +747,11 @@ msgstr "Převzít voliče "
 msgid "In %d minutes"
 msgstr "Za %d minut"
 
-#: src/web/clients/trustee/generate.ml:249
+#: src/web/clients/trustee/generate.ml:245
 msgid "Inconsistent state!"
 msgstr "Nekonzistentní stav!"
 
-#: src/web/server/common/site_admin.ml:177
+#: src/web/server/common/site_admin.ml:197
 msgid "Incorrect code"
 msgstr "Nesprávný kód"
 
@@ -771,9 +771,9 @@ msgstr "Vlož otázku"
 msgid "Insert an answer"
 msgstr "Vlož odpověď"
 
-#: src/web/clients/credauth/generate.ml:114
-#. src/web/clients/trustee/decrypt.ml:125
-#. src/web/clients/trustee/generate.ml:174
+#: src/web/clients/credauth/generate.ml:112
+#. src/web/clients/trustee/decrypt.ml:126
+#. src/web/clients/trustee/generate.ml:170
 msgid "Instructions:"
 msgstr "Pokyny:"
 
@@ -781,7 +781,7 @@ msgstr "Pokyny:"
 msgid "Invalid board identifier!"
 msgstr ""
 
-#: src/web/clients/trustee/decrypt.ml:114
+#: src/web/clients/trustee/decrypt.ml:115
 msgid "It is now time to compute your partial decryption factors."
 msgstr ""
 "Nyní je ta pravá chvíle k vypočítání tvých částečných dešifrovacích faktorů."
@@ -822,8 +822,8 @@ msgstr "Jazyky:"
 msgid "Left to right"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:523
-#. src/web/clients/admin/trustees_tab.ml:414
+#: src/web/clients/admin/trustees_tab.ml:526
+#. src/web/clients/admin/trustees_tab.ml:417
 msgid "Link to send"
 msgstr "Odkaz k odeslání"
 
@@ -898,7 +898,7 @@ msgstr ""
 "Chybí tajný klíč. Na tuto stránku musíte přijít prostřednictvím celého "
 "odkazu, který vám byl zaslán e-mailem."
 
-#: src/web/clients/credop/credop.ml:266
+#: src/web/clients/credop/credop.ml:268
 msgid "Missing voters"
 msgstr "Chybějící voliči"
 
@@ -947,7 +947,7 @@ msgstr "Nový seznam"
 msgid "No certificate for this election!"
 msgstr "Pro tuto volbu neexistuje žádný certifikát!"
 
-#: src/web/clients/admin/trustees_tab.ml:397
+#: src/web/clients/admin/trustees_tab.ml:400
 msgid "No external trustee were set. Do you confirm that you trust the server for privacy?"
 msgstr ""
 "Nebyli nastavení žádní externí garanti. Potvrzuješ, že věříš serveru ohledně "
@@ -957,7 +957,7 @@ msgstr ""
 msgid "No logo set."
 msgstr "Žádné logo není zadáno."
 
-#: src/web/clients/admin/trustees_tab.ml:798
+#: src/web/clients/admin/trustees_tab.ml:801
 msgid "Nothing to show here. Try going to the Status tab."
 msgstr "Zde není co zobrazit. Zkuste přejít na kartu Stav."
 
@@ -987,13 +987,13 @@ msgstr ""
 "Jakmile je volba ukončena a ověřena, očekává se, že zničíš soubor creds.txt, "
 "aby byla zaručena co největší míra soukromí."
 
-#: src/web/clients/trustee/generate.ml:190
+#: src/web/clients/trustee/generate.ml:186
 msgid "Once the election is open, you must check that it is present in the set of public keys published by the server."
 msgstr ""
 "Ověř ihned po zahájení volby, že tento otisk je zahrnut v sadě veřejných "
 "klíčů, které zveřejňuje server na stránce volby."
 
-#: src/web/clients/credauth/generate.ml:147 src/web/common/mails_admin.ml:68
+#: src/web/clients/credauth/generate.ml:145 src/web/common/mails_admin.ml:68
 msgid "Once the election is open, you must check that they match with what is published by the server."
 msgstr "Ověř ihned po zahájení volby, že odpovídají tomu, co zveřejňuje server."
 
@@ -1021,11 +1021,11 @@ msgstr "Rozhraní operátora:"
 msgid "Other authentication modes:"
 msgstr "Další přihlašovací módy:"
 
-#: src/web/clients/trustee/decrypt.ml:109
+#: src/web/clients/trustee/decrypt.ml:110
 msgid "Partial decryption"
 msgstr "Částečné dešifrování"
 
-#: src/web/clients/trustee/decrypt.ml:89
+#: src/web/clients/trustee/decrypt.ml:90
 msgid "Partial decryption submission failed unexpectedly!"
 msgstr "Částečné dešifrování se neočekávaně nezdařilo!"
 
@@ -1034,7 +1034,7 @@ msgid "Password sent by e-mail when voting (a short password, renewed for each v
 msgstr ""
 "Heslo rozeslané e-mailem během volby (krátké heslo, nové po kažou volbu)"
 
-#: src/web/clients/credop/credop.ml:240
+#: src/web/clients/credop/credop.ml:242
 msgid "Please check certificate first!"
 msgstr "Nejprve zkontrolujte certifikát!"
 
@@ -1073,7 +1073,7 @@ msgstr "Prosím zadej ověřovací kód, který ti příšel e-mailem:"
 msgid "Please fill-in the voter list first."
 msgstr "Vyplň prosím nejdříve seznam voličů."
 
-#: src/web/clients/trustee/common.ml:96
+#: src/web/clients/trustee/common.ml:95
 msgid "Please load your private key from a file:"
 msgstr "Načtěte prosím svůj soukromý klíč ze souboru:"
 
@@ -1136,17 +1136,17 @@ msgstr "Navržené odpovědi:"
 msgid "Proposed grades:"
 msgstr "Navržené známky:"
 
-#: src/web/clients/credauth/generate.ml:97
+#: src/web/clients/credauth/generate.ml:95
 msgid "Public credentials:"
 msgstr "Veřejné přístupové kódy:"
 
-#: src/web/clients/trustee/generate.ml:149
+#: src/web/clients/trustee/generate.ml:145
 msgid "Public key registration failed! Please refresh and/or restart from the beginning."
 msgstr ""
 "Registrace veřejného klíče se nezdařila! Obnovte stránku a/nebo začněte "
 "znovu od začátku."
 
-#: src/web/clients/trustee/generate.ml:139
+#: src/web/clients/trustee/generate.ml:135
 msgid "Public key registration succeeded!"
 msgstr "Registrace veřejného klíče byla úspěšná!"
 
@@ -1187,9 +1187,9 @@ msgid "Ready to create:"
 msgstr "Připraveno k vytvoření:"
 
 #: src/web/clients/trustee/trustee.ml:197
-#. src/web/clients/admin/trustees_tab.ml:699
-#. src/web/clients/admin/trustees_tab.ml:544
-#. src/web/clients/admin/trustees_tab.ml:438
+#. src/web/clients/admin/trustees_tab.ml:702
+#. src/web/clients/admin/trustees_tab.ml:547
+#. src/web/clients/admin/trustees_tab.ml:441
 msgid "Refresh status"
 msgstr "Obnovit stav"
 
@@ -1200,7 +1200,7 @@ msgstr ""
 "volba zrušena) a bezpečně uložil(a) (pokud je tvůj soukromý klíč spolu se "
 "soukromými klíči ostatních garantů znám, soukromí volby už není zaručeno)."
 
-#: src/web/clients/admin/trustees_tab.ml:551
+#: src/web/clients/admin/trustees_tab.ml:554
 msgid "Release tally"
 msgstr "Uvolni vyhodnocení"
 
@@ -1208,11 +1208,11 @@ msgstr "Uvolni vyhodnocení"
 msgid "Remaining resend credits:"
 msgstr "Zbývající kredity pro opětné zaslání:"
 
-#: src/web/clients/credop/credop.ml:268
+#: src/web/clients/credop/credop.ml:270
 msgid "Resend"
 msgstr "Znovu odeslat"
 
-#: src/web/clients/credop/credop.ml:274
+#: src/web/clients/credop/credop.ml:276
 msgid "Resend private credentials"
 msgstr "Znovu odeslat soukromé přihlašovací údaje"
 
@@ -1240,7 +1240,7 @@ msgstr "Probíhající nebo ukončené volby:"
 msgid "STV method"
 msgstr "metoda STV"
 
-#: src/web/clients/trustee/generate.ml:187
+#: src/web/clients/trustee/generate.ml:183
 msgid "Save the fingerprint above."
 msgstr ""
 "Ulož si jedinečný otisk svého ověřovacícho klíče, který je zobrazen výše."
@@ -1252,7 +1252,7 @@ msgstr ""
 "musíš zkontrolovat, že je zahrnut v sadě ověřovacích klíčů, které zveřejňuje "
 "server na stránce volby."
 
-#: src/web/clients/credauth/generate.ml:144
+#: src/web/clients/credauth/generate.ml:142
 msgid "Save the two fingerprints above."
 msgstr "Uložit dva jedinečné otisky výše."
 
@@ -1289,7 +1289,7 @@ msgstr "Zabezpečení"
 msgid "Select propositions"
 msgstr "Vyber návrhy"
 
-#: src/web/clients/admin/trustees_tab.ml:661
+#: src/web/clients/admin/trustees_tab.ml:664
 msgid "Select this trustee"
 msgstr "Vybrat tohoto garanta"
 
@@ -1301,7 +1301,7 @@ msgstr "Pro přihlašování pomocí CAS je potřeba platný CAS server"
 msgid "Send an e-mail to the credential authority"
 msgstr "Odeslat e-mail důvěrné autoritě"
 
-#: src/web/clients/admin/trustees_tab.ml:374
+#: src/web/clients/admin/trustees_tab.ml:377
 msgid "Send link"
 msgstr ""
 
@@ -1313,7 +1313,7 @@ msgstr "Nastavit logo (.png, max. 10 KB): "
 msgid "Set credential authority info"
 msgstr "Nastavit informace o autoritě přihlašovacích údajů"
 
-#: src/web/clients/admin/trustees_tab.ml:301
+#: src/web/clients/admin/trustees_tab.ml:304
 msgid "Setting board failed with code %d!"
 msgstr ""
 
@@ -1329,15 +1329,15 @@ msgstr "Zobrazit pouze chybějící voliče"
 msgid "Shuffle"
 msgstr "Zamíchat"
 
-#: src/web/clients/admin/trustees_tab.ml:618
+#: src/web/clients/admin/trustees_tab.ml:621
 msgid "Shuffler's e-mail"
 msgstr "E-mail míchače"
 
-#: src/web/clients/admin/trustees_tab.ml:662
+#: src/web/clients/admin/trustees_tab.ml:665
 msgid "Skip"
 msgstr "Překočit"
 
-#: src/web/clients/admin/trustees_tab.ml:704
+#: src/web/clients/admin/trustees_tab.ml:707
 msgid "Skip all remaining trustees"
 msgstr "Přeskoč všechny zbývající garanty"
 
@@ -1345,7 +1345,7 @@ msgstr "Přeskoč všechny zbývající garanty"
 msgid "Some language in the list is not available"
 msgstr "Některé jazyky ze seznamu nejsou dostupné"
 
-#: src/web/clients/credop/credop.ml:230
+#: src/web/clients/credop/credop.ml:232
 msgid "Some voters:"
 msgstr "Někteří voliči:"
 
@@ -1369,16 +1369,16 @@ msgstr "Seřaď návrhy"
 msgid "Specification"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:415
+#: src/web/clients/admin/trustees_tab.ml:418
 #. src/web/clients/admin/elections.ml:403
 msgid "Status"
 msgstr "Status"
 
-#: src/web/clients/trustee/generate.ml:329
+#: src/web/clients/trustee/generate.ml:325
 msgid "Step %d/7"
 msgstr "Krok %d/7"
 
-#: src/web/clients/trustee/shuffle.ml:159 src/web/clients/trustee/decrypt.ml:76
+#: src/web/clients/trustee/shuffle.ml:159 src/web/clients/trustee/decrypt.ml:77
 #. src/web/server/common/pages_admin.ml:404
 #. src/web/server/common/pages_admin.ml:348
 #. src/web/server/common/pages_admin.ml:292
@@ -1387,23 +1387,23 @@ msgstr "Krok %d/7"
 msgid "Submit"
 msgstr "Zadat"
 
-#: src/web/clients/credauth/generate.ml:62
+#: src/web/clients/credauth/generate.ml:60
 msgid "Submit public credentials"
 msgstr "Zadat veřejné přístupové kódy"
 
-#: src/web/clients/credauth/generate.ml:153
+#: src/web/clients/credauth/generate.ml:151
 msgid "Submit public credentials using the button below."
 msgstr "Zadat veřejné přístupové kódy pomocí tlačítka níže."
 
-#: src/web/clients/trustee/generate.ml:129
+#: src/web/clients/trustee/generate.ml:125
 msgid "Submit public key"
 msgstr "Zadat veřejný klíč"
 
-#: src/web/clients/trustee/generate.ml:195
+#: src/web/clients/trustee/generate.ml:191
 msgid "Submit your public key using the button below."
 msgstr "Zadej svůj veřejný klíč pomocí tlačítka níže."
 
-#: src/web/clients/credop/credop.ml:258
+#: src/web/clients/credop/credop.ml:260
 msgid "Success"
 msgstr "Úspěch"
 
@@ -1411,7 +1411,7 @@ msgstr "Úspěch"
 msgid "Success?"
 msgstr "Úspěch?"
 
-#: src/web/clients/basic/admin_basic.ml:216
+#: src/web/clients/basic/admin_basic.ml:211
 msgid "Tallied elections"
 msgstr "Vyhodnocené volby"
 
@@ -1419,11 +1419,11 @@ msgstr "Vyhodnocené volby"
 msgid "Tally the election"
 msgstr "Vyhodnoť volbu"
 
-#: src/web/clients/admin/trustees_tab.ml:574
+#: src/web/clients/admin/trustees_tab.ml:577
 msgid "Tallying"
 msgstr "Vyhodnocování"
 
-#: src/web/clients/admin/trustees_tab.ml:728
+#: src/web/clients/admin/trustees_tab.ml:731
 msgid "Tallying: shuffling step"
 msgstr "Vyhodnocování: krok míchání"
 
@@ -1443,7 +1443,7 @@ msgstr "Děkujeme za tvou pomoc,"
 msgid "The account creation "
 msgstr "Vytvoření účtu "
 
-#: src/web/server/common/site_admin.ml:331
+#: src/web/server/common/site_admin.ml:351
 msgid "The account has been created."
 msgstr "Účet byl vytvořen."
 
@@ -1455,7 +1455,7 @@ msgstr "Archiv volby je možné stáhnout: "
 msgid "The certificate for %s is valid!"
 msgstr "Certifikát pro %s je platný!"
 
-#: src/web/clients/credop/credop.ml:175
+#: src/web/clients/credop/credop.ml:177
 msgid "The certificate is not valid!"
 msgstr "Certifikát není platný!"
 
@@ -1471,7 +1471,7 @@ msgstr "Administrátor volby"
 msgid "The election is not sealed."
 msgstr "Volby ještě nejsou zapečetěny."
 
-#: src/web/clients/trustee/decrypt.ml:88
+#: src/web/clients/trustee/decrypt.ml:89
 msgid "The election result is already published!"
 msgstr "Výsledky voleb jsou již zveřejněny!"
 
@@ -1479,7 +1479,7 @@ msgstr "Výsledky voleb jsou již zveřejněny!"
 msgid "The file is too large! It must be < 10 KB."
 msgstr "Soubor je příliš velký! Musí být menší než 10 KB."
 
-#: src/web/clients/trustee/decrypt.ml:118
+#: src/web/clients/trustee/decrypt.ml:119
 msgid "The fingerprint of the encrypted tally is "
 msgstr "Jedinečný otisk zašifrovaného vyhodnocení je: "
 
@@ -1487,7 +1487,7 @@ msgstr "Jedinečný otisk zašifrovaného vyhodnocení je: "
 msgid "The fingerprint of your shuffle is:"
 msgstr "Veřejný otisk tvého zamíchání je:"
 
-#: src/web/clients/credauth/generate.ml:184
+#: src/web/clients/credauth/generate.ml:182
 msgid "The link to the election will be:"
 msgstr "Odkaz na volbu bude:"
 
@@ -1503,23 +1503,23 @@ msgstr ""
 "Tato stránka také obsahuje pokyny, jak ověřit záznam volby po jejím "
 "vyhodnocení."
 
-#: src/web/clients/trustee/decrypt.ml:86
+#: src/web/clients/trustee/decrypt.ml:87
 msgid "The partial decryption didn't pass validation!"
 msgstr "Příspěvek k dešifrování neprošel ověřením!"
 
-#: src/web/server/common/site_admin.ml:361
+#: src/web/server/common/site_admin.ml:381
 msgid "The password has been changed."
 msgstr "Heslo bylo změněno."
 
-#: src/web/server/common/site_admin.ml:173
+#: src/web/server/common/site_admin.ml:193
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr "Zadaný kód je nesprávný. Vrať se a zkus to znovu."
 
-#: src/web/clients/credop/credop.ml:188
+#: src/web/clients/credop/credop.ml:190
 msgid "The secret key is not valid!"
 msgstr "Tajný klíč není platný!"
 
-#: src/web/clients/admin/trustees_tab.ml:334
+#: src/web/clients/admin/trustees_tab.ml:337
 #. src/web/clients/admin/trustees_tab.ml:83
 msgid "The server is always one of the trustees"
 msgstr "Server je vždy jedním z garantů"
@@ -1552,11 +1552,11 @@ msgstr "V seznamu voličů se vyskytla neočekávaná syntaktická chyba!"
 msgid "There is no e-mail address attached to your account."
 msgstr "S tvým účtem není propojená žádná e-mailová adresa."
 
-#: src/web/clients/admin/trustees_tab.ml:755
+#: src/web/clients/admin/trustees_tab.ml:758
 msgid "There is no electoral board at the moment."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:394
+#: src/web/server/common/site_admin.ml:414
 msgid "This account does not exist"
 msgstr "Takový účet neexistuje"
 
@@ -1564,7 +1564,7 @@ msgstr "Takový účet neexistuje"
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr "Tento kontakt bude přidán od e-mailů rozesýlaných voličům."
 
-#: src/web/server/common/site_admin.ml:145
+#: src/web/server/common/site_admin.ml:165
 msgid "This e-mail address is invalid!"
 msgstr "Tato e-mailová adresa je neplatná!"
 
@@ -1610,7 +1610,7 @@ msgstr ""
 msgid "This is the language of election title, description and questions."
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:138 src/web/common/mails_admin.ml:60
+#: src/web/clients/credauth/generate.ml:136 src/web/common/mails_admin.ml:60
 msgid "This list must be the one approved by the election commission."
 msgstr "Tento seznam musí být schválen volební komisí."
 
@@ -1665,7 +1665,7 @@ msgstr "Celková složitost:"
 msgid "Total weight:"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:322
+#: src/web/clients/trustee/generate.ml:318
 msgid "Trustee key generation"
 msgstr "Vytvoření klíčů garantů"
 
@@ -1673,7 +1673,7 @@ msgstr "Vytvoření klíčů garantů"
 msgid "Trustee management"
 msgstr "Správa garantů volby (trustee)"
 
-#: src/web/clients/admin/trustees_tab.ml:349
+#: src/web/clients/admin/trustees_tab.ml:352
 msgid "Trustee setup - Done"
 msgstr "Nastavení garantů – Hotovo"
 
@@ -1681,13 +1681,13 @@ msgstr "Nastavení garantů – Hotovo"
 msgid "Trustee setup - Step 1: choose the trustees"
 msgstr "Nastavení garantů – Krok 1: vyber garanty"
 
-#: src/web/clients/admin/trustees_tab.ml:442
+#: src/web/clients/admin/trustees_tab.ml:445
 msgid "Trustee setup - Step 2: key generation"
 msgstr "Nastavení garantů – Krok 2: vytvoření klíčů"
 
-#: src/web/clients/admin/trustees_tab.ml:522
-#. src/web/clients/admin/trustees_tab.ml:412
-#. src/web/clients/admin/trustees_tab.ml:324
+#: src/web/clients/admin/trustees_tab.ml:525
+#. src/web/clients/admin/trustees_tab.ml:415
+#. src/web/clients/admin/trustees_tab.ml:327
 #. src/web/clients/admin/trustees_tab.ml:73
 msgid "Trustee's e-mail"
 msgstr "Garantův e-mail"
@@ -1696,11 +1696,11 @@ msgstr "Garantův e-mail"
 msgid "Trustee's e-mail "
 msgstr "Garantův e-mail "
 
-#: src/web/clients/admin/trustees_tab.ml:413
+#: src/web/clients/admin/trustees_tab.ml:416
 msgid "Trustee's name"
 msgstr "Garantovo jméno"
 
-#: src/web/clients/admin/trustees_tab.ml:325
+#: src/web/clients/admin/trustees_tab.ml:328
 #. src/web/clients/admin/trustees_tab.ml:74
 msgid "Trustee's public name"
 msgstr "Garantovo veřejné jméno"
@@ -1738,7 +1738,7 @@ msgstr "Nahraj voličský soubor"
 msgid "Use an external server"
 msgstr "Použít externí server"
 
-#: src/web/clients/admin/trustees_tab.ml:732
+#: src/web/clients/admin/trustees_tab.ml:735
 msgid "Use board from another election"
 msgstr ""
 
@@ -1762,7 +1762,7 @@ msgstr "Seznam voličů"
 msgid "Voter list (not editable):"
 msgstr "Seznam voličů (nelze upravovat):"
 
-#: src/web/clients/credauth/generate.ml:199
+#: src/web/clients/credauth/generate.ml:197
 #. src/web/clients/admin/elections.ml:1050
 msgid "Voter list:"
 msgstr "Seznam voličů:"
@@ -1784,13 +1784,13 @@ msgstr "Přihlášení voliče:"
 msgid "Voting records"
 msgstr "Záznam volby"
 
-#: src/web/clients/trustee/generate.ml:276
+#: src/web/clients/trustee/generate.ml:272
 msgid "Waiting for the election administrator to set the threshold..."
 msgstr "Čekání na správce voleb, aby stanovil hranici..."
 
-#: src/web/clients/trustee/generate.ml:297
-#. src/web/clients/trustee/generate.ml:233
-#. src/web/clients/trustee/generate.ml:215
+#: src/web/clients/trustee/generate.ml:293
+#. src/web/clients/trustee/generate.ml:229
+#. src/web/clients/trustee/generate.ml:211
 msgid "Waiting for the other trustees..."
 msgstr "Čekání na ostatní garanty (trustee)..."
 
@@ -1844,11 +1844,11 @@ msgstr "Jeho přítomnost můžete zkontrolovat v "
 msgid "You cannot change your e-mail address right now."
 msgstr "V tuto chvíli nemůžete změnit svou e-mailovou adresu."
 
-#: src/web/server/common/site_admin.ml:245
+#: src/web/server/common/site_admin.ml:265
 msgid "You cannot change your password now. Please try later."
 msgstr "Neyní nelze změnit vaše heslo. Zkuste to prosím později."
 
-#: src/web/server/common/site_admin.ml:201
+#: src/web/server/common/site_admin.ml:221
 msgid "You cannot create an account now. Please try later."
 msgstr "Nyní nelze vytvořit účet. Zkus to prosím později."
 
@@ -1856,7 +1856,7 @@ msgstr "Nyní nelze vytvořit účet. Zkus to prosím později."
 msgid "You cannot sign up right now."
 msgstr "V tuto chvíli se nemůžete zaregistrovat."
 
-#: src/web/clients/trustee/decrypt.ml:87
+#: src/web/clients/trustee/decrypt.ml:88
 msgid "You have already submitted a valid partial decryption!"
 msgstr "Již jste odeslali platné částečné dešifrování!"
 
@@ -1883,20 +1883,20 @@ msgstr ""
 "Musíte si uložit tento jedinečný otisk a ověřit, že se objevil na stránce "
 "volebních výsledků."
 
-#: src/web/clients/admin/trustees_tab.ml:716
+#: src/web/clients/admin/trustees_tab.ml:719
 msgid "You must select each trustee in turn, and send them a link so that they perform their shuffle. You can also skip a trustee, but keep in mind that this reduces security."
 msgstr ""
 "Musíte postupně vybrat každého garanta (trustee) a zaslat mu odkaz, aby "
 "provedl zamíchání. Garanta můžete také přeskočit, ale mějte na paměti, že "
 "tím snížíte bezpečnost."
 
-#: src/web/clients/admin/trustees_tab.ml:448
+#: src/web/clients/admin/trustees_tab.ml:451
 msgid "You must send each trustee their link (from the table below) so that they initialize their key for this election."
 msgstr ""
 "Každému garantovi (trustee) musíte zaslat jeho odkaz (z tabulky níže), aby "
 "mohl inicializovat svůj klíč pro tyto volby."
 
-#: src/web/clients/admin/trustees_tab.ml:563
+#: src/web/clients/admin/trustees_tab.ml:566
 msgid "You must send each trustee their link (from the table below) so that they perform their share of the decryption."
 msgstr ""
 "Každému garantovi (trustee) musíte zaslat jeho odkaz (z tabulky níže), aby "
@@ -1916,11 +1916,11 @@ msgstr ""
 "Pak budeš muset poslat (nejčastěji pomocí e-mailu) každý soukromý přístupový "
 "kód příslušnému voliči podle toho, jak je to uvedeno v souboru creds.txt."
 
-#: src/web/clients/trustee/generate.ml:183
+#: src/web/clients/trustee/generate.ml:179
 msgid "You will use it to decrypt the final result."
 msgstr "Použiješ jej na dešifrování konečného výsledku."
 
-#: src/web/clients/credauth/generate.ml:123 src/web/common/mails_admin.ml:55
+#: src/web/clients/credauth/generate.ml:121 src/web/common/mails_admin.ml:55
 msgid "You will use it to send credentials to voters."
 msgstr "Použijete jej na rozeslání přístupových kódů voličům."
 
@@ -1948,25 +1948,25 @@ msgstr ""
 msgid "Your e-mail address is: "
 msgstr "Tvůj e-mail je: "
 
-#: src/web/clients/trustee/generate.ml:242
+#: src/web/clients/trustee/generate.ml:238
 msgid "Your job in the key establishment protocol is done! Your private key will be needed to decrypt the election result."
 msgstr ""
 "Vaše práce v rámci protokolu pro vytvoření klíče je hotová! Váš soukromý "
 "klíč bude potřebný k dešifrování výsledků voleb."
 
-#: src/web/clients/trustee/decrypt.ml:85
+#: src/web/clients/trustee/decrypt.ml:86
 msgid "Your partial decryption has been received and checked!"
 msgstr "Tvůj příspěvek k dešifrování byl přijat a ověřen!"
 
-#: src/web/clients/trustee/generate.ml:308
-#. src/web/clients/trustee/generate.ml:296
-#. src/web/clients/trustee/generate.ml:263
+#: src/web/clients/trustee/generate.ml:304
+#. src/web/clients/trustee/generate.ml:292
+#. src/web/clients/trustee/generate.ml:259
 msgid "Your private key is valid!"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:305
-#. src/web/clients/trustee/generate.ml:292
-#. src/web/clients/trustee/generate.ml:260
+#: src/web/clients/trustee/generate.ml:301
+#. src/web/clients/trustee/generate.ml:288
+#. src/web/clients/trustee/generate.ml:256
 msgid "Your public key has already been registered!"
 msgstr "Váš veřejný klíč již byl zaregistrován!"
 
@@ -1982,7 +1982,7 @@ msgstr "Tvoje uživatelské jméno je: "
 msgid "Your weight is %s."
 msgstr "Vaše váha je %s."
 
-#: src/web/clients/admin/trustees_tab.ml:362
+#: src/web/clients/admin/trustees_tab.ml:365
 msgid "action required"
 msgstr "vyžadována akce"
 
@@ -2006,7 +2006,7 @@ msgstr "volební urna"
 msgid "contact us"
 msgstr "kontaktujte nás"
 
-#: src/web/clients/admin/trustees_tab.ml:363
+#: src/web/clients/admin/trustees_tab.ml:366
 msgid "done"
 msgstr "hotovo"
 
@@ -2043,31 +2043,31 @@ msgstr "z neznámého důvodu"
 msgid "out of "
 msgstr "z "
 
-#: src/web/clients/credauth/generate.ml:92
+#: src/web/clients/credauth/generate.ml:90
 msgid "private credentials"
 msgstr "soukromé přístupové kódy"
 
-#: src/web/clients/trustee/generate.ml:164
+#: src/web/clients/trustee/generate.ml:160
 msgid "private_key"
 msgstr "soukromý_klíč"
 
-#: src/web/clients/admin/trustees_tab.ml:675
+#: src/web/clients/admin/trustees_tab.ml:678
 msgid "server (has already shuffled)"
 msgstr "server (již zamícháno)"
 
-#: src/web/clients/admin/trustees_tab.ml:690
+#: src/web/clients/admin/trustees_tab.ml:693
 msgid "skipped"
 msgstr "přeskočeno"
 
-#: src/web/clients/admin/trustees_tab.ml:368
+#: src/web/clients/admin/trustees_tab.ml:371
 msgid "step %d/7"
 msgstr "krok %d/7"
 
-#: src/web/clients/admin/trustees_tab.ml:367
+#: src/web/clients/admin/trustees_tab.ml:370
 msgid "step 0?"
 msgstr "krok 0?"
 
-#: src/web/clients/common/secondary_ui.ml:71
+#: src/web/clients/common/secondary_ui.ml:74
 #. src/web/server/common/pages_admin.ml:51
 msgid "terms of service"
 msgstr "podmínky služby"
@@ -2129,7 +2129,7 @@ msgstr "obvyklé použití"
 msgid "voted?"
 msgstr "odvoleno?"
 
-#: src/web/clients/credauth/generate.ml:134
+#: src/web/clients/credauth/generate.ml:132
 msgid "voter list"
 msgstr "seznam voličů"
 
@@ -2141,7 +2141,7 @@ msgstr "když je potřeba přihlašovací jméno, například CAS"
 msgid "when some voters have several votes"
 msgstr "když někteří voliči mají více hlasů"
 
-#: src/web/clients/admin/trustees_tab.ml:691
+#: src/web/clients/admin/trustees_tab.ml:694
 msgid "yes"
 msgstr "ano"
 

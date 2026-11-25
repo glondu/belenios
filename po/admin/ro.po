@@ -28,11 +28,11 @@ msgstr ""
 msgid " and a password: "
 msgstr " si o parola: "
 
-#: src/web/clients/trustee/generate.ml:181
+#: src/web/clients/trustee/generate.ml:177
 msgid " and save it to a secure location."
 msgstr " si sa o salvati intr-un loc sigur."
 
-#: src/web/clients/credauth/generate.ml:121
+#: src/web/clients/credauth/generate.ml:119
 msgid " and save the file to a secure location."
 msgstr " si sa salvati fisierul intr-un loc sigur."
 
@@ -78,7 +78,7 @@ msgstr ""
 msgid " or username: "
 msgstr " sau numele utilizatorului : "
 
-#: src/web/clients/trustee/decrypt.ml:140
+#: src/web/clients/trustee/decrypt.ml:141
 msgid " your contribution to decryption."
 msgstr " contributia dvoastra la descifrare."
 
@@ -135,7 +135,7 @@ msgstr "Accepta"
 msgid "Account management"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:395
+#: src/web/server/common/site_admin.ml:415
 msgid "Account not found"
 msgstr ""
 
@@ -165,7 +165,7 @@ msgstr "Administratie"
 msgid "Administrator's profile: "
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:265
+#: src/web/clients/credop/credop.ml:267
 msgid "All voters"
 msgstr ""
 
@@ -177,7 +177,7 @@ msgstr ""
 msgid "An e-mail with a code has been sent to %s."
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:382
+#: src/web/clients/admin/trustees_tab.ml:385
 msgid "An e-mail with a link has been sent to %s."
 msgstr ""
 
@@ -185,7 +185,7 @@ msgstr ""
 msgid "An error occurred while applying the shuffle."
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:74
+#: src/web/clients/credauth/generate.ml:72
 msgid "An error occurred while submitting credentials!"
 msgstr ""
 
@@ -193,7 +193,7 @@ msgstr ""
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
 
-#: src/web/clients/basic/admin_basic.ml:218
+#: src/web/clients/basic/admin_basic.ml:213
 msgid "Archived elections"
 msgstr "Alegeri arhivate"
 
@@ -258,7 +258,7 @@ msgstr ""
 msgid "By proceeding, you authorize:"
 msgstr ""
 
-#: src/web/clients/common/secondary_ui.ml:70
+#: src/web/clients/common/secondary_ui.ml:73
 msgid "By using this site, you accept our "
 msgstr ""
 
@@ -274,15 +274,15 @@ msgstr "Anulare"
 msgid "Change e-mail address"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:359
-#. src/web/server/common/site_admin.ml:244
+#: src/web/server/common/site_admin.ml:379
+#. src/web/server/common/site_admin.ml:264
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
 msgid "Change password"
 msgstr "Schimba parola"
 
-#: src/web/clients/credop/credop.ml:272 src/web/clients/credop/credop.ml:111
+#: src/web/clients/credop/credop.ml:274 src/web/clients/credop/credop.ml:111
 msgid "Check certificate"
 msgstr ""
 
@@ -291,7 +291,7 @@ msgid "Clear logo"
 msgstr ""
 
 #: src/web/clients/admin/elections.ml:2085
-#. src/web/clients/common/secondary_ui.ml:80
+#. src/web/clients/common/secondary_ui.ml:83
 msgid "Close"
 msgstr ""
 
@@ -303,7 +303,7 @@ msgstr ""
 msgid "Code"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:332
+#: src/web/clients/trustee/generate.ml:328
 msgid "Collaborative key generation"
 msgstr "Generare colaborativa a cheii"
 
@@ -351,8 +351,8 @@ msgstr ""
 msgid "Create a new election"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:329
-#. src/web/server/common/site_admin.ml:200
+#: src/web/server/common/site_admin.ml:349
+#. src/web/server/common/site_admin.ml:220
 #. src/web/server/common/mails_admin.ml:56
 msgid "Create account"
 msgstr ""
@@ -366,7 +366,7 @@ msgstr "Creare de cont"
 msgid "Create the election"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:307
+#: src/web/clients/admin/trustees_tab.ml:310
 msgid "Creating board failed with code %d!"
 msgstr ""
 
@@ -386,7 +386,7 @@ msgstr ""
 msgid "Credential authority protocol"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:176
+#: src/web/clients/credauth/generate.ml:174
 msgid "Credential generation"
 msgstr ""
 
@@ -410,7 +410,7 @@ msgstr ""
 msgid "Credentials are being generated on the server."
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:73
+#: src/web/clients/credauth/generate.ml:71
 msgid "Credentials have been received and checked!"
 msgstr "Codurile de vot au fost primite si verificate !"
 
@@ -430,11 +430,11 @@ msgstr ""
 msgid "Current weighted turnout:"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:225
+#: src/web/clients/trustee/generate.ml:221
 msgid "Data submission failed! Please refresh and/or restart from the beginning."
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:214
+#: src/web/clients/trustee/generate.ml:210
 msgid "Data submission succeeded!"
 msgstr ""
 
@@ -509,13 +509,13 @@ msgstr ""
 msgid "Do not allow revoting"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:621
-#. src/web/clients/admin/trustees_tab.ml:524
+#: src/web/clients/admin/trustees_tab.ml:624
+#. src/web/clients/admin/trustees_tab.ml:527
 msgid "Done?"
 msgstr "Ati terminat ?"
 
-#: src/web/clients/credauth/generate.ml:127
-#. src/web/clients/credauth/generate.ml:119
+#: src/web/clients/credauth/generate.ml:125
+#. src/web/clients/credauth/generate.ml:117
 msgid "Download "
 msgstr "Descarcati "
 
@@ -527,7 +527,7 @@ msgstr ""
 msgid "Download sealing log"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:179
+#: src/web/clients/trustee/generate.ml:175
 msgid "Download your "
 msgstr "Descarcati "
 
@@ -590,7 +590,7 @@ msgstr ""
 msgid "Elections associated to this electoral board"
 msgstr ""
 
-#: src/web/clients/basic/admin_basic.ml:212
+#: src/web/clients/basic/admin_basic.ml:207
 msgid "Elections being prepared"
 msgstr "Alegeri in curs de pregatire"
 
@@ -598,7 +598,7 @@ msgstr "Alegeri in curs de pregatire"
 msgid "Elections being setup:"
 msgstr ""
 
-#: src/web/clients/basic/admin_basic.ml:214
+#: src/web/clients/basic/admin_basic.ml:209
 msgid "Elections you can administer"
 msgstr "Alegeri pe care le puteti administra"
 
@@ -606,9 +606,9 @@ msgstr "Alegeri pe care le puteti administra"
 msgid "Erase"
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:89 src/web/clients/credauth/generate.ml:163
+#: src/web/clients/credop/credop.ml:89 src/web/clients/credauth/generate.ml:161
 #. src/web/clients/credauth/credauth.ml:36
-#. src/web/server/common/site_admin.ml:146
+#. src/web/server/common/site_admin.ml:166
 msgid "Error"
 msgstr "Eroare"
 
@@ -620,11 +620,11 @@ msgstr ""
 msgid "Error in languages: %S is not available"
 msgstr ""
 
-#: src/web/clients/trustee/shuffle.ml:82 src/web/clients/trustee/decrypt.ml:66
+#: src/web/clients/trustee/shuffle.ml:82 src/web/clients/trustee/decrypt.ml:67
 msgid "Error while loading election parameters!"
 msgstr ""
 
-#: src/web/clients/trustee/common.ml:131
+#: src/web/clients/trustee/common.ml:130
 msgid "Error while processing the private key. Did you load the right file?"
 msgstr ""
 
@@ -648,16 +648,16 @@ msgstr "Estimarea timpului de calcul…"
 msgid "FAIL!"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:612
-#. src/web/clients/admin/trustees_tab.ml:516
+#: src/web/clients/admin/trustees_tab.ml:615
+#. src/web/clients/admin/trustees_tab.ml:519
 msgid "Failed to connect; please reload"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:742
+#: src/web/clients/admin/trustees_tab.ml:745
 msgid "Failed with error %d!"
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:258
+#: src/web/clients/credop/credop.ml:260
 msgid "Failure"
 msgstr ""
 
@@ -665,23 +665,23 @@ msgstr ""
 msgid "Filter voters by username prefix"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:106
+#: src/web/clients/credauth/generate.ml:104
 msgid "Fingerprint of public credentials:"
 msgstr "Amprenta partii publice a codurilor de vot:"
 
-#: src/web/clients/trustee/generate.ml:170
+#: src/web/clients/trustee/generate.ml:166
 msgid "Fingerprint of the public key:"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:206
+#: src/web/clients/credauth/generate.ml:204
 msgid "Fingerprint of voters:"
 msgstr "Amprenta listei electorale:"
 
-#: src/web/clients/credauth/generate.ml:211
+#: src/web/clients/credauth/generate.ml:209
 msgid "Generate"
 msgstr "Generati"
 
-#: src/web/clients/trustee/generate.ml:121
+#: src/web/clients/trustee/generate.ml:117
 msgid "Generate a key"
 msgstr "Generarea unei chei"
 
@@ -689,7 +689,7 @@ msgstr "Generarea unei chei"
 msgid "Generate and send the credentials"
 msgstr ""
 
-#: src/web/clients/trustee/decrypt.ml:98
+#: src/web/clients/trustee/decrypt.ml:99
 msgid "Generate your contribution to decryption"
 msgstr "Generarea contributiei dvoastra la descifrare"
 
@@ -737,11 +737,11 @@ msgstr ""
 msgid "In %d minutes"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:249
+#: src/web/clients/trustee/generate.ml:245
 msgid "Inconsistent state!"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:177
+#: src/web/server/common/site_admin.ml:197
 msgid "Incorrect code"
 msgstr ""
 
@@ -761,9 +761,9 @@ msgstr ""
 msgid "Insert an answer"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:114
-#. src/web/clients/trustee/decrypt.ml:125
-#. src/web/clients/trustee/generate.ml:174
+#: src/web/clients/credauth/generate.ml:112
+#. src/web/clients/trustee/decrypt.ml:126
+#. src/web/clients/trustee/generate.ml:170
 msgid "Instructions:"
 msgstr "Instructiuni:"
 
@@ -771,7 +771,7 @@ msgstr "Instructiuni:"
 msgid "Invalid board identifier!"
 msgstr ""
 
-#: src/web/clients/trustee/decrypt.ml:114
+#: src/web/clients/trustee/decrypt.ml:115
 msgid "It is now time to compute your partial decryption factors."
 msgstr "E momentul sa se calculeze contributia dvoastra la descifrare."
 
@@ -811,8 +811,8 @@ msgstr "Limbi:"
 msgid "Left to right"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:523
-#. src/web/clients/admin/trustees_tab.ml:414
+#: src/web/clients/admin/trustees_tab.ml:526
+#. src/web/clients/admin/trustees_tab.ml:417
 msgid "Link to send"
 msgstr ""
 
@@ -885,7 +885,7 @@ msgstr ""
 msgid "Missing secret key. You must come to this page by following the full link that has been sent to you by e-mail."
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:266
+#: src/web/clients/credop/credop.ml:268
 msgid "Missing voters"
 msgstr ""
 
@@ -934,7 +934,7 @@ msgstr ""
 msgid "No certificate for this election!"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:397
+#: src/web/clients/admin/trustees_tab.ml:400
 msgid "No external trustee were set. Do you confirm that you trust the server for privacy?"
 msgstr ""
 
@@ -942,7 +942,7 @@ msgstr ""
 msgid "No logo set."
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:798
+#: src/web/clients/admin/trustees_tab.ml:801
 msgid "Nothing to show here. Try going to the Status tab."
 msgstr ""
 
@@ -970,13 +970,13 @@ msgstr ""
 msgid "Once the election is finished and validated, you are expected to destroy the file creds.txt for stronger privacy guarantees."
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:190
+#: src/web/clients/trustee/generate.ml:186
 msgid "Once the election is open, you must check that it is present in the set of public keys published by the server."
 msgstr ""
 "De indata ce alegerea incepe, trebuie sa verificati prezenta ei in lista "
 "cheilor publice publicate de catre server."
 
-#: src/web/clients/credauth/generate.ml:147 src/web/common/mails_admin.ml:68
+#: src/web/clients/credauth/generate.ml:145 src/web/common/mails_admin.ml:68
 msgid "Once the election is open, you must check that they match with what is published by the server."
 msgstr ""
 "De indata ce alegerea incepe, trebuie sa verificati ca ele corespund cu ceea "
@@ -1006,11 +1006,11 @@ msgstr ""
 msgid "Other authentication modes:"
 msgstr ""
 
-#: src/web/clients/trustee/decrypt.ml:109
+#: src/web/clients/trustee/decrypt.ml:110
 msgid "Partial decryption"
 msgstr ""
 
-#: src/web/clients/trustee/decrypt.ml:89
+#: src/web/clients/trustee/decrypt.ml:90
 msgid "Partial decryption submission failed unexpectedly!"
 msgstr ""
 
@@ -1018,7 +1018,7 @@ msgstr ""
 msgid "Password sent by e-mail when voting (a short password, renewed for each vote)"
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:240
+#: src/web/clients/credop/credop.ml:242
 msgid "Please check certificate first!"
 msgstr ""
 
@@ -1055,7 +1055,7 @@ msgstr ""
 msgid "Please fill-in the voter list first."
 msgstr ""
 
-#: src/web/clients/trustee/common.ml:96
+#: src/web/clients/trustee/common.ml:95
 msgid "Please load your private key from a file:"
 msgstr ""
 
@@ -1118,15 +1118,15 @@ msgstr ""
 msgid "Proposed grades:"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:97
+#: src/web/clients/credauth/generate.ml:95
 msgid "Public credentials:"
 msgstr "Partile publice ale codurilor de vot:"
 
-#: src/web/clients/trustee/generate.ml:149
+#: src/web/clients/trustee/generate.ml:145
 msgid "Public key registration failed! Please refresh and/or restart from the beginning."
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:139
+#: src/web/clients/trustee/generate.ml:135
 msgid "Public key registration succeeded!"
 msgstr ""
 
@@ -1167,9 +1167,9 @@ msgid "Ready to create:"
 msgstr ""
 
 #: src/web/clients/trustee/trustee.ml:197
-#. src/web/clients/admin/trustees_tab.ml:699
-#. src/web/clients/admin/trustees_tab.ml:544
-#. src/web/clients/admin/trustees_tab.ml:438
+#. src/web/clients/admin/trustees_tab.ml:702
+#. src/web/clients/admin/trustees_tab.ml:547
+#. src/web/clients/admin/trustees_tab.ml:441
 msgid "Refresh status"
 msgstr ""
 
@@ -1177,7 +1177,7 @@ msgstr ""
 msgid "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it in a secure location (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed)."
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:551
+#: src/web/clients/admin/trustees_tab.ml:554
 msgid "Release tally"
 msgstr ""
 
@@ -1185,11 +1185,11 @@ msgstr ""
 msgid "Remaining resend credits:"
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:268
+#: src/web/clients/credop/credop.ml:270
 msgid "Resend"
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:274
+#: src/web/clients/credop/credop.ml:276
 msgid "Resend private credentials"
 msgstr ""
 
@@ -1217,7 +1217,7 @@ msgstr ""
 msgid "STV method"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:187
+#: src/web/clients/trustee/generate.ml:183
 msgid "Save the fingerprint above."
 msgstr "salveaza amprenta indicata mai sus."
 
@@ -1228,7 +1228,7 @@ msgstr ""
 "trebuie verificat daca este prezenta in multimea cheilor de verificare "
 "publicate de catre server."
 
-#: src/web/clients/credauth/generate.ml:144
+#: src/web/clients/credauth/generate.ml:142
 msgid "Save the two fingerprints above."
 msgstr "Salveaza cele doua amprente de mai sus."
 
@@ -1260,7 +1260,7 @@ msgstr ""
 msgid "Select propositions"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:661
+#: src/web/clients/admin/trustees_tab.ml:664
 msgid "Select this trustee"
 msgstr "Selecteaza aceasta autoritate de descifrare"
 
@@ -1272,7 +1272,7 @@ msgstr ""
 msgid "Send an e-mail to the credential authority"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:374
+#: src/web/clients/admin/trustees_tab.ml:377
 msgid "Send link"
 msgstr ""
 
@@ -1284,7 +1284,7 @@ msgstr ""
 msgid "Set credential authority info"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:301
+#: src/web/clients/admin/trustees_tab.ml:304
 msgid "Setting board failed with code %d!"
 msgstr ""
 
@@ -1300,15 +1300,15 @@ msgstr ""
 msgid "Shuffle"
 msgstr "Amestecare"
 
-#: src/web/clients/admin/trustees_tab.ml:618
+#: src/web/clients/admin/trustees_tab.ml:621
 msgid "Shuffler's e-mail"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:662
+#: src/web/clients/admin/trustees_tab.ml:665
 msgid "Skip"
 msgstr "Ignora"
 
-#: src/web/clients/admin/trustees_tab.ml:704
+#: src/web/clients/admin/trustees_tab.ml:707
 msgid "Skip all remaining trustees"
 msgstr ""
 
@@ -1316,7 +1316,7 @@ msgstr ""
 msgid "Some language in the list is not available"
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:230
+#: src/web/clients/credop/credop.ml:232
 msgid "Some voters:"
 msgstr ""
 
@@ -1336,16 +1336,16 @@ msgstr ""
 msgid "Specification"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:415
+#: src/web/clients/admin/trustees_tab.ml:418
 #. src/web/clients/admin/elections.ml:403
 msgid "Status"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:329
+#: src/web/clients/trustee/generate.ml:325
 msgid "Step %d/7"
 msgstr ""
 
-#: src/web/clients/trustee/shuffle.ml:159 src/web/clients/trustee/decrypt.ml:76
+#: src/web/clients/trustee/shuffle.ml:159 src/web/clients/trustee/decrypt.ml:77
 #. src/web/server/common/pages_admin.ml:404
 #. src/web/server/common/pages_admin.ml:348
 #. src/web/server/common/pages_admin.ml:292
@@ -1354,24 +1354,24 @@ msgstr ""
 msgid "Submit"
 msgstr "Trimite"
 
-#: src/web/clients/credauth/generate.ml:62
+#: src/web/clients/credauth/generate.ml:60
 msgid "Submit public credentials"
 msgstr "Trimite partile publice ale codurilor de vot"
 
-#: src/web/clients/credauth/generate.ml:153
+#: src/web/clients/credauth/generate.ml:151
 msgid "Submit public credentials using the button below."
 msgstr ""
 "Trimite partile publice ale codurilor de vot folosind butonul de mai jos."
 
-#: src/web/clients/trustee/generate.ml:129
+#: src/web/clients/trustee/generate.ml:125
 msgid "Submit public key"
 msgstr "Trimite cheia publica"
 
-#: src/web/clients/trustee/generate.ml:195
+#: src/web/clients/trustee/generate.ml:191
 msgid "Submit your public key using the button below."
 msgstr "Trimite cheia publica folosind butonul de mai jos."
 
-#: src/web/clients/credop/credop.ml:258
+#: src/web/clients/credop/credop.ml:260
 msgid "Success"
 msgstr ""
 
@@ -1379,7 +1379,7 @@ msgstr ""
 msgid "Success?"
 msgstr ""
 
-#: src/web/clients/basic/admin_basic.ml:216
+#: src/web/clients/basic/admin_basic.ml:211
 msgid "Tallied elections"
 msgstr "Alegeri la care s-au numarat voturile"
 
@@ -1387,11 +1387,11 @@ msgstr "Alegeri la care s-au numarat voturile"
 msgid "Tally the election"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:574
+#: src/web/clients/admin/trustees_tab.ml:577
 msgid "Tallying"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:728
+#: src/web/clients/admin/trustees_tab.ml:731
 msgid "Tallying: shuffling step"
 msgstr ""
 
@@ -1411,7 +1411,7 @@ msgstr "Multumesc pentru ajutor,"
 msgid "The account creation "
 msgstr "Crearea contului "
 
-#: src/web/server/common/site_admin.ml:331
+#: src/web/server/common/site_admin.ml:351
 msgid "The account has been created."
 msgstr "Contul a fost creat."
 
@@ -1423,7 +1423,7 @@ msgstr ""
 msgid "The certificate for %s is valid!"
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:175
+#: src/web/clients/credop/credop.ml:177
 msgid "The certificate is not valid!"
 msgstr ""
 
@@ -1439,7 +1439,7 @@ msgstr "Administratorul alegerii"
 msgid "The election is not sealed."
 msgstr ""
 
-#: src/web/clients/trustee/decrypt.ml:88
+#: src/web/clients/trustee/decrypt.ml:89
 msgid "The election result is already published!"
 msgstr ""
 
@@ -1447,7 +1447,7 @@ msgstr ""
 msgid "The file is too large! It must be < 10 KB."
 msgstr ""
 
-#: src/web/clients/trustee/decrypt.ml:118
+#: src/web/clients/trustee/decrypt.ml:119
 msgid "The fingerprint of the encrypted tally is "
 msgstr "Amprenta numarului criptat de voturi este "
 
@@ -1455,7 +1455,7 @@ msgstr "Amprenta numarului criptat de voturi este "
 msgid "The fingerprint of your shuffle is:"
 msgstr "Amprenta amestecului dvoastra este :"
 
-#: src/web/clients/credauth/generate.ml:184
+#: src/web/clients/credauth/generate.ml:182
 msgid "The link to the election will be:"
 msgstr "Link-ul catre alegere va fi :"
 
@@ -1467,23 +1467,23 @@ msgstr ""
 msgid "The page also contains instructions for checking the voting record, after the tally."
 msgstr ""
 
-#: src/web/clients/trustee/decrypt.ml:86
+#: src/web/clients/trustee/decrypt.ml:87
 msgid "The partial decryption didn't pass validation!"
 msgstr "Descifrare partiala nu a trecut etapa de validare !"
 
-#: src/web/server/common/site_admin.ml:361
+#: src/web/server/common/site_admin.ml:381
 msgid "The password has been changed."
 msgstr "Parola a fost schimbara."
 
-#: src/web/server/common/site_admin.ml:173
+#: src/web/server/common/site_admin.ml:193
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:188
+#: src/web/clients/credop/credop.ml:190
 msgid "The secret key is not valid!"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:334
+#: src/web/clients/admin/trustees_tab.ml:337
 #. src/web/clients/admin/trustees_tab.ml:83
 msgid "The server is always one of the trustees"
 msgstr ""
@@ -1516,11 +1516,11 @@ msgstr ""
 msgid "There is no e-mail address attached to your account."
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:755
+#: src/web/clients/admin/trustees_tab.ml:758
 msgid "There is no electoral board at the moment."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:394
+#: src/web/server/common/site_admin.ml:414
 msgid "This account does not exist"
 msgstr ""
 
@@ -1528,7 +1528,7 @@ msgstr ""
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:145
+#: src/web/server/common/site_admin.ml:165
 msgid "This e-mail address is invalid!"
 msgstr ""
 
@@ -1572,7 +1572,7 @@ msgstr ""
 msgid "This is the language of election title, description and questions."
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:138 src/web/common/mails_admin.ml:60
+#: src/web/clients/credauth/generate.ml:136 src/web/common/mails_admin.ml:60
 msgid "This list must be the one approved by the election commission."
 msgstr "Aceasta lista trebuie sa fie cea aprobata de catre comisia electorala."
 
@@ -1625,7 +1625,7 @@ msgstr ""
 msgid "Total weight:"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:322
+#: src/web/clients/trustee/generate.ml:318
 msgid "Trustee key generation"
 msgstr ""
 
@@ -1633,7 +1633,7 @@ msgstr ""
 msgid "Trustee management"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:349
+#: src/web/clients/admin/trustees_tab.ml:352
 msgid "Trustee setup - Done"
 msgstr ""
 
@@ -1641,13 +1641,13 @@ msgstr ""
 msgid "Trustee setup - Step 1: choose the trustees"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:442
+#: src/web/clients/admin/trustees_tab.ml:445
 msgid "Trustee setup - Step 2: key generation"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:522
-#. src/web/clients/admin/trustees_tab.ml:412
-#. src/web/clients/admin/trustees_tab.ml:324
+#: src/web/clients/admin/trustees_tab.ml:525
+#. src/web/clients/admin/trustees_tab.ml:415
+#. src/web/clients/admin/trustees_tab.ml:327
 #. src/web/clients/admin/trustees_tab.ml:73
 msgid "Trustee's e-mail"
 msgstr ""
@@ -1656,11 +1656,11 @@ msgstr ""
 msgid "Trustee's e-mail "
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:413
+#: src/web/clients/admin/trustees_tab.ml:416
 msgid "Trustee's name"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:325
+#: src/web/clients/admin/trustees_tab.ml:328
 #. src/web/clients/admin/trustees_tab.ml:74
 msgid "Trustee's public name"
 msgstr ""
@@ -1698,7 +1698,7 @@ msgstr ""
 msgid "Use an external server"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:732
+#: src/web/clients/admin/trustees_tab.ml:735
 msgid "Use board from another election"
 msgstr ""
 
@@ -1722,7 +1722,7 @@ msgstr "Lista electorala"
 msgid "Voter list (not editable):"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:199
+#: src/web/clients/credauth/generate.ml:197
 #. src/web/clients/admin/elections.ml:1050
 msgid "Voter list:"
 msgstr ""
@@ -1744,13 +1744,13 @@ msgstr ""
 msgid "Voting records"
 msgstr "Lista de persoane prezente la vot"
 
-#: src/web/clients/trustee/generate.ml:276
+#: src/web/clients/trustee/generate.ml:272
 msgid "Waiting for the election administrator to set the threshold..."
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:297
-#. src/web/clients/trustee/generate.ml:233
-#. src/web/clients/trustee/generate.ml:215
+#: src/web/clients/trustee/generate.ml:293
+#. src/web/clients/trustee/generate.ml:229
+#. src/web/clients/trustee/generate.ml:211
 msgid "Waiting for the other trustees..."
 msgstr ""
 
@@ -1802,11 +1802,11 @@ msgstr ""
 msgid "You cannot change your e-mail address right now."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:245
+#: src/web/server/common/site_admin.ml:265
 msgid "You cannot change your password now. Please try later."
 msgstr "Nu puteti schimba parola acum. Incercati mai tarziu."
 
-#: src/web/server/common/site_admin.ml:201
+#: src/web/server/common/site_admin.ml:221
 msgid "You cannot create an account now. Please try later."
 msgstr "Nu puteti crea contul acum. Incercati mai tarziu."
 
@@ -1814,7 +1814,7 @@ msgstr "Nu puteti crea contul acum. Incercati mai tarziu."
 msgid "You cannot sign up right now."
 msgstr ""
 
-#: src/web/clients/trustee/decrypt.ml:87
+#: src/web/clients/trustee/decrypt.ml:88
 msgid "You have already submitted a valid partial decryption!"
 msgstr ""
 
@@ -1836,15 +1836,15 @@ msgstr ""
 "Trebuie sa inregistrati aceasta amprenta si sa verificati ca nu apare pe "
 "pagina cu rezultatele alegerii."
 
-#: src/web/clients/admin/trustees_tab.ml:716
+#: src/web/clients/admin/trustees_tab.ml:719
 msgid "You must select each trustee in turn, and send them a link so that they perform their shuffle. You can also skip a trustee, but keep in mind that this reduces security."
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:448
+#: src/web/clients/admin/trustees_tab.ml:451
 msgid "You must send each trustee their link (from the table below) so that they initialize their key for this election."
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:563
+#: src/web/clients/admin/trustees_tab.ml:566
 msgid "You must send each trustee their link (from the table below) so that they perform their share of the decryption."
 msgstr ""
 
@@ -1860,11 +1860,11 @@ msgstr ""
 msgid "You will then need to send (typically by email) each private credential to the associated voter as written in the file creds.txt."
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:183
+#: src/web/clients/trustee/generate.ml:179
 msgid "You will use it to decrypt the final result."
 msgstr "O veti folosi pentru decriptarea rezultatului final."
 
-#: src/web/clients/credauth/generate.ml:123 src/web/common/mails_admin.ml:55
+#: src/web/clients/credauth/generate.ml:121 src/web/common/mails_admin.ml:55
 msgid "You will use it to send credentials to voters."
 msgstr "O veti folosi pentru trimiterea codurilor de vot alegatorilor."
 
@@ -1889,23 +1889,23 @@ msgstr ""
 msgid "Your e-mail address is: "
 msgstr "Adresa dvoastra email este: "
 
-#: src/web/clients/trustee/generate.ml:242
+#: src/web/clients/trustee/generate.ml:238
 msgid "Your job in the key establishment protocol is done! Your private key will be needed to decrypt the election result."
 msgstr ""
 
-#: src/web/clients/trustee/decrypt.ml:85
+#: src/web/clients/trustee/decrypt.ml:86
 msgid "Your partial decryption has been received and checked!"
 msgstr "Descifrarea dvoastra partiala a fost primita si verificata !"
 
-#: src/web/clients/trustee/generate.ml:308
-#. src/web/clients/trustee/generate.ml:296
-#. src/web/clients/trustee/generate.ml:263
+#: src/web/clients/trustee/generate.ml:304
+#. src/web/clients/trustee/generate.ml:292
+#. src/web/clients/trustee/generate.ml:259
 msgid "Your private key is valid!"
 msgstr ""
 
-#: src/web/clients/trustee/generate.ml:305
-#. src/web/clients/trustee/generate.ml:292
-#. src/web/clients/trustee/generate.ml:260
+#: src/web/clients/trustee/generate.ml:301
+#. src/web/clients/trustee/generate.ml:288
+#. src/web/clients/trustee/generate.ml:256
 msgid "Your public key has already been registered!"
 msgstr ""
 
@@ -1921,7 +1921,7 @@ msgstr "Numele dvoastra de utilizator este : "
 msgid "Your weight is %s."
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:362
+#: src/web/clients/admin/trustees_tab.ml:365
 msgid "action required"
 msgstr ""
 
@@ -1945,7 +1945,7 @@ msgstr ""
 msgid "contact us"
 msgstr "contactati-ne"
 
-#: src/web/clients/admin/trustees_tab.ml:363
+#: src/web/clients/admin/trustees_tab.ml:366
 msgid "done"
 msgstr ""
 
@@ -1982,31 +1982,31 @@ msgstr "din motive necunoscute"
 msgid "out of "
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:92
+#: src/web/clients/credauth/generate.ml:90
 msgid "private credentials"
 msgstr "partile private ale codurilor de vot"
 
-#: src/web/clients/trustee/generate.ml:164
+#: src/web/clients/trustee/generate.ml:160
 msgid "private_key"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:675
+#: src/web/clients/admin/trustees_tab.ml:678
 msgid "server (has already shuffled)"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:690
+#: src/web/clients/admin/trustees_tab.ml:693
 msgid "skipped"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:368
+#: src/web/clients/admin/trustees_tab.ml:371
 msgid "step %d/7"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:367
+#: src/web/clients/admin/trustees_tab.ml:370
 msgid "step 0?"
 msgstr ""
 
-#: src/web/clients/common/secondary_ui.ml:71
+#: src/web/clients/common/secondary_ui.ml:74
 #. src/web/server/common/pages_admin.ml:51
 msgid "terms of service"
 msgstr ""
@@ -2068,7 +2068,7 @@ msgstr ""
 msgid "voted?"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:134
+#: src/web/clients/credauth/generate.ml:132
 msgid "voter list"
 msgstr ""
 
@@ -2080,7 +2080,7 @@ msgstr ""
 msgid "when some voters have several votes"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:691
+#: src/web/clients/admin/trustees_tab.ml:694
 msgid "yes"
 msgstr ""
 
