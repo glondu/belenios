@@ -53,7 +53,7 @@ let make description ff_params =
     let to_string = Z.to_string
 
     let of_string x =
-      let x = Z.of_string x in
+      let x = Common_types.z_of_canonical_string x in
       if check x then x
       else invalid_arg "Group_field.of_string (invalid group element)"
 
@@ -127,3 +127,22 @@ let make description ff_params =
     let t_d = Desc.Core.map Desc.Core.string of_string to_string
   end in
   (module G : GROUP)
+
+let%test [%name Printf.sprintf "Group_field.of_string(%s)" backend_type] =
+  let module G =
+    (val make "test"
+           {
+             p = Z.of_int 23;
+             q = Z.of_int 11;
+             g = Z.of_int 4;
+             embedding = None;
+           })
+  in
+  let rejects f s =
+    match f s with _ -> false | exception Invalid_argument _ -> true
+  in
+  G.(of_string "4" =~ g)
+  && Z.compare (G.Zq.to_Z (G.Zq.of_string "10")) (Z.of_int 10) = 0
+  && List.for_all (rejects G.of_string)
+       [ "04"; "+4"; "0x4"; " 4"; "4 "; ""; "5"; "27"; "-19" ]
+  && List.for_all (rejects G.Zq.of_string) [ "11"; "010"; "+1"; "0b1"; "" ]

@@ -26,6 +26,9 @@ val b58_digits : string
 type 'a serializers = { of_string : string -> 'a; to_string : 'a -> string }
 type number = Z.t [@@deriving desc]
 
+val z_of_canonical_string : string -> Z.t
+(** Parse a natural number written in decimal, without sign or leading zeros. *)
+
 module Json : sig
   type t = Yojson.Safe.t [@@deriving desc]
 

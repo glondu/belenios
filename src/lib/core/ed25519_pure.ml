@@ -196,6 +196,12 @@ let to_string p =
 let unsafe_of_string s =
   if String.length s <> hex_size then
     invalid_arg "Ed25519_pure.of_string (invalid length)";
+  if
+    not
+      (String.for_all
+         (function '0' .. '9' | 'a' .. 'f' -> true | _ -> false)
+         s)
+  then invalid_arg "Ed25519_pure.of_string (invalid digit)";
   let raw = Z.of_hex s in
   match uncompress raw with
   | None -> invalid_arg "Ed25519_pure.of_string (invalid compression)"
@@ -308,11 +314,21 @@ let non_canonical_ones =
 let%test
     [%name Printf.sprintf "Ed25519_pure.non_canonical(%s)" Common.backend_type]
     =
+  let rejects s =
+    match of_string s with _ -> false | exception Invalid_argument _ -> true
+  in
+  (* other spellings of valid points: upper case, and a sign replacing
+     a leading zero *)
+  let rec find i f =
+    let s = to_string (g **~ Zq.of_int i) in
+    if f s then s else find (i + 1) f
+  in
+  let with_letter = find 1 (String.exists (fun c -> 'a' <= c && c <= 'f')) in
+  let with_zero = find 1 (fun s -> s.[0] = '0') in
   to_string one
   = "0000000000000000000000000000000000000000000000000000000000000001"
-  && List.for_all
-       (fun s ->
-         match of_string s with
-         | _ -> false
-         | exception Invalid_argument _ -> true)
-       non_canonical_ones
+  && List.for_all rejects non_canonical_ones
+  && (not (rejects with_letter))
+  && rejects (String.uppercase_ascii with_letter)
+  && rejects ("+" ^ String.sub with_zero 1 63)
+  && rejects ("_" ^ String.sub with_zero 1 63)

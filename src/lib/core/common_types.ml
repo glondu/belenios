@@ -40,7 +40,19 @@ end
 
 type json = Json.t [@@deriving desc]
 
-let number_d = string_based Z.of_string Z.to_string
+let is_canonical_decimal s =
+  let n = String.length s in
+  n > 0
+  && String.for_all (function '0' .. '9' -> true | _ -> false) s
+  && (n = 1 || s.[0] <> '0')
+
+let z_of_canonical_string s =
+  (* Z.of_string accepts many non-canonical spellings (signs, base
+     prefixes, leading zeros...), and they differ between backends *)
+  if is_canonical_decimal s then Z.of_string s
+  else invalid_arg "non-canonical number"
+
+let number_d = string_based z_of_canonical_string Z.to_string
 
 module Uuid = struct
   type t = string

@@ -109,6 +109,32 @@ let random_modulo q =
 
 module ZMap = Map.Make (Z)
 
+let%test [%name Printf.sprintf "z_of_canonical_string(%s)" backend_type] =
+  List.for_all
+    (fun s -> Z.to_string (z_of_canonical_string s) = s)
+    [ "0"; "7"; "10"; "1234567890123456789012345678901234567890" ]
+  && List.for_all
+       (fun s ->
+         match z_of_canonical_string s with
+         | _ -> false
+         | exception Invalid_argument _ -> true)
+       [
+         "";
+         "07";
+         "00";
+         "+7";
+         "-7";
+         "-0";
+         "0x1f";
+         "0o17";
+         "0b101";
+         "1_000";
+         " 7";
+         "7 ";
+         "1e3";
+         "abc";
+       ]
+
 module MakeField (X : sig
   val q : Z.t
 end) =
@@ -141,11 +167,7 @@ struct
     if Z.compare zero x <= 0 && Z.compare x q < 0 then x
     else invalid_arg "MakeField().coerce: number not in range"
 
-  let of_string x =
-    let x = Z.of_string x in
-    if Z.compare zero x <= 0 && Z.compare x q < 0 then x
-    else invalid_arg "MakeField().of_string: number not in range"
-
+  let of_string x = coerce (z_of_canonical_string x)
   let to_string x = Z.to_string x
   let compare = Z.compare
   let double x = Z.(erem (shift_left x 1) q)
