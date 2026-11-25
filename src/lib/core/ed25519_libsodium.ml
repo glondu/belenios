@@ -98,7 +98,14 @@ module Make (B : LIBSODIUM_STUBS) = struct
   let ( =~ ) a b = compare a b = 0
   let invert = G.invert
   let to_string = G.to_string
-  let of_string = G.of_string
+
+  let of_string s =
+    let p = G.unsafe_of_string s in
+    (* libsodium rejects points of small order, including the neutral
+       element, which belongs to the group *)
+    if p =~ one || B.is_valid_point (to_nacl p) = 1 then p
+    else invalid_arg "Ed25519_libsodium.of_string (invalid group element)"
+
   let max_ints = G.max_ints
   let bits_per_int = G.bits_per_int
   let to_ints = G.to_ints
