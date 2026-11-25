@@ -333,7 +333,7 @@ msgstr "Empreinte du résultat chiffré"
 
 #: src/web/clients/election/home.ml:248
 msgid "Fingerprint of the encrypted tally after shuffles:"
-msgstr ""
+msgstr "Empreinte du résultat chiffré après les mélanges :"
 
 #: src/web/server/common/site_common.ml:114
 msgid "Forbidden"
