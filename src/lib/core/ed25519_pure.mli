@@ -20,3 +20,5 @@
 (**************************************************************************)
 
 include Signatures_core.GROUP
+
+val unsafe_of_string : string -> t

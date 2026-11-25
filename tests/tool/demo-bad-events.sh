@@ -148,7 +148,7 @@ expect_rejected "the identity element as credential" '
 
 expect_rejected "a credential of order 2" '
     init_with_credential 7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec
-' "invalid credential:"
+' "invalid group element"
 
 expect_rejected "a credential with a wrong key" '
     init_with_public_creds "to_entries | .[0].key = \"0000000000000000000000000000000000000000000000000000000000000000\" | from_entries"

@@ -244,11 +244,6 @@ module MakeElection (W : ELECTION_DATA) = struct
     let proof = fs_prove [| g; alpha |] x (hash ~dst zkp) in
     { factor; proof }
 
-  let check_ciphertext c =
-    Shape.forall
-      (fun ({ alpha; beta } : _ ciphertext) -> G.check alpha && G.check beta)
-      c
-
   let xch_partial_decryption =
     {
       dst = dst_prefix ^ "-partial_decryption";
@@ -256,9 +251,7 @@ module MakeElection (W : ELECTION_DATA) = struct
     }
 
   let compute_factor c ~sk ~pdk =
-    if check_ciphertext c then
-      P.sign xch_partial_decryption sk (Shape.map (eg_factor pdk) c)
-    else invalid_arg "Invalid ciphertext"
+    P.sign xch_partial_decryption sk (Shape.map (eg_factor pdk) c)
 
   let check_factor c ~vk ~pvk:y f =
     let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
@@ -267,8 +260,6 @@ module MakeElection (W : ELECTION_DATA) = struct
     && Shape.forall2
          (fun ({ alpha; _ } : _ ciphertext)
               { factor; proof = { challenge; response } } ->
-           G.check factor
-           &&
            let commitments =
              [|
                (g **~ response) *~ (y **~ challenge);
@@ -303,8 +294,6 @@ module MakeElection (W : ELECTION_DATA) = struct
       ({ result } : result) =
     let total_weight = encrypted_tally.total_weight in
     let encrypted_tally = encrypted_tally.encrypted_tally in
-    check_ciphertext encrypted_tally
-    &&
     let check ~vk ~pvk f = check_factor encrypted_tally ~vk ~pvk f in
     match Combinator.combine_factors trustees check partial_decryptions with
     | Error _ -> false

@@ -64,11 +64,7 @@ module type GROUP = sig
   (** The type of scalars. *)
 
   type t [@@deriving desc]
-  (** The type of elements. Note that it may be larger than the group itself,
-      hence the [check] function below. *)
-
-  val check : t -> bool
-  (** Check group membership. *)
+  (** The type of elements. *)
 
   val one : t
   (** The neutral element of the group. *)

@@ -72,8 +72,7 @@ module MakeCert (P : PKI) = struct
 
   let verify_cert context (x : _ pedersen_cert) =
     let keys = x.message in
-    G.check keys.verification && G.check keys.encryption
-    && context.index = keys.context.context
+    context.index = keys.context.context
     &&
     let context = { keys.context with context } in
     let message = { keys with context } in
@@ -117,7 +116,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
 
   let check_single (trustee : _ trustee_public_key) =
     let { public_key = y; _ } : _ raw_trustee_public_key = trustee.message in
-    G.check y && P.verify xch_single_verification_key y trustee
+    P.verify xch_single_verification_key y trustee
 
   let xch_basic_cert =
     {
@@ -127,8 +126,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
 
   let check_basic (trustee : _ basic_parameters) =
     let keys = trustee.cert.message in
-    G.check keys.verification && G.check keys.encryption
-    && P.verify xch_basic_cert keys.verification trustee.cert
+    P.verify xch_basic_cert keys.verification trustee.cert
     && check_single trustee.verification_key.message
 
   let xch_certs =

@@ -36,9 +36,6 @@ module Credentials_certificate (G : GROUP) = struct
     }
 
   let check (certificate : _ credentials_certificate) =
-    G.check certificate.message.verification_key
-    && G.check certificate.message.encryption_key
-    &&
     let module P = Pki.Make (G) in
     P.verify xch_credentials_certificate certificate.message.verification_key
       certificate

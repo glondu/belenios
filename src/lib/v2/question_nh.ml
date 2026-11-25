@@ -72,8 +72,6 @@ module Make (G : GROUP) = struct
   let verify_answer _ ~public_key:y ~prefix a =
     let { alpha; beta } = a.choices in
     let { challenge; response } = a.proof in
-    G.check alpha && G.check beta
-    &&
     let commitment = (g **~ response) *~ (alpha **~ challenge) in
     let zkp =
       Printf.sprintf "%s|%s,%s,%s|" prefix (G.to_string y) (G.to_string alpha)

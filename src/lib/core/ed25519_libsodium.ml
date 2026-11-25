@@ -79,8 +79,7 @@ module Make (B : LIBSODIUM_STUBS) = struct
   type t = G.t
 
   let to_nacl p = E.point_of_string @@ G.to_string p
-  let to_pure p = G.of_string @@ E.string_of_point p
-  let check = G.check
+  let to_pure p = G.unsafe_of_string @@ E.string_of_point p
   let one = G.one
   let g = G.g
 

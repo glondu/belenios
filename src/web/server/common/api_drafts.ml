@@ -362,7 +362,7 @@ let submit_public_credentials s (type a b) (w : (a, b) group)
               else if
                 not
                   (match G.of_string cred_s with
-                  | x -> G.check x && not G.(x =~ one)
+                  | x -> not G.(x =~ one)
                   | exception _ -> false)
               then invalid "public credential"
               else used := true

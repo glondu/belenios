@@ -181,9 +181,6 @@ module Make (W : ELECTION_DATA) = struct
     (t, s, cc, cc_hat)
 
   let check_shuffle_proof y ee ee' proof =
-    Array.for_all (fun { alpha; beta } -> G.check alpha && G.check beta) ee
-    && Array.for_all (fun { alpha; beta } -> G.check alpha && G.check beta) ee'
-    &&
     let get_generator_indep = make_get_generator_indep () in
     let n = Array.length ee in
     let h = get_generator_indep (-1) in
@@ -192,15 +189,11 @@ module Make (W : ELECTION_DATA) = struct
     let t, s, cc, cc_hat = proof in
     let t1, t2, t3, (t41, t42), tt_hat = t in
     let s1, s2, s3, s4, ss_hat, ss' = s in
-    Array.for_all G.check [| t1; t2; t3; t41; t42 |]
-    && n = Array.length cc
+    n = Array.length cc
     && n = Array.length cc_hat
     && n = Array.length tt_hat
     && n = Array.length ss_hat
     && n = Array.length ss'
-    && Array.for_all G.check cc
-    && Array.for_all G.check cc_hat
-    && Array.for_all G.check tt_hat
     &&
     let hh = Array.init n get_generator_indep in
     let str1 = str_egs ee ^ str_egs ee' ^ str_elts cc in

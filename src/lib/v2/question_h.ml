@@ -121,8 +121,6 @@ module Make (G : GROUP) = struct
     proofs
 
   let eg_disj_verify y d zkp proofs ({ alpha; beta } : _ ciphertext) =
-    G.check alpha && G.check beta
-    &&
     let n = Array.length d in
     n = Array.length proofs
     &&
@@ -269,9 +267,8 @@ module Make (G : GROUP) = struct
 
   let verify_blank_proof y zkp min max (c0 : _ ciphertext) (cS : _ ciphertext)
       overall_proof blank_proof =
-    G.check c0.alpha && G.check c0.beta && G.check cS.alpha && G.check cS.beta
     (* check blank_proof, proof of m0 = 0 \/ mS = 0 *)
-    && Array.length blank_proof = 2
+    Array.length blank_proof = 2
     && (let commitments = Array.make 4 g in
         let total_challenges = ref Zq.zero in
         let { challenge; response } : _ proof = blank_proof.(0) in

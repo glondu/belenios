@@ -120,8 +120,6 @@ module Make (G : GROUP) = struct
     proofs
 
   let eg_disj_verify y d zkp proofs { alpha; beta } =
-    G.check alpha && G.check beta
-    &&
     let n = Array.length d in
     n = Array.length proofs
     &&
@@ -216,9 +214,7 @@ module Make (G : GROUP) = struct
 
   let verify_list_proof y zkp c proof =
     let c0, cS = split_first eg_combine dummy_ciphertext c in
-    G.check c0.alpha && G.check c0.beta && G.check cS.alpha && G.check cS.beta
     (* check proof of m0 = 1 \/ mS = 0 *)
-    &&
     let commitments = Array.make 4 g in
     let total_challenges = ref Zq.zero in
     let { challenge; response } : _ proof = proof.(0) in
@@ -252,8 +248,7 @@ module Make (G : GROUP) = struct
       (proof : _ nonzero_proof) =
     (* check proof of "{ alpha; beta } encrypts something non-zero" *)
     let { commitment; challenge; response = t1, t2 } = proof in
-    G.check commitment
-    && (not (commitment =~ one))
+    (not (commitment =~ one))
     &&
     let a1 = (alpha **~ t1) *~ (g **~ t2) in
     let a2 = (beta **~ t1) *~ (y **~ t2) *~ (commitment **~ challenge) in

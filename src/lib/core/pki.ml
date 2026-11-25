@@ -85,10 +85,6 @@ module Make (G : GROUP) = struct
     Lwt.return { alpha; beta; data }
 
   let decrypt ~algorithm xch x { alpha; beta; data } =
-    let@ () =
-     fun cont ->
-      if G.check alpha && G.check beta then cont () else Lwt.return_none
-    in
     let module E = (val Crypto_primitives.get_endecrypt algorithm) in
     let key =
       Printf.ksprintf sha256_hex "%s-key|%s" xch.dst

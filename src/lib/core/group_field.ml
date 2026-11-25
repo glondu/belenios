@@ -51,7 +51,11 @@ let make description ff_params =
     let ( =~ ) = Z.( =% )
     let check x = check_modulo p x && powm x q p =~ one
     let to_string = Z.to_string
-    let of_string = Z.of_string
+
+    let of_string x =
+      let x = Z.of_string x in
+      if check x then x
+      else invalid_arg "Group_field.of_string (invalid group element)"
 
     let max_ints, bits_per_int =
       match embedding with

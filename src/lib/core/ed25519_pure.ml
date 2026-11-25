@@ -193,11 +193,17 @@ let to_string p =
   assert (n <= hex_size);
   if n < hex_size then String.make (hex_size - n) '0' ^ r else r
 
-let of_string s =
-  if String.length s <> hex_size then invalid_arg "Ed25519_pure.of_string";
+let unsafe_of_string s =
+  if String.length s <> hex_size then
+    invalid_arg "Ed25519_pure.of_string (invalid length)";
   match uncompress (Z.of_hex s) with
   | Some p -> of_coordinates p
-  | None -> invalid_arg "Ed25519_pure.of_string"
+  | None -> invalid_arg "Ed25519_pure.of_string (invalid compression)"
+
+let of_string s =
+  let p = unsafe_of_string s in
+  if check p then p
+  else invalid_arg "Ed25519_pure.of_string (invalid group element)"
 
 let padding = 14
 let bits_per_int = 8
