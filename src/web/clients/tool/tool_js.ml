@@ -132,14 +132,15 @@ module Tests = struct
       let m = 1
       let expand_message = Expand_message.expand_message_xmd
     end) in
-    Hash_to_field.hash_to_field ~dst "" n
+    Array.init n (fun i ->
+        (Hash_to_field.hash_to_field ~dst (string_of_int i) 1).(0).(0))
 
   let bench_group () =
     let group = get_select "bench_group_group" in
-    let group = Belenios.Group.make { version = 1; group } in
+    let group = Belenios.Group.make { version = 2; group } in
     let module G = (val group) in
     let n = get_input "bench_group_nb" |> int_of_string in
-    let xs = gen G.Zq.q n |> Array.map (fun x -> G.Zq.coerce x.(0)) in
+    let xs = gen G.Zq.q n |> Array.map G.Zq.coerce in
     let start = new%js Js.date_now in
     let ys = Array.map (fun x -> G.(g **~ x)) xs in
     let stop = new%js Js.date_now in
